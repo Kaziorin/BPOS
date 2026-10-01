@@ -45,34 +45,31 @@ class _GroceryPOSScreenState extends State<GroceryPOSScreen>
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => GroceryProvider(),
-      child: FadeTransition(
-        opacity: _fadeAnim,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth;
-            final isMobile = width < 700;
-            final isTablet = width >= 700 && width < 1100;
+    return FadeTransition(
+      opacity: _fadeAnim,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          final isMobile = width < 700;
+          final isTablet = width >= 700 && width < 1100;
 
-            return Scaffold(
-              backgroundColor: GroceryColors.scaffoldBg(
-                context.watch<AppProvider>().isDarkMode,
-              ),
-              floatingActionButton: isMobile && !_showMobileCart
-                  ? _MobileCartFab(onTap: () => setState(() => _showMobileCart = true))
-                  : null,
-              body: SafeArea(
-                child: isMobile
-                    ? _MobileLayout(
-                        showCart: _showMobileCart,
-                        onCloseCart: () => setState(() => _showMobileCart = false),
-                      )
-                    : _DesktopTabletLayout(isTablet: isTablet),
-              ),
-            );
-          },
-        ),
+          return Scaffold(
+            backgroundColor: GroceryColors.scaffoldBg(
+              context.watch<AppProvider>().isDarkMode,
+            ),
+            floatingActionButton: isMobile && !_showMobileCart
+                ? _MobileCartFab(onTap: () => setState(() => _showMobileCart = true))
+                : null,
+            body: SafeArea(
+              child: isMobile
+                  ? _MobileLayout(
+                      showCart: _showMobileCart,
+                      onCloseCart: () => setState(() => _showMobileCart = false),
+                    )
+                  : _DesktopTabletLayout(isTablet: isTablet),
+            ),
+          );
+        },
       ),
     );
   }

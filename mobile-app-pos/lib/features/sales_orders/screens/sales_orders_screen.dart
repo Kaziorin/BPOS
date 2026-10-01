@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../core/localization/app_strings.dart';
 import '../../../core/models/sales_order_model.dart';
@@ -283,14 +284,19 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
 
             // ── BODY ──
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isMobile ? 12 : 28,
-                  vertical: isMobile ? 12 : 18,
-                ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1800),
+              child: RefreshIndicator(
+                color: bizTheme.primary,
+                backgroundColor: cardBg,
+                onRefresh: () async => _loadOrders(),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 12 : 28,
+                    vertical: isMobile ? 12 : 18,
+                  ),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1800),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -410,7 +416,8 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                 ),
               ),
             ),
-          ],
+          ),
+        ],
         ),
       ),
     );
@@ -1263,209 +1270,689 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
     );
   }
 
-  // ── RECEIPT VIEW & PRINT MODAL ──
+  // ── RECEIPT VIEW & PRINT MODAL (Pixel-Perfect Matching POS Thermal Receipt) ──
   void _showReceiptPrintModal(BuildContext context, SalesOrder order, _BusinessTheme biz) {
-    final locale = context.read<AppProvider>().locale;
+    final isDark = context.read<AppProvider>().isDarkMode;
 
     showDialog(
       context: context,
-      builder: (ctx) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 30,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Modal Top Bar
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.receipt_long_rounded, color: biz.primary, size: 19),
-                          const SizedBox(width: 8),
-                          Text(
-                            locale == 'bn' ? 'বিক্রয় রসিদ' : 'Sales Receipt',
-                            style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
-                          ),
-                        ],
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close_rounded, size: 18),
-                        onPressed: () => Navigator.pop(ctx),
-                      ),
-                    ],
-                  ),
-                ),
+      barrierDismissible: true,
+      builder: (ctx) => _SalesOrderReceiptModal(
+        order: order,
+        biz: biz,
+        isDark: isDark,
+        businessType: widget.businessType,
+      ),
+    );
+  }
+}
 
-                // Receipt Content
-                Flexible(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(22),
-                    child: Column(
-                      children: [
-                        Text(
-                          locale == 'bn' ? biz.titleBn : biz.titleEn,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Dhaka, Bangladesh • Hotline: +880 1800-000000',
-                          style: TextStyle(fontSize: 10, color: Color(0xFF64748B)),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 10),
-                        const Divider(thickness: 1, color: Color(0xFFCBD5E1)),
-                        const SizedBox(height: 4),
+// ─────────────────────────────────────────────────────────────────────────────
+// SALES ORDER THERMAL RECEIPT MODAL (80mm - Pixel-perfect matching POS screen)
+// ─────────────────────────────────────────────────────────────────────────────
+class _SalesOrderReceiptModal extends StatelessWidget {
+  final SalesOrder order;
+  final _BusinessTheme biz;
+  final bool isDark;
+  final String businessType;
 
-                        // Order & Date Info
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Invoice: ${order.orderNo}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black)),
-                            Text(
-                              '${order.orderDate.day.toString().padLeft(2, '0')}/${order.orderDate.month.toString().padLeft(2, '0')}/${order.orderDate.year}',
-                              style: const TextStyle(fontSize: 10.5, color: Color(0xFF475569)),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 3),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Customer: ${order.customerName}', style: const TextStyle(fontSize: 10.5, color: Color(0xFF475569))),
-                            Text('${order.source} • ${order.orderDate.hour.toString().padLeft(2, '0')}:${order.orderDate.minute.toString().padLeft(2, '0')}', style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        const Divider(thickness: 1, color: Color(0xFFCBD5E1)),
+  const _SalesOrderReceiptModal({
+    required this.order,
+    required this.biz,
+    required this.isDark,
+    required this.businessType,
+  });
 
-                        // Item rows
-                        ...order.items.map((item) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 3.5),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(item.name, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.black)),
-                                      Text('${item.qty} x ৳${item.unitPrice.toStringAsFixed(0)}', style: const TextStyle(fontSize: 9.5, color: Color(0xFF64748B))),
-                                    ],
-                                  ),
-                                ),
-                                Text(
-                                  '৳${item.lineTotal.toStringAsFixed(0)}',
-                                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Colors.black),
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
-                        const Divider(thickness: 1, color: Color(0xFFCBD5E1)),
-                        const SizedBox(height: 5),
+  String _formatDate(DateTime dt) {
+    const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+    final m = months[dt.month];
+    final hr = dt.hour.toString().padLeft(2, '0');
+    final min = dt.minute.toString().padLeft(2, '0');
+    return '${dt.day} $m ${dt.year}, $hr:$min';
+  }
 
-                        // Totals
-                        _receiptRow('Subtotal', '৳${order.subtotal.toStringAsFixed(0)}'),
-                        if (order.discountTotal > 0)
-                          _receiptRow('Discount', '- ৳${order.discountTotal.toStringAsFixed(0)}', isGreen: true),
-                        if (order.taxTotal > 0)
-                          _receiptRow('VAT / Tax', '৳${order.taxTotal.toStringAsFixed(0)}'),
-                        if (order.serviceCharge > 0)
-                          _receiptRow('Service Charge', '৳${order.serviceCharge.toStringAsFixed(0)}'),
-                        const Divider(thickness: 1.5, color: Colors.black),
-                        _receiptRow('TOTAL', '৳${order.total.toStringAsFixed(0)}', isBold: true),
-                        const SizedBox(height: 5),
-                        _receiptRow('Paid (${order.paymentMethod})', '৳${order.paidTotal.toStringAsFixed(0)}'),
-                        if (order.dueTotal > 0)
-                          _receiptRow('Due Amount', '৳${order.dueTotal.toStringAsFixed(0)}', isRed: true),
-                        if (order.changeReturn > 0)
-                          _receiptRow('Change Return', '৳${order.changeReturn.toStringAsFixed(0)}'),
-
-                        const SizedBox(height: 14),
-                        const Text(
-                          '*** Thank you for shopping with us! ***',
-                          style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic, color: Color(0xFF64748B)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Print Button
-                Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            printWebDocument();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('🖨️ Printing receipt for ${order.orderNo}...'),
-                                duration: const Duration(seconds: 2),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.print_rounded, color: Colors.white, size: 17),
-                          label: Text(
-                            locale == 'bn' ? 'প্রিন্ট কমান্ড পাঠান' : 'Send to Printer',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.5),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: biz.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 11),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+  Widget _buildDashedDivider() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final boxWidth = constraints.constrainWidth();
+        const dashWidth = 4.0;
+        const dashSpace = 3.0;
+        final dashCount = (boxWidth / (dashWidth + dashSpace)).floor();
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(dashCount, (_) {
+            return const SizedBox(
+              width: dashWidth,
+              height: 1,
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: Color(0xFFCBD5E1)),
+              ),
+            );
+          }),
         );
       },
     );
   }
 
-  Widget _receiptRow(String label, String value, {bool isBold = false, bool isGreen = false, bool isRed = false}) {
-    Color color = Colors.black;
-    if (isGreen) color = const Color(0xFF10B981);
-    if (isRed) color = const Color(0xFFEF4444);
+  Widget _buildBarcode() {
+    final barPattern = [3, 1, 2, 2, 1, 3, 1, 2, 3, 1, 1, 2, 2, 1, 3, 2, 1, 1, 3, 2, 1, 2, 3, 1, 2, 1, 3, 1, 2, 2, 1, 3];
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: barPattern.asMap().entries.map((entry) {
+        final isBlack = entry.key % 2 == 0;
+        final width = entry.value.toDouble() * 1.5;
+        return Container(
+          width: width,
+          height: 38,
+          color: isBlack ? (isDark ? Colors.grey.shade300 : const Color(0xFF1E293B)) : Colors.transparent,
+        );
+      }).toList(),
+    );
+  }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(fontSize: isBold ? 12.5 : 10.5, fontWeight: isBold ? FontWeight.w900 : FontWeight.w500, color: color)),
-          Text(value, style: TextStyle(fontSize: isBold ? 13.5 : 11, fontWeight: isBold ? FontWeight.w900 : FontWeight.w700, color: color)),
-        ],
+  @override
+  Widget build(BuildContext context) {
+    final receiptBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final textDark = isDark ? Colors.white : const Color(0xFF0F172A);
+    final textMuted = isDark ? Colors.grey.shade400 : const Color(0xFF475569);
+    final borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFC7D2FE);
+    final fmt = NumberFormat('#,##0.00');
+
+    final cleanBiz = businessType.toLowerCase().trim();
+    final badgeText = cleanBiz == 'wholesale'
+        ? 'WHOLESALE ORDER COMPLETED & DISPATCHED'
+        : (cleanBiz == 'pharmacy'
+            ? 'PHARMACY DISPENSE & ORDER COMPLETED'
+            : (cleanBiz == 'grocery'
+                ? 'GROCERY ORDER COMPLETED & VERIFIED'
+                : 'SALE ORDER COMPLETED & DISPATCHED'));
+
+    final cust = order.customerName.isNotEmpty ? order.customerName : 'Walk-in Customer';
+    final custShort = cust.length > 22 ? '${cust.substring(0, 20)}...' : cust;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Top Success Pill Badge ─────────────────────────────────────
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFECFDF5),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFA7F3D0)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF10B981)),
+                  const SizedBox(width: 6),
+                  Text(
+                    badgeText,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF059669),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // ── Thermal Receipt Card ───────────────────────────────────────
+            Container(
+              width: 380,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+              decoration: BoxDecoration(
+                color: receiptBg,
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: borderColor, width: 1.2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.12),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 1. Company Header
+                  Center(
+                    child: Text(
+                      'BLUE OCEANS POS',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.8,
+                        color: textDark,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Center(
+                    child: Text(
+                      'Dhaka Flagship Outlet • Counter #POS-01',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        color: textMuted,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Center(
+                    child: Text(
+                      'BIN / VAT Reg No: 002938194-0101 • Mushak-6.3',
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: textMuted,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Divider
+                  _buildDashedDivider(),
+                  const SizedBox(height: 8),
+
+                  // 2. Invoice & Customer details
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          'Order: ${order.orderNo}',
+                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Date: ${_formatDate(order.orderDate)}',
+                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          'Cust: $custShort',
+                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Source: ${order.source.toUpperCase()}',
+                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Divider
+                  _buildDashedDivider(),
+                  const SizedBox(height: 8),
+
+                  // 3. Table Headers
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: Text(
+                          'ITEM / SKU',
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          'QTY',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          'RATE',
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          'TOTAL',
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+
+                  // 4. Item Rows
+                  if (order.items.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Text(
+                        'Standard Order Items',
+                        style: TextStyle(fontSize: 10, color: textMuted, fontStyle: FontStyle.italic, fontFamily: 'monospace'),
+                      ),
+                    )
+                  else
+                    ...order.items.map((item) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.name,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: textDark,
+                                      fontFamily: 'monospace',
+                                    ),
+                                  ),
+                                  Text(
+                                    'SKU: ${item.sku.isNotEmpty ? item.sku : "SKU-001"} • ${order.branchName.isNotEmpty ? order.branchName : "Main WH"}',
+                                    style: const TextStyle(
+                                      fontSize: 8.5,
+                                      color: Color(0xFF94A3B8),
+                                      fontFamily: 'monospace',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  '${item.qty}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: textDark,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  '৳${fmt.format(item.unitPrice)}',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: textMuted,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  '৳${fmt.format(item.lineTotal)}',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: textDark,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  const SizedBox(height: 6),
+
+                  // Divider
+                  _buildDashedDivider(),
+                  const SizedBox(height: 8),
+
+                  // 5. Subtotal & Financial Breakdown
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Subtotal:',
+                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        '৳${fmt.format(order.subtotal)}',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  if (order.discountTotal > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Special Discount:',
+                          style: TextStyle(fontSize: 11, color: Colors.green, fontFamily: 'monospace'),
+                        ),
+                        Text(
+                          '-৳${fmt.format(order.discountTotal)}',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green, fontFamily: 'monospace'),
+                        ),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'VAT (Mushak 6.3 - 15%):',
+                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        '৳${fmt.format(order.taxTotal)}',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Shipping & Handling:',
+                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        '৳${fmt.format(order.serviceCharge)}',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+
+                  // Solid Line
+                  const Divider(color: Color(0xFFCBD5E1), height: 1, thickness: 1),
+                  const SizedBox(height: 6),
+
+                  // Net Payable
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Net Payable:',
+                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: textDark, fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        '৳${fmt.format(order.total)}',
+                        style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900, color: biz.primary, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+
+                  // Solid Line
+                  const Divider(color: Color(0xFFCBD5E1), height: 1, thickness: 1),
+                  const SizedBox(height: 6),
+
+                  // Tender Details
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Tender Method:',
+                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        order.paymentMethod,
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Paid Amount:',
+                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        '৳${fmt.format(order.paidTotal)}',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  if (order.dueTotal > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Due Amount:',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFEF4444), fontFamily: 'monospace'),
+                        ),
+                        Text(
+                          '৳${fmt.format(order.dueTotal)}',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFFEF4444), fontFamily: 'monospace'),
+                        ),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Return Amount:',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF059669), fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        '৳${fmt.format(order.changeReturn)}',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF059669), fontFamily: 'monospace'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Divider
+                  _buildDashedDivider(),
+                  const SizedBox(height: 12),
+
+                  // 6. Barcode Section
+                  Center(child: _buildBarcode()),
+                  const SizedBox(height: 4),
+                  Center(
+                    child: Text(
+                      '*${order.orderNo}*',
+                      style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), letterSpacing: 2, fontFamily: 'monospace'),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // 7. Footer Greetings
+                  Center(
+                    child: Text(
+                      'Thank you for your business! Please\nvisit us again.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: textMuted,
+                        fontFamily: 'monospace',
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Center(
+                    child: Text(
+                      'Software by Blue Oceans POS',
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8),
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // ── Bottom Action Buttons ──────────────────────────────────────
+            SizedBox(
+              width: 380,
+              child: Row(
+                children: [
+                  // Print Thermal (80mm)
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        printWebDocument();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Printing Thermal Receipt (80mm) for ${order.orderNo}...'),
+                            duration: const Duration(seconds: 2),
+                            backgroundColor: biz.primary,
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF242424) : Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: const Color(0xFFC7D2FE)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.print_outlined, size: 16, color: isDark ? Colors.white : const Color(0xFF334155)),
+                            const SizedBox(width: 8),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Print Thermal',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                    height: 1.1,
+                                  ),
+                                ),
+                                Text(
+                                  '(80mm)',
+                                  style: TextStyle(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+                                    height: 1.1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+
+                  // Close Button
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => Navigator.of(context).pop(),
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: biz.primary,
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: [
+                            BoxShadow(
+                              color: biz.primary.withValues(alpha: 0.35),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.close_rounded, size: 18, color: Colors.white),
+                            SizedBox(width: 6),
+                            Text(
+                              'Close',
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

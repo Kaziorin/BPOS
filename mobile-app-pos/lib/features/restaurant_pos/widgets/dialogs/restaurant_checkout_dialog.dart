@@ -106,9 +106,35 @@ class _RestaurantCheckoutPaymentModalState extends State<RestaurantCheckoutPayme
 
   Future<void> _submitPayment() async {
     final total = widget.posProvider.totalPayable;
-    final paid = _selectedMethod == 'CASH'
-        ? (_tenderedAmount > 0 ? _tenderedAmount : total)
-        : total;
+
+    if (_selectedMethod == 'CASH') {
+      if (_tenderedAmount <= 0) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('দয়া করে Cash Tendered এর পরিমাণ প্রদান করুন!'),
+            backgroundColor: Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+      if (_tenderedAmount < total) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('পর্যাপ্ত ক্যাশ প্রদান করা হয়নি! মোট মূল্য: ৳${total.toStringAsFixed(2)}'),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+    }
+
+    final paid = _selectedMethod == 'CASH' ? _tenderedAmount : total;
     final change = (_selectedMethod == 'CASH' && paid > total) ? paid - total : 0.0;
 
     String methodLabel = _selectedMethod;
@@ -971,38 +997,67 @@ class _RestaurantCheckoutPaymentModalState extends State<RestaurantCheckoutPayme
 
   Widget _buildBottomActionButton(double total, String locale) {
     final isBn = locale == 'bn';
-    final isValidCash = _selectedMethod != 'CASH' || _tenderedAmount >= total || _tenderedAmount == 0;
+    final isCash = _selectedMethod == 'CASH';
+    final isValidCash = !isCash || _tenderedAmount >= total;
 
     return GestureDetector(
-      onTap: isValidCash ? _submitPayment : null,
-      child: Container(
+      onTap: () {
+        if (!isValidCash) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(_tenderedAmount <= 0
+                  ? (isBn ? 'দয়া করে ক্যাশ পরিমাণের তথ্য দিন!' : 'Please enter cash tendered amount!')
+                  : (isBn ? 'পর্যাপ্ত ক্যাশ দেওয়া হয়নি (মোট: ৳${NumberUtils.toLocalized(total.toStringAsFixed(2), locale)})!' : 'Insufficient cash tendered!')),
+              backgroundColor: const Color(0xFFDC2626),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
+        _submitPayment();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         height: 50,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFF6D00), Color(0xFFE65100)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: !isValidCash ? (widget.isDark ? const Color(0xFF334155) : const Color(0xFF94A3B8)) : null,
+          gradient: isValidCash
+              ? const LinearGradient(
+                  colors: [Color(0xFFFF6D00), Color(0xFFE65100)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
           borderRadius: BorderRadius.circular(6),
-          boxShadow: [
-            BoxShadow(
-              color: primaryOrange.withValues(alpha: 0.35),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: isValidCash
+              ? [
+                  BoxShadow(
+                    color: primaryOrange.withValues(alpha: 0.35),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.print_rounded, size: 20, color: Colors.white),
+            Icon(
+              isValidCash ? Icons.print_rounded : Icons.lock_outline_rounded,
+              size: 20,
+              color: isValidCash ? Colors.white : Colors.white70,
+            ),
             const SizedBox(width: 8),
             Text(
-              '${isBn ? "অর্ডার সম্পন্ন ও রিসিট প্রিন্ট" : "CONFIRM & PRINT RECEIPT"} (৳${NumberUtils.toLocalized(total.toStringAsFixed(2), locale)})',
-              style: const TextStyle(
+              !isValidCash && isCash && _tenderedAmount <= 0
+                  ? (isBn ? 'ক্যাশ প্রদানের পরিমাণ লিখুন' : 'ENTER CASH TENDERED')
+                  : '${isBn ? "অর্ডার সম্পন্ন ও রিসিট প্রিন্ট" : "CONFIRM & PRINT RECEIPT"} (৳${NumberUtils.toLocalized(total.toStringAsFixed(2), locale)})',
+              style: TextStyle(
                 fontSize: 13.5,
                 fontWeight: FontWeight.w900,
-                color: Colors.white,
+                color: isValidCash ? Colors.white : Colors.white70,
                 letterSpacing: 0.3,
               ),
             ),

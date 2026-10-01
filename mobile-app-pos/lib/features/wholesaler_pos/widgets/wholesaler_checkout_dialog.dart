@@ -100,7 +100,7 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
   @override
   void initState() {
     super.initState();
-    _tenderedController.text = '0';
+    _tenderedController.text = '';
     _tenderedAmount = 0.0;
   }
 
@@ -116,7 +116,7 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
 
   void _onTenderedChanged(String val) {
     setState(() {
-      _tenderedAmount = double.tryParse(val) ?? 0.0;
+      _tenderedAmount = double.tryParse(val.trim()) ?? 0.0;
     });
   }
 
@@ -140,9 +140,35 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
   Future<void> _submitPayment() async {
     final w = widget.wholesalerProvider;
     final total = w.grandTotal;
-    final paid = _selectedMethod == 'CASH'
-        ? (_tenderedAmount > 0 ? _tenderedAmount : total)
-        : total;
+
+    if (_selectedMethod == 'CASH') {
+      if (_tenderedAmount <= 0) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('দয়া করে Cash Tendered এর পরিমাণ প্রদান করুন!'),
+            backgroundColor: Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+      if (_tenderedAmount < total) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('পর্যাপ্ত ক্যাশ প্রদান করা হয়নি! মোট মূল্য: ৳${NumberFormat('#,##0.00').format(total)}'),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+    }
+
+    final paid = _selectedMethod == 'CASH' ? _tenderedAmount : total;
     final change = (_selectedMethod == 'CASH' && paid > total) ? paid - total : 0.0;
 
     String methodLabel = _selectedMethod;
@@ -162,15 +188,24 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
             'unitPrice': item.unitPrice,
             'qty': item.qty,
             'lineTotal': item.lineTotal,
+            'discountAmount': 0,
           }).toList(),
+          'payments': [
+            {'method': _selectedMethod, 'amount': paid}
+          ],
           'total': total,
+          'grandTotal': total,
           'subtotal': w.subtotal,
           'taxTotal': w.taxAmount,
+          'taxAmount': w.taxAmount,
           'discountTotal': w.discountFlat,
+          'shipping': w.shippingCost,
+          'shippingTotal': w.shippingCost,
           'paymentMethod': _selectedMethod,
           'customerName': w.customer.name,
           'customerPhone': w.customer.phone,
-          'source': 'WHOLESALE',
+          'note': 'Mobile Wholesale POS Order',
+          'source': 'B2B',
         },
       );
     } catch (e) {
@@ -200,6 +235,7 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
     );
 
     w.clearOrder();
+    w.loadProducts(businessType: 'wholesaler');
     if (mounted) {
       Navigator.of(context).pop();
       widget.onPaymentComplete(sale);
@@ -1004,38 +1040,69 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
 
   Widget _buildBottomActionButton(double total) {
     final fmt = NumberFormat('#,##0.00');
-    final isValidCash = _selectedMethod != 'CASH' || _tenderedAmount >= total || _tenderedAmount == 0;
+    final isCash = _selectedMethod == 'CASH';
+    final isValidCash = !isCash || _tenderedAmount >= total;
 
     return GestureDetector(
-      onTap: isValidCash ? _submitPayment : null,
-      child: Container(
+      onTap: () {
+        if (!isValidCash) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(_tenderedAmount <= 0
+                  ? 'দয়া করে Cash Tendered এর পরিমাণ প্রদান করুন!'
+                  : 'পর্যাপ্ত ক্যাশ প্রদান করা হয়নি (মোট: ৳${fmt.format(total)})!'),
+              backgroundColor: const Color(0xFFDC2626),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
+        _submitPayment();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         height: 50,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF4F46E5), Color(0xFF4338CA)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: !isValidCash
+              ? (widget.isDark ? const Color(0xFF334155) : const Color(0xFF94A3B8))
+              : null,
+          gradient: isValidCash
+              ? const LinearGradient(
+                  colors: [Color(0xFF4F46E5), Color(0xFF4338CA)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
           borderRadius: BorderRadius.circular(6),
-          boxShadow: [
-            BoxShadow(
-              color: primaryIndigo.withValues(alpha: 0.35),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: isValidCash
+              ? [
+                  BoxShadow(
+                    color: primaryIndigo.withValues(alpha: 0.35),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.print_rounded, size: 20, color: Colors.white),
+            Icon(
+              isValidCash ? Icons.print_rounded : Icons.lock_outline_rounded,
+              size: 20,
+              color: isValidCash ? Colors.white : Colors.white70,
+            ),
             const SizedBox(width: 8),
             Text(
-              'CONFIRM & PRINT RECEIPT (৳${fmt.format(total)})',
-              style: const TextStyle(
+              !isValidCash && isCash && _tenderedAmount <= 0
+                  ? 'ENTER CASH TENDERED TO PAY'
+                  : 'CONFIRM & PRINT RECEIPT (৳${fmt.format(total)})',
+              style: TextStyle(
                 fontSize: 13.5,
                 fontWeight: FontWeight.w900,
-                color: Colors.white,
+                color: isValidCash ? Colors.white : Colors.white70,
                 letterSpacing: 0.3,
               ),
             ),
@@ -1173,9 +1240,9 @@ class WholesalerReceiptModal extends StatelessWidget {
                   // 1. Company Header
                   Center(
                     child: Text(
-                      'BPOS WHOLESALE & TRADING',
+                      'BLUE OCEANS POS',
                       style: TextStyle(
-                        fontSize: 14.5,
+                        fontSize: 15,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.8,
                         color: textDark,
@@ -1186,7 +1253,7 @@ class WholesalerReceiptModal extends StatelessWidget {
                   const SizedBox(height: 4),
                   Center(
                     child: Text(
-                      'Central Warehouse Outlet • Terminal #WH-01',
+                      'Dhaka Flagship Outlet • Counter #POS-01',
                       style: TextStyle(
                         fontSize: 9.5,
                         color: textMuted,
@@ -1434,7 +1501,7 @@ class WholesalerReceiptModal extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'VAT (Mushak 6.3 - 6.4%):',
+                        'VAT (Mushak 6.3 - 15%):',
                         style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
                       ),
                       Text(
@@ -1448,7 +1515,7 @@ class WholesalerReceiptModal extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Shipping / Handling:',
+                        'Shipping & Handling:',
                         style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
                       ),
                       Text(
@@ -1534,10 +1601,10 @@ class WholesalerReceiptModal extends StatelessWidget {
                   // 6. Barcode Section
                   Center(child: _buildBarcode()),
                   const SizedBox(height: 4),
-                  const Center(
+                  Center(
                     child: Text(
-                      '**',
-                      style: TextStyle(fontSize: 10, color: Color(0xFF64748B), letterSpacing: 3),
+                      '*${sale.orderNo}*',
+                      style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), letterSpacing: 2, fontFamily: 'monospace'),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -1545,10 +1612,10 @@ class WholesalerReceiptModal extends StatelessWidget {
                   // 7. Footer Greetings
                   Center(
                     child: Text(
-                      'Thank you for your bulk business!\nPlease visit our distribution center again.',
+                      'Thank you for your business! Please\nvisit us again.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 9.5,
+                        fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: textMuted,
                         fontFamily: 'monospace',
@@ -1559,9 +1626,9 @@ class WholesalerReceiptModal extends StatelessWidget {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Software by BPOS Wholesale & Trading',
+                      'Software by Blue Oceans POS',
                       style: TextStyle(
-                        fontSize: 8.5,
+                        fontSize: 9,
                         color: isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8),
                         fontFamily: 'monospace',
                       ),

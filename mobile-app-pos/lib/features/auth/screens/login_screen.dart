@@ -436,30 +436,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
 
-          // ── 5. BOTTOM-LEFT NEXT/BRAND BADGE ──
-          Positioned(
-            left: 18,
-            bottom: 18,
-            child: Container(
-              height: 30,
-              width: 30,
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.45),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-              ),
-              child: const Center(
-                child: Text(
-                  'N',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );

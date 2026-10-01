@@ -584,7 +584,12 @@ class RetailProvider extends ChangeNotifier {
               (p['price'] as num?)?.toDouble() ??
               100.0;
           final costPrice = (p['costPrice'] as num?)?.toDouble() ?? (sellingPrice * 0.8);
-          final stock = (p['stock'] as num?)?.toInt() ?? 50;
+          final rawStock = (p['totalStock'] as num?)?.toDouble() ??
+              (p['stock'] as num?)?.toDouble() ??
+              (p['stockQty'] as num?)?.toDouble() ??
+              (p['stock_qty'] as num?)?.toDouble() ??
+              0.0;
+          final stock = rawStock <= 0 ? 0 : rawStock.toInt();
           loaded.add(RetailProduct(
             id: p['id']?.toString() ?? 'prod-$i',
             name: p['name']?.toString() ?? 'Product $i',

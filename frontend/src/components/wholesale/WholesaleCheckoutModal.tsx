@@ -228,23 +228,30 @@ export function WholesaleCheckoutModal({
           {payMethod === "CASH" ? (
             <div className={cn("rounded-sm border p-5 space-y-4 transition-all duration-300", cardBg)}>
               <div className="flex items-center justify-between">
-                <p className={cn("text-[10px] font-black uppercase tracking-widest", textSub)}>Cash Amount Tendered</p>
+                <div className="flex items-center gap-2">
+                  <p className={cn("text-[10px] font-black uppercase tracking-widest", textSub)}>Cash Amount Tendered</p>
+                  {isExact && (
+                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-sm border border-emerald-200 shadow-2xs animate-in fade-in zoom-in-75">
+                      MATCHED
+                    </span>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={setExact}
-                  className="text-[11px] font-black text-blue-600 hover:underline underline-offset-4"
+                  className="text-[11px] font-black text-blue-600 hover:underline underline-offset-4 cursor-pointer"
                 >
                   SET EXACT AMOUNT
                 </button>
               </div>
 
               <div className="relative">
-                <span className={cn("absolute left-4 top-1/2 -translate-y-1/2 text-[18px] font-black", darkMode ? "text-slate-500" : "text-slate-300")}>৳</span>
+                <span className={cn("absolute left-4 top-1/2 -translate-y-1/2 text-[18px] font-black pointer-events-none", darkMode ? "text-slate-500" : "text-slate-300")}>৳</span>
                 <input
                   ref={refInput}
                   type="number"
                   min="0"
-                  step="1"
+                  step="any"
                   value={cashInput}
                   onChange={(e) => setCashInput(e.target.value)}
                   placeholder="0.00"
@@ -254,11 +261,6 @@ export function WholesaleCheckoutModal({
                     isExact ? "border-emerald-400 focus:ring-emerald-600/10" : ""
                   )}
                 />
-                {isExact && (
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-sm border border-emerald-200 shadow-sm animate-in zoom-in-50">
-                    MATCHED
-                  </span>
-                )}
               </div>
 
               <div className="grid grid-cols-4 gap-2">

@@ -176,6 +176,13 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
   const scRatePct = serviceCharge > 0 ? Number(((serviceCharge / baseForRate) * 100).toFixed(1)) : 0;
   const scRateLabel = scRatePct > 0 ? ` (${scRatePct % 1 === 0 ? Math.round(scRatePct) : scRatePct}%)` : "";
 
+  const shippingAmount = Number(
+    (data as any).shipping ??
+    (data as any).shippingTotal ??
+    (data as any).deliveryFee ??
+    0
+  );
+
   const netPayable = data.total ?? 0;
 
   const primaryMethod =
@@ -676,6 +683,11 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
                   <span className="font-mono text-black">৳{vatAmount.toFixed(2)}</span>
                 </div>
               )}
+
+              <div className="flex justify-between items-baseline text-gray-700">
+                <span>Shipping & Handling:</span>
+                <span className="font-mono text-black">৳{shippingAmount.toFixed(2)}</span>
+              </div>
 
               {settings.showServiceCharge && serviceCharge > 0 && (
                 <div className="flex justify-between items-baseline text-gray-700">

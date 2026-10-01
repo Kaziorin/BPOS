@@ -271,41 +271,60 @@ class _OrderItemsList extends StatelessWidget {
     final isDark = context.watch<AppProvider>().isDarkMode;
     final w = context.watch<WholesalerProvider>();
 
+    Widget content;
     if (w.items.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inventory_2_outlined, size: 40,
-                color: WholesalerColors.textSecondary(isDark)),
-            const SizedBox(height: 10),
-            Text('No items added',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: WholesalerColors.textSecondary(isDark),
-                )),
-            const SizedBox(height: 4),
-            Text('Click product cards to add',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: WholesalerColors.textSecondary(isDark).withValues(alpha: 0.6),
-                )),
-          ],
+      content = LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.inventory_2_outlined, size: 40,
+                      color: WholesalerColors.textSecondary(isDark)),
+                  const SizedBox(height: 10),
+                  Text('No items added',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: WholesalerColors.textSecondary(isDark),
+                      )),
+                  const SizedBox(height: 4),
+                  Text('Click product cards to add',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: WholesalerColors.textSecondary(isDark).withValues(alpha: 0.6),
+                      )),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      content = ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        itemCount: w.items.length,
+        separatorBuilder: (_, _) => Divider(
+            height: 12, thickness: 1, color: WholesalerColors.divider(isDark)),
+        itemBuilder: (_, i) => _OrderItemRow(
+          item: w.items[i],
+          isDark: isDark,
+          index: i,
         ),
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      itemCount: w.items.length,
-      separatorBuilder: (_, _) => Divider(
-          height: 12, thickness: 1, color: WholesalerColors.divider(isDark)),
-      itemBuilder: (_, i) => _OrderItemRow(
-        item: w.items[i],
-        isDark: isDark,
-        index: i,
-      ),
+    return RefreshIndicator(
+      color: const Color(0xFF146EF5),
+      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+      onRefresh: () async {
+        await w.syncActiveCartWithBackend();
+      },
+      child: content,
     );
   }
 }
@@ -357,7 +376,20 @@ class _OrderItemRowState extends State<_OrderItemRow>
     final w = context.read<WholesalerProvider>();
     final parsed = int.tryParse(_qtyCtrl.text.trim());
     if (parsed != null && parsed > 0) {
-      if (parsed != widget.item.qty) {
+      final maxStock = widget.item.product.stock;
+      if (parsed > maxStock) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${widget.item.product.name} এর সর্বোচ্চ স্টক $maxStock!'),
+            backgroundColor: const Color(0xFFD97706),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        w.setQty(widget.item.product.id, maxStock);
+        _qtyCtrl.text = '$maxStock';
+      } else if (parsed != widget.item.qty) {
         w.setQty(widget.item.product.id, parsed);
       }
     } else {
@@ -567,7 +599,18 @@ class _OrderItemRowState extends State<_OrderItemRow>
                         const SizedBox(width: 2),
                         InkWell(
                           onTap: () {
-                            w.incrementQty(p.id);
+                            final success = w.incrementQty(p.id);
+                            if (!success) {
+                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('${p.name} এর সর্বোচ্চ স্টক (${p.stock}) পৌঁছে গেছে!'),
+                                  backgroundColor: const Color(0xFFD97706),
+                                  behavior: SnackBarBehavior.floating,
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            }
                             setState(() {
                               _qtyCtrl.text = '${item.qty}';
                             });
@@ -880,12 +923,12 @@ class _PricingSummary extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           _SummaryRow(
-            label: 'Tax (${(w.taxRate * 100).toStringAsFixed(1)}%)',
+            label: 'Tax (${(w.taxRate * 100).toStringAsFixed(0)}%)',
             value: '৳${fmt.format(w.taxAmount)}',
             isDark: isDark,
           ),
           const SizedBox(height: 4),
-          _SummaryRow(label: 'Shipping', value: '৳${fmt.format(w.shippingCost)}', isDark: isDark),
+          _SummaryRow(label: 'Shipping & Handling', value: '৳${fmt.format(w.shippingCost)}', isDark: isDark),
           const SizedBox(height: 8),
           Divider(color: WholesalerColors.border(isDark)),
           // Grand Total

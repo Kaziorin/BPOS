@@ -220,9 +220,9 @@ class ApiService {
       reqHeaders['X-Tenant-ID'] = tenantIdToSend;
     }
 
-    // Only send bearer token if it matches this tenant to avoid 403
-    if (_authToken != null && _authToken!.isNotEmpty && _tenantId == tenantIdToSend) {
-      reqHeaders['Authorization'] = 'Bearer $_authToken';
+    final token = await _getTokenForTenant(tenantIdToSend);
+    if (token != null && token.isNotEmpty) {
+      reqHeaders['Authorization'] = 'Bearer $token';
     }
 
     try {
@@ -247,6 +247,99 @@ class ApiService {
     }
 
     return [];
+  }
+
+  // ── CUSTOMERS (http://localhost:3000 customer management API) ─────────────
+  Future<List<Map<String, dynamic>>> fetchCustomers({
+    required String businessType,
+    String search = '',
+    int limit = 50,
+  }) async {
+    final cleanBiz = businessType.toLowerCase().trim();
+    String? tenantIdToSend = _tenantId;
+    if (businessTenantIds.containsKey(cleanBiz)) {
+      tenantIdToSend = businessTenantIds[cleanBiz];
+    }
+
+    final token = await _getTokenForTenant(tenantIdToSend);
+
+    final reqHeaders = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    if (tenantIdToSend != null && tenantIdToSend.isNotEmpty) {
+      reqHeaders['X-Tenant-ID'] = tenantIdToSend;
+    }
+    if (token != null && token.isNotEmpty) {
+      reqHeaders['Authorization'] = 'Bearer $token';
+    }
+
+    try {
+      final q = search.trim();
+      final uri = Uri.parse('$_baseUrl/v1/customers?limit=$limit${q.isNotEmpty ? '&search=$q' : ''}');
+      final resp = await http.get(uri, headers: reqHeaders).timeout(const Duration(seconds: 8));
+
+      if (resp.statusCode == 200) {
+        final data = jsonDecode(resp.body);
+        List list = [];
+        if (data is Map && data['data'] is List) {
+          list = data['data'] as List;
+        } else if (data is List) {
+          list = data;
+        }
+        return list.map((e) => e as Map<String, dynamic>).toList();
+      }
+    } catch (e) {
+      debugPrint('Error fetching customers from backend: $e');
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>?> createCustomer({
+    required String businessType,
+    required Map<String, dynamic> payload,
+  }) async {
+    final cleanBiz = businessType.toLowerCase().trim();
+    String? tenantIdToSend = _tenantId;
+    if (businessTenantIds.containsKey(cleanBiz)) {
+      tenantIdToSend = businessTenantIds[cleanBiz];
+    }
+
+    final token = await _getTokenForTenant(tenantIdToSend);
+
+    final reqHeaders = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    if (tenantIdToSend != null && tenantIdToSend.isNotEmpty) {
+      reqHeaders['X-Tenant-ID'] = tenantIdToSend;
+    }
+    if (token != null && token.isNotEmpty) {
+      reqHeaders['Authorization'] = 'Bearer $token';
+    }
+
+    try {
+      final uri = Uri.parse('$_baseUrl/v1/customers');
+      final resp = await http.post(
+        uri,
+        headers: reqHeaders,
+        body: jsonEncode(payload),
+      ).timeout(const Duration(seconds: 8));
+
+      if (resp.statusCode == 200 || resp.statusCode == 201) {
+        final data = jsonDecode(resp.body);
+        if (data is Map && data['data'] is Map) {
+          return data['data'] as Map<String, dynamic>;
+        } else if (data is Map) {
+          return data as Map<String, dynamic>;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error creating customer in backend: $e');
+    }
+    return null;
   }
 
   // ── CONFIRM / SUBMIT POS SALE ─────────────────────────────────────────────
@@ -304,4 +397,74 @@ class ApiService {
       rethrow;
     }
   }
+
+  // ── ACTIVE POS CART SYNC (Shared between Web System & Mobile App) ─────────
+  Future<Map<String, dynamic>?> fetchActiveCart({
+    required String businessType,
+    String channel = 'wholesale',
+  }) async {
+    final cleanBiz = businessType.toLowerCase().trim();
+    String? tenantIdToSend = _tenantId;
+    if (businessTenantIds.containsKey(cleanBiz)) {
+      tenantIdToSend = businessTenantIds[cleanBiz];
+    }
+    final token = await _getTokenForTenant(tenantIdToSend);
+
+    final reqHeaders = <String, String>{'Accept': 'application/json'};
+    if (tenantIdToSend != null && tenantIdToSend.isNotEmpty) {
+      reqHeaders['X-Tenant-ID'] = tenantIdToSend;
+    }
+    if (token != null && token.isNotEmpty) {
+      reqHeaders['Authorization'] = 'Bearer $token';
+    }
+
+    try {
+      final uri = Uri.parse('$_baseUrl/v1/pos/active-cart?channel=$channel');
+      final resp = await http.get(uri, headers: reqHeaders).timeout(const Duration(seconds: 5));
+      if (resp.statusCode == 200) {
+        final resData = jsonDecode(resp.body);
+        if (resData is Map && resData['data'] is Map) {
+          return resData['data'] as Map<String, dynamic>;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching active cart from backend: $e');
+    }
+    return null;
+  }
+
+  Future<void> saveActiveCart({
+    required String businessType,
+    required Map<String, dynamic> payload,
+  }) async {
+    final cleanBiz = businessType.toLowerCase().trim();
+    String? tenantIdToSend = _tenantId;
+    if (businessTenantIds.containsKey(cleanBiz)) {
+      tenantIdToSend = businessTenantIds[cleanBiz];
+    }
+    final token = await _getTokenForTenant(tenantIdToSend);
+
+    final reqHeaders = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    if (tenantIdToSend != null && tenantIdToSend.isNotEmpty) {
+      reqHeaders['X-Tenant-ID'] = tenantIdToSend;
+    }
+    if (token != null && token.isNotEmpty) {
+      reqHeaders['Authorization'] = 'Bearer $token';
+    }
+
+    try {
+      final uri = Uri.parse('$_baseUrl/v1/pos/active-cart');
+      await http.post(
+        uri,
+        headers: reqHeaders,
+        body: jsonEncode(payload),
+      ).timeout(const Duration(seconds: 5));
+    } catch (e) {
+      debugPrint('Error saving active cart to backend: $e');
+    }
+  }
 }
+

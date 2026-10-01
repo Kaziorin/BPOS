@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/app_provider.dart';
@@ -24,6 +25,7 @@ class _WholesalerPOSScreenState extends State<WholesalerPOSScreen>
   late AnimationController _fadeCtrl;
   late Animation<double> _fadeAnim;
   bool _showMobileCart = false;
+  Timer? _cartPollingTimer;
 
   @override
   void initState() {
@@ -34,47 +36,58 @@ class _WholesalerPOSScreenState extends State<WholesalerPOSScreen>
     );
     _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
     _fadeCtrl.forward();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<WholesalerProvider>().syncActiveCartWithBackend();
+      }
+    });
+
+    // Realtime cross-device sync: poll backend every 4 seconds
+    _cartPollingTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (mounted) {
+        context.read<WholesalerProvider>().syncActiveCartWithBackend(isPolling: true);
+      }
+    });
   }
 
   @override
   void dispose() {
+    _cartPollingTimer?.cancel();
     _fadeCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => WholesalerProvider(),
-      child: FadeTransition(
-        opacity: _fadeAnim,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth;
-            final isMobile = width < 700;
-            final isTablet = width >= 700 && width < 1100;
+    return FadeTransition(
+      opacity: _fadeAnim,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          final isMobile = width < 700;
+          final isTablet = width >= 700 && width < 1100;
 
-            return Scaffold(
-              backgroundColor: WholesalerColors.scaffoldBg(
-                context.watch<AppProvider>().isDarkMode,
-              ),
-              floatingActionButton: isMobile && !_showMobileCart
-                  ? _MobileCartFab(
-                      onTap: () => setState(() => _showMobileCart = true),
+          return Scaffold(
+            backgroundColor: WholesalerColors.scaffoldBg(
+              context.watch<AppProvider>().isDarkMode,
+            ),
+            floatingActionButton: isMobile && !_showMobileCart
+                ? _MobileCartFab(
+                    onTap: () => setState(() => _showMobileCart = true),
+                  )
+                : null,
+            body: SafeArea(
+              child: isMobile
+                  ? _MobileLayout(
+                      showCart: _showMobileCart,
+                      onCloseCart: () =>
+                          setState(() => _showMobileCart = false),
                     )
-                  : null,
-              body: SafeArea(
-                child: isMobile
-                    ? _MobileLayout(
-                        showCart: _showMobileCart,
-                        onCloseCart: () =>
-                            setState(() => _showMobileCart = false),
-                      )
-                    : _DesktopTabletLayout(isTablet: isTablet),
-              ),
-            );
-          },
-        ),
+                  : _DesktopTabletLayout(isTablet: isTablet),
+            ),
+          );
+        },
       ),
     );
   }

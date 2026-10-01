@@ -20,27 +20,13 @@ class PharmacyPOSScreen extends StatefulWidget {
 }
 
 class _PharmacyPOSScreenState extends State<PharmacyPOSScreen> {
-  late final PharmacyProvider _pharmacyProvider;
-
-  @override
-  void initState() {
-    super.initState();
-    _pharmacyProvider = PharmacyProvider();
-  }
-
-  @override
-  void dispose() {
-    _pharmacyProvider.dispose();
-    super.dispose();
-  }
-
   void _openCartBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => ChangeNotifierProvider.value(
-        value: _pharmacyProvider,
+        value: context.read<PharmacyProvider>(),
         child: Container(
           height: MediaQuery.of(ctx).size.height * 0.88,
           decoration: BoxDecoration(
@@ -58,9 +44,7 @@ class _PharmacyPOSScreenState extends State<PharmacyPOSScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: _pharmacyProvider,
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: context.scaffoldBg,
         body: SafeArea(
           child: LayoutBuilder(
@@ -190,7 +174,6 @@ class _PharmacyPOSScreenState extends State<PharmacyPOSScreen> {
             },
           ),
         ),
-      ),
-    );
+      );
   }
 }

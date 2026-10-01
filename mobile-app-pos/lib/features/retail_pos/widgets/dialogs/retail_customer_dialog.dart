@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/services/api_service.dart';
 import '../../providers/retail_provider.dart';
 
 void showRetailCustomerDialog(
@@ -56,6 +57,24 @@ class _RetailSelectCustomerModalState extends State<RetailSelectCustomerModal> {
   void initState() {
     super.initState();
     _activeTab = widget.initialTab;
+    _fetchCustomers();
+  }
+
+  Future<void> _fetchCustomers() async {
+    try {
+      final list = await ApiService.instance.fetchCustomers(businessType: 'retail');
+      if (list.isNotEmpty && mounted) {
+        setState(() {
+          _customers.clear();
+          for (var c in list) {
+            _customers.add({
+              'name': c['name']?.toString() ?? 'Customer',
+              'phone': c['phone']?.toString() ?? 'N/A',
+            });
+          }
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -73,7 +92,7 @@ class _RetailSelectCustomerModalState extends State<RetailSelectCustomerModal> {
     Navigator.of(context).pop();
   }
 
-  void _saveNewCustomer() {
+  Future<void> _saveNewCustomer() async {
     final name = _nameCtrl.text.trim();
     final phone = _phoneCtrl.text.trim();
     if (name.isEmpty) {
@@ -86,10 +105,26 @@ class _RetailSelectCustomerModalState extends State<RetailSelectCustomerModal> {
       );
       return;
     }
-    setState(() {
-      _customers.insert(0, {'name': name, 'phone': phone.isNotEmpty ? phone : 'N/A'});
-    });
-    _selectCustomer(name);
+    try {
+      await ApiService.instance.createCustomer(
+        businessType: 'retail',
+        payload: {
+          'name': name,
+          'phone': phone.isNotEmpty ? phone : 'N/A',
+          if (_emailCtrl.text.trim().isNotEmpty) 'email': _emailCtrl.text.trim(),
+          if (_addressCtrl.text.trim().isNotEmpty) 'address': _addressCtrl.text.trim(),
+          'segmentation': 'RETAIL',
+        },
+      );
+    } catch (e) {
+      debugPrint('Error creating retail customer: $e');
+    }
+    if (mounted) {
+      setState(() {
+        _customers.insert(0, {'name': name, 'phone': phone.isNotEmpty ? phone : 'N/A'});
+      });
+      _selectCustomer(name);
+    }
   }
 
   @override

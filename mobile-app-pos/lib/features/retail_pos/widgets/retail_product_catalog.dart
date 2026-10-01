@@ -24,25 +24,41 @@ class RetailProductCatalog extends StatelessWidget {
     final isDark = appProvider.isDarkMode;
     final products = retailProvider.filteredProducts;
 
+    Widget content;
     if (products.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey.shade400),
-            const SizedBox(height: 10),
-            Text(
-              'No products found',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+      content = LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey.shade400),
+                  const SizedBox(height: 10),
+                  Text(
+                    'No products found',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
       );
+    } else {
+      content = isGridView
+          ? _buildGridView(context, retailProvider, products, isDark)
+          : _buildListView(context, retailProvider, products, isDark);
     }
 
-    return isGridView
-        ? _buildGridView(context, retailProvider, products, isDark)
-        : _buildListView(context, retailProvider, products, isDark);
+    return RefreshIndicator(
+      color: const Color(0xFF8B5CF6),
+      backgroundColor: isDark ? const Color(0xFF1E1E24) : Colors.white,
+      onRefresh: () async => retailProvider.loadProducts(),
+      child: content,
+    );
   }
 
   Widget _buildListView(

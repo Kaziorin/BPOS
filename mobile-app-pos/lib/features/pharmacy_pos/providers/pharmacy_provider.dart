@@ -23,7 +23,12 @@ class PharmacyProvider extends ChangeNotifier {
           final price = (p['sellingPrice'] as num?)?.toDouble() ??
               (p['price'] as num?)?.toDouble() ??
               (double.tryParse(p['sellingPrice']?.toString() ?? '') ?? 50.0);
-          final stock = (p['stock'] as num?)?.toInt() ?? 100;
+          final rawStock = (p['totalStock'] as num?)?.toDouble() ??
+              (p['stock'] as num?)?.toDouble() ??
+              (p['stockQty'] as num?)?.toDouble() ??
+              (p['stock_qty'] as num?)?.toDouble() ??
+              0.0;
+          final stock = rawStock <= 0 ? 0 : rawStock.toInt();
           loaded.add(MedicineModel(
             id: p['id']?.toString() ?? 'm-$i',
             name: p['name']?.toString() ?? 'Medicine $i',

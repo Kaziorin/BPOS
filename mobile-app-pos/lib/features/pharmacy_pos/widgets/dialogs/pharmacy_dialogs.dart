@@ -1469,9 +1469,35 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
 
   void _submitPayment() {
     final total = widget.provider.total;
-    final paid = _selectedMethod == 'CASH'
-        ? (_tenderedAmount > 0 ? _tenderedAmount : total)
-        : total;
+
+    if (_selectedMethod == 'CASH') {
+      if (_tenderedAmount <= 0) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('দয়া করে Cash Tendered এর পরিমাণ প্রদান করুন!'),
+            backgroundColor: Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+      if (_tenderedAmount < total) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('পর্যাপ্ত ক্যাশ প্রদান করা হয়নি! মোট মূল্য: ৳${total.toStringAsFixed(2)}'),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+    }
+
+    final paid = _selectedMethod == 'CASH' ? _tenderedAmount : total;
 
     widget.provider.setPaymentMethod(_selectedMethod);
     final order = widget.provider.completeCheckout(
@@ -2167,16 +2193,34 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
 
   // ── Bottom Action Button (Exact Match to Reference) ──────────────────────
   Widget _buildBottomActionButton(double total) {
-    final isCashZero = _selectedMethod == 'CASH' && _tenderedAmount == 0;
+    final isCash = _selectedMethod == 'CASH';
+    final isValidCash = !isCash || _tenderedAmount >= total;
+    final isCashZero = !isValidCash;
 
     return InkWell(
-      onTap: _submitPayment,
+      onTap: () {
+        if (!isValidCash) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(_tenderedAmount <= 0
+                  ? 'দয়া করে Cash Tendered এর পরিমাণ প্রদান করুন!'
+                  : 'পর্যাপ্ত ক্যাশ প্রদান করা হয়নি (মোট: ৳${total.toStringAsFixed(2)})!'),
+              backgroundColor: const Color(0xFFDC2626),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
+        _submitPayment();
+      },
       borderRadius: BorderRadius.circular(4),
       child: Container(
         height: 46,
         decoration: BoxDecoration(
-          color: isCashZero ? primaryTeal.withValues(alpha: 0.5) : null,
-          gradient: isCashZero
+          color: !isValidCash ? primaryTeal.withValues(alpha: 0.5) : null,
+          gradient: !isValidCash
               ? null
               : const LinearGradient(
                   colors: [primaryTeal, darkTeal],

@@ -27,10 +27,11 @@ interface Props {
   payments?: PaymentInfo[];
   cashierName?: string;
   customerName?: string;
+  shipping?: number;
   onNewSale: () => void;
 }
 
-export function ReceiptModal({ result, cart, payments, cashierName, customerName, onNewSale }: Props) {
+export function ReceiptModal({ result, cart, payments, cashierName, customerName, shipping, onNewSale }: Props) {
   const settings = getInvoiceSettings();
   const isRestaurant = settings.businessType === "restaurant";
   const showReturnPolicy = !isRestaurant && settings.showReturnPolicy && Boolean(settings.returnPolicyText?.trim());
@@ -52,16 +53,26 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
   // Financial calculations
   const subtotal = cart && cart.length > 0
     ? cart.reduce((sum, item) => sum + item.lineTotal, 0)
-    : result.total;
+    : (result.total || 0);
 
-  const rawVat = result.total > subtotal ? result.total - subtotal : 0;
+  const passedTax = Number((result as any).taxTotal ?? (result as any).taxAmount ?? 0);
+  const rawVat = passedTax > 0
+    ? passedTax
+    : (result.total > subtotal ? result.total - subtotal : subtotal * 0.15);
   const vatAmount = Math.max(0, rawVat);
   const vatRatePct = subtotal > 0 && vatAmount > 0 ? Math.round((vatAmount / subtotal) * 100) : 15;
-  const netPayable = result.total ?? 0;
+  const shippingAmount = Number(
+    shipping ??
+    (result as any).shipping ??
+    (result as any).shippingTotal ??
+    (result as any).deliveryFee ??
+    0
+  );
+  const netPayable = Math.max(result.total ?? 0, subtotal + vatAmount + shippingAmount);
 
   // Primary payment method text
   const primaryMethod = payments && payments.length > 0 ? payments[0].method.toUpperCase() : "CASH";
-  const paidTotal = Number(result.paidTotal ?? result.total ?? 0);
+  const paidTotal = Number(result.paidTotal ?? netPayable);
   const changeReturn = Math.max(
     0,
     Number(
@@ -69,7 +80,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
       (result as any).changeReturn ??
       (result as any).changeAmount ??
       (result as any).returnAmount ??
-      (paidTotal > result.total ? paidTotal - result.total : 0)
+      (paidTotal > netPayable ? paidTotal - netPayable : 0)
     )
   );
 
@@ -161,6 +172,10 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
           <div className="flex justify-between text-gray-500">
             <span>VAT (Mushak 6.3 - {vatRatePct}%):</span>
             <span className="font-mono">৳{vatAmount.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between text-gray-500">
+            <span>Shipping & Handling:</span>
+            <span className="font-mono">৳{shippingAmount.toFixed(2)}</span>
           </div>
 
           <div className="flex justify-between font-bold text-sm text-gray-600 border-t border-b border-gray-300 py-1.5 my-1">

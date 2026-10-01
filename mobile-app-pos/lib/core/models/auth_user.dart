@@ -52,8 +52,9 @@ class AuthUser {
     }
 
     List<String> list = [];
-    // If Super Admin or admin@gmail.com, grant multi-business access across all business types
-    if (roleName.toLowerCase().contains('super admin') ||
+    if (json['businessTypes'] is List && (json['businessTypes'] as List).isNotEmpty) {
+      list = (json['businessTypes'] as List).map((e) => e.toString()).toList();
+    } else if (roleName.toLowerCase().contains('super admin') ||
         userEmail == 'admin@gmail.com') {
       list = ['restaurant', 'pharmacy', 'grocery', 'wholesaler', 'retail'];
     } else if (rawBiz.isNotEmpty) {
@@ -63,12 +64,12 @@ class AuthUser {
     }
 
     return AuthUser(
-      id: user['id']?.toString() ?? 'usr_1',
-      name: user['name']?.toString() ?? 'Store Manager',
-      email: userEmail,
-      token: rawToken,
-      tenantId: (tenant['id'] ?? user['tenantId'])?.toString() ?? '',
-      tenantName: (tenant['name'] ?? user['tenantName'])?.toString() ?? 'Blue Oceans POS',
+      id: (user['id'] ?? json['id'])?.toString() ?? 'usr_1',
+      name: (user['name'] ?? json['name'])?.toString() ?? 'Store Manager',
+      email: userEmail.isNotEmpty ? userEmail : (json['email'] ?? '').toString(),
+      token: rawToken.isNotEmpty ? rawToken : (json['token'] ?? '').toString(),
+      tenantId: (tenant['id'] ?? user['tenantId'] ?? json['tenantId'])?.toString() ?? '',
+      tenantName: (tenant['name'] ?? user['tenantName'] ?? json['tenantName'])?.toString() ?? 'Blue Oceans POS',
       role: roleName,
       businessTypes: list,
     );

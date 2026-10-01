@@ -179,8 +179,15 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
         taxTotal = round(taxTotal, 2)
         exclusive_tax_total = round(exclusive_tax_total, 2)
 
+    # Fallback to client-submitted tax if DB had no explicit tax rules configured
+    if exclusive_tax_total == 0.0:
+        client_tax = float(body.get("taxTotal") or body.get("taxAmount") or 0.0)
+        if client_tax > 0:
+            taxTotal = round(client_tax, 2)
+            exclusive_tax_total = round(client_tax, 2)
+
     service = float(body.get("serviceCharge", 0) or 0)
-    delivery = float(body.get("deliveryFee", 0) or 0)
+    delivery = float(body.get("deliveryFee") or body.get("shipping") or body.get("shippingTotal") or 0)
     tips = float(body.get("tips", 0) or 0)
     roundOff = float(body.get("roundOff", 0) or 0)
     total = round(max(subtotal - discountTotal + exclusive_tax_total + service + delivery + tips + roundOff, 0), 2)
@@ -707,6 +714,90 @@ async def pos_delete_hold(hold_id: str, tenantId: str = Depends(resolve_tenant),
     except Exception:
         pass
     return ok({"deleted": True})
+
+
+async def _ensure_active_carts_table(db: AsyncSession):
+    try:
+        await db.execute(text(
+            "CREATE TABLE IF NOT EXISTS pos_active_carts ("
+            "id VARCHAR(100) PRIMARY KEY, "
+            "tenantId VARCHAR(36) NOT NULL, "
+            "channel VARCHAR(50) NOT NULL, "
+            "cartSnapshot LONGTEXT NULL, "
+            "customerId VARCHAR(36) NULL, "
+            "discountInput VARCHAR(50) NULL, "
+            "discountMode VARCHAR(20) NULL, "
+            "shipping DECIMAL(12,2) DEFAULT 0, "
+            "note TEXT NULL, "
+            "updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+            ")"
+        ))
+        await db.commit()
+    except Exception:
+        pass
+
+
+@router.get("/api/v1/pos/active-cart")
+async def pos_get_active_cart(channel: str = "wholesale", tenantId: str = Depends(resolve_tenant),
+                              db: AsyncSession = Depends(get_db)):
+    await _ensure_active_carts_table(db)
+    cart_id = f"{tenantId}:{channel.lower()}"
+    try:
+        row = (await db.execute(text(
+            "SELECT cartSnapshot, customerId, discountInput, discountMode, shipping, note FROM pos_active_carts WHERE id=:id AND tenantId=:t"),
+            {"id": cart_id, "t": tenantId})).first()
+        if not row:
+            return ok({"items": [], "customerId": "", "discountInput": "0", "discountMode": "flat", "shipping": 0, "note": ""})
+        import json as _json
+        raw_items = row[0] or "[]"
+        try:
+            items = _json.loads(raw_items)
+        except Exception:
+            items = []
+        return ok({
+            "items": items,
+            "customerId": row[1] or "",
+            "discountInput": row[2] or "0",
+            "discountMode": row[3] or "flat",
+            "shipping": float(row[4] or 0),
+            "note": row[5] or "",
+        })
+    except Exception:
+        return ok({"items": [], "customerId": "", "discountInput": "0", "discountMode": "flat", "shipping": 0, "note": ""})
+
+
+@router.post("/api/v1/pos/active-cart")
+async def pos_save_active_cart(body: dict, tenantId: str = Depends(resolve_tenant),
+                               db: AsyncSession = Depends(get_db)):
+    await _ensure_active_carts_table(db)
+    channel = (body.get("channel") or "wholesale").lower()
+    cart_id = f"{tenantId}:{channel}"
+    import json as _json
+    items = body.get("items") or []
+    customer_id = body.get("customerId") or ""
+    discount_input = str(body.get("discountInput") or "0")
+    discount_mode = str(body.get("discountMode") or "flat")
+    shipping = float(body.get("shipping") or 0)
+    note = body.get("note") or ""
+    try:
+        await db.execute(text(
+            "REPLACE INTO pos_active_carts (id, tenantId, channel, cartSnapshot, customerId, discountInput, discountMode, shipping, note, updatedAt) "
+            "VALUES (:id, :t, :ch, :cart, :cust, :di, :dm, :sh, :note, NOW())"),
+            {
+                "id": cart_id,
+                "t": tenantId,
+                "ch": channel,
+                "cart": _json.dumps(items),
+                "cust": customer_id,
+                "di": discount_input,
+                "dm": discount_mode,
+                "sh": shipping,
+                "note": note,
+            })
+        await db.commit()
+        return ok({"saved": True, "count": len(items)})
+    except Exception as e:
+        return err(str(e), 500)
 
 
 @router.get("/api/v1/pos/price-check")

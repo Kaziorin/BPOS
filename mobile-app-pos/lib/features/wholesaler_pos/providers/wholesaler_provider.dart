@@ -160,6 +160,108 @@ class WholesalerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _isLoadingCustomers = false;
+  bool get isLoadingCustomers => _isLoadingCustomers;
+
+  Future<void> loadCustomers({String businessType = 'wholesaler', String search = ''}) async {
+    _isLoadingCustomers = true;
+    notifyListeners();
+    try {
+      final list = await ApiService.instance.fetchCustomers(businessType: businessType, search: search);
+      if (list.isNotEmpty) {
+        final List<WCustomer> loaded = [];
+        for (var c in list) {
+          final id = c['id']?.toString() ?? '';
+          final name = c['name']?.toString() ?? 'Customer';
+          final phone = c['phone']?.toString() ?? 'N/A';
+          final limit = (c['creditLimit'] as num?)?.toDouble() ?? 0.0;
+          final due = (c['currentDue'] as num?)?.toDouble() ?? 0.0;
+          final avail = (limit - due).clamp(0.0, double.infinity);
+
+          WCustomerTier tier = WCustomerTier.regular;
+          final seg = c['segmentation']?.toString().toUpperCase() ?? '';
+          if (seg.contains('PLATINUM') || limit >= 100000) {
+            tier = WCustomerTier.platinum;
+          } else if (seg.contains('GOLD') || limit >= 50000) {
+            tier = WCustomerTier.gold;
+          } else if (seg.contains('SILVER') || limit >= 20000) {
+            tier = WCustomerTier.silver;
+          }
+
+          loaded.add(WCustomer(
+            id: id,
+            name: name,
+            phone: phone,
+            customerId: 'CUST-${id.length > 5 ? id.substring(0, 5) : id}',
+            tier: tier,
+            creditLimit: limit,
+            availableCredit: avail,
+            outstanding: due,
+          ));
+        }
+
+        _customers.clear();
+        _customers.addAll(loaded);
+
+        final found = _customers.where((x) => x.id == _selectedCustomer.id);
+        if (found.isNotEmpty) {
+          _selectedCustomer = found.first;
+        } else if (_customers.isNotEmpty) {
+          _selectedCustomer = _customers.first;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading customers in provider: $e');
+    } finally {
+      _isLoadingCustomers = false;
+      notifyListeners();
+    }
+  }
+
+  Future<WCustomer?> addCustomer({
+    required String name,
+    required String phone,
+    String? email,
+    String? address,
+    String businessType = 'wholesaler',
+  }) async {
+    try {
+      final payload = {
+        'name': name.trim(),
+        'phone': phone.trim(),
+        if (email != null && email.trim().isNotEmpty) 'email': email.trim(),
+        if (address != null && address.trim().isNotEmpty) 'address': address.trim(),
+        'segmentation': 'WHOLESALE',
+      };
+      final res = await ApiService.instance.createCustomer(
+        businessType: businessType,
+        payload: payload,
+      );
+
+      final newId = (res != null && res['id'] != null)
+          ? res['id'].toString()
+          : 'CUST-${DateTime.now().millisecondsSinceEpoch}';
+      final newCust = WCustomer(
+        id: newId,
+        name: name.trim(),
+        phone: phone.trim(),
+        customerId: 'CUST-${newId.length > 5 ? newId.substring(0, 5) : newId}',
+        tier: WCustomerTier.regular,
+        creditLimit: 0,
+        availableCredit: 0,
+        outstanding: 0,
+      );
+
+      _customers.insert(0, newCust);
+      _selectedCustomer = newCust;
+      notifyListeners();
+      return newCust;
+    } catch (e) {
+      debugPrint('Error adding customer: $e');
+      return null;
+    }
+  }
+
   // ── Warehouse ──────────────────────────────────────────────────
   String _selectedWarehouse = 'All Warehouses';
   String get selectedWarehouse => _selectedWarehouse;
@@ -200,7 +302,10 @@ class WholesalerProvider extends ChangeNotifier {
   }
 
   WholesalerProvider() {
-    loadProducts(businessType: 'wholesaler');
+    loadProducts(businessType: 'wholesaler').then((_) {
+      syncActiveCartWithBackend(businessType: 'wholesaler');
+    });
+    loadCustomers(businessType: 'wholesaler');
   }
 
   bool _isLoading = false;
@@ -215,10 +320,24 @@ class WholesalerProvider extends ChangeNotifier {
         final List<WProduct> loaded = [];
         for (int i = 0; i < apiProducts.length; i++) {
           final p = apiProducts[i];
-          final price = (p['sellingPrice'] as num?)?.toDouble() ??
+          final sellingPrice = (p['sellingPrice'] as num?)?.toDouble() ??
               (p['price'] as num?)?.toDouble() ??
               (double.tryParse(p['sellingPrice']?.toString() ?? '') ?? 500.0);
-          final stock = (p['stock'] as num?)?.toInt() ?? 50;
+          final wholesalePrice = (p['wholesalePrice'] as num?)?.toDouble() ?? sellingPrice;
+          final price = sellingPrice;
+          final b2bPrice = wholesalePrice;
+          final bulkPrice = b2bPrice * 0.95;
+
+          final rawStock = (p['totalStock'] as num?)?.toDouble() ??
+              (p['stock'] as num?)?.toDouble() ??
+              (p['stockQty'] as num?)?.toDouble() ??
+              (p['stock_qty'] as num?)?.toDouble() ??
+              0.0;
+          final stock = rawStock <= 0 ? 0 : rawStock.toInt();
+          final stockStatus = rawStock <= 0
+              ? WStockStatus.outOfStock
+              : (stock <= 10 ? WStockStatus.lowStock : WStockStatus.inStock);
+
           loaded.add(WProduct(
             id: p['id']?.toString() ?? 'wp-$i',
             name: p['name']?.toString() ?? 'Product $i',
@@ -226,11 +345,11 @@ class WholesalerProvider extends ChangeNotifier {
             warehouseId: 'WH-01',
             category: p['category'] is Map ? (p['category']['name'] ?? 'General').toString() : (p['category']?.toString() ?? 'General'),
             price: price,
-            b2bPrice: price * 0.9,
-            bulkPrice: price * 0.8,
+            b2bPrice: b2bPrice,
+            bulkPrice: bulkPrice,
             bulkMinQty: 10,
             stock: stock,
-            stockStatus: stock > 10 ? WStockStatus.inStock : WStockStatus.lowStock,
+            stockStatus: stockStatus,
             emoji: '📦',
             imageUrl: p['imageUrl']?.toString() ?? 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200',
           ));
@@ -359,13 +478,143 @@ class WholesalerProvider extends ChangeNotifier {
       item.unitPrice = item.effectivePrice(_isBulkPricing);
     }
     notifyListeners();
+    _pushCartToBackend();
   }
 
-  void addProduct(WProduct p) {
-    final existing = _items.where((i) => i.product.id == p.id);
-    if (existing.isNotEmpty) {
-      existing.first.qty++;
-      existing.first.unitPrice = existing.first.effectivePrice(_isBulkPricing);
+  bool _isSyncingCart = false;
+  DateTime _lastLocalEdit = DateTime.fromMillisecondsSinceEpoch(0);
+
+  Future<void> syncActiveCartWithBackend({
+    String businessType = 'wholesaler',
+    bool isPolling = false,
+  }) async {
+    if (_isSyncingCart) return;
+    // When polling in background, don't overwrite if user locally edited within last 4 seconds
+    if (isPolling && DateTime.now().difference(_lastLocalEdit).inSeconds < 4) {
+      return;
+    }
+    _isSyncingCart = true;
+    try {
+      final res = await ApiService.instance.fetchActiveCart(
+        businessType: businessType,
+        channel: 'wholesale',
+      );
+      if (res != null) {
+        final rawItems = res['items'];
+        if (rawItems is List) {
+          final List<WOrderItem> restored = [];
+          for (var item in rawItems) {
+            if (item is Map) {
+              final pid = item['productId']?.toString() ?? item['id']?.toString() ?? '';
+              final name = item['name']?.toString() ?? 'Item';
+              final sku = item['sku']?.toString() ?? '';
+              final qty = (item['qty'] as num?)?.toInt() ?? 1;
+              final unitPrice = (item['unitPrice'] as num?)?.toDouble() ??
+                  (item['price'] as num?)?.toDouble() ??
+                  0.0;
+              final imageUrl = item['imageUrl']?.toString() ?? '';
+
+              WProduct? match;
+              for (var p in _allProducts) {
+                if (p.id == pid || (sku.isNotEmpty && p.sku == sku) || p.name.toLowerCase() == name.toLowerCase()) {
+                  match = p;
+                  break;
+                }
+              }
+              match ??= WProduct(
+                id: pid.isNotEmpty ? pid : 'wp-sync-${DateTime.now().millisecondsSinceEpoch}',
+                name: name,
+                sku: sku,
+                warehouseId: 'WH-01',
+                category: 'General',
+                price: unitPrice,
+                b2bPrice: unitPrice,
+                bulkPrice: unitPrice * 0.95,
+                bulkMinQty: 10,
+                stock: 999,
+                stockStatus: WStockStatus.inStock,
+                emoji: '📦',
+                imageUrl: imageUrl.isNotEmpty
+                    ? imageUrl
+                    : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200',
+              );
+
+              restored.add(WOrderItem(
+                product: match,
+                qty: qty,
+                unitPrice: unitPrice,
+              ));
+            }
+          }
+          // Always apply – even empty list (e.g. deleted from web POS)
+          _items.clear();
+          _items.addAll(restored);
+        }
+
+        if (res['customerId'] != null && res['customerId'].toString().isNotEmpty) {
+          final custId = res['customerId'].toString();
+          for (var c in _customers) {
+            if (c.id == custId || c.customerId == custId) {
+              _selectedCustomer = c;
+              break;
+            }
+          }
+        }
+        if (res['discountInput'] != null) {
+          _discountFlat = double.tryParse(res['discountInput'].toString()) ?? _discountFlat;
+        }
+        if (res['shipping'] != null) {
+          _shippingCost = (res['shipping'] as num?)?.toDouble() ?? _shippingCost;
+        }
+        if (res['note'] != null && res['note'].toString().isNotEmpty) {
+          _note = res['note'].toString();
+        }
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error syncing active cart with backend: $e');
+    } finally {
+      _isSyncingCart = false;
+    }
+  }
+
+  void _pushCartToBackend({String businessType = 'wholesaler'}) {
+    _lastLocalEdit = DateTime.now();
+    final payloadItems = _items.map((i) => {
+      'productId': i.product.id,
+      'name': i.product.name,
+      'sku': i.product.sku,
+      'qty': i.qty,
+      'unitPrice': i.unitPrice,
+      'lineTotal': i.lineTotal,
+      'imageUrl': i.product.imageUrl,
+    }).toList();
+
+    ApiService.instance.saveActiveCart(
+      businessType: businessType,
+      payload: {
+        'channel': 'wholesale',
+        'items': payloadItems,
+        'customerId': _selectedCustomer.id,
+        'discountInput': _discountFlat.toString(),
+        'discountMode': 'flat',
+        'shipping': _shippingCost,
+        'note': _note,
+      },
+    );
+  }
+
+  bool addProduct(WProduct p) {
+    if (p.stock <= 0 || p.stockStatus == WStockStatus.outOfStock) {
+      return false; // Out of stock!
+    }
+    final existingIndex = _items.indexWhere((i) => i.product.id == p.id);
+    if (existingIndex != -1) {
+      if (_items[existingIndex].qty >= p.stock) {
+        return false; // Stock limit reached!
+      }
+      _items[existingIndex].qty++;
+      _items[existingIndex].unitPrice = _items[existingIndex].effectivePrice(_isBulkPricing);
     } else {
       _items.add(WOrderItem(
         product: p,
@@ -373,13 +622,24 @@ class WholesalerProvider extends ChangeNotifier {
       ));
     }
     notifyListeners();
+    _pushCartToBackend();
+    return true;
   }
 
-  void incrementQty(String productId) {
-    final item = _items.firstWhere((i) => i.product.id == productId);
-    item.qty++;
-    item.unitPrice = item.effectivePrice(_isBulkPricing);
-    notifyListeners();
+  bool incrementQty(String productId) {
+    final index = _items.indexWhere((i) => i.product.id == productId);
+    if (index != -1) {
+      final item = _items[index];
+      if (item.qty >= item.product.stock) {
+        return false; // Stock limit reached
+      }
+      item.qty++;
+      item.unitPrice = item.effectivePrice(_isBulkPricing);
+      notifyListeners();
+      _pushCartToBackend();
+      return true;
+    }
+    return false;
   }
 
   void decrementQty(String productId) {
@@ -391,47 +651,62 @@ class WholesalerProvider extends ChangeNotifier {
       _items.removeWhere((i) => i.product.id == productId);
     }
     notifyListeners();
+    _pushCartToBackend();
   }
 
   void setQty(String productId, int newQty) {
-    if (newQty <= 0) {
-      _items.removeWhere((i) => i.product.id == productId);
-    } else {
-      final index = _items.indexWhere((i) => i.product.id == productId);
-      if (index != -1) {
-        _items[index].qty = newQty;
+    final index = _items.indexWhere((i) => i.product.id == productId);
+    if (index != -1) {
+      if (newQty <= 0) {
+        _items.removeAt(index);
+      } else {
+        final maxStock = _items[index].product.stock;
+        final finalQty = (maxStock > 0 && newQty > maxStock) ? maxStock : newQty;
+        _items[index].qty = finalQty;
         _items[index].unitPrice = _items[index].effectivePrice(_isBulkPricing);
       }
+      notifyListeners();
+      _pushCartToBackend();
     }
-    notifyListeners();
   }
 
   void removeItem(String productId) {
     _items.removeWhere((i) => i.product.id == productId);
     notifyListeners();
+    _pushCartToBackend();
   }
 
   void clearOrder() {
     _items.clear();
-    _discountFlat = 50.0;
-    _shippingCost = 20.0;
+    _discountFlat = 0.0;
+    _shippingCost = 0.0;
     notifyListeners();
+    _pushCartToBackend();
   }
 
   // ── Pricing ───────────────────────────────────────────────────
   double get subtotal => _items.fold(0, (s, i) => s + i.lineTotal);
-  double _discountFlat = 50.0;
+  double _discountFlat = 0.0;
   double get discountFlat => _discountFlat;
-  void setDiscount(double d) { _discountFlat = d; notifyListeners(); }
+  void setDiscount(double d) {
+    _discountFlat = d;
+    notifyListeners();
+    _pushCartToBackend();
+  }
 
-  double get taxRate => 0.064; // 6.4%
+  double get taxRate => 0.15; // 15% VAT Mushak-6.3
   double get taxAmount => (subtotal - _discountFlat).clamp(0, double.infinity) * taxRate;
 
-  double _shippingCost = 20.0;
+  double _shippingCost = 0.0;
   double get shippingCost => _shippingCost;
-  void setShipping(double s) { _shippingCost = s; notifyListeners(); }
+  void setShipping(double s) {
+    _shippingCost = s;
+    notifyListeners();
+    _pushCartToBackend();
+  }
 
   double get grandTotal => (subtotal - _discountFlat).clamp(0, double.infinity) + taxAmount + _shippingCost;
+
 
   int get totalItems => _items.fold(0, (s, i) => s + i.qty);
 
@@ -452,10 +727,8 @@ class WholesalerProvider extends ChangeNotifier {
   List<WHeldOrder> get heldOrders => _heldOrders;
 
   String get orderNo {
-    final n = _heldOrders.length + _orderCount;
-    return 'SO-2505-000${n.toString().padLeft(2, '0')}';
+    return 'INV-${DateTime.now().millisecondsSinceEpoch.toRadixString(16).toUpperCase()}';
   }
-  final int _orderCount = 1;
 
   bool holdCurrentOrder(String note) {
     if (_items.isEmpty) return false;
@@ -466,8 +739,8 @@ class WholesalerProvider extends ChangeNotifier {
       heldAt: DateTime.now(),
     ));
     _items.clear();
-    _discountFlat = 50.0;
-    _shippingCost = 20.0;
+    _discountFlat = 0.0;
+    _shippingCost = 0.0;
     notifyListeners();
     return true;
   }
@@ -503,7 +776,11 @@ class WholesalerProvider extends ChangeNotifier {
 
   String _note = '';
   String get note => _note;
-  void setNote(String n) { _note = n; notifyListeners(); }
+  void setNote(String n) {
+    _note = n;
+    notifyListeners();
+    _pushCartToBackend();
+  }
 
   int _attachmentsCount = 0;
   int get attachmentsCount => _attachmentsCount;

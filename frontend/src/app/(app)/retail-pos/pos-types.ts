@@ -34,6 +34,14 @@ export interface SaleResult {
   paidTotal: number;
   dueTotal: number;
   paymentIds: string[];
+  subtotal?: number;
+  taxTotal?: number;
+  taxAmount?: number;
+  shipping?: number;
+  shippingTotal?: number;
+  change?: number;
+  changeReturn?: number;
+  returnAmount?: number;
 }
 
 export const PAYMENT_METHODS: { value: string; label: string }[] = [

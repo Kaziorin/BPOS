@@ -32,26 +32,40 @@ class WholesalerProductGrid extends StatelessWidget {
       crossAxis = 2;
     }
 
+    Widget content;
     if (products.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.search_off_rounded, size: 48,
-                color: WholesalerColors.textSecondary(isDark)),
-            const SizedBox(height: 12),
-            Text('No products found',
-                style: TextStyle(
-                  fontSize: 14, fontWeight: FontWeight.w600,
-                  color: WholesalerColors.textSecondary(isDark),
-                )),
-          ],
+      content = LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.search_off_rounded, size: 48,
+                      color: WholesalerColors.textSecondary(isDark)),
+                  const SizedBox(height: 12),
+                  Text('No products found',
+                      style: TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600,
+                        color: WholesalerColors.textSecondary(isDark),
+                      )),
+                  const SizedBox(height: 6),
+                  Text('Pull down to refresh',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: WholesalerColors.textSecondary(isDark).withValues(alpha: 0.6),
+                      )),
+                ],
+              ),
+            ),
+          ),
         ),
       );
-    }
-
-    if (!w.isGridView) {
-      return ListView.separated(
+    } else if (!w.isGridView) {
+      content = ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
         itemCount: products.length,
         separatorBuilder: (_, _) => const SizedBox(height: 8),
@@ -61,23 +75,35 @@ class WholesalerProductGrid extends StatelessWidget {
           index: i,
         ),
       );
+    } else {
+      content = GridView.builder(
+        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        padding: const EdgeInsets.fromLTRB(14, 4, 14, 8),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxis,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 0.82,
+        ),
+        itemCount: products.length,
+        itemBuilder: (_, i) => _ProductCard(
+          product: products[i],
+          isDark: isDark,
+          index: i,
+        ),
+      );
     }
 
-    return GridView.builder(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(14, 4, 14, 8),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxis,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 0.82,
-      ),
-      itemCount: products.length,
-      itemBuilder: (_, i) => _ProductCard(
-        product: products[i],
-        isDark: isDark,
-        index: i,
-      ),
+    return RefreshIndicator(
+      color: const Color(0xFF146EF5),
+      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+      onRefresh: () async {
+        await Future.wait([
+          w.loadProducts(),
+          w.syncActiveCartWithBackend(),
+        ]);
+      },
+      child: content,
     );
   }
 }
@@ -146,6 +172,7 @@ class _ProductCardState extends State<_ProductCard>
   Widget build(BuildContext context) {
     final p = widget.product;
     final isDark = widget.isDark;
+    final isOutOfStock = p.stockStatus == WStockStatus.outOfStock || p.stock <= 0;
     final isMobile = MediaQuery.of(context).size.width < 700;
 
     return FadeTransition(
@@ -160,7 +187,32 @@ class _ProductCardState extends State<_ProductCard>
             duration: const Duration(milliseconds: 160),
             curve: Curves.easeOutCubic,
             child: GestureDetector(
-              onTap: () => context.read<WholesalerProvider>().addProduct(p),
+              onTap: () {
+                if (isOutOfStock) {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${p.name} বর্তমানে স্টকে নেই (Out of Stock)!'),
+                      backgroundColor: const Color(0xFFDC2626),
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                  return;
+                }
+                final added = context.read<WholesalerProvider>().addProduct(p);
+                if (!added) {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${p.name} এর সর্বোচ্চ স্টক (${p.stock}) কার্টে যোগ করা হয়েছে!'),
+                      backgroundColor: const Color(0xFFD97706),
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 decoration: BoxDecoration(
@@ -334,21 +386,28 @@ class _ProductCardState extends State<_ProductCard>
                                   width: 26,
                                   height: 26,
                                   decoration: BoxDecoration(
-                                    gradient: WholesalerColors.primaryGradient,
+                                    color: isOutOfStock
+                                        ? (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0))
+                                        : null,
+                                    gradient: isOutOfStock ? null : WholesalerColors.primaryGradient,
                                     shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: WholesalerColors.primary
-                                            .withValues(alpha: 0.4),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
+                                    boxShadow: isOutOfStock
+                                        ? null
+                                        : [
+                                            BoxShadow(
+                                              color: WholesalerColors.primary
+                                                  .withValues(alpha: 0.4),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
                                   ),
-                                  child: const Icon(
-                                    Icons.add_rounded,
-                                    color: Colors.white,
-                                    size: 16,
+                                  child: Icon(
+                                    isOutOfStock ? Icons.block_rounded : Icons.add_rounded,
+                                    color: isOutOfStock
+                                        ? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
+                                        : Colors.white,
+                                    size: 15,
                                   ),
                                 ),
                               ],
@@ -403,6 +462,7 @@ class _ProductListTileState extends State<_ProductListTile>
   Widget build(BuildContext context) {
     final p = widget.product;
     final isDark = widget.isDark;
+    final isOutOfStock = p.stockStatus == WStockStatus.outOfStock || p.stock <= 0;
 
     return SlideTransition(
       position: _slide,
@@ -410,7 +470,32 @@ class _ProductListTileState extends State<_ProductListTile>
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
         child: GestureDetector(
-          onTap: () => context.read<WholesalerProvider>().addProduct(p),
+          onTap: () {
+            if (isOutOfStock) {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${p.name} বর্তমানে স্টকে নেই (Out of Stock)!'),
+                  backgroundColor: const Color(0xFFDC2626),
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+              return;
+            }
+            final added = context.read<WholesalerProvider>().addProduct(p);
+            if (!added) {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${p.name} এর সর্বোচ্চ স্টক (${p.stock}) কার্টে যোগ করা হয়েছে!'),
+                  backgroundColor: const Color(0xFFD97706),
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            }
+          },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             padding: const EdgeInsets.all(10),
@@ -455,17 +540,33 @@ class _ProductListTileState extends State<_ProductListTile>
                   children: [
                     Text('৳${p.b2bPrice.toStringAsFixed(2)}',
                         style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: WholesalerColors.primary)),
-                    Text('Stock: ${p.stock}', style: TextStyle(fontSize: 9, color: WholesalerColors.textSecondary(isDark))),
+                    Text(
+                      isOutOfStock ? '● Out of Stock' : 'Stock: ${p.stock}',
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: isOutOfStock ? FontWeight.w700 : FontWeight.normal,
+                        color: isOutOfStock ? WholesalerColors.outOfStock : WholesalerColors.textSecondary(isDark),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(width: 8),
                 Container(
                   width: 28, height: 28,
                   decoration: BoxDecoration(
-                    gradient: WholesalerColors.deliveryGradient,
+                    color: isOutOfStock
+                        ? (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0))
+                        : null,
+                    gradient: isOutOfStock ? null : WholesalerColors.deliveryGradient,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.add_rounded, color: Colors.white, size: 17),
+                  child: Icon(
+                    isOutOfStock ? Icons.block_rounded : Icons.add_rounded,
+                    color: isOutOfStock
+                        ? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
+                        : Colors.white,
+                    size: 17,
+                  ),
                 ),
               ],
             ),

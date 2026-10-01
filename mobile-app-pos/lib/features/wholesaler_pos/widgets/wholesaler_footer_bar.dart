@@ -48,7 +48,7 @@ class WholesalerFooterBar extends StatelessWidget {
                             context: context,
                             builder: (_) => ChangeNotifierProvider.value(
                               value: context.read<WholesalerProvider>(),
-                              child: const WCustomerDialog(),
+                              child: const WCustomerDialog(initialTab: 1),
                             ),
                           ),
                         ),
@@ -197,7 +197,7 @@ class WholesalerFooterBar extends StatelessWidget {
                     context: context,
                     builder: (_) => ChangeNotifierProvider.value(
                       value: context.read<WholesalerProvider>(),
-                      child: const WCustomerDialog(),
+                      child: const WCustomerDialog(initialTab: 1),
                     ),
                   ),
                 ),
