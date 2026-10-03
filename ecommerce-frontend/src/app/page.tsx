@@ -13,6 +13,7 @@ import FlashSaleSection from "@/components/sections/FlashSaleSection";
 import FeaturedCollectionsSection from "@/components/sections/FeaturedCollectionsSection";
 import ProductGridSection from "@/components/sections/ProductGridSection";
 import PromoSplitBannerSection from "@/components/sections/PromoSplitBannerSection";
+import PromotionsSection from "@/components/sections/PromotionsSection";
 import BrandsCarouselSection from "@/components/sections/BrandsCarouselSection";
 import CuratedRecommendationsSection from "@/components/sections/CuratedRecommendationsSection";
 import BlogStoriesSection from "@/components/sections/BlogStoriesSection";
@@ -133,6 +134,8 @@ function renderStoreSection(
       return <ProductGridSection section={sec} products={products} isDarkMode={isDarkMode} />;
     case "promo_split_banner":
       return <PromoSplitBannerSection section={sec} isDarkMode={isDarkMode} />;
+    case "promotions_section":
+      return <PromotionsSection section={sec} isDarkMode={isDarkMode} />;
     case "brands_carousel":
       return <BrandsCarouselSection section={sec} isDarkMode={isDarkMode} />;
     case "curated_recommendations":

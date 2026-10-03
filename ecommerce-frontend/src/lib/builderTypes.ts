@@ -6,6 +6,7 @@ export type SectionType =
   | "featured_collections"
   | "product_grid"
   | "promo_split_banner"
+  | "promotions_section"
   | "brands_carousel"
   | "curated_recommendations"
   | "blog_stories"
@@ -40,13 +41,21 @@ export type BusinessPresetId =
 
 export interface ThemeConfig {
   themePreset: BusinessPresetId;
-  headerStyle: "standard" | "sidebar_integrated" | "dark_luxury" | "minimal";
+  headerStyle: "standard" | "sidebar_integrated" | "dark_luxury" | "minimal" | "centered_logo";
+  headerLogoType?: "text" | "image";
+  headerLogo?: string;
+  headerLogoText?: string;
+  headerLogoTagline?: string;
+  headerBannerImage?: string;
   primaryColor: string;
   accentColor: string;
   isDarkMode: boolean;
   fontFamily: string;
   announcementText?: string;
   showAnnouncement?: boolean;
+  announcementBgColor?: string;
+  announcementTextColor?: string;
+  announcementLink?: string;
   sections: SectionItem[];
 }
 

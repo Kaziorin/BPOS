@@ -49,6 +49,10 @@ import {
   Maximize2,
   Move,
   Layout,
+  Grid,
+  List,
+  Image as ImageIcon,
+  Megaphone,
 } from "lucide-react";
 import {
   ThemeConfig,
@@ -67,6 +71,7 @@ import {
 import { fetchActiveTheme, saveActiveTheme, getPresetTheme } from "@/lib/builderStore";
 import { StorefrontAPI, ProductItem, CategoryItem, StoreConfig } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import toast from "react-hot-toast";
 
 // Section Components for Live Preview
@@ -77,6 +82,7 @@ import FlashSaleSection from "@/components/sections/FlashSaleSection";
 import FeaturedCollectionsSection from "@/components/sections/FeaturedCollectionsSection";
 import ProductGridSection from "@/components/sections/ProductGridSection";
 import PromoSplitBannerSection from "@/components/sections/PromoSplitBannerSection";
+import PromotionsSection from "@/components/sections/PromotionsSection";
 import BrandsCarouselSection from "@/components/sections/BrandsCarouselSection";
 import CuratedRecommendationsSection from "@/components/sections/CuratedRecommendationsSection";
 import BlogStoriesSection from "@/components/sections/BlogStoriesSection";
@@ -139,7 +145,16 @@ const SECTION_LIBRARY: SectionMeta[] = [
     title: "Dynamic Product Grid",
     category: "products",
     icon: "🛍️",
-    desc: "Customizable 2/3/4/5/6 columns grid with category filter & limit.",
+    desc: "Grid or List layout with 2-6 columns, category filter & limit.",
+    badge: "GRID / LIST",
+  },
+  {
+    type: "promotions_section",
+    title: "Promotions & POS Vouchers",
+    category: "products",
+    icon: "🏷️",
+    desc: "Synced POS coupons, copyable discount codes & promotional campaign cards.",
+    badge: "POS SYNC",
   },
   {
     type: "flash_sale",
@@ -150,93 +165,93 @@ const SECTION_LIBRARY: SectionMeta[] = [
   },
   {
     type: "featured_collections",
-    title: "Bento Multi-Card Collections",
+    title: "Bento Grid Collections",
     category: "products",
     icon: "🍱",
-    desc: "Modern asymmetric Bento grid cards for high-margin departments.",
+    desc: "High-impact visual Bento tiles linking to featured departments.",
+  },
+  {
+    type: "promo_split_banner",
+    title: "Split Promo Hero Banner",
+    category: "products",
+    icon: "🎁",
+    desc: "Dual-card promotional hero with lifestyle graphics & CTA links.",
   },
   {
     type: "curated_recommendations",
     title: "Curated Recommendations",
     category: "products",
     icon: "✨",
-    desc: "Personalized 'Just for you' product carousel.",
-  },
-  {
-    type: "promo_split_banner",
-    title: "Promo Split Showcase Banner",
-    category: "products",
-    icon: "🎨",
-    desc: "High-contrast promotional visual banner with side cards & CTAs.",
+    desc: "AI / Staff handpicked products with highlight cards & ratings.",
   },
 
-  // Business Specials
-  {
-    type: "restaurant_menu",
-    title: "Restaurant Menu & Food Specials",
-    category: "business",
-    icon: "🍔",
-    desc: "Gourmet dish menu with category tabs, prep time, price and 1-click add to cart.",
-    badge: "Food & Cafe",
-  },
+  // Business Specific
   {
     type: "pharmacy_upload",
-    title: "Prescription Upload & Rx Dispatch",
+    title: "Prescription Upload & Rx",
     category: "business",
     icon: "💊",
-    desc: "Direct drag & drop file upload for medical prescriptions & pharmacist review.",
-    badge: "Pharmacy",
+    desc: "Customer prescription upload box for Pharmacy & Health stores.",
+    badge: "PHARMACY",
   },
   {
-    type: "brands_carousel",
-    title: "Brand Logo Partners Bar",
+    type: "restaurant_menu",
+    title: "Restaurant Menu Browser",
     category: "business",
-    icon: "🏷️",
-    desc: "Clean brand logos carousel building trust and partner credibility.",
+    icon: "🍕",
+    desc: "Categorized food menu cards with prep time & quick order.",
+    badge: "RESTAURANT",
   },
   {
     type: "app_download",
     title: "Mobile App Download Banner",
     category: "business",
     icon: "📱",
-    desc: "Google Play & App Store download badges with phone mockup showcase.",
+    desc: "Promote iOS & Android mobile shopping applications with QR code.",
   },
 
-  // Content & Proof
+  // Content
+  {
+    type: "special_notice",
+    title: "Announcement & Notice Bar",
+    category: "content",
+    icon: "📢",
+    desc: "Urgent top banner with customizable gradients and action buttons.",
+  },
+  {
+    type: "brands_carousel",
+    title: "Brand Partners Carousel",
+    category: "content",
+    icon: "🏢",
+    desc: "Official brand partner logos and manufacturer carousel.",
+  },
   {
     type: "testimonials",
-    title: "Customer Reviews & Testimonials",
+    title: "Customer Reviews & Social Proof",
     category: "content",
     icon: "⭐",
-    desc: "5-star rating customer cards with user avatars, reviews & verified tags.",
+    desc: "5-star customer testimonials with avatars and verified badges.",
   },
   {
     type: "faq_section",
     title: "FAQ Accordion Questions",
     category: "content",
     icon: "❓",
-    desc: "Interactive collapsible FAQ accordions for shipping, warranty & returns.",
-  },
-  {
-    type: "special_notice",
-    title: "Announcement & Flash Notice",
-    category: "content",
-    icon: "📢",
-    desc: "Prominent top alert or coupon notice with CTA button.",
-  },
-  {
-    type: "rich_text",
-    title: "Our Story & Brand Philosophy",
-    category: "content",
-    icon: "📖",
-    desc: "About Us story section with high-res photo, bullet points & milestones badge.",
+    desc: "Collapsible frequently asked questions for policies & delivery.",
   },
   {
     type: "blog_stories",
-    title: "Blog & Lifestyle Stories",
+    title: "Blog & Style Stories",
     category: "content",
     icon: "📰",
-    desc: "Engaging blog articles and style guides grid.",
+    desc: "Editorial articles, tips and buying guides for shoppers.",
+  },
+  {
+    type: "rich_text",
+    title: "Custom Brand Story / About",
+    category: "content",
+    icon: "📝",
+    desc: "Custom text, brand heritage headline, image and CTA button.",
   },
 ];
 
@@ -324,13 +339,15 @@ const COLOR_PALETTES = [
   { name: "Deep Violet", hex: "#7c3aed" },
   { name: "Crimson Red", hex: "#dc2626" },
   { name: "Slate Charcoal", hex: "#334155" },
+  { name: "Indigo Sapphire", hex: "#4f46e5" },
 ];
 
 export default function SetupPage() {
   const router = useRouter();
   const { isAdmin } = useAuth();
+  const { theme: globalTheme, setTheme: setGlobalTheme, saveTheme: saveGlobalTheme } = useTheme();
 
-  const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_VIBRANT_THEME);
+  const [theme, setTheme] = useState<ThemeConfig>(globalTheme || DEFAULT_VIBRANT_THEME);
   const [activeTab, setActiveTab] = useState<"sections" | "library" | "presets" | "styles">("sections");
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>("sec-hero-1");
   const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
@@ -352,11 +369,12 @@ export default function SetupPage() {
         setLoading(true);
         const [loadedTheme, prods, cats, conf] = await Promise.all([
           fetchActiveTheme(),
-          StorefrontAPI.getProducts({ limit: 12 }),
+          StorefrontAPI.getProducts({ limit: 16 }),
           StorefrontAPI.getCategories(),
           StorefrontAPI.getConfig(),
         ]);
         setTheme(loadedTheme);
+        setGlobalTheme(loadedTheme);
         setProducts(prods.items || []);
         setCategories(cats || []);
         setConfig(conf || null);
@@ -371,6 +389,12 @@ export default function SetupPage() {
     }
     loadData();
   }, []);
+
+  // Update global theme context dynamically whenever local theme changes so colors reflect everywhere
+  const updateLocalAndGlobalTheme = (newTheme: ThemeConfig) => {
+    setTheme(newTheme);
+    setGlobalTheme(newTheme);
+  };
 
   // ── Drag and Drop Reordering Handlers ──
   const handleDragStart = (e: React.DragEvent, index: number) => {
@@ -399,7 +423,7 @@ export default function SetupPage() {
     const [movedItem] = newSections.splice(draggedIndex, 1);
     newSections.splice(targetIndex, 0, movedItem);
 
-    setTheme({ ...theme, sections: newSections });
+    updateLocalAndGlobalTheme({ ...theme, sections: newSections });
     setDraggedIndex(null);
     setDragOverIndex(null);
     toast.success("Section reordered!");
@@ -417,7 +441,7 @@ export default function SetupPage() {
     const temp = newSections[index - 1];
     newSections[index - 1] = newSections[index];
     newSections[index] = temp;
-    setTheme({ ...theme, sections: newSections });
+    updateLocalAndGlobalTheme({ ...theme, sections: newSections });
   };
 
   const handleMoveDown = (index: number) => {
@@ -426,14 +450,14 @@ export default function SetupPage() {
     const temp = newSections[index + 1];
     newSections[index + 1] = newSections[index];
     newSections[index] = temp;
-    setTheme({ ...theme, sections: newSections });
+    updateLocalAndGlobalTheme({ ...theme, sections: newSections });
   };
 
   const handleToggleVisible = (id: string) => {
     const newSections = theme.sections.map((s) =>
       s.id === id ? { ...s, enabled: !s.enabled } : s
     );
-    setTheme({ ...theme, sections: newSections });
+    updateLocalAndGlobalTheme({ ...theme, sections: newSections });
   };
 
   const handleDuplicateSection = (sec: SectionItem, idx: number) => {
@@ -445,77 +469,139 @@ export default function SetupPage() {
     };
     const newSections = [...theme.sections];
     newSections.splice(idx + 1, 0, duplicated);
-    setTheme({ ...theme, sections: newSections });
+    updateLocalAndGlobalTheme({ ...theme, sections: newSections });
     setSelectedSectionId(newId);
     toast.success("Section duplicated!");
   };
 
   const handleDeleteSection = (id: string) => {
+    if (theme.sections.length <= 1) {
+      toast.error("You must keep at least 1 section on the page.");
+      return;
+    }
     const newSections = theme.sections.filter((s) => s.id !== id);
-    setTheme({ ...theme, sections: newSections });
+    updateLocalAndGlobalTheme({ ...theme, sections: newSections });
     if (selectedSectionId === id) {
       setSelectedSectionId(newSections[0]?.id || null);
     }
-    toast.success("Section removed");
+    toast.success("Section deleted");
   };
 
   const handleAddSection = (type: SectionType, insertAtIndex?: number) => {
     const newId = `sec-${type}-${Date.now()}`;
-    let newSec: SectionItem = {
+    const newSec: SectionItem = {
       id: newId,
       type,
-      title: "New " + type.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
-      subtitle: "Customize this section subtitle or description",
-      badge: "FEATURED",
       enabled: true,
       settings: {},
     };
 
     if (type === "hero_slider") {
-      newSec.title = "Discover Trending Collections";
-      newSec.subtitle = "Exclusive premium arrivals with fast doorstep delivery.";
+      newSec.title = "Explore New Premium Trends & Deals";
+      newSec.subtitle = "Exclusive quality, express shipping and 100% genuine products.";
+      newSec.badge = "NEW COLLECTION";
       newSec.settings = {
         ctaText: "Shop Now",
         ctaLink: "/products",
-        sideDealTitle: "Flash Deal",
-        sideDealBadge: "Up to 50% OFF",
-        sideDealSubtitle: "Limited Time Only",
         heroImage: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1000&auto=format&fit=crop&q=80",
-        bgColor: "from-blue-50 via-indigo-50/50 to-white",
+        sideDealTitle: "Weekend Deal",
+        sideDealBadge: "Up to 50% OFF",
+        sideDealSubtitle: "Limited quantities",
+        sideDealHours: 12,
+        sideDealImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
       };
-    } else if (type === "flash_sale") {
-      newSec.title = "Flash Deals & Limited Drops";
-      newSec.subtitle = "Limited time discounts. Grab yours before stocks run out!";
-      newSec.settings = { hoursLeft: 8, discountText: "UP TO 60% OFF", limit: 6 };
-    } else if (type === "category_showcase") {
-      newSec.title = "Explore By Category";
-      newSec.settings = { style: "circles", limit: 8 };
     } else if (type === "product_grid") {
-      newSec.title = "Top Trending Products";
-      newSec.settings = { filter: "all", limit: 8, columns: 4 };
-    } else if (type === "restaurant_menu") {
-      newSec.title = "Chef's Signature Dishes & Daily Specials";
+      newSec.title = "Trending Products";
+      newSec.subtitle = "Top rated items selected by our staff";
+      newSec.badge = "HOT PICKS";
+      newSec.settings = { layout: "grid", columns: 4, limit: 8, showRating: true, showBadge: true, showStock: true };
+    } else if (type === "promotions_section") {
+      newSec.title = "Special Offers & Coupon Discounts";
+      newSec.subtitle = "Copy discount voucher codes and apply at checkout for instant savings!";
+      newSec.badge = "PROMOTIONS & VOUCHERS";
       newSec.settings = {};
-    } else if (type === "pharmacy_upload") {
-      newSec.title = "Upload Prescription for Rapid Medicine Delivery";
+    } else if (type === "category_showcase") {
+      newSec.title = "Shop by Category";
+      newSec.subtitle = "Browse all collections & top brands";
+      newSec.settings = { style: "circles", limit: 8 };
+    } else if (type === "flash_sale") {
+      newSec.title = "Flash Sale Deals";
+      newSec.subtitle = "Hurry up! Special discounts for a limited time only.";
+      newSec.badge = "FLASH DEAL";
+      newSec.settings = { hoursLeft: 8, discountText: "UP TO 60% OFF", limit: 6 };
+    } else if (type === "featured_collections") {
+      newSec.title = "Featured Collections";
+      newSec.subtitle = "Curated departments for your daily lifestyle";
+      newSec.settings = {
+        layout: "bento_3",
+        cards: [
+          {
+            title: "Summer Collection",
+            subtitle: "Light & breathable styles",
+            cta: "Shop Now",
+            link: "/products?category=Fashion",
+            image: "https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?w=600&auto=format&fit=crop&q=80",
+          },
+          {
+            title: "Smart Devices",
+            subtitle: "Next-gen tech",
+            cta: "Explore",
+            link: "/products?category=Electronics",
+            image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=600&auto=format&fit=crop&q=80",
+          },
+          {
+            title: "Daily Fresh Essentials",
+            subtitle: "Pantry & Groceries",
+            cta: "Order Fresh",
+            link: "/products?category=Grocery",
+            image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80",
+          },
+        ],
+      };
+    } else if (type === "promo_split_banner") {
+      newSec.title = "Upgrade Your Lifestyle With Premium Picks";
+      newSec.subtitle = "Top quality, verified sellers, unbeatable warranty guaranteed.";
+      newSec.badge = "SUPER SALE";
+      newSec.settings = {
+        ctaText: "Shop Collection",
+        ctaLink: "/products",
+        sideCardTitle: "Quality & Trust",
+        sideCardSubtitle: "100% Genuine Certified Goods",
+        image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80",
+      };
+    } else if (type === "feature_badges") {
+      newSec.settings = {
+        items: [
+          { icon: "Truck", title: "Free Shipping", desc: "On orders over $50 / ৳500" },
+          { icon: "ShieldCheck", title: "Secure Payment", desc: "100% secure checkout" },
+          { icon: "RotateCcw", title: "Easy Returns", desc: "7 days instant return policy" },
+          { icon: "Headphones", title: "24/7 Support", desc: "Dedicated friendly customer support" },
+        ],
+      };
+    } else if (type === "brands_carousel") {
+      newSec.title = "Official Brand Partners";
+      newSec.subtitle = "Authorized dealer for leading global & local manufacturers";
       newSec.settings = {};
     } else if (type === "testimonials") {
-      newSec.title = "What Our Valued Customers Say";
+      newSec.title = "What Our Customers Say";
+      newSec.subtitle = "Real feedback from verified shoppers";
       newSec.settings = {};
     } else if (type === "faq_section") {
       newSec.title = "Frequently Asked Questions";
+      newSec.subtitle = "Got questions? We have got answers.";
       newSec.settings = {};
     } else if (type === "special_notice") {
-      newSec.title = "⚡ Exclusive Flash Notice: Special Offer Inside!";
-      newSec.settings = { themeStyle: "gradient", ctaText: "Check Deals", ctaLink: "/products" };
-    } else if (type === "app_download") {
-      newSec.title = "Download Our High-Speed Mobile App";
-      newSec.settings = {};
+      newSec.title = "⚡ Exclusive Promo: 20% Instant Cashback on All Online Payments!";
+      newSec.subtitle = "Use code CASH20 at checkout. Limited time only.";
+      newSec.badge = "LIMITED OFFER";
+      newSec.settings = { themeStyle: "gradient", ctaText: "Claim Offer", ctaLink: "/products" };
     } else if (type === "rich_text") {
       newSec.title = "Our Story & Quality Promise";
+      newSec.subtitle = "Crafting exceptional shopping experiences since day one.";
       newSec.settings = {
+        bodyText: "We are committed to delivering authentic products directly to your doorstep with express speed and unbeatable customer care.",
         image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop&q=80",
-        ctaText: "Explore More",
+        ctaText: "Learn More",
         ctaLink: "/products",
       };
     }
@@ -527,7 +613,7 @@ export default function SetupPage() {
       newSections.push(newSec);
     }
 
-    setTheme({ ...theme, sections: newSections });
+    updateLocalAndGlobalTheme({ ...theme, sections: newSections });
     setSelectedSectionId(newId);
     setActiveTab("sections");
     toast.success(`Added ${type.replace(/_/g, " ")} section!`);
@@ -546,12 +632,12 @@ export default function SetupPage() {
       }
       return { ...s, [field]: val };
     });
-    setTheme({ ...theme, sections: newSections });
+    updateLocalAndGlobalTheme({ ...theme, sections: newSections });
   };
 
   const handleApplyPreset = (preset: BusinessPresetId) => {
     const loaded = getPresetTheme(preset);
-    setTheme(loaded);
+    updateLocalAndGlobalTheme(loaded);
     setSelectedSectionId(loaded.sections[0]?.id || null);
     toast.success(`Applied ${preset.replace("shopease-", "").toUpperCase()} template!`);
   };
@@ -560,6 +646,7 @@ export default function SetupPage() {
     try {
       setIsSaving(true);
       await saveActiveTheme(theme);
+      setGlobalTheme(theme);
       toast.success("🎉 Storefront theme & layout published live!");
     } catch (err) {
       toast.error("Failed to save theme");
@@ -586,7 +673,7 @@ export default function SetupPage() {
         try {
           const parsed = JSON.parse(event.target?.result as string);
           if (parsed && parsed.sections) {
-            setTheme(parsed);
+            updateLocalAndGlobalTheme(parsed);
             setSelectedSectionId(parsed.sections[0]?.id || null);
             toast.success("Theme imported successfully!");
           }
@@ -610,18 +697,21 @@ export default function SetupPage() {
             href="/"
             className="flex items-center gap-2.5 font-black text-white hover:text-sky-400 transition-colors"
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-sky-500/20">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md"
+              style={{ backgroundColor: theme.primaryColor || "#2563eb" }}
+            >
               <Sliders className="w-4 h-4" />
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-black tracking-tight flex items-center gap-1.5">
                 <span>ShopEase Visual Builder</span>
                 <span className="text-[10px] bg-sky-500/20 text-sky-400 border border-sky-500/30 px-1.5 py-0.2 rounded font-mono">
-                  v2.5
+                  v3.0 PRO
                 </span>
               </span>
               <span className="text-[10px] text-slate-400 font-normal">
-                Active Template: <strong className="text-sky-400">{theme.themePreset.replace("shopease-", "")}</strong>
+                Preset: <strong style={{ color: theme.primaryColor || "#2563eb" }}>{theme.themePreset.replace("shopease-", "")}</strong>
               </span>
             </div>
           </Link>
@@ -634,9 +724,10 @@ export default function SetupPage() {
             onClick={() => setViewport("desktop")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               viewport === "desktop"
-                ? "bg-sky-600 text-white shadow-md shadow-sky-600/30"
+                ? "bg-slate-800 text-white shadow-md font-black"
                 : "text-slate-400 hover:text-white"
             }`}
+            style={viewport === "desktop" ? { backgroundColor: theme.primaryColor || "#2563eb" } : {}}
           >
             <Monitor className="w-3.5 h-3.5" />
             <span>Desktop</span>
@@ -646,9 +737,10 @@ export default function SetupPage() {
             onClick={() => setViewport("tablet")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               viewport === "tablet"
-                ? "bg-sky-600 text-white shadow-md shadow-sky-600/30"
+                ? "bg-slate-800 text-white shadow-md font-black"
                 : "text-slate-400 hover:text-white"
             }`}
+            style={viewport === "tablet" ? { backgroundColor: theme.primaryColor || "#2563eb" } : {}}
           >
             <Tablet className="w-3.5 h-3.5" />
             <span>Tablet</span>
@@ -658,9 +750,10 @@ export default function SetupPage() {
             onClick={() => setViewport("mobile")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               viewport === "mobile"
-                ? "bg-sky-600 text-white shadow-md shadow-sky-600/30"
+                ? "bg-slate-800 text-white shadow-md font-black"
                 : "text-slate-400 hover:text-white"
             }`}
+            style={viewport === "mobile" ? { backgroundColor: theme.primaryColor || "#2563eb" } : {}}
           >
             <Smartphone className="w-3.5 h-3.5" />
             <span>Mobile</span>
@@ -694,14 +787,18 @@ export default function SetupPage() {
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-colors"
           >
             <Eye className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Preview Store</span>
+            <span className="hidden sm:inline">Preview Live Store</span>
           </Link>
 
           <button
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-sky-500/20 transition-transform active:scale-95 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-white font-bold text-xs uppercase tracking-wider shadow-lg transition-transform active:scale-95 disabled:opacity-50"
+            style={{
+              backgroundColor: theme.primaryColor || "#2563eb",
+              boxShadow: `0 8px 20px ${theme.primaryColor || "#2563eb"}40`,
+            }}
           >
             <Save className="w-4 h-4" />
             <span>{isSaving ? "Saving..." : "Save & Publish"}</span>
@@ -712,8 +809,8 @@ export default function SetupPage() {
       {/* ── Main Workspace: Left Inspector Panel + Center Live Canvas ── */}
       <div className="flex-1 flex overflow-hidden">
         
-        {/* ── LEFT PANEL (Tabs + Reorder List + Inspector + Library) ── */}
-        <aside className="w-80 sm:w-[410px] bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 overflow-hidden shadow-2xl">
+        {/* ── LEFT PANEL (Tabs + Reorder List + Detailed Inspector + Library + Styles) ── */}
+        <aside className="w-80 sm:w-[420px] bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 overflow-hidden shadow-2xl">
           
           {/* Main 4 Tabs */}
           <div className="grid grid-cols-4 border-b border-slate-800 text-[11px] font-bold text-slate-400 shrink-0">
@@ -763,14 +860,14 @@ export default function SetupPage() {
               }`}
             >
               <Palette className="w-4 h-4" />
-              <span>Theme</span>
+              <span>Theme & Header</span>
             </button>
           </div>
 
           {/* Panel Scrollable Body */}
           <div className="flex-1 overflow-y-auto p-4 space-y-5">
             
-            {/* ════ TAB 1: SECTIONS & DRAG-AND-DROP REORDER ════ */}
+            {/* ════ TAB 1: SECTIONS & DRAG-AND-DROP REORDER + GRANULAR INSPECTOR ════ */}
             {activeTab === "sections" && (
               <div className="space-y-4">
                 
@@ -809,44 +906,48 @@ export default function SetupPage() {
                         onDrop={(e) => handleDrop(e, idx)}
                         onDragEnd={handleDragEnd}
                         onClick={() => setSelectedSectionId(sec.id)}
-                        className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
+                        className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-2.5 ${
                           isDragging
-                            ? "opacity-30 border-dashed border-sky-400 bg-slate-800"
+                            ? "opacity-30 border-dashed border-sky-500"
                             : isOver
-                            ? "border-sky-400 bg-sky-950/40 ring-2 ring-sky-500/50"
+                            ? "border-sky-400 bg-sky-950/40 translate-x-1"
                             : isSelected
-                            ? "bg-gradient-to-r from-sky-950/80 to-indigo-950/60 border-sky-500 shadow-md text-white"
-                            : "bg-slate-950/60 border-slate-800 hover:border-slate-700 text-slate-300"
-                        } ${!sec.enabled ? "opacity-40" : ""}`}
+                            ? "bg-slate-800/90 border-sky-500 ring-2 ring-sky-500/40 shadow-lg"
+                            : "bg-slate-950/70 border-slate-800 hover:border-slate-700"
+                        } ${!sec.enabled ? "opacity-50" : ""}`}
                       >
-                        {/* Drag Handle + Number + Title */}
-                        <div className="flex items-center gap-2.5 truncate flex-1 min-w-0">
-                          <div className="cursor-grab active:cursor-grabbing text-slate-500 hover:text-slate-300 p-0.5">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            className="cursor-grab active:cursor-grabbing text-slate-600 hover:text-slate-300 p-0.5"
+                            title="Drag to reorder"
+                          >
                             <GripVertical className="w-4 h-4" />
-                          </div>
-                          <span className="text-[10px] font-mono text-slate-500 w-3 shrink-0">
-                            {idx + 1}
                           </span>
-                          <div className="truncate">
-                            <h4 className="text-xs font-bold truncate">
-                              {sec.title || sec.type.replace(/_/g, " ").toUpperCase()}
-                            </h4>
-                            <span className="text-[10px] text-sky-400/80 uppercase tracking-wider block font-mono truncate">
+
+                          <div className="w-6 h-6 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-[10px] font-mono text-slate-400">
+                            {idx + 1}
+                          </div>
+
+                          <div className="min-w-0">
+                            <span className="block text-xs font-bold text-white truncate">
+                              {sec.title || sec.type.replace(/_/g, " ")}
+                            </span>
+                            <span className="block text-[10px] text-slate-400 uppercase font-mono tracking-wider">
                               {sec.type}
                             </span>
                           </div>
                         </div>
 
-                        {/* Action buttons */}
+                        {/* Actions */}
                         <div
-                          className="flex items-center gap-1 shrink-0 ml-2"
+                          className="flex items-center gap-1 shrink-0"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <button
                             type="button"
                             onClick={() => handleMoveUp(idx)}
                             disabled={idx === 0}
-                            className="p-1 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white disabled:opacity-10"
+                            className="p-1 rounded-md hover:bg-slate-700 text-slate-400 disabled:opacity-20"
                             title="Move Up"
                           >
                             <ArrowUp className="w-3.5 h-3.5" />
@@ -855,7 +956,7 @@ export default function SetupPage() {
                             type="button"
                             onClick={() => handleMoveDown(idx)}
                             disabled={idx === theme.sections.length - 1}
-                            className="p-1 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white disabled:opacity-10"
+                            className="p-1 rounded-md hover:bg-slate-700 text-slate-400 disabled:opacity-20"
                             title="Move Down"
                           >
                             <ArrowDown className="w-3.5 h-3.5" />
@@ -863,15 +964,15 @@ export default function SetupPage() {
                           <button
                             type="button"
                             onClick={() => handleDuplicateSection(sec, idx)}
-                            className="p-1 rounded-md hover:bg-slate-800 text-slate-400 hover:text-sky-300"
-                            title="Duplicate Section"
+                            className="p-1 rounded-md hover:bg-slate-700 text-slate-400 hover:text-sky-400"
+                            title="Duplicate"
                           >
                             <Copy className="w-3.5 h-3.5" />
                           </button>
                           <button
                             type="button"
                             onClick={() => handleToggleVisible(sec.id)}
-                            className="p-1 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white"
+                            className="p-1 rounded-md hover:bg-slate-700 text-slate-400"
                             title={sec.enabled ? "Hide Section" : "Show Section"}
                           >
                             {sec.enabled ? (
@@ -894,18 +995,20 @@ export default function SetupPage() {
                   })}
                 </div>
 
-                {/* Section Inspector Details */}
+                {/* ════ GRANULAR BLOCK INSPECTOR (LOW END PORJONTO EDIT & UPDATE) ════ */}
                 {selectedSection && (
                   <div className="pt-4 border-t border-slate-800 space-y-4">
                     <div className="flex items-center justify-between">
                       <h4 className="text-xs font-black uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
                         <Settings className="w-3.5 h-3.5" />
-                        <span>Edit Section: {selectedSection.type}</span>
+                        <span>Edit Block: {selectedSection.type.replace(/_/g, " ")}</span>
                       </h4>
                       <span className="text-[10px] font-mono text-slate-500">ID: {selectedSection.id}</span>
                     </div>
 
                     <div className="space-y-3 bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+                      
+                      {/* Common: Heading Title */}
                       <div>
                         <label className="block text-[11px] font-bold text-slate-400 mb-1">
                           Heading Title
@@ -914,10 +1017,12 @@ export default function SetupPage() {
                           type="text"
                           value={selectedSection.title || ""}
                           onChange={(e) => handleUpdateSelected("title", e.target.value)}
+                          placeholder="Section Title"
                           className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-hidden focus:border-sky-500"
                         />
                       </div>
 
+                      {/* Common: Subtitle */}
                       <div>
                         <label className="block text-[11px] font-bold text-slate-400 mb-1">
                           Subtitle / Description
@@ -926,10 +1031,12 @@ export default function SetupPage() {
                           rows={2}
                           value={selectedSection.subtitle || ""}
                           onChange={(e) => handleUpdateSelected("subtitle", e.target.value)}
+                          placeholder="Supporting subtitle text..."
                           className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-hidden focus:border-sky-500 resize-none"
                         />
                       </div>
 
+                      {/* Common: Badge Label */}
                       <div>
                         <label className="block text-[11px] font-bold text-slate-400 mb-1">
                           Badge Tag Label
@@ -943,30 +1050,154 @@ export default function SetupPage() {
                         />
                       </div>
 
-                      {/* Dynamic Section Type Specific Settings */}
+                      {/* ── 1. PRODUCT GRID SETTINGS: GRID VS LIST, COLUMNS, CATEGORY, LIMIT ── */}
+                      {selectedSection.type === "product_grid" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          
+                          {/* Layout Mode: Grid vs List */}
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1.5">
+                              Display Layout Mode
+                            </label>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateSelected("settings.layout", "grid")}
+                                className={`p-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                                  (selectedSection.settings?.layout || "grid") === "grid"
+                                    ? "bg-sky-600 text-white border-sky-500 shadow-md font-black"
+                                    : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"
+                                }`}
+                              >
+                                <Grid className="w-3.5 h-3.5" />
+                                <span>Grid View</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateSelected("settings.layout", "list")}
+                                className={`p-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                                  selectedSection.settings?.layout === "list"
+                                    ? "bg-sky-600 text-white border-sky-500 shadow-md font-black"
+                                    : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"
+                                }`}
+                              >
+                                <List className="w-3.5 h-3.5" />
+                                <span>List View</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Grid Columns & Limit */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Columns (Grid)</label>
+                              <select
+                                value={selectedSection.settings?.columns || 4}
+                                onChange={(e) => handleUpdateSelected("settings.columns", Number(e.target.value))}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              >
+                                <option value={2}>2 Columns</option>
+                                <option value={3}>3 Columns</option>
+                                <option value={4}>4 Columns (Default)</option>
+                                <option value={5}>5 Columns</option>
+                                <option value={6}>6 Columns</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Max Items</label>
+                              <input
+                                type="number"
+                                min={2}
+                                max={24}
+                                value={selectedSection.settings?.limit || 8}
+                                onChange={(e) => handleUpdateSelected("settings.limit", Number(e.target.value))}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Category Filter */}
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Filter by Specific Category</label>
+                            <select
+                              value={selectedSection.settings?.categoryId || ""}
+                              onChange={(e) => handleUpdateSelected("settings.categoryId", e.target.value)}
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                            >
+                              <option value="">All Categories (Auto)</option>
+                              {categories.map((c) => (
+                                <option key={c.id} value={c.id}>
+                                  {c.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Toggles */}
+                          <div className="space-y-1.5 pt-1">
+                            <label className="flex items-center gap-2 text-[11px] text-slate-300 font-semibold cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={selectedSection.settings?.showRating !== false}
+                                onChange={(e) => handleUpdateSelected("settings.showRating", e.target.checked)}
+                                className="rounded bg-slate-900 border-slate-800 text-sky-600"
+                              />
+                              <span>Show Star Ratings & Review Counts</span>
+                            </label>
+                            <label className="flex items-center gap-2 text-[11px] text-slate-300 font-semibold cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={selectedSection.settings?.showStock !== false}
+                                onChange={(e) => handleUpdateSelected("settings.showStock", e.target.checked)}
+                                className="rounded bg-slate-900 border-slate-800 text-sky-600"
+                              />
+                              <span>Show In-Stock / Pre-Order Badges</span>
+                            </label>
+                          </div>
+
+                        </div>
+                      )}
+
+                      {/* ── 2. HERO SLIDER SETTINGS ── */}
                       {selectedSection.type === "hero_slider" && (
                         <div className="space-y-3 pt-2 border-t border-slate-800/80">
-                          <div>
-                            <label className="block text-[11px] font-bold text-slate-400 mb-1">CTA Button Text</label>
-                            <input
-                              type="text"
-                              value={selectedSection.settings?.ctaText || "Shop Now"}
-                              onChange={(e) => handleUpdateSelected("settings.ctaText", e.target.value)}
-                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
-                            />
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">CTA Button Text</label>
+                              <input
+                                type="text"
+                                value={selectedSection.settings?.ctaText || "Shop Now"}
+                                onChange={(e) => handleUpdateSelected("settings.ctaText", e.target.value)}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">CTA Link URL</label>
+                              <input
+                                type="text"
+                                value={selectedSection.settings?.ctaLink || "/products"}
+                                onChange={(e) => handleUpdateSelected("settings.ctaLink", e.target.value)}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              />
+                            </div>
                           </div>
+
                           <div>
-                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Hero Image URL</label>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Hero Banner Image URL</label>
                             <input
                               type="text"
                               value={selectedSection.settings?.heroImage || ""}
                               onChange={(e) => handleUpdateSelected("settings.heroImage", e.target.value)}
-                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              placeholder="https://..."
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
                             />
                           </div>
-                          <div>
-                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Side Deal Title & Badge</label>
-                            <div className="grid grid-cols-2 gap-2">
+
+                          <div className="pt-2 border-t border-slate-800/60">
+                            <span className="text-[10px] font-black uppercase text-amber-400 block mb-2">
+                              Side Deal Card Settings
+                            </span>
+                            <div className="grid grid-cols-2 gap-2 mb-2">
                               <input
                                 type="text"
                                 placeholder="Side Title"
@@ -976,9 +1207,84 @@ export default function SetupPage() {
                               />
                               <input
                                 type="text"
-                                placeholder="Discount Badge"
+                                placeholder="Discount Badge (e.g. 50% OFF)"
                                 value={selectedSection.settings?.sideDealBadge || ""}
                                 onChange={(e) => handleUpdateSelected("settings.sideDealBadge", e.target.value)}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              />
+                            </div>
+                            <input
+                              type="text"
+                              placeholder="Side Deal Image URL"
+                              value={selectedSection.settings?.sideDealImage || ""}
+                              onChange={(e) => handleUpdateSelected("settings.sideDealImage", e.target.value)}
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 3. PROMOTIONS & VOUCHERS SETTINGS ── */}
+                      {selectedSection.type === "promotions_section" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2">
+                            <Tag className="w-4 h-4 shrink-0" />
+                            <span>This block automatically pulls active promotions & coupons from your POS Admin!</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 4. PROMO SPLIT BANNER SETTINGS ── */}
+                      {selectedSection.type === "promo_split_banner" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">CTA Button Text</label>
+                              <input
+                                type="text"
+                                value={selectedSection.settings?.ctaText || "Shop Now"}
+                                onChange={(e) => handleUpdateSelected("settings.ctaText", e.target.value)}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">CTA Link</label>
+                              <input
+                                type="text"
+                                value={selectedSection.settings?.ctaLink || "/products"}
+                                onChange={(e) => handleUpdateSelected("settings.ctaLink", e.target.value)}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Background Image URL</label>
+                            <input
+                              type="text"
+                              value={selectedSection.settings?.image || ""}
+                              onChange={(e) => handleUpdateSelected("settings.image", e.target.value)}
+                              placeholder="https://..."
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Side Card Title</label>
+                              <input
+                                type="text"
+                                value={selectedSection.settings?.sideCardTitle || "Value Promise"}
+                                onChange={(e) => handleUpdateSelected("settings.sideCardTitle", e.target.value)}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Side Card Subtitle</label>
+                              <input
+                                type="text"
+                                value={selectedSection.settings?.sideCardSubtitle || "Quality Guaranteed"}
+                                onChange={(e) => handleUpdateSelected("settings.sideCardSubtitle", e.target.value)}
                                 className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
                               />
                             </div>
@@ -986,72 +1292,110 @@ export default function SetupPage() {
                         </div>
                       )}
 
-                      {selectedSection.type === "product_grid" && (
-                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Grid Columns</label>
-                              <select
-                                value={selectedSection.settings?.columns || 4}
-                                onChange={(e) => handleUpdateSelected("settings.columns", Number(e.target.value))}
-                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
-                              >
-                                <option value={2}>2 Columns</option>
-                                <option value={3}>3 Columns</option>
-                                <option value={4}>4 Columns</option>
-                                <option value={5}>5 Columns</option>
-                                <option value={6}>6 Columns</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Item Limit</label>
-                              <input
-                                type="number"
-                                min={2}
-                                max={24}
-                                value={selectedSection.settings?.limit || 8}
-                                onChange={(e) => handleUpdateSelected("settings.limit", Number(e.target.value))}
-                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
-                              >
-                              </input>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
+                      {/* ── 5. CATEGORY SHOWCASE SETTINGS ── */}
                       {selectedSection.type === "category_showcase" && (
-                        <div className="pt-2 border-t border-slate-800/80">
-                          <label className="block text-[11px] font-bold text-slate-400 mb-1">Category Layout Style</label>
-                          <select
-                            value={selectedSection.settings?.style || "circles"}
-                            onChange={(e) => handleUpdateSelected("settings.style", e.target.value)}
-                            className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
-                          >
-                            <option value="circles">Circular Pastel Icons</option>
-                            <option value="cards">Bordered Category Cards</option>
-                            <option value="pills">Rounded Capsule Pills</option>
-                          </select>
-                        </div>
-                      )}
-
-                      {selectedSection.type === "flash_sale" && (
-                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80">
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
                           <div>
-                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Hours Left</label>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Category Layout Style</label>
+                            <select
+                              value={selectedSection.settings?.style || "circles"}
+                              onChange={(e) => handleUpdateSelected("settings.style", e.target.value)}
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                            >
+                              <option value="circles">Circular Pastel Icons</option>
+                              <option value="cards">Bordered Category Cards</option>
+                              <option value="pills">Rounded Capsule Pills</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Display Limit</label>
                             <input
                               type="number"
-                              value={selectedSection.settings?.hoursLeft || 8}
-                              onChange={(e) => handleUpdateSelected("settings.hoursLeft", Number(e.target.value))}
+                              min={4}
+                              max={16}
+                              value={selectedSection.settings?.limit || 8}
+                              onChange={(e) => handleUpdateSelected("settings.limit", Number(e.target.value))}
                               className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
                             />
                           </div>
+                        </div>
+                      )}
+
+                      {/* ── 6. FLASH SALE SETTINGS ── */}
+                      {selectedSection.type === "flash_sale" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Hours Left (Timer)</label>
+                              <input
+                                type="number"
+                                value={selectedSection.settings?.hoursLeft || 8}
+                                onChange={(e) => handleUpdateSelected("settings.hoursLeft", Number(e.target.value))}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Discount Tag Text</label>
+                              <input
+                                type="text"
+                                value={selectedSection.settings?.discountText || "UP TO 50% OFF"}
+                                onChange={(e) => handleUpdateSelected("settings.discountText", e.target.value)}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 7. SPECIAL NOTICE SETTINGS ── */}
+                      {selectedSection.type === "special_notice" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Notice Style</label>
+                              <select
+                                value={selectedSection.settings?.themeStyle || "gradient"}
+                                onChange={(e) => handleUpdateSelected("settings.themeStyle", e.target.value)}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              >
+                                <option value="gradient">Vibrant Gradient</option>
+                                <option value="solid">Dark Solid</option>
+                                <option value="alert">Amber Alert</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">CTA Button Text</label>
+                              <input
+                                type="text"
+                                value={selectedSection.settings?.ctaText || "Check Deals"}
+                                onChange={(e) => handleUpdateSelected("settings.ctaText", e.target.value)}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 8. RICH TEXT & STORY SETTINGS ── */}
+                      {selectedSection.type === "rich_text" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
                           <div>
-                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Discount Text</label>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Brand Story Content</label>
+                            <textarea
+                              rows={3}
+                              value={selectedSection.settings?.bodyText || ""}
+                              onChange={(e) => handleUpdateSelected("settings.bodyText", e.target.value)}
+                              placeholder="Write your brand mission and quality promise..."
+                              className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-hidden"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Image URL</label>
                             <input
                               type="text"
-                              value={selectedSection.settings?.discountText || "UP TO 50% OFF"}
-                              onChange={(e) => handleUpdateSelected("settings.discountText", e.target.value)}
-                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              value={selectedSection.settings?.image || ""}
+                              onChange={(e) => handleUpdateSelected("settings.image", e.target.value)}
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
                             />
                           </div>
                         </div>
@@ -1173,19 +1517,157 @@ export default function SetupPage() {
               </div>
             )}
 
-            {/* ════ TAB 4: GLOBAL STYLES & BRANDING ════ */}
+            {/* ════ TAB 4: GLOBAL STYLES, HEADER BRANDING & COLORS ════ */}
             {activeTab === "styles" && (
               <div className="space-y-5">
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-300">
-                    Global Branding & Styles
+                    Global Branding & Header Customizer
                   </h3>
                   <p className="text-[11px] text-slate-500">
-                    Customize global colors, dark mode, typography & header style.
+                    Customize header logo, colors, top banner, announcement bar & dark mode.
                   </p>
                 </div>
 
-                {/* Dark Mode Toggle */}
+                {/* 1. Header Logo & Brand Settings */}
+                <div className="space-y-3 bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+                  <h4 className="text-xs font-black uppercase text-sky-400 flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    <span>Header Logo & Brand Identity</span>
+                  </h4>
+
+                  {/* Logo Image URL */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">
+                      Header Logo Image URL (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={theme.headerLogo || ""}
+                      onChange={(e) => updateLocalAndGlobalTheme({ ...theme, headerLogo: e.target.value })}
+                      placeholder="https://example.com/logo.png"
+                      className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
+                    />
+                    {theme.headerLogo && (
+                      <div className="mt-2 p-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2">
+                        <img
+                          src={theme.headerLogo}
+                          alt="Logo Preview"
+                          className="h-8 max-w-[120px] object-contain bg-white/10 p-1 rounded"
+                        />
+                        <span className="text-[10px] text-emerald-400 font-semibold">Active Logo Preview</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Brand Name Text */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 mb-1">Brand Name</label>
+                      <input
+                        type="text"
+                        value={theme.headerLogoText || ""}
+                        onChange={(e) => updateLocalAndGlobalTheme({ ...theme, headerLogoText: e.target.value })}
+                        placeholder="ShopEase"
+                        className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 mb-1">Tagline</label>
+                      <input
+                        type="text"
+                        value={theme.headerLogoTagline || ""}
+                        onChange={(e) => updateLocalAndGlobalTheme({ ...theme, headerLogoTagline: e.target.value })}
+                        placeholder="Everything You Need"
+                        className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Header Layout Style */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">Header Layout Style</label>
+                    <select
+                      value={theme.headerStyle || "standard"}
+                      onChange={(e) => updateLocalAndGlobalTheme({ ...theme, headerStyle: e.target.value as any })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                    >
+                      <option value="standard">Standard Full-Width Header</option>
+                      <option value="sidebar_integrated">Sidebar Integrated Category Navigation</option>
+                      <option value="dark_luxury">Dark Luxury Obsidian Glass</option>
+                      <option value="minimal">Minimal Clean Header</option>
+                    </select>
+                  </div>
+
+                  {/* Top Decorative Header Banner Image */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">Top Decorative Banner Image URL (Optional)</label>
+                    <input
+                      type="text"
+                      value={theme.headerBannerImage || ""}
+                      onChange={(e) => updateLocalAndGlobalTheme({ ...theme, headerBannerImage: e.target.value })}
+                      placeholder="https://..."
+                      className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* 2. Announcement Bar Customizer */}
+                <div className="space-y-3 bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-black uppercase text-amber-400 flex items-center gap-1.5">
+                      <Megaphone className="w-3.5 h-3.5" />
+                      <span>Announcement Bar</span>
+                    </h4>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-300 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={theme.showAnnouncement !== false}
+                        onChange={(e) => updateLocalAndGlobalTheme({ ...theme, showAnnouncement: e.target.checked })}
+                        className="rounded bg-slate-900 border-slate-800 text-sky-600"
+                      />
+                      <span>Enable</span>
+                    </label>
+                  </div>
+
+                  {theme.showAnnouncement !== false && (
+                    <>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-400 mb-1">Announcement Message</label>
+                        <input
+                          type="text"
+                          value={theme.announcementText || ""}
+                          onChange={(e) => updateLocalAndGlobalTheme({ ...theme, announcementText: e.target.value })}
+                          placeholder="🎉 Free Shipping on orders over $50 with code FREESHIP"
+                          className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-400 mb-1">Bar Background Color</label>
+                          <input
+                            type="color"
+                            value={theme.announcementBgColor || theme.primaryColor || "#2563eb"}
+                            onChange={(e) => updateLocalAndGlobalTheme({ ...theme, announcementBgColor: e.target.value })}
+                            className="w-full h-8 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer p-1"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-400 mb-1">Text Color</label>
+                          <input
+                            type="color"
+                            value={theme.announcementTextColor || "#ffffff"}
+                            onChange={(e) => updateLocalAndGlobalTheme({ ...theme, announcementTextColor: e.target.value })}
+                            className="w-full h-8 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer p-1"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* 3. Dark Mode Toggle */}
                 <div>
                   <label className="block text-[11px] font-bold text-slate-400 mb-1.5">
                     Color Theme Mode
@@ -1193,7 +1675,7 @@ export default function SetupPage() {
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
-                      onClick={() => setTheme({ ...theme, isDarkMode: false })}
+                      onClick={() => updateLocalAndGlobalTheme({ ...theme, isDarkMode: false })}
                       className={`p-3 rounded-2xl border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                         !theme.isDarkMode
                           ? "bg-white text-slate-900 border-sky-500 shadow-md font-black"
@@ -1204,7 +1686,7 @@ export default function SetupPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setTheme({ ...theme, isDarkMode: true })}
+                      onClick={() => updateLocalAndGlobalTheme({ ...theme, isDarkMode: true })}
                       className={`p-3 rounded-2xl border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                         theme.isDarkMode
                           ? "bg-zinc-950 text-white border-amber-500 shadow-md font-black"
@@ -1216,17 +1698,23 @@ export default function SetupPage() {
                   </div>
                 </div>
 
-                {/* Brand Primary Color Swatches */}
+                {/* 4. Brand Primary Color Swatches */}
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-400 mb-1.5">
-                    Brand Primary Color ({theme.primaryColor})
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[11px] font-bold text-slate-400">
+                      Brand Primary Theme Color
+                    </label>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 text-sky-400">
+                      {theme.primaryColor || "#2563eb"}
+                    </span>
+                  </div>
+
                   <div className="grid grid-cols-5 gap-2 mb-2">
                     {COLOR_PALETTES.map((color) => (
                       <button
                         key={color.hex}
                         type="button"
-                        onClick={() => setTheme({ ...theme, primaryColor: color.hex })}
+                        onClick={() => updateLocalAndGlobalTheme({ ...theme, primaryColor: color.hex })}
                         className={`h-8 rounded-xl border flex items-center justify-center transition-transform hover:scale-105 ${
                           theme.primaryColor === color.hex
                             ? "ring-2 ring-white ring-offset-2 ring-offset-slate-950 scale-105"
@@ -1239,107 +1727,39 @@ export default function SetupPage() {
                       </button>
                     ))}
                   </div>
+
                   <input
                     type="color"
-                    value={theme.primaryColor}
-                    onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })}
+                    value={theme.primaryColor || "#2563eb"}
+                    onChange={(e) => updateLocalAndGlobalTheme({ ...theme, primaryColor: e.target.value })}
                     className="w-full h-8 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer p-1"
                   />
-                </div>
-
-                {/* Header Layout Style */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 mb-1.5">
-                    Store Header Layout
-                  </label>
-                  <select
-                    value={theme.headerStyle}
-                    onChange={(e) => setTheme({ ...theme, headerStyle: e.target.value as any })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white"
-                  >
-                    <option value="standard">Standard Full-width Header with Categories Bar</option>
-                    <option value="sidebar_integrated">Left Categories Sidebar (Grocery / Supermarket)</option>
-                    <option value="dark_luxury">Dark Luxury Minimalist Header</option>
-                  </select>
-                </div>
-
-                {/* Announcement Bar text */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-[11px] font-bold text-slate-400">
-                      Store Top Announcement Bar
-                    </label>
-                    <input
-                      type="checkbox"
-                      checked={theme.showAnnouncement !== false}
-                      onChange={(e) => setTheme({ ...theme, showAnnouncement: e.target.checked })}
-                      className="rounded accent-sky-500"
-                    />
-                  </div>
-                  <textarea
-                    rows={2}
-                    value={theme.announcementText || ""}
-                    onChange={(e) => setTheme({ ...theme, announcementText: e.target.value })}
-                    placeholder="e.g. Free Shipping on orders over $50 with code FREESHIP"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white resize-none"
-                  />
-                </div>
-
-                {/* Typography / Font Family */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 mb-1.5">
-                    Typography Font Family
-                  </label>
-                  <select
-                    value={theme.fontFamily}
-                    onChange={(e) => setTheme({ ...theme, fontFamily: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white"
-                  >
-                    <option value="Inter, system-ui, sans-serif">Inter (Modern & Clean)</option>
-                    <option value="Outfit, system-ui, sans-serif">Outfit (Luxury & Fashion)</option>
-                    <option value="'Plus Jakarta Sans', system-ui, sans-serif">Plus Jakarta Sans (Sleek Tech)</option>
-                    <option value="'Playfair Display', serif">Playfair Display (Editorial Elegance)</option>
-                  </select>
                 </div>
 
               </div>
             )}
 
           </div>
-
         </aside>
 
-        {/* ── RIGHT LIVE INTERACTIVE CANVAS ── */}
-        <main className="flex-1 bg-slate-950 overflow-y-auto p-4 sm:p-6 flex items-start justify-center">
+        {/* ── CENTER / RIGHT LIVE CANVAS PREVIEW ── */}
+        <main className="flex-1 bg-slate-950/90 overflow-y-auto p-4 sm:p-6 flex flex-col items-center">
+          
           <div
-            className={`transition-all duration-300 shadow-2xl rounded-3xl overflow-hidden border border-slate-800 ${
-              theme.isDarkMode ? "bg-zinc-950 text-white" : "bg-white text-slate-900"
-            }`}
-            style={{
-              width:
-                viewport === "mobile"
-                  ? "375px"
-                  : viewport === "tablet"
-                  ? "768px"
-                  : "100%",
-              maxWidth: "1440px",
-              minHeight: "850px",
-              fontFamily: theme.fontFamily,
-            }}
+            className={`transition-all duration-300 w-full rounded-3xl overflow-hidden shadow-2xl border ${
+              viewport === "mobile"
+                ? "max-w-[400px] my-4 border-slate-700 ring-8 ring-slate-800"
+                : viewport === "tablet"
+                ? "max-w-[768px] my-4 border-slate-700 ring-8 ring-slate-800"
+                : "max-w-7xl border-slate-800"
+            } ${theme.isDarkMode ? "bg-zinc-950 text-white" : "bg-white text-slate-900"}`}
           >
-            {/* Storefront Top Announcement */}
-            {theme.showAnnouncement !== false && theme.announcementText && (
-              <div className="bg-sky-600 text-white text-[11px] font-bold py-1.5 px-4 text-center">
-                {theme.announcementText}
-              </div>
-            )}
-
-            {/* Storefront Header */}
+            {/* Live Navbar Preview */}
             <Navbar isDarkMode={theme.isDarkMode} />
 
-            {/* Layout Wrapper: Standard vs Sidebar mode */}
+            {/* Sections Canvas */}
             {theme.headerStyle === "sidebar_integrated" ? (
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex gap-6">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex gap-6">
                 <SidebarCategoryNav categories={categories} isDarkMode={theme.isDarkMode} />
                 <div className="flex-1 min-w-0 space-y-4">
                   {theme.sections.map((sec, idx) => {
@@ -1410,21 +1830,6 @@ export default function SetupPage() {
                         </div>
 
                         {renderSection(sec, products, categories, theme.isDarkMode)}
-
-                        {/* In-canvas insert button divider */}
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity py-2 flex items-center justify-center">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddSection("product_grid", idx + 1);
-                            }}
-                            className="px-3 py-1 rounded-full bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold flex items-center gap-1 shadow-lg shadow-sky-600/30"
-                          >
-                            <Plus className="w-3 h-3" />
-                            <span>Insert Section Here</span>
-                          </button>
-                        </div>
                       </div>
                     );
                   })}
@@ -1500,21 +1905,6 @@ export default function SetupPage() {
                       </div>
 
                       {renderSection(sec, products, categories, theme.isDarkMode)}
-
-                      {/* In-canvas insert button divider */}
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity py-2 flex items-center justify-center">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddSection("product_grid", idx + 1);
-                          }}
-                          className="px-3 py-1 rounded-full bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold flex items-center gap-1 shadow-lg shadow-sky-600/30"
-                        >
-                          <Plus className="w-3 h-3" />
-                          <span>Insert Section Here</span>
-                        </button>
-                      </div>
                     </div>
                   );
                 })}
@@ -1552,6 +1942,8 @@ function renderSection(
       return <ProductGridSection section={sec} products={products} isDarkMode={isDarkMode} />;
     case "promo_split_banner":
       return <PromoSplitBannerSection section={sec} isDarkMode={isDarkMode} />;
+    case "promotions_section":
+      return <PromotionsSection section={sec} isDarkMode={isDarkMode} />;
     case "brands_carousel":
       return <BrandsCarouselSection section={sec} isDarkMode={isDarkMode} />;
     case "curated_recommendations":

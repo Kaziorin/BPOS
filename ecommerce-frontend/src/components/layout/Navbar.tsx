@@ -21,10 +21,13 @@ import {
   LogOut,
   ShieldCheck,
   Sparkles,
+  Tag,
+  ArrowRight,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useStoreConfig } from "@/context/StoreConfigContext";
+import { useTheme } from "@/context/ThemeContext";
 import { StorefrontAPI, CategoryItem } from "@/lib/api";
 import LoginModal from "@/components/auth/LoginModal";
 
@@ -36,7 +39,8 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
   const router = useRouter();
   const { cartCount, setIsDrawerOpen } = useCart();
   const { customer, adminUser, isAdmin, logout } = useAuth();
-  const { config, storeName, businessType } = useStoreConfig();
+  const { storeName, businessType } = useStoreConfig();
+  const { theme, primaryColor, accentColor } = useTheme();
 
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -57,11 +61,48 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
     }
   };
 
+  const isDark = isDarkMode !== undefined ? isDarkMode : theme.isDarkMode;
+  const brandTitle = theme.headerLogoText || storeName || "ShopEase";
+  const brandTagline = theme.headerLogoTagline || "Everything You Need";
+
   return (
     <>
+      {/* ── Optional Top Header Announcement Bar ── */}
+      {theme.showAnnouncement !== false && theme.announcementText && (
+        <div
+          className="text-xs font-bold py-2 px-4 text-center transition-colors flex items-center justify-center gap-2"
+          style={{
+            backgroundColor: theme.announcementBgColor || primaryColor || "#2563eb",
+            color: theme.announcementTextColor || "#ffffff",
+          }}
+        >
+          <span>{theme.announcementText}</span>
+          {theme.announcementLink && (
+            <Link
+              href={theme.announcementLink}
+              className="underline hover:opacity-80 inline-flex items-center gap-1 font-black ml-1 text-[11px]"
+            >
+              <span>Shop Deals</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* ── Optional Top Decorative Header Banner Image ── */}
+      {theme.headerBannerImage && (
+        <div className="w-full h-12 sm:h-16 overflow-hidden relative">
+          <img
+            src={theme.headerBannerImage}
+            alt="Header Announcement Banner"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
       <header
         className={`sticky top-0 z-40 w-full transition-colors border-b backdrop-blur-md shadow-xs ${
-          isDarkMode
+          isDark
             ? "bg-zinc-950/95 border-zinc-800 text-white"
             : "bg-white/95 border-slate-200/90 text-slate-800"
         }`}
@@ -70,40 +111,63 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20 gap-3 sm:gap-6">
             
-            {/* Logo */}
+            {/* Logo: Image Logo or Text Logo */}
             <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold shadow-md shadow-sky-500/20 group-hover:scale-105 transition-transform">
-                <ShoppingBag className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <span className="text-xl font-black tracking-tight bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  {storeName || "ShopEase"}
-                </span>
-                <span className="block text-[9px] font-bold text-slate-400 tracking-wider uppercase">
-                  Everything You Need
-                </span>
-              </div>
+              {theme.headerLogo ? (
+                <img
+                  src={theme.headerLogo}
+                  alt={brandTitle}
+                  className="h-10 sm:h-12 w-auto object-contain max-w-[180px]"
+                />
+              ) : (
+                <div
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold shadow-md group-hover:scale-105 transition-transform"
+                  style={{
+                    backgroundColor: primaryColor,
+                    boxShadow: `0 8px 16px ${primaryColor}40`,
+                  }}
+                >
+                  <ShoppingBag className="w-5 h-5 text-white" />
+                </div>
+              )}
+              
+              {!theme.headerLogo && (
+                <div>
+                  <span
+                    className="text-xl font-black tracking-tight block"
+                    style={{ color: primaryColor }}
+                  >
+                    {brandTitle}
+                  </span>
+                  <span className="block text-[9px] font-bold text-slate-400 tracking-wider uppercase">
+                    {brandTagline}
+                  </span>
+                </div>
+              )}
             </Link>
 
             {/* Search Bar with Category Selector */}
             <form
               onSubmit={handleSearchSubmit}
               className={`hidden md:flex flex-1 max-w-2xl items-center rounded-full border px-4 py-2 transition-all ${
-                isDarkMode
+                isDark
                   ? "bg-zinc-900 border-zinc-700/80 focus-within:border-sky-500"
-                  : "bg-slate-50 border-slate-200 focus-within:border-sky-500 focus-within:bg-white shadow-xs"
+                  : "bg-slate-50 border-slate-200 focus-within:bg-white shadow-xs"
               }`}
+              style={{
+                borderColor: undefined,
+              }}
             >
               <Search className="w-4 h-4 text-slate-400 shrink-0 mr-2.5" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for products, brands and more..."
+                placeholder="Search for products, brands, coupons and more..."
                 className="w-full bg-transparent text-xs sm:text-sm focus:outline-hidden placeholder-slate-400 text-slate-900 dark:text-white"
               />
 
-              {/* Category selector */}
+              {/* Category selector inside Search */}
               <div className="relative border-l border-slate-200 dark:border-zinc-700 pl-3 ml-2 shrink-0">
                 <select
                   value={selectedCat}
@@ -123,11 +187,19 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
             {/* Right Action Icons (Location, Wishlist, Notification, Account, Cart) */}
             <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
               
-              {/* Location Badge */}
-              <div className="hidden xl:flex items-center gap-1.5 text-xs text-slate-600 dark:text-zinc-300 px-2.5 py-1.5 rounded-full bg-slate-100 dark:bg-zinc-800">
-                <MapPin className="w-3.5 h-3.5 text-sky-600" />
-                <span className="font-semibold">Dhaka</span>
-              </div>
+              {/* Promo Deals Badge Link */}
+              <Link
+                href="/products?filter=deals"
+                className="hidden xl:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border transition-transform hover:scale-105"
+                style={{
+                  borderColor: `${primaryColor}40`,
+                  backgroundColor: `${primaryColor}10`,
+                  color: primaryColor,
+                }}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Hot Deals</span>
+              </Link>
 
               {/* Wishlist */}
               <Link
@@ -156,7 +228,10 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className="flex items-center gap-2 p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
                   >
-                    <div className="w-8 h-8 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-xs">
+                    <div
+                      className="w-8 h-8 rounded-full text-white flex items-center justify-center font-bold text-xs"
+                      style={{ backgroundColor: primaryColor }}
+                    >
                       {(adminUser?.name || customer?.name || "U")[0].toUpperCase()}
                     </div>
                     <div className="hidden sm:block text-left leading-tight pr-1">
@@ -231,11 +306,18 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
               <button
                 type="button"
                 onClick={() => setIsDrawerOpen(true)}
-                className="relative flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-md shadow-sky-600/20 transition-transform active:scale-95"
+                className="relative flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-white font-black text-xs shadow-md transition-transform active:scale-95"
+                style={{
+                  backgroundColor: primaryColor,
+                  boxShadow: `0 8px 20px ${primaryColor}40`,
+                }}
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span className="hidden sm:inline">Cart</span>
-                <span className="w-5 h-5 rounded-full bg-white text-sky-600 flex items-center justify-center font-black text-[10px]">
+                <span
+                  className="w-5 h-5 rounded-full bg-white flex items-center justify-center font-black text-[10px]"
+                  style={{ color: primaryColor }}
+                >
                   {cartCount}
                 </span>
               </button>
@@ -245,7 +327,7 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
           </div>
         </div>
 
-        {/* Categories Bar (ShopEase Sub-navigation) */}
+        {/* Categories Navigation Bar */}
         <div className="border-t border-slate-100 dark:border-zinc-800/80 bg-slate-50/70 dark:bg-zinc-900/60 hidden sm:block">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-2 text-xs font-semibold">
             
@@ -254,7 +336,8 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
               <button
                 type="button"
                 onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 dark:bg-sky-600 text-white font-bold shadow-xs hover:bg-slate-800 transition-colors"
+                className="flex items-center gap-2 px-4 py-1.5 rounded-full text-white font-bold shadow-xs hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: primaryColor }}
               >
                 <Layers className="w-3.5 h-3.5" />
                 <span>All Categories</span>
@@ -269,7 +352,7 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
                       key={c.id}
                       href={`/products?categoryId=${c.id}`}
                       onClick={() => setIsCategoryOpen(false)}
-                      className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-sky-50 dark:hover:bg-zinc-800 hover:text-sky-600 transition-colors"
+                      className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
                     >
                       <span>{c.name}</span>
                     </Link>
@@ -280,28 +363,28 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
 
             {/* Quick Links */}
             <div className="flex items-center gap-6 text-slate-600 dark:text-zinc-300">
-              <Link href="/products?filter=deals" className="hover:text-sky-600 transition-colors">
-                Deals
+              <Link href="/products?filter=deals" className="hover:underline font-bold" style={{ color: primaryColor }}>
+                Deals & Coupons
               </Link>
-              <Link href="/products?category=Grocery" className="hover:text-sky-600 transition-colors">
+              <Link href="/products?category=Grocery" className="hover:text-slate-900 dark:hover:text-white transition-colors">
                 Grocery
               </Link>
-              <Link href="/products?category=Fashion" className="hover:text-sky-600 transition-colors">
+              <Link href="/products?category=Fashion" className="hover:text-slate-900 dark:hover:text-white transition-colors">
                 Fashion
               </Link>
-              <Link href="/products?category=Electronics" className="hover:text-sky-600 transition-colors">
+              <Link href="/products?category=Electronics" className="hover:text-slate-900 dark:hover:text-white transition-colors">
                 Electronics
               </Link>
-              <Link href="/products?category=Home" className="hover:text-sky-600 transition-colors">
+              <Link href="/products?category=Home" className="hover:text-slate-900 dark:hover:text-white transition-colors">
                 Home & Living
               </Link>
-              <Link href="/products?category=Beauty" className="hover:text-sky-600 transition-colors">
-                Beauty & Personal Care
+              <Link href="/products?category=Beauty" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                Beauty & Care
               </Link>
             </div>
 
             <div className="flex items-center gap-4 text-slate-500 dark:text-zinc-400">
-              <Link href="/track-order" className="hover:text-sky-600 transition-colors">
+              <Link href="/track-order" className="hover:text-slate-900 dark:hover:text-white transition-colors">
                 Track Order
               </Link>
             </div>

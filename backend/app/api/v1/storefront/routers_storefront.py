@@ -152,6 +152,61 @@ async def list_storefront_brands(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# 2.1 PROMOTIONS & DEALS (SYNCED WITH POS ADMIN)
+# ─────────────────────────────────────────────────────────────────────────────
+
+@router.get("/promotions")
+async def list_storefront_promotions(
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve active promotional campaigns and coupon vouchers for storefront banners."""
+    promos = []
+    try:
+        promo_rows = rows_to_dicts(
+            (await db.execute(
+                text(
+                    "SELECT id, name, description, type, value, min_qty, minAmount, maxDiscount, "
+                    "validFrom, validTo, priority, isActive "
+                    "FROM promotions "
+                    "WHERE tenantId = :t AND isActive = 1 "
+                    "AND (validTo IS NULL OR validTo >= CURDATE()) "
+                    "ORDER BY priority DESC, createdAt DESC LIMIT 20"
+                ),
+                {"t": tenantId}
+            )).fetchall()
+        )
+        promos = promo_rows
+    except Exception as e:
+        # Fallback or log if table structure varies
+        pass
+
+    coupons = []
+    try:
+        coupon_rows = rows_to_dicts(
+            (await db.execute(
+                text(
+                    "SELECT id, code, discountType, discountValue, minOrderAmount, maxDiscountAmount, "
+                    "startDate, endDate, usageLimit, usageCount, status "
+                    "FROM coupons "
+                    "WHERE tenantId = :t AND (status = 'ACTIVE' OR status = 1) "
+                    "AND (endDate IS NULL OR endDate >= CURDATE()) "
+                    "ORDER BY createdAt DESC LIMIT 20"
+                ),
+                {"t": tenantId}
+            )).fetchall()
+        )
+        coupons = coupon_rows
+    except Exception:
+        pass
+
+    return ok({
+        "promotions": promos,
+        "coupons": coupons,
+    })
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # 3. PRODUCTS LIST & DETAILS
 # ─────────────────────────────────────────────────────────────────────────────
 

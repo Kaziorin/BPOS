@@ -102,6 +102,35 @@ export interface ProductItem {
   calories?: number;
 }
 
+export interface StorefrontPromotionItem {
+  id: string;
+  name: string;
+  description?: string;
+  type?: string;
+  value?: number;
+  min_qty?: number;
+  minAmount?: number;
+  maxDiscount?: number;
+  validFrom?: string;
+  validTo?: string;
+  priority?: number;
+  isActive?: boolean;
+}
+
+export interface StorefrontCouponItem {
+  id: string;
+  code: string;
+  discountType: string;
+  discountValue: number;
+  minOrderAmount?: number;
+  maxDiscountAmount?: number;
+  startDate?: string;
+  endDate?: string;
+  usageLimit?: number;
+  usageCount?: number;
+  status?: string;
+}
+
 export interface CategoryItem {
   id: string;
   name: string;
@@ -205,6 +234,15 @@ export const StorefrontAPI = {
       return res.data?.data || [];
     } catch (e) {
       return [];
+    }
+  },
+
+  async getPromotions(): Promise<{ promotions: StorefrontPromotionItem[]; coupons: StorefrontCouponItem[] }> {
+    try {
+      const res = await api.get("/promotions");
+      return res.data?.data || { promotions: [], coupons: [] };
+    } catch (e) {
+      return { promotions: [], coupons: [] };
     }
   },
 

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, Flame, Clock, Sparkles, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { SectionItem } from "@/lib/builderTypes";
+import { useTheme } from "@/context/ThemeContext";
 
 interface HeroSliderProps {
   section: SectionItem;
@@ -11,6 +12,7 @@ interface HeroSliderProps {
 }
 
 export default function HeroSliderSection({ section, isDarkMode }: HeroSliderProps) {
+  const { primaryColor, accentColor } = useTheme();
   const { title, subtitle, badge, settings } = section;
   const ctaText = settings?.ctaText || "Shop Now";
   const ctaLink = settings?.ctaLink || "/products";
@@ -62,7 +64,10 @@ export default function HeroSliderSection({ section, isDarkMode }: HeroSliderPro
             {/* Top Badge */}
             <div className="relative z-10">
               {badge && (
-                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold tracking-wider uppercase shadow-xs mb-4 bg-sky-600 text-white">
+                <div
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold tracking-wider uppercase shadow-xs mb-4 text-white"
+                  style={{ backgroundColor: primaryColor }}
+                >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>{badge}</span>
                 </div>
@@ -85,7 +90,8 @@ export default function HeroSliderSection({ section, isDarkMode }: HeroSliderPro
               <div className="flex flex-wrap items-center gap-4">
                 <Link
                   href={ctaLink}
-                  className="inline-flex items-center gap-2 px-7 py-3 rounded-full text-sm font-bold shadow-lg transition-transform hover:scale-105 active:scale-95 bg-slate-900 text-white hover:bg-black"
+                  className="inline-flex items-center gap-2 px-7 py-3 rounded-full text-sm font-bold shadow-lg transition-transform hover:scale-105 active:scale-95 text-white"
+                  style={{ backgroundColor: primaryColor }}
                 >
                   <span>{ctaText}</span>
                   <ArrowRight className="w-4 h-4" />

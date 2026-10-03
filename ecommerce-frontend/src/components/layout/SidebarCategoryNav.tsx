@@ -25,6 +25,7 @@ import {
   Layers,
 } from "lucide-react";
 import { CategoryItem } from "@/lib/api";
+import { useTheme } from "@/context/ThemeContext";
 
 interface Props {
   categories: CategoryItem[];
@@ -49,6 +50,7 @@ const ICONS = [
 ];
 
 export default function SidebarCategoryNav({ categories, isDarkMode }: Props) {
+  const { primaryColor } = useTheme();
   const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
 
   const displayCats =
@@ -79,7 +81,10 @@ export default function SidebarCategoryNav({ categories, isDarkMode }: Props) {
             : "bg-white border-slate-200/80 text-slate-800"
         }`}
       >
-        <div className="p-3.5 border-b border-slate-100 dark:border-zinc-800 bg-sky-600 text-white flex items-center gap-2">
+        <div
+          className="p-3.5 border-b border-slate-100 dark:border-zinc-800 text-white flex items-center gap-2"
+          style={{ backgroundColor: primaryColor }}
+        >
           <Layers className="w-4 h-4" />
           <h3 className="text-xs font-black uppercase tracking-wider">All Categories</h3>
         </div>

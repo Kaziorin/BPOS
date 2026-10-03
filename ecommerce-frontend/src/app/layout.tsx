@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { StoreConfigProvider } from "@/context/StoreConfigContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import StoreLayoutShell from "@/components/layout/StoreLayoutShell";
@@ -22,14 +23,16 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className={`${inter.className} min-h-full flex flex-col bg-slate-50 text-slate-900 antialiased`}>
-        <StoreConfigProvider>
-          <AuthProvider>
-            <CartProvider>
-              <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-              <StoreLayoutShell>{children}</StoreLayoutShell>
-            </CartProvider>
-          </AuthProvider>
-        </StoreConfigProvider>
+        <ThemeProvider>
+          <StoreConfigProvider>
+            <AuthProvider>
+              <CartProvider>
+                <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+                <StoreLayoutShell>{children}</StoreLayoutShell>
+              </CartProvider>
+            </AuthProvider>
+          </StoreConfigProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
