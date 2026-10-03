@@ -53,6 +53,10 @@ import {
   List,
   Image as ImageIcon,
   Megaphone,
+  X,
+  Edit3,
+  ArrowLeft,
+  ChevronLeft,
 } from "lucide-react";
 import {
   ThemeConfig,
@@ -122,7 +126,7 @@ const SECTION_LIBRARY: SectionMeta[] = [
     title: "Trust Badges & Highlights",
     category: "core",
     icon: "🛡️",
-    desc: "4 highlight cards for Free Shipping, Warranty, Returns & 24/7 Support.",
+    desc: "Highlight cards for Free Shipping, Warranty, Returns & 24/7 Support with custom icons.",
   },
   {
     type: "category_showcase",
@@ -345,11 +349,12 @@ const COLOR_PALETTES = [
 export default function SetupPage() {
   const router = useRouter();
   const { isAdmin } = useAuth();
-  const { theme: globalTheme, setTheme: setGlobalTheme, saveTheme: saveGlobalTheme } = useTheme();
+  const { theme: globalTheme, setTheme: setGlobalTheme } = useTheme();
 
   const [theme, setTheme] = useState<ThemeConfig>(globalTheme || DEFAULT_VIBRANT_THEME);
   const [activeTab, setActiveTab] = useState<"sections" | "library" | "presets" | "styles">("sections");
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>("sec-hero-1");
+  const [isEditingSingleSection, setIsEditingSingleSection] = useState(false);
   const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [isSaving, setIsSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -362,6 +367,8 @@ export default function SetupPage() {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [config, setConfig] = useState<StoreConfig | null>(null);
+
+  const sidebarScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -390,10 +397,27 @@ export default function SetupPage() {
     loadData();
   }, []);
 
-  // Update global theme context dynamically whenever local theme changes so colors reflect everywhere
+  // Update theme and sync with ThemeContext
   const updateLocalAndGlobalTheme = (newTheme: ThemeConfig) => {
     setTheme(newTheme);
     setGlobalTheme(newTheme);
+  };
+
+  const handleSelectSection = (id: string, openEditor = true) => {
+    setSelectedSectionId(id);
+    setActiveTab("sections");
+    if (openEditor) {
+      setIsEditingSingleSection(true);
+    }
+    if (sidebarScrollRef.current) {
+      sidebarScrollRef.current.scrollTop = 0;
+    }
+    setTimeout(() => {
+      const el = document.getElementById(`preview-${id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 60);
   };
 
   // ── Drag and Drop Reordering Handlers ──
@@ -471,6 +495,7 @@ export default function SetupPage() {
     newSections.splice(idx + 1, 0, duplicated);
     updateLocalAndGlobalTheme({ ...theme, sections: newSections });
     setSelectedSectionId(newId);
+    setIsEditingSingleSection(true);
     toast.success("Section duplicated!");
   };
 
@@ -483,6 +508,7 @@ export default function SetupPage() {
     updateLocalAndGlobalTheme({ ...theme, sections: newSections });
     if (selectedSectionId === id) {
       setSelectedSectionId(newSections[0]?.id || null);
+      setIsEditingSingleSection(false);
     }
     toast.success("Section deleted");
   };
@@ -519,7 +545,12 @@ export default function SetupPage() {
       newSec.title = "Special Offers & Coupon Discounts";
       newSec.subtitle = "Copy discount voucher codes and apply at checkout for instant savings!";
       newSec.badge = "PROMOTIONS & VOUCHERS";
-      newSec.settings = {};
+      newSec.settings = {
+        customVouchers: [
+          { code: "SAVE20", title: "Weekend Discount", discount: "20% OFF", desc: "Get 20% off on your entire shopping cart.", expires: "Valid 3 Days" },
+          { code: "FREESHIP", title: "Free Express Shipping", discount: "FREE SHIP", desc: "Free shipping for orders over $30 / ৳300.", expires: "Limited Offer" },
+        ],
+      };
     } else if (type === "category_showcase") {
       newSec.title = "Shop by Category";
       newSec.subtitle = "Browse all collections & top brands";
@@ -581,20 +612,80 @@ export default function SetupPage() {
     } else if (type === "brands_carousel") {
       newSec.title = "Official Brand Partners";
       newSec.subtitle = "Authorized dealer for leading global & local manufacturers";
-      newSec.settings = {};
+      newSec.settings = {
+        brands: [
+          { name: "Apple", logo: "" },
+          { name: "Samsung", logo: "SAMSUNG" },
+          { name: "Nike", logo: "NIKE" },
+          { name: "Adidas", logo: "adidas" },
+          { name: "Sony", logo: "SONY" },
+          { name: "P&G", logo: "P&G" },
+        ],
+      };
     } else if (type === "testimonials") {
       newSec.title = "What Our Customers Say";
       newSec.subtitle = "Real feedback from verified shoppers";
-      newSec.settings = {};
+      newSec.badge = "REVIEWS";
+      newSec.settings = {
+        reviews: [
+          { name: "Tanzim Ahmed", role: "Verified Buyer", comment: "Super fast delivery and authentic products! Customer service resolved my query in minutes.", rating: 5 },
+          { name: "Sabrina Rahman", role: "Loyal Customer", comment: "Best online shopping experience by far! Huge variety and easy checkout.", rating: 5 },
+          { name: "Farhan Hossain", role: "Business Owner", comment: "Extremely reliable quality and great discounts on bulk orders. Highly recommended!", rating: 5 },
+        ],
+      };
     } else if (type === "faq_section") {
       newSec.title = "Frequently Asked Questions";
       newSec.subtitle = "Got questions? We have got answers.";
-      newSec.settings = {};
+      newSec.badge = "HELP CENTER";
+      newSec.settings = {
+        faqs: [
+          { q: "How fast is delivery?", a: "Standard delivery inside city takes 24-48 hours. Express is 2-4 hours." },
+          { q: "What payment methods are supported?", a: "Cash on Delivery, bKash, Nagad, Cards and Bank Transfer." },
+          { q: "Can I return items?", a: "Yes, we offer a hassle-free 7-day return policy." },
+        ],
+      };
+    } else if (type === "blog_stories") {
+      newSec.title = "Latest Stories & Style Tips";
+      newSec.subtitle = "Editorial buying guides and insights from our team";
+      newSec.settings = {
+        articles: [
+          { title: "10 Best Tech Gadgets You Should Buy in 2026", desc: "Comprehensive review of highest rated gadgets.", date: "Aug 12, 2026", image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80" },
+          { title: "How to Build a Capsule Wardrobe on a Budget", desc: "Timeless fashion hacks and essential outfits.", date: "Aug 10, 2026", image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&auto=format&fit=crop&q=80" },
+        ],
+      };
     } else if (type === "special_notice") {
       newSec.title = "⚡ Exclusive Promo: 20% Instant Cashback on All Online Payments!";
       newSec.subtitle = "Use code CASH20 at checkout. Limited time only.";
       newSec.badge = "LIMITED OFFER";
       newSec.settings = { themeStyle: "gradient", ctaText: "Claim Offer", ctaLink: "/products" };
+    } else if (type === "curated_recommendations") {
+      newSec.title = "Curated Recommendations";
+      newSec.subtitle = "Handpicked collections tailored to your lifestyle";
+      newSec.badge = "RECOMMENDED";
+      newSec.settings = { limit: 6 };
+    } else if (type === "app_download") {
+      newSec.title = "Shop Faster & Smarter with our Mobile App";
+      newSec.subtitle = "Get exclusive in-app vouchers and real-time delivery tracking.";
+      newSec.badge = "MOBILE APP";
+      newSec.settings = {
+        playStoreUrl: "#",
+        appStoreUrl: "#",
+        mockupImage: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=500&auto=format&fit=crop&q=80",
+      };
+    } else if (type === "pharmacy_upload") {
+      newSec.title = "Quick Prescription Upload & Medicine Delivery";
+      newSec.subtitle = "Upload your doctor prescription and get verified delivery within 2 hours.";
+      newSec.badge = "ONLINE PHARMACY";
+      newSec.settings = { hotline: "+880 1700-000000", deliveryEta: "2-Hour Express" };
+    } else if (type === "restaurant_menu") {
+      newSec.title = "Chef's Handcrafted Specialties & Popular Platters";
+      newSec.subtitle = "Prepared fresh upon order with authentic gourmet ingredients.";
+      newSec.badge = "GOURMET KITCHEN";
+      newSec.settings = {};
+    } else if (type === "newsletter") {
+      newSec.title = "Subscribe to Our VIP Club Newsletter";
+      newSec.subtitle = "Get exclusive discount codes, flash sale alerts and seasonal promotions.";
+      newSec.settings = { buttonText: "Subscribe Now" };
     } else if (type === "rich_text") {
       newSec.title = "Our Story & Quality Promise";
       newSec.subtitle = "Crafting exceptional shopping experiences since day one.";
@@ -615,8 +706,15 @@ export default function SetupPage() {
 
     updateLocalAndGlobalTheme({ ...theme, sections: newSections });
     setSelectedSectionId(newId);
+    setIsEditingSingleSection(true);
     setActiveTab("sections");
     toast.success(`Added ${type.replace(/_/g, " ")} section!`);
+    setTimeout(() => {
+      const el = document.getElementById(`preview-${newId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 100);
   };
 
   const handleUpdateSelected = (field: string, val: any) => {
@@ -627,7 +725,7 @@ export default function SetupPage() {
         const key = field.replace("settings.", "");
         return {
           ...s,
-          settings: { ...s.settings, [key]: val },
+          settings: { ...(s.settings || {}), [key]: val },
         };
       }
       return { ...s, [field]: val };
@@ -639,6 +737,7 @@ export default function SetupPage() {
     const loaded = getPresetTheme(preset);
     updateLocalAndGlobalTheme(loaded);
     setSelectedSectionId(loaded.sections[0]?.id || null);
+    setIsEditingSingleSection(false);
     toast.success(`Applied ${preset.replace("shopease-", "").toUpperCase()} template!`);
   };
 
@@ -675,6 +774,7 @@ export default function SetupPage() {
           if (parsed && parsed.sections) {
             updateLocalAndGlobalTheme(parsed);
             setSelectedSectionId(parsed.sections[0]?.id || null);
+            setIsEditingSingleSection(false);
             toast.success("Theme imported successfully!");
           }
         } catch (err) {
@@ -810,13 +910,16 @@ export default function SetupPage() {
       <div className="flex-1 flex overflow-hidden">
         
         {/* ── LEFT PANEL (Tabs + Reorder List + Detailed Inspector + Library + Styles) ── */}
-        <aside className="w-80 sm:w-[420px] bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 overflow-hidden shadow-2xl">
+        <aside className="w-80 sm:w-[440px] bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 overflow-hidden shadow-2xl">
           
           {/* Main 4 Tabs */}
           <div className="grid grid-cols-4 border-b border-slate-800 text-[11px] font-bold text-slate-400 shrink-0">
             <button
               type="button"
-              onClick={() => setActiveTab("sections")}
+              onClick={() => {
+                setActiveTab("sections");
+                setIsEditingSingleSection(false);
+              }}
               className={`py-3 flex flex-col items-center justify-center gap-1 border-b-2 transition-all ${
                 activeTab === "sections"
                   ? "border-sky-500 text-sky-400 bg-slate-800/60 font-black"
@@ -828,7 +931,10 @@ export default function SetupPage() {
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab("library")}
+              onClick={() => {
+                setActiveTab("library");
+                setIsEditingSingleSection(false);
+              }}
               className={`py-3 flex flex-col items-center justify-center gap-1 border-b-2 transition-all ${
                 activeTab === "library"
                   ? "border-sky-500 text-sky-400 bg-slate-800/60 font-black"
@@ -840,7 +946,10 @@ export default function SetupPage() {
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab("presets")}
+              onClick={() => {
+                setActiveTab("presets");
+                setIsEditingSingleSection(false);
+              }}
               className={`py-3 flex flex-col items-center justify-center gap-1 border-b-2 transition-all ${
                 activeTab === "presets"
                   ? "border-sky-500 text-sky-400 bg-slate-800/60 font-black"
@@ -852,7 +961,10 @@ export default function SetupPage() {
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab("styles")}
+              onClick={() => {
+                setActiveTab("styles");
+                setIsEditingSingleSection(false);
+              }}
               className={`py-3 flex flex-col items-center justify-center gap-1 border-b-2 transition-all ${
                 activeTab === "styles"
                   ? "border-sky-500 text-sky-400 bg-slate-800/60 font-black"
@@ -865,150 +977,55 @@ export default function SetupPage() {
           </div>
 
           {/* Panel Scrollable Body */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-5">
+          <div ref={sidebarScrollRef} className="flex-1 overflow-y-auto p-4 space-y-5">
             
-            {/* ════ TAB 1: SECTIONS & DRAG-AND-DROP REORDER + GRANULAR INSPECTOR ════ */}
+            {/* ════ TAB 1: SECTIONS LIST OR SINGLE SECTION DEDICATED EDITOR ════ */}
             {activeTab === "sections" && (
               <div className="space-y-4">
                 
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-300">
-                      Page Sections ({theme.sections.length})
-                    </h3>
-                    <p className="text-[11px] text-slate-500">
-                      Drag cards to reorder or click to customize.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("library")}
-                    className="px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 text-xs font-bold hover:bg-sky-500/30 flex items-center gap-1"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add</span>
-                  </button>
-                </div>
-
-                {/* Drag and Drop List */}
-                <div className="space-y-2">
-                  {theme.sections.map((sec, idx) => {
-                    const isSelected = selectedSectionId === sec.id;
-                    const isDragging = draggedIndex === idx;
-                    const isOver = dragOverIndex === idx;
-
-                    return (
-                      <div
-                        key={sec.id}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, idx)}
-                        onDragOver={(e) => handleDragOver(e, idx)}
-                        onDrop={(e) => handleDrop(e, idx)}
-                        onDragEnd={handleDragEnd}
-                        onClick={() => setSelectedSectionId(sec.id)}
-                        className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-2.5 ${
-                          isDragging
-                            ? "opacity-30 border-dashed border-sky-500"
-                            : isOver
-                            ? "border-sky-400 bg-sky-950/40 translate-x-1"
-                            : isSelected
-                            ? "bg-slate-800/90 border-sky-500 ring-2 ring-sky-500/40 shadow-lg"
-                            : "bg-slate-950/70 border-slate-800 hover:border-slate-700"
-                        } ${!sec.enabled ? "opacity-50" : ""}`}
+                {isEditingSingleSection && selectedSection ? (
+                  /* ── DEDICATED FULL SCREEN SECTION EDITOR ── */
+                  <div className="space-y-4 animate-fadeIn">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingSingleSection(false)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-colors"
                       >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span
-                            className="cursor-grab active:cursor-grabbing text-slate-600 hover:text-slate-300 p-0.5"
-                            title="Drag to reorder"
-                          >
-                            <GripVertical className="w-4 h-4" />
-                          </span>
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>All Sections</span>
+                      </button>
 
-                          <div className="w-6 h-6 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-[10px] font-mono text-slate-400">
-                            {idx + 1}
-                          </div>
-
-                          <div className="min-w-0">
-                            <span className="block text-xs font-bold text-white truncate">
-                              {sec.title || sec.type.replace(/_/g, " ")}
-                            </span>
-                            <span className="block text-[10px] text-slate-400 uppercase font-mono tracking-wider">
-                              {sec.type}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div
-                          className="flex items-center gap-1 shrink-0"
-                          onClick={(e) => e.stopPropagation()}
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleVisible(selectedSection.id)}
+                          className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
+                          title={selectedSection.enabled ? "Hide" : "Show"}
                         >
-                          <button
-                            type="button"
-                            onClick={() => handleMoveUp(idx)}
-                            disabled={idx === 0}
-                            className="p-1 rounded-md hover:bg-slate-700 text-slate-400 disabled:opacity-20"
-                            title="Move Up"
-                          >
-                            <ArrowUp className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleMoveDown(idx)}
-                            disabled={idx === theme.sections.length - 1}
-                            className="p-1 rounded-md hover:bg-slate-700 text-slate-400 disabled:opacity-20"
-                            title="Move Down"
-                          >
-                            <ArrowDown className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDuplicateSection(sec, idx)}
-                            className="p-1 rounded-md hover:bg-slate-700 text-slate-400 hover:text-sky-400"
-                            title="Duplicate"
-                          >
-                            <Copy className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleToggleVisible(sec.id)}
-                            className="p-1 rounded-md hover:bg-slate-700 text-slate-400"
-                            title={sec.enabled ? "Hide Section" : "Show Section"}
-                          >
-                            {sec.enabled ? (
-                              <Eye className="w-3.5 h-3.5 text-emerald-400" />
-                            ) : (
-                              <EyeOff className="w-3.5 h-3.5 text-slate-500" />
-                            )}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteSection(sec.id)}
-                            className="p-1 rounded-md hover:bg-rose-950 text-rose-400 hover:text-rose-300"
-                            title="Delete Section"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                          {selectedSection.enabled ? <Eye className="w-3.5 h-3.5 text-emerald-400" /> : <EyeOff className="w-3.5 h-3.5 text-slate-500" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteSection(selectedSection.id)}
+                          className="p-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-400"
+                          title="Delete Section"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
-                    );
-                  })}
-                </div>
-
-                {/* ════ GRANULAR BLOCK INSPECTOR (LOW END PORJONTO EDIT & UPDATE) ════ */}
-                {selectedSection && (
-                  <div className="pt-4 border-t border-slate-800 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-black uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
-                        <Settings className="w-3.5 h-3.5" />
-                        <span>Edit Block: {selectedSection.type.replace(/_/g, " ")}</span>
-                      </h4>
-                      <span className="text-[10px] font-mono text-slate-500">ID: {selectedSection.id}</span>
                     </div>
 
-                    <div className="space-y-3 bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
-                      
-                      {/* Common: Heading Title */}
+                    <div className="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 space-y-3.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-black uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>{selectedSection.type.replace(/_/g, " ")}</span>
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-500">{selectedSection.id}</span>
+                      </div>
+
+                      {/* Common Heading Title */}
                       <div>
                         <label className="block text-[11px] font-bold text-slate-400 mb-1">
                           Heading Title
@@ -1022,7 +1039,7 @@ export default function SetupPage() {
                         />
                       </div>
 
-                      {/* Common: Subtitle */}
+                      {/* Common Subtitle */}
                       <div>
                         <label className="block text-[11px] font-bold text-slate-400 mb-1">
                           Subtitle / Description
@@ -1036,7 +1053,7 @@ export default function SetupPage() {
                         />
                       </div>
 
-                      {/* Common: Badge Label */}
+                      {/* Common Badge Tag */}
                       <div>
                         <label className="block text-[11px] font-bold text-slate-400 mb-1">
                           Badge Tag Label
@@ -1050,11 +1067,9 @@ export default function SetupPage() {
                         />
                       </div>
 
-                      {/* ── 1. PRODUCT GRID SETTINGS: GRID VS LIST, COLUMNS, CATEGORY, LIMIT ── */}
+                      {/* ── 1. PRODUCT GRID SETTINGS ── */}
                       {selectedSection.type === "product_grid" && (
                         <div className="space-y-3 pt-2 border-t border-slate-800/80">
-                          
-                          {/* Layout Mode: Grid vs List */}
                           <div>
                             <label className="block text-[11px] font-bold text-slate-400 mb-1.5">
                               Display Layout Mode
@@ -1087,10 +1102,9 @@ export default function SetupPage() {
                             </div>
                           </div>
 
-                          {/* Grid Columns & Limit */}
                           <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Columns (Grid)</label>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Columns</label>
                               <select
                                 value={selectedSection.settings?.columns || 4}
                                 onChange={(e) => handleUpdateSelected("settings.columns", Number(e.target.value))}
@@ -1116,9 +1130,8 @@ export default function SetupPage() {
                             </div>
                           </div>
 
-                          {/* Category Filter */}
                           <div>
-                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Filter by Specific Category</label>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Category Filter</label>
                             <select
                               value={selectedSection.settings?.categoryId || ""}
                               onChange={(e) => handleUpdateSelected("settings.categoryId", e.target.value)}
@@ -1133,7 +1146,6 @@ export default function SetupPage() {
                             </select>
                           </div>
 
-                          {/* Toggles */}
                           <div className="space-y-1.5 pt-1">
                             <label className="flex items-center gap-2 text-[11px] text-slate-300 font-semibold cursor-pointer">
                               <input
@@ -1142,7 +1154,7 @@ export default function SetupPage() {
                                 onChange={(e) => handleUpdateSelected("settings.showRating", e.target.checked)}
                                 className="rounded bg-slate-900 border-slate-800 text-sky-600"
                               />
-                              <span>Show Star Ratings & Review Counts</span>
+                              <span>Show Star Ratings</span>
                             </label>
                             <label className="flex items-center gap-2 text-[11px] text-slate-300 font-semibold cursor-pointer">
                               <input
@@ -1151,10 +1163,9 @@ export default function SetupPage() {
                                 onChange={(e) => handleUpdateSelected("settings.showStock", e.target.checked)}
                                 className="rounded bg-slate-900 border-slate-800 text-sky-600"
                               />
-                              <span>Show In-Stock / Pre-Order Badges</span>
+                              <span>Show In-Stock Badges</span>
                             </label>
                           </div>
-
                         </div>
                       )}
 
@@ -1193,11 +1204,11 @@ export default function SetupPage() {
                             />
                           </div>
 
-                          <div className="pt-2 border-t border-slate-800/60">
-                            <span className="text-[10px] font-black uppercase text-amber-400 block mb-2">
-                              Side Deal Card Settings
+                          <div className="pt-2 border-t border-slate-800/60 space-y-2">
+                            <span className="text-[10px] font-black uppercase text-amber-400 block">
+                              Side Deal Card
                             </span>
-                            <div className="grid grid-cols-2 gap-2 mb-2">
+                            <div className="grid grid-cols-2 gap-2">
                               <input
                                 type="text"
                                 placeholder="Side Title"
@@ -1224,17 +1235,623 @@ export default function SetupPage() {
                         </div>
                       )}
 
-                      {/* ── 3. PROMOTIONS & VOUCHERS SETTINGS ── */}
-                      {selectedSection.type === "promotions_section" && (
+                      {/* ── 3. FEATURE BADGES REPEATER ── */}
+                      {selectedSection.type === "feature_badges" && (
                         <div className="space-y-3 pt-2 border-t border-slate-800/80">
-                          <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2">
-                            <Tag className="w-4 h-4 shrink-0" />
-                            <span>This block automatically pulls active promotions & coupons from your POS Admin!</span>
+                          <div className="flex items-center justify-between">
+                            <label className="text-[11px] font-bold text-slate-400">Trust Badges Items</label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = selectedSection.settings?.items || [];
+                                handleUpdateSelected("settings.items", [
+                                  ...current,
+                                  { icon: "Truck", title: "New Badge", desc: "Short description" },
+                                ]);
+                              }}
+                              className="text-[10px] bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded font-bold hover:bg-sky-500/30 flex items-center gap-1"
+                            >
+                              <Plus className="w-3 h-3" />
+                              <span>Add Badge</span>
+                            </button>
+                          </div>
+
+                          <div className="space-y-2">
+                            {(selectedSection.settings?.items || [
+                              { icon: "Truck", title: "Free Shipping", desc: "On orders over $50 / ৳500" },
+                              { icon: "ShieldCheck", title: "Secure Payment", desc: "100% secure checkout" },
+                              { icon: "RotateCcw", title: "Easy Returns", desc: "7 days instant return policy" },
+                              { icon: "Headphones", title: "24/7 Support", desc: "Dedicated friendly customer support" },
+                            ]).map((it: any, i: number) => (
+                              <div key={i} className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+                                <div className="flex items-center justify-between gap-2">
+                                  <select
+                                    value={it.icon || "Truck"}
+                                    onChange={(e) => {
+                                      const items = [...(selectedSection.settings?.items || [])];
+                                      items[i] = { ...items[i], icon: e.target.value };
+                                      handleUpdateSelected("settings.items", items);
+                                    }}
+                                    className="px-2 py-1 rounded bg-slate-950 border border-slate-800 text-[11px] text-white"
+                                  >
+                                    <option value="Truck">Truck (Shipping)</option>
+                                    <option value="ShieldCheck">Shield (Security)</option>
+                                    <option value="RotateCcw">RotateCcw (Returns)</option>
+                                    <option value="Headphones">Headphones (Support)</option>
+                                    <option value="CreditCard">CreditCard (Payment)</option>
+                                    <option value="Sparkles">Sparkles (Quality)</option>
+                                  </select>
+
+                                  <input
+                                    type="text"
+                                    placeholder="Badge Title"
+                                    value={it.title || ""}
+                                    onChange={(e) => {
+                                      const items = [...(selectedSection.settings?.items || [])];
+                                      items[i] = { ...items[i], title: e.target.value };
+                                      handleUpdateSelected("settings.items", items);
+                                    }}
+                                    className="flex-1 px-2 py-1 rounded bg-slate-950 border border-slate-800 text-xs text-white"
+                                  />
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const items = (selectedSection.settings?.items || []).filter((_: any, idx: number) => idx !== i);
+                                      handleUpdateSelected("settings.items", items);
+                                    }}
+                                    className="p-1 text-rose-400 hover:bg-rose-950 rounded"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                                <input
+                                  type="text"
+                                  placeholder="Short Description"
+                                  value={it.desc || ""}
+                                  onChange={(e) => {
+                                    const items = [...(selectedSection.settings?.items || [])];
+                                    items[i] = { ...items[i], desc: e.target.value };
+                                    handleUpdateSelected("settings.items", items);
+                                  }}
+                                  className="w-full px-2 py-1 rounded bg-slate-950 border border-slate-800 text-[11px] text-slate-300"
+                                />
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}
 
-                      {/* ── 4. PROMO SPLIT BANNER SETTINGS ── */}
+                      {/* ── 4. FEATURED COLLECTIONS (BENTO CARDS REPEATER) ── */}
+                      {selectedSection.type === "featured_collections" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[11px] font-bold text-slate-400">Bento Cards</label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = selectedSection.settings?.cards || [];
+                                handleUpdateSelected("settings.cards", [
+                                  ...current,
+                                  {
+                                    title: "New Collection",
+                                    subtitle: "Trending Picks",
+                                    cta: "Shop Now",
+                                    link: "/products",
+                                    image: "https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?w=600&auto=format&fit=crop&q=80",
+                                  },
+                                ]);
+                              }}
+                              className="text-[10px] bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded font-bold hover:bg-sky-500/30 flex items-center gap-1"
+                            >
+                              <Plus className="w-3 h-3" />
+                              <span>Add Card</span>
+                            </button>
+                          </div>
+
+                          <div className="space-y-2">
+                            {(selectedSection.settings?.cards || []).map((card: any, i: number) => (
+                              <div key={i} className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+                                <div className="flex items-center justify-between gap-2">
+                                  <input
+                                    type="text"
+                                    placeholder="Card Title"
+                                    value={card.title || ""}
+                                    onChange={(e) => {
+                                      const cards = [...(selectedSection.settings?.cards || [])];
+                                      cards[i] = { ...cards[i], title: e.target.value };
+                                      handleUpdateSelected("settings.cards", cards);
+                                    }}
+                                    className="flex-1 px-2 py-1 rounded bg-slate-950 border border-slate-800 text-xs text-white"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const cards = (selectedSection.settings?.cards || []).filter((_: any, idx: number) => idx !== i);
+                                      handleUpdateSelected("settings.cards", cards);
+                                    }}
+                                    className="p-1 text-rose-400 hover:bg-rose-950 rounded"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2">
+                                  <input
+                                    type="text"
+                                    placeholder="Subtitle"
+                                    value={card.subtitle || ""}
+                                    onChange={(e) => {
+                                      const cards = [...(selectedSection.settings?.cards || [])];
+                                      cards[i] = { ...cards[i], subtitle: e.target.value };
+                                      handleUpdateSelected("settings.cards", cards);
+                                    }}
+                                    className="px-2 py-1 rounded bg-slate-950 border border-slate-800 text-[11px] text-white"
+                                  />
+                                  <input
+                                    type="text"
+                                    placeholder="Link (/products?cat=...)"
+                                    value={card.link || ""}
+                                    onChange={(e) => {
+                                      const cards = [...(selectedSection.settings?.cards || [])];
+                                      cards[i] = { ...cards[i], link: e.target.value };
+                                      handleUpdateSelected("settings.cards", cards);
+                                    }}
+                                    className="px-2 py-1 rounded bg-slate-950 border border-slate-800 text-[11px] text-white"
+                                  />
+                                </div>
+
+                                <input
+                                  type="text"
+                                  placeholder="Image URL"
+                                  value={card.image || ""}
+                                  onChange={(e) => {
+                                    const cards = [...(selectedSection.settings?.cards || [])];
+                                    cards[i] = { ...cards[i], image: e.target.value };
+                                    handleUpdateSelected("settings.cards", cards);
+                                  }}
+                                  className="w-full px-2 py-1 rounded bg-slate-950 border border-slate-800 text-[11px] text-white font-mono"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 5. PROMOTIONS & VOUCHERS REPEATER ── */}
+                      {selectedSection.type === "promotions_section" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2">
+                            <Tag className="w-4 h-4 shrink-0" />
+                            <span>This block automatically pulls active promotions & coupons from your POS Admin! You can also define custom voucher cards below.</span>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-1">
+                            <label className="text-[11px] font-bold text-slate-400">Custom Promo Cards</label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = selectedSection.settings?.customVouchers || [];
+                                handleUpdateSelected("settings.customVouchers", [
+                                  ...current,
+                                  {
+                                    code: "SAVE10",
+                                    title: "Special Voucher",
+                                    discount: "10% OFF",
+                                    desc: "10% discount on entire cart.",
+                                    expires: "Valid for 7 days",
+                                    badge: "PROMO",
+                                  },
+                                ]);
+                              }}
+                              className="text-[10px] bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded font-bold hover:bg-sky-500/30 flex items-center gap-1"
+                            >
+                              <Plus className="w-3 h-3" />
+                              <span>Add Coupon Card</span>
+                            </button>
+                          </div>
+
+                          <div className="space-y-2">
+                            {(selectedSection.settings?.customVouchers || []).map((v: any, i: number) => (
+                              <div key={i} className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+                                <div className="flex items-center justify-between gap-2">
+                                  <input
+                                    type="text"
+                                    placeholder="Coupon Code (e.g. SHOP20)"
+                                    value={v.code || ""}
+                                    onChange={(e) => {
+                                      const vouchers = [...(selectedSection.settings?.customVouchers || [])];
+                                      vouchers[i] = { ...vouchers[i], code: e.target.value.toUpperCase() };
+                                      handleUpdateSelected("settings.customVouchers", vouchers);
+                                    }}
+                                    className="flex-1 px-2 py-1 rounded bg-slate-950 border border-slate-800 text-xs font-mono font-bold text-white uppercase"
+                                  />
+                                  <input
+                                    type="text"
+                                    placeholder="Discount (20% OFF)"
+                                    value={v.discount || ""}
+                                    onChange={(e) => {
+                                      const vouchers = [...(selectedSection.settings?.customVouchers || [])];
+                                      vouchers[i] = { ...vouchers[i], discount: e.target.value };
+                                      handleUpdateSelected("settings.customVouchers", vouchers);
+                                    }}
+                                    className="w-28 px-2 py-1 rounded bg-slate-950 border border-slate-800 text-xs text-amber-400 font-bold"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const vouchers = (selectedSection.settings?.customVouchers || []).filter((_: any, idx: number) => idx !== i);
+                                      handleUpdateSelected("settings.customVouchers", vouchers);
+                                    }}
+                                    className="p-1 text-rose-400 hover:bg-rose-950 rounded"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+
+                                <input
+                                  type="text"
+                                  placeholder="Title & Description"
+                                  value={v.desc || ""}
+                                  onChange={(e) => {
+                                    const vouchers = [...(selectedSection.settings?.customVouchers || [])];
+                                    vouchers[i] = { ...vouchers[i], desc: e.target.value };
+                                    handleUpdateSelected("settings.customVouchers", vouchers);
+                                  }}
+                                  className="w-full px-2 py-1 rounded bg-slate-950 border border-slate-800 text-[11px] text-slate-300"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 6. TESTIMONIALS REPEATER ── */}
+                      {selectedSection.type === "testimonials" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[11px] font-bold text-slate-400">Customer Testimonials</label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = selectedSection.settings?.reviews || [];
+                                handleUpdateSelected("settings.reviews", [
+                                  ...current,
+                                  {
+                                    name: "Customer Name",
+                                    role: "Verified Buyer",
+                                    comment: "Super fast delivery and great quality!",
+                                    rating: 5,
+                                    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+                                  },
+                                ]);
+                              }}
+                              className="text-[10px] bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded font-bold hover:bg-sky-500/30 flex items-center gap-1"
+                            >
+                              <Plus className="w-3 h-3" />
+                              <span>Add Review</span>
+                            </button>
+                          </div>
+
+                          <div className="space-y-2">
+                            {(selectedSection.settings?.reviews || [
+                              { name: "Tanzim Ahmed", role: "Verified Buyer", comment: "Super fast delivery and authentic products!", rating: 5 },
+                              { name: "Sabrina Rahman", role: "Loyal Customer", comment: "Best online shopping experience by far!", rating: 5 },
+                            ]).map((rev: any, i: number) => (
+                              <div key={i} className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+                                <div className="flex items-center justify-between gap-2">
+                                  <input
+                                    type="text"
+                                    placeholder="Customer Name"
+                                    value={rev.name || ""}
+                                    onChange={(e) => {
+                                      const reviews = [...(selectedSection.settings?.reviews || [])];
+                                      reviews[i] = { ...reviews[i], name: e.target.value };
+                                      handleUpdateSelected("settings.reviews", reviews);
+                                    }}
+                                    className="flex-1 px-2 py-1 rounded bg-slate-950 border border-slate-800 text-xs text-white"
+                                  />
+                                  <select
+                                    value={rev.rating || 5}
+                                    onChange={(e) => {
+                                      const reviews = [...(selectedSection.settings?.reviews || [])];
+                                      reviews[i] = { ...reviews[i], rating: Number(e.target.value) };
+                                      handleUpdateSelected("settings.reviews", reviews);
+                                    }}
+                                    className="px-2 py-1 rounded bg-slate-950 border border-slate-800 text-xs text-amber-400 font-bold"
+                                  >
+                                    <option value={5}>5 Stars ★★★★★</option>
+                                    <option value={4}>4 Stars ★★★★☆</option>
+                                    <option value={3}>3 Stars ★★★☆☆</option>
+                                  </select>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const reviews = (selectedSection.settings?.reviews || []).filter((_: any, idx: number) => idx !== i);
+                                      handleUpdateSelected("settings.reviews", reviews);
+                                    }}
+                                    className="p-1 text-rose-400 hover:bg-rose-950 rounded"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+
+                                <textarea
+                                  rows={2}
+                                  placeholder="Customer Review Comment..."
+                                  value={rev.comment || ""}
+                                  onChange={(e) => {
+                                    const reviews = [...(selectedSection.settings?.reviews || [])];
+                                    reviews[i] = { ...reviews[i], comment: e.target.value };
+                                    handleUpdateSelected("settings.reviews", reviews);
+                                  }}
+                                  className="w-full px-2 py-1 rounded bg-slate-950 border border-slate-800 text-[11px] text-slate-300 resize-none"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 7. FAQ QUESTIONS REPEATER ── */}
+                      {selectedSection.type === "faq_section" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[11px] font-bold text-slate-400">FAQ Question Items</label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = selectedSection.settings?.faqs || [];
+                                handleUpdateSelected("settings.faqs", [
+                                  ...current,
+                                  { q: "New Question?", a: "Detailed answer goes here." },
+                                ]);
+                              }}
+                              className="text-[10px] bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded font-bold hover:bg-sky-500/30 flex items-center gap-1"
+                            >
+                              <Plus className="w-3 h-3" />
+                              <span>Add FAQ</span>
+                            </button>
+                          </div>
+
+                          <div className="space-y-2">
+                            {(selectedSection.settings?.faqs || [
+                              { q: "How fast is delivery?", a: "Standard delivery inside city takes 24-48 hours. Express is 2-4 hours." },
+                              { q: "What payment methods are supported?", a: "Cash on Delivery, bKash, Nagad, Cards and Bank Transfer." },
+                            ]).map((faq: any, i: number) => (
+                              <div key={i} className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+                                <div className="flex items-center justify-between gap-2">
+                                  <input
+                                    type="text"
+                                    placeholder="Question"
+                                    value={faq.q || ""}
+                                    onChange={(e) => {
+                                      const faqs = [...(selectedSection.settings?.faqs || [])];
+                                      faqs[i] = { ...faqs[i], q: e.target.value };
+                                      handleUpdateSelected("settings.faqs", faqs);
+                                    }}
+                                    className="flex-1 px-2 py-1 rounded bg-slate-950 border border-slate-800 text-xs font-bold text-white"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const faqs = (selectedSection.settings?.faqs || []).filter((_: any, idx: number) => idx !== i);
+                                      handleUpdateSelected("settings.faqs", faqs);
+                                    }}
+                                    className="p-1 text-rose-400 hover:bg-rose-950 rounded"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+
+                                <textarea
+                                  rows={2}
+                                  placeholder="Answer..."
+                                  value={faq.a || ""}
+                                  onChange={(e) => {
+                                    const faqs = [...(selectedSection.settings?.faqs || [])];
+                                    faqs[i] = { ...faqs[i], a: e.target.value };
+                                    handleUpdateSelected("settings.faqs", faqs);
+                                  }}
+                                  className="w-full px-2 py-1 rounded bg-slate-950 border border-slate-800 text-[11px] text-slate-300 resize-none"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 8. BRANDS CAROUSEL REPEATER ── */}
+                      {selectedSection.type === "brands_carousel" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[11px] font-bold text-slate-400">Partner Brands</label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = selectedSection.settings?.brands || [];
+                                handleUpdateSelected("settings.brands", [
+                                  ...current,
+                                  { name: "Brand Name", logo: "BRAND" },
+                                ]);
+                              }}
+                              className="text-[10px] bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded font-bold hover:bg-sky-500/30 flex items-center gap-1"
+                            >
+                              <Plus className="w-3 h-3" />
+                              <span>Add Brand</span>
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            {(selectedSection.settings?.brands || [
+                              { name: "Apple", logo: "" },
+                              { name: "Samsung", logo: "SAMSUNG" },
+                              { name: "Nike", logo: "NIKE" },
+                              { name: "Adidas", logo: "adidas" },
+                            ]).map((b: any, i: number) => (
+                              <div key={i} className="p-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-1.5">
+                                <input
+                                  type="text"
+                                  value={b.name || ""}
+                                  onChange={(e) => {
+                                    const brands = [...(selectedSection.settings?.brands || [])];
+                                    brands[i] = { ...brands[i], name: e.target.value, logo: e.target.value };
+                                    handleUpdateSelected("settings.brands", brands);
+                                  }}
+                                  className="w-full px-2 py-1 rounded bg-slate-950 border border-slate-800 text-xs text-white"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const brands = (selectedSection.settings?.brands || []).filter((_: any, idx: number) => idx !== i);
+                                    handleUpdateSelected("settings.brands", brands);
+                                  }}
+                                  className="p-1 text-rose-400 hover:bg-rose-950 rounded"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 9. BLOG STORIES REPEATER ── */}
+                      {selectedSection.type === "blog_stories" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[11px] font-bold text-slate-400">Blog Articles</label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = selectedSection.settings?.articles || [];
+                                handleUpdateSelected("settings.articles", [
+                                  ...current,
+                                  {
+                                    title: "New Blog Article",
+                                    desc: "Article summary excerpt...",
+                                    date: "Today",
+                                    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80",
+                                  },
+                                ]);
+                              }}
+                              className="text-[10px] bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded font-bold hover:bg-sky-500/30 flex items-center gap-1"
+                            >
+                              <Plus className="w-3 h-3" />
+                              <span>Add Article</span>
+                            </button>
+                          </div>
+
+                          <div className="space-y-2">
+                            {(selectedSection.settings?.articles || []).map((art: any, i: number) => (
+                              <div key={i} className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+                                <div className="flex items-center justify-between gap-2">
+                                  <input
+                                    type="text"
+                                    placeholder="Article Title"
+                                    value={art.title || ""}
+                                    onChange={(e) => {
+                                      const articles = [...(selectedSection.settings?.articles || [])];
+                                      articles[i] = { ...articles[i], title: e.target.value };
+                                      handleUpdateSelected("settings.articles", articles);
+                                    }}
+                                    className="flex-1 px-2 py-1 rounded bg-slate-950 border border-slate-800 text-xs text-white"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const articles = (selectedSection.settings?.articles || []).filter((_: any, idx: number) => idx !== i);
+                                      handleUpdateSelected("settings.articles", articles);
+                                    }}
+                                    className="p-1 text-rose-400 hover:bg-rose-950 rounded"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                                <input
+                                  type="text"
+                                  placeholder="Short Excerpt Description"
+                                  value={art.desc || ""}
+                                  onChange={(e) => {
+                                    const articles = [...(selectedSection.settings?.articles || [])];
+                                    articles[i] = { ...articles[i], desc: e.target.value };
+                                    handleUpdateSelected("settings.articles", articles);
+                                  }}
+                                  className="w-full px-2 py-1 rounded bg-slate-950 border border-slate-800 text-[11px] text-slate-300"
+                                />
+                                <input
+                                  type="text"
+                                  placeholder="Image URL"
+                                  value={art.image || ""}
+                                  onChange={(e) => {
+                                    const articles = [...(selectedSection.settings?.articles || [])];
+                                    articles[i] = { ...articles[i], image: e.target.value };
+                                    handleUpdateSelected("settings.articles", articles);
+                                  }}
+                                  className="w-full px-2 py-1 rounded bg-slate-950 border border-slate-800 text-[11px] text-white font-mono"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 10. CATEGORY SHOWCASE ── */}
+                      {selectedSection.type === "category_showcase" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Category Layout Style</label>
+                            <select
+                              value={selectedSection.settings?.style || "circles"}
+                              onChange={(e) => handleUpdateSelected("settings.style", e.target.value)}
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                            >
+                              <option value="circles">Circular Pastel Icons</option>
+                              <option value="cards">Bordered Category Cards</option>
+                              <option value="pills">Rounded Capsule Pills</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Display Limit</label>
+                            <input
+                              type="number"
+                              min={4}
+                              max={16}
+                              value={selectedSection.settings?.limit || 8}
+                              onChange={(e) => handleUpdateSelected("settings.limit", Number(e.target.value))}
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 11. FLASH SALE ── */}
+                      {selectedSection.type === "flash_sale" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Hours Left (Timer)</label>
+                              <input
+                                type="number"
+                                value={selectedSection.settings?.hoursLeft || 8}
+                                onChange={(e) => handleUpdateSelected("settings.hoursLeft", Number(e.target.value))}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Discount Tag Text</label>
+                              <input
+                                type="text"
+                                value={selectedSection.settings?.discountText || "UP TO 50% OFF"}
+                                onChange={(e) => handleUpdateSelected("settings.discountText", e.target.value)}
+                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 12. PROMO SPLIT BANNER ── */}
                       {selectedSection.type === "promo_split_banner" && (
                         <div className="space-y-3 pt-2 border-t border-slate-800/80">
                           <div className="grid grid-cols-2 gap-2">
@@ -1268,86 +1885,10 @@ export default function SetupPage() {
                               className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
                             />
                           </div>
-
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Side Card Title</label>
-                              <input
-                                type="text"
-                                value={selectedSection.settings?.sideCardTitle || "Value Promise"}
-                                onChange={(e) => handleUpdateSelected("settings.sideCardTitle", e.target.value)}
-                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Side Card Subtitle</label>
-                              <input
-                                type="text"
-                                value={selectedSection.settings?.sideCardSubtitle || "Quality Guaranteed"}
-                                onChange={(e) => handleUpdateSelected("settings.sideCardSubtitle", e.target.value)}
-                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
-                              />
-                            </div>
-                          </div>
                         </div>
                       )}
 
-                      {/* ── 5. CATEGORY SHOWCASE SETTINGS ── */}
-                      {selectedSection.type === "category_showcase" && (
-                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
-                          <div>
-                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Category Layout Style</label>
-                            <select
-                              value={selectedSection.settings?.style || "circles"}
-                              onChange={(e) => handleUpdateSelected("settings.style", e.target.value)}
-                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
-                            >
-                              <option value="circles">Circular Pastel Icons</option>
-                              <option value="cards">Bordered Category Cards</option>
-                              <option value="pills">Rounded Capsule Pills</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Display Limit</label>
-                            <input
-                              type="number"
-                              min={4}
-                              max={16}
-                              value={selectedSection.settings?.limit || 8}
-                              onChange={(e) => handleUpdateSelected("settings.limit", Number(e.target.value))}
-                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* ── 6. FLASH SALE SETTINGS ── */}
-                      {selectedSection.type === "flash_sale" && (
-                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Hours Left (Timer)</label>
-                              <input
-                                type="number"
-                                value={selectedSection.settings?.hoursLeft || 8}
-                                onChange={(e) => handleUpdateSelected("settings.hoursLeft", Number(e.target.value))}
-                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-[11px] font-bold text-slate-400 mb-1">Discount Tag Text</label>
-                              <input
-                                type="text"
-                                value={selectedSection.settings?.discountText || "UP TO 50% OFF"}
-                                onChange={(e) => handleUpdateSelected("settings.discountText", e.target.value)}
-                                className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* ── 7. SPECIAL NOTICE SETTINGS ── */}
+                      {/* ── 13. SPECIAL NOTICE ── */}
                       {selectedSection.type === "special_notice" && (
                         <div className="space-y-3 pt-2 border-t border-slate-800/80">
                           <div className="grid grid-cols-2 gap-2">
@@ -1367,7 +1908,7 @@ export default function SetupPage() {
                               <label className="block text-[11px] font-bold text-slate-400 mb-1">CTA Button Text</label>
                               <input
                                 type="text"
-                                value={selectedSection.settings?.ctaText || "Check Deals"}
+                                value={selectedSection.settings?.ctaText || "Claim Offer"}
                                 onChange={(e) => handleUpdateSelected("settings.ctaText", e.target.value)}
                                 className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
                               />
@@ -1376,7 +1917,7 @@ export default function SetupPage() {
                         </div>
                       )}
 
-                      {/* ── 8. RICH TEXT & STORY SETTINGS ── */}
+                      {/* ── 14. RICH TEXT / ABOUT ── */}
                       {selectedSection.type === "rich_text" && (
                         <div className="space-y-3 pt-2 border-t border-slate-800/80">
                           <div>
@@ -1401,9 +1942,245 @@ export default function SetupPage() {
                         </div>
                       )}
 
+                      {/* ── 15. NEWSLETTER ── */}
+                      {selectedSection.type === "newsletter" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Button CTA Text</label>
+                            <input
+                              type="text"
+                              value={selectedSection.settings?.buttonText || "Subscribe"}
+                              onChange={(e) => handleUpdateSelected("settings.buttonText", e.target.value)}
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 16. CURATED RECOMMENDATIONS ── */}
+                      {selectedSection.type === "curated_recommendations" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Max Items</label>
+                            <input
+                              type="number"
+                              min={3}
+                              max={18}
+                              value={selectedSection.settings?.limit || 6}
+                              onChange={(e) => handleUpdateSelected("settings.limit", Number(e.target.value))}
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 17. APP DOWNLOAD ── */}
+                      {selectedSection.type === "app_download" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Google Play Store URL</label>
+                            <input
+                              type="text"
+                              value={selectedSection.settings?.playStoreUrl || ""}
+                              onChange={(e) => handleUpdateSelected("settings.playStoreUrl", e.target.value)}
+                              placeholder="https://play.google.com/..."
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Apple App Store URL</label>
+                            <input
+                              type="text"
+                              value={selectedSection.settings?.appStoreUrl || ""}
+                              onChange={(e) => handleUpdateSelected("settings.appStoreUrl", e.target.value)}
+                              placeholder="https://apps.apple.com/..."
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Mobile Mockup Image URL</label>
+                            <input
+                              type="text"
+                              value={selectedSection.settings?.mockupImage || ""}
+                              onChange={(e) => handleUpdateSelected("settings.mockupImage", e.target.value)}
+                              placeholder="https://..."
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 18. PHARMACY UPLOAD ── */}
+                      {selectedSection.type === "pharmacy_upload" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Pharmacist Hotline</label>
+                            <input
+                              type="text"
+                              value={selectedSection.settings?.hotline || "+880 1700-000000"}
+                              onChange={(e) => handleUpdateSelected("settings.hotline", e.target.value)}
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-400 mb-1">Delivery Time ETA</label>
+                            <input
+                              type="text"
+                              value={selectedSection.settings?.deliveryEta || "2-Hour Express"}
+                              onChange={(e) => handleUpdateSelected("settings.deliveryEta", e.target.value)}
+                              className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── 19. RESTAURANT MENU ── */}
+                      {selectedSection.type === "restaurant_menu" && (
+                        <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                          <div className="p-2.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-400 text-xs flex items-center gap-2">
+                            <span>🍕 Automatically renders your live Food & Beverage products categorized with prep time and direct order buttons.</span>
+                          </div>
+                        </div>
+                      )}
+
                     </div>
                   </div>
+                ) : (
+                  /* ── MAIN SECTIONS LIST VIEW ── */
+                  <>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-xs font-black uppercase tracking-wider text-slate-300">
+                          Page Sections ({theme.sections.length})
+                        </h3>
+                        <p className="text-[11px] text-slate-500">
+                          Drag cards to reorder or click to customize.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("library")}
+                        className="px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 text-xs font-bold hover:bg-sky-500/30 flex items-center gap-1"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Add Block</span>
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {theme.sections.map((sec, idx) => {
+                        const isSelected = selectedSectionId === sec.id;
+                        const isDragging = draggedIndex === idx;
+                        const isOver = dragOverIndex === idx;
+
+                        return (
+                          <div
+                            key={sec.id}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, idx)}
+                            onDragOver={(e) => handleDragOver(e, idx)}
+                            onDrop={(e) => handleDrop(e, idx)}
+                            onDragEnd={handleDragEnd}
+                            onClick={() => handleSelectSection(sec.id, true)}
+                            className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-2.5 ${
+                              isDragging
+                                ? "opacity-30 border-dashed border-sky-500"
+                                : isOver
+                                ? "border-sky-400 bg-sky-950/40 translate-x-1"
+                                : isSelected
+                                ? "bg-slate-800/90 border-sky-500 ring-2 ring-sky-500/40 shadow-lg"
+                                : "bg-slate-950/70 border-slate-800 hover:border-slate-700"
+                            } ${!sec.enabled ? "opacity-50" : ""}`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <span
+                                className="cursor-grab active:cursor-grabbing text-slate-600 hover:text-slate-300 p-0.5"
+                                title="Drag to reorder"
+                              >
+                                <GripVertical className="w-4 h-4" />
+                              </span>
+
+                              <div className="w-6 h-6 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-[10px] font-mono text-slate-400">
+                                {idx + 1}
+                              </div>
+
+                              <div className="min-w-0">
+                                <span className="block text-xs font-bold text-white truncate">
+                                  {sec.title || sec.type.replace(/_/g, " ")}
+                                </span>
+                                <span className="block text-[10px] text-slate-400 uppercase font-mono tracking-wider">
+                                  {sec.type}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div
+                              className="flex items-center gap-1 shrink-0"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => handleSelectSection(sec.id, true)}
+                                className="p-1 rounded-md bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 text-[10px] font-bold px-2 py-0.5"
+                                title="Edit Details"
+                              >
+                                Edit ✏️
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleMoveUp(idx)}
+                                disabled={idx === 0}
+                                className="p-1 rounded-md hover:bg-slate-700 text-slate-400 disabled:opacity-20"
+                                title="Move Up"
+                              >
+                                <ArrowUp className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleMoveDown(idx)}
+                                disabled={idx === theme.sections.length - 1}
+                                className="p-1 rounded-md hover:bg-slate-700 text-slate-400 disabled:opacity-20"
+                                title="Move Down"
+                              >
+                                <ArrowDown className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDuplicateSection(sec, idx)}
+                                className="p-1 rounded-md hover:bg-slate-700 text-slate-400 hover:text-sky-400"
+                                title="Duplicate"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleVisible(sec.id)}
+                                className="p-1 rounded-md hover:bg-slate-700 text-slate-400"
+                                title={sec.enabled ? "Hide Section" : "Show Section"}
+                              >
+                                {sec.enabled ? (
+                                  <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                                ) : (
+                                  <EyeOff className="w-3.5 h-3.5 text-slate-500" />
+                                )}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteSection(sec.id)}
+                                className="p-1 rounded-md hover:bg-rose-950 text-rose-400 hover:text-rose-300"
+                                title="Delete Section"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
                 )}
+
               </div>
             )}
 
@@ -1415,7 +2192,7 @@ export default function SetupPage() {
                     Add New Page Block
                   </h3>
                   <p className="text-[11px] text-slate-500">
-                    Choose any pre-designed section widget for your business.
+                    Click any widget below to insert and customize it immediately.
                   </p>
                 </div>
 
@@ -1423,19 +2200,20 @@ export default function SetupPage() {
                   {SECTION_LIBRARY.map((item) => (
                     <div
                       key={item.type}
-                      className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-sky-500 transition-all flex items-start justify-between gap-3 group"
+                      onClick={() => handleAddSection(item.type)}
+                      className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-sky-500 hover:bg-slate-900/80 cursor-pointer transition-all flex items-start justify-between gap-3 group active:scale-[0.99]"
                     >
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl p-2 rounded-xl bg-slate-900 border border-slate-800 group-hover:scale-110 transition-transform">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <span className="text-2xl p-2 rounded-xl bg-slate-900 border border-slate-800 group-hover:scale-110 group-hover:border-sky-500/50 transition-all shrink-0">
                           {item.icon}
                         </span>
-                        <div>
-                          <div className="flex items-center gap-1.5">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <h4 className="text-xs font-bold text-white group-hover:text-sky-400 transition-colors">
                               {item.title}
                             </h4>
                             {item.badge && (
-                              <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                              <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
                                 {item.badge}
                               </span>
                             )}
@@ -1448,11 +2226,15 @@ export default function SetupPage() {
 
                       <button
                         type="button"
-                        onClick={() => handleAddSection(item.type)}
-                        className="p-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white shrink-0 shadow-md shadow-sky-600/30 transition-transform active:scale-95"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddSection(item.type);
+                        }}
+                        className="px-2.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white shrink-0 shadow-md shadow-sky-600/30 transition-transform active:scale-95 flex items-center gap-1 text-xs font-bold"
                         title="Add Section"
                       >
                         <Plus className="w-4 h-4" />
+                        <span className="text-[10px] hidden sm:inline">Add</span>
                       </button>
                     </div>
                   ))}
@@ -1769,18 +2551,37 @@ export default function SetupPage() {
                     return (
                       <div
                         key={sec.id}
-                        onClick={() => setSelectedSectionId(sec.id)}
-                        className={`relative group rounded-3xl transition-all ${
+                        id={`preview-${sec.id}`}
+                        onClickCapture={(e) => {
+                          if ((e.target as HTMLElement).closest('.builder-canvas-action')) {
+                            return;
+                          }
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleSelectSection(sec.id, true);
+                        }}
+                        className={`relative group rounded-3xl transition-all cursor-pointer ${
                           isSelected
-                            ? "ring-4 ring-sky-500 ring-offset-4 ring-offset-slate-900"
-                            : "hover:ring-2 hover:ring-sky-400/50"
+                            ? "ring-4 ring-sky-500 ring-offset-4 ring-offset-slate-950 shadow-2xl"
+                            : "hover:ring-2 hover:ring-sky-400/60"
                         }`}
                       >
-                        {/* Live Canvas Quick Floating Inspector Pill */}
-                        <div className="absolute top-3 right-3 z-30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md text-white px-3 py-1.5 rounded-full shadow-xl border border-slate-700 text-xs font-bold">
-                          <span className="text-[10px] text-sky-400 uppercase tracking-wider font-mono">
-                            {sec.type}
+                        {/* Live Canvas Floating Inspector Toolbar */}
+                        <div className="absolute top-3 right-3 z-30 opacity-90 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 bg-slate-950/90 backdrop-blur-md text-white px-3 py-1.5 rounded-full shadow-2xl border border-slate-700 text-xs font-bold">
+                          <span className="text-[10px] text-sky-400 uppercase tracking-wider font-mono mr-1">
+                            {sec.type.replace(/_/g, " ")}
                           </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectSection(sec.id, true);
+                            }}
+                            className="builder-canvas-action px-2 py-0.5 bg-sky-500/20 hover:bg-sky-500/40 text-sky-300 rounded font-bold text-[11px]"
+                            title="Edit Section Details"
+                          >
+                            ✏️ Edit
+                          </button>
                           <button
                             type="button"
                             onClick={(e) => {
@@ -1788,7 +2589,7 @@ export default function SetupPage() {
                               handleMoveUp(idx);
                             }}
                             disabled={idx === 0}
-                            className="p-1 hover:bg-slate-800 rounded disabled:opacity-20"
+                            className="builder-canvas-action p-1 hover:bg-slate-800 rounded text-slate-300 disabled:opacity-20"
                             title="Move Up"
                           >
                             <ArrowUp className="w-3.5 h-3.5" />
@@ -1800,7 +2601,7 @@ export default function SetupPage() {
                               handleMoveDown(idx);
                             }}
                             disabled={idx === theme.sections.length - 1}
-                            className="p-1 hover:bg-slate-800 rounded disabled:opacity-20"
+                            className="builder-canvas-action p-1 hover:bg-slate-800 rounded text-slate-300 disabled:opacity-20"
                             title="Move Down"
                           >
                             <ArrowDown className="w-3.5 h-3.5" />
@@ -1811,7 +2612,7 @@ export default function SetupPage() {
                               e.stopPropagation();
                               handleDuplicateSection(sec, idx);
                             }}
-                            className="p-1 hover:bg-slate-800 rounded text-sky-400"
+                            className="builder-canvas-action p-1 hover:bg-slate-800 rounded text-sky-400"
                             title="Duplicate"
                           >
                             <Copy className="w-3.5 h-3.5" />
@@ -1822,7 +2623,7 @@ export default function SetupPage() {
                               e.stopPropagation();
                               handleDeleteSection(sec.id);
                             }}
-                            className="p-1 hover:bg-rose-950 rounded text-rose-400"
+                            className="builder-canvas-action p-1 hover:bg-rose-950 rounded text-rose-400"
                             title="Delete"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1844,18 +2645,37 @@ export default function SetupPage() {
                   return (
                     <div
                       key={sec.id}
-                      onClick={() => setSelectedSectionId(sec.id)}
-                      className={`relative group transition-all ${
+                      id={`preview-${sec.id}`}
+                      onClickCapture={(e) => {
+                        if ((e.target as HTMLElement).closest('.builder-canvas-action')) {
+                          return;
+                        }
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSelectSection(sec.id, true);
+                      }}
+                      className={`relative group transition-all cursor-pointer ${
                         isSelected
-                          ? "ring-4 ring-sky-500"
-                          : "hover:ring-2 hover:ring-sky-400/50"
+                          ? "ring-4 ring-sky-500 ring-offset-4 ring-offset-slate-950 shadow-2xl"
+                          : "hover:ring-2 hover:ring-sky-400/60"
                       }`}
                     >
-                      {/* Live Canvas Quick Floating Inspector Pill */}
-                      <div className="absolute top-4 right-4 z-30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md text-white px-3 py-1.5 rounded-full shadow-xl border border-slate-700 text-xs font-bold">
-                        <span className="text-[10px] text-sky-400 uppercase tracking-wider font-mono">
-                          {sec.type}
+                      {/* Live Canvas Floating Inspector Toolbar */}
+                      <div className="absolute top-4 right-4 z-30 opacity-90 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 bg-slate-950/90 backdrop-blur-md text-white px-3 py-1.5 rounded-full shadow-2xl border border-slate-700 text-xs font-bold">
+                        <span className="text-[10px] text-sky-400 uppercase tracking-wider font-mono mr-1">
+                          {sec.type.replace(/_/g, " ")}
                         </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectSection(sec.id, true);
+                          }}
+                          className="builder-canvas-action px-2 py-0.5 bg-sky-500/20 hover:bg-sky-500/40 text-sky-300 rounded font-bold text-[11px]"
+                          title="Edit Section Details"
+                        >
+                          ✏️ Edit
+                        </button>
                         <button
                           type="button"
                           onClick={(e) => {
@@ -1863,7 +2683,7 @@ export default function SetupPage() {
                             handleMoveUp(idx);
                           }}
                           disabled={idx === 0}
-                          className="p-1 hover:bg-slate-800 rounded disabled:opacity-20"
+                          className="builder-canvas-action p-1 hover:bg-slate-800 rounded text-slate-300 disabled:opacity-20"
                           title="Move Up"
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
@@ -1875,7 +2695,7 @@ export default function SetupPage() {
                             handleMoveDown(idx);
                           }}
                           disabled={idx === theme.sections.length - 1}
-                          className="p-1 hover:bg-slate-800 rounded disabled:opacity-20"
+                          className="builder-canvas-action p-1 hover:bg-slate-800 rounded text-slate-300 disabled:opacity-20"
                           title="Move Down"
                         >
                           <ArrowDown className="w-3.5 h-3.5" />
@@ -1886,7 +2706,7 @@ export default function SetupPage() {
                             e.stopPropagation();
                             handleDuplicateSection(sec, idx);
                           }}
-                          className="p-1 hover:bg-slate-800 rounded text-sky-400"
+                          className="builder-canvas-action p-1 hover:bg-slate-800 rounded text-sky-400"
                           title="Duplicate"
                         >
                           <Copy className="w-3.5 h-3.5" />
@@ -1897,7 +2717,7 @@ export default function SetupPage() {
                             e.stopPropagation();
                             handleDeleteSection(sec.id);
                           }}
-                          className="p-1 hover:bg-rose-950 rounded text-rose-400"
+                          className="builder-canvas-action p-1 hover:bg-rose-950 rounded text-rose-400"
                           title="Delete"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

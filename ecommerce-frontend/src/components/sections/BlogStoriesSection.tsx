@@ -12,7 +12,7 @@ interface Props {
 
 export default function BlogStoriesSection({ section, isDarkMode }: Props) {
   const { title, subtitle, settings } = section;
-  const articles = [
+  const defaultArticles = [
     {
       title: "10 Best Tech Gadgets & Essentials You Should Buy in 2026",
       desc: "Comprehensive review of the highest rated devices with true value.",
@@ -38,6 +38,8 @@ export default function BlogStoriesSection({ section, isDarkMode }: Props) {
       image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600&auto=format&fit=crop&q=80",
     },
   ];
+
+  const articles = settings?.articles && settings.articles.length > 0 ? settings.articles : defaultArticles;
 
   return (
     <section className="py-6 sm:py-8">
