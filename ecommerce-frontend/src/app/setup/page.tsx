@@ -57,6 +57,7 @@ import {
   Edit3,
   ArrowLeft,
   ChevronLeft,
+  MessageCircle,
 } from "lucide-react";
 import {
   ThemeConfig,
@@ -396,6 +397,26 @@ export default function SetupPage() {
     }
     loadData();
   }, []);
+
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleUploadFile = async (callback: (url: string) => void, file: File) => {
+    try {
+      setIsUploading(true);
+      toast.loading("Uploading image...", { id: "img-upload" });
+      const res = await StorefrontAPI.uploadImage(file);
+      if (res && res.url) {
+        callback(res.url);
+        toast.success("Image uploaded successfully!", { id: "img-upload" });
+      } else {
+        toast.error("Upload failed", { id: "img-upload" });
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || e.message || "Failed to upload image", { id: "img-upload" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   // Update theme and sync with ThemeContext
   const updateLocalAndGlobalTheme = (newTheme: ThemeConfig) => {
@@ -2318,26 +2339,51 @@ export default function SetupPage() {
                     <span>Header Logo & Brand Identity</span>
                   </h4>
 
-                  {/* Logo Image URL */}
+                  {/* Logo Image URL + Direct File Upload */}
                   <div>
                     <label className="block text-[11px] font-bold text-slate-400 mb-1">
-                      Header Logo Image URL (Optional)
+                      Header Logo Image
                     </label>
-                    <input
-                      type="text"
-                      value={theme.headerLogo || ""}
-                      onChange={(e) => updateLocalAndGlobalTheme({ ...theme, headerLogo: e.target.value })}
-                      placeholder="https://example.com/logo.png"
-                      className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
-                    />
-                    {theme.headerLogo && (
-                      <div className="mt-2 p-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2">
-                        <img
-                          src={theme.headerLogo}
-                          alt="Logo Preview"
-                          className="h-8 max-w-[120px] object-contain bg-white/10 p-1 rounded"
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={theme.headerLogo || ""}
+                        onChange={(e) => updateLocalAndGlobalTheme({ ...theme, headerLogo: e.target.value })}
+                        placeholder="https://example.com/logo.png"
+                        className="flex-1 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
+                      />
+                      <label className="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold cursor-pointer transition-colors shrink-0 flex items-center gap-1">
+                        <UploadCloud className="w-3.5 h-3.5" />
+                        <span>Upload</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) =>
+                            e.target.files?.[0] &&
+                            handleUploadFile((url) => updateLocalAndGlobalTheme({ ...theme, headerLogo: url }), e.target.files[0])
+                          }
                         />
-                        <span className="text-[10px] text-emerald-400 font-semibold">Active Logo Preview</span>
+                      </label>
+                    </div>
+
+                    {theme.headerLogo && (
+                      <div className="mt-2 p-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={theme.headerLogo}
+                            alt="Logo Preview"
+                            className="h-8 max-w-[120px] object-contain bg-white/10 p-1 rounded"
+                          />
+                          <span className="text-[10px] text-emerald-400 font-semibold">Active Logo</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => updateLocalAndGlobalTheme({ ...theme, headerLogo: "" })}
+                          className="text-[10px] text-rose-400 hover:underline"
+                        >
+                          Remove
+                        </button>
                       </div>
                     )}
                   </div>
@@ -2383,14 +2429,29 @@ export default function SetupPage() {
 
                   {/* Top Decorative Header Banner Image */}
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-400 mb-1">Top Decorative Banner Image URL (Optional)</label>
-                    <input
-                      type="text"
-                      value={theme.headerBannerImage || ""}
-                      onChange={(e) => updateLocalAndGlobalTheme({ ...theme, headerBannerImage: e.target.value })}
-                      placeholder="https://..."
-                      className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
-                    />
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">Top Decorative Banner Image (Optional)</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={theme.headerBannerImage || ""}
+                        onChange={(e) => updateLocalAndGlobalTheme({ ...theme, headerBannerImage: e.target.value })}
+                        placeholder="https://..."
+                        className="flex-1 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
+                      />
+                      <label className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold cursor-pointer transition-colors shrink-0 flex items-center gap-1">
+                        <UploadCloud className="w-3.5 h-3.5" />
+                        <span>Upload</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) =>
+                            e.target.files?.[0] &&
+                            handleUploadFile((url) => updateLocalAndGlobalTheme({ ...theme, headerBannerImage: url }), e.target.files[0])
+                          }
+                        />
+                      </label>
+                    </div>
                   </div>
                 </div>
 
@@ -2449,7 +2510,149 @@ export default function SetupPage() {
                   )}
                 </div>
 
-                {/* 3. Dark Mode Toggle */}
+                {/* 3. Typography Font Selector */}
+                <div className="space-y-3 bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+                  <h4 className="text-xs font-black uppercase text-purple-400 flex items-center gap-1.5">
+                    <Type className="w-3.5 h-3.5" />
+                    <span>Storefront Typography & Fonts</span>
+                  </h4>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">Select Primary Font</label>
+                    <select
+                      value={theme.fontFamily || "Inter, system-ui, sans-serif"}
+                      onChange={(e) => updateLocalAndGlobalTheme({ ...theme, fontFamily: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-medium"
+                    >
+                      <option value="Inter, system-ui, sans-serif">Inter (Modern & Clean Default)</option>
+                      <option value="'Hind Siliguri', sans-serif">Hind Siliguri (Bengali & English Optimized)</option>
+                      <option value="'Poppins', sans-serif">Poppins (Geometric & Bold)</option>
+                      <option value="'Outfit', sans-serif">Outfit (Trendy Fashion & Luxury)</option>
+                      <option value="'Roboto', sans-serif">Roboto (Crisp Technical)</option>
+                      <option value="'Playfair Display', serif">Playfair Display (Elegant Serif)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* 4. WhatsApp Quick Order Widget Settings */}
+                <div className="space-y-3 bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-black uppercase text-emerald-400 flex items-center gap-1.5">
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span>WhatsApp Quick Order Widget</span>
+                    </h4>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-300 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={theme.whatsappOrderEnabled !== false}
+                        onChange={(e) => updateLocalAndGlobalTheme({ ...theme, whatsappOrderEnabled: e.target.checked })}
+                        className="rounded bg-slate-900 border-slate-800 text-emerald-600"
+                      />
+                      <span>Enable</span>
+                    </label>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">WhatsApp Business Phone Number</label>
+                    <input
+                      type="text"
+                      placeholder="+880 1700-000000"
+                      value={theme.whatsappOrderPhone || ""}
+                      onChange={(e) => updateLocalAndGlobalTheme({ ...theme, whatsappOrderPhone: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                    />
+                  </div>
+                </div>
+
+                {/* 5. Footer & Social Links Customizer */}
+                <div className="space-y-3 bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+                  <h4 className="text-xs font-black uppercase text-sky-400 flex items-center gap-1.5">
+                    <Layout className="w-3.5 h-3.5" />
+                    <span>Footer & Social Media Links</span>
+                  </h4>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">About Store Summary</label>
+                    <textarea
+                      rows={2}
+                      value={theme.footerAboutText || ""}
+                      onChange={(e) => updateLocalAndGlobalTheme({ ...theme, footerAboutText: e.target.value })}
+                      placeholder="About your store mission..."
+                      className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white resize-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 mb-1">Contact Phone</label>
+                      <input
+                        type="text"
+                        value={theme.footerPhone || ""}
+                        onChange={(e) => updateLocalAndGlobalTheme({ ...theme, footerPhone: e.target.value })}
+                        placeholder="+880..."
+                        className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 mb-1">Contact Email</label>
+                      <input
+                        type="email"
+                        value={theme.footerEmail || ""}
+                        onChange={(e) => updateLocalAndGlobalTheme({ ...theme, footerEmail: e.target.value })}
+                        placeholder="support@..."
+                        className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 mb-1">Store Address</label>
+                    <input
+                      type="text"
+                      value={theme.footerAddress || ""}
+                      onChange={(e) => updateLocalAndGlobalTheme({ ...theme, footerAddress: e.target.value })}
+                      placeholder="Dhaka, Bangladesh"
+                      className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 mb-1">Facebook Page URL</label>
+                      <input
+                        type="text"
+                        value={theme.footerFacebook || ""}
+                        onChange={(e) => updateLocalAndGlobalTheme({ ...theme, footerFacebook: e.target.value })}
+                        placeholder="https://facebook.com/..."
+                        className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 mb-1">Instagram URL</label>
+                      <input
+                        type="text"
+                        value={theme.footerInstagram || ""}
+                        onChange={(e) => updateLocalAndGlobalTheme({ ...theme, footerInstagram: e.target.value })}
+                        placeholder="https://instagram.com/..."
+                        className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-300 cursor-pointer pt-1">
+                      <input
+                        type="checkbox"
+                        checked={theme.footerShowPaymentIcons !== false}
+                        onChange={(e) => updateLocalAndGlobalTheme({ ...theme, footerShowPaymentIcons: e.target.checked })}
+                        className="rounded bg-slate-900 border-slate-800 text-sky-600"
+                      />
+                      <span>Show Accepted Payment Method Badges</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* 6. Dark Mode Toggle */}
                 <div>
                   <label className="block text-[11px] font-bold text-slate-400 mb-1.5">
                     Color Theme Mode
@@ -2480,7 +2683,7 @@ export default function SetupPage() {
                   </div>
                 </div>
 
-                {/* 4. Brand Primary Color Swatches */}
+                {/* 7. Brand Primary Color Swatches */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-[11px] font-bold text-slate-400">

@@ -766,7 +766,6 @@ async def save_builder_theme(
     theme_data = body.get("theme") or body
     theme_json = json.dumps(theme_data)
     
-    # Check if exists
     exists = (await db.execute(
         text("SELECT id FROM tenant_settings WHERE tenantId=:t AND settingKey='ecommerce_builder_theme'"),
         {"t": tenantId}
@@ -784,4 +783,48 @@ async def save_builder_theme(
         )
     await db.commit()
     return ok({"message": "Builder theme saved successfully", "theme": theme_data})
+
+
+@router.post("/upload-image")
+async def upload_storefront_image(
+    file: Request,
+    tenantId: str = Depends(resolve_tenant),
+):
+    """Upload storefront image (logo, banner, block images) to server storage."""
+    import os
+    from pathlib import Path
+    form = await file.form()
+    upload_file = form.get("file")
+    if not upload_file or not hasattr(upload_file, "filename"):
+        return err("No file uploaded", 400)
+    
+    backend_root = Path(__file__).resolve().parent.parent.parent.parent
+    image_storage_dir = os.path.join(backend_root, "image_storage")
+    os.makedirs(image_storage_dir, exist_ok=True)
+
+    filename = upload_file.filename
+    ext = os.path.splitext(filename)[1].lower() or ".png"
+    if ext not in [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg", ".avif"]:
+        return err("Invalid file format. Allowed: JPG, PNG, WEBP, GIF, SVG", 400)
+
+    unique_name = f"store_{tenantId[:8]}_{int(time.time())}_{uuid.uuid4().hex[:6]}{ext}"
+    file_path = os.path.join(image_storage_dir, unique_name)
+
+    content = await upload_file.read()
+    if len(content) > 10 * 1024 * 1024:
+        return err("File too large. Maximum limit is 10MB.", 400)
+
+    with open(file_path, "wb") as f:
+        f.write(content)
+
+    base_url = str(file.base_url).rstrip("/")
+    image_url = f"{base_url}/image_storage/{unique_name}"
+
+    return ok({
+        "url": image_url,
+        "filename": unique_name,
+        "size": len(content)
+    })
+
+
 

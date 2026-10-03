@@ -35,6 +35,12 @@ export default function CheckoutPage() {
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [isCheckingCoupon, setIsCheckingCoupon] = useState(false);
+
   // Delivery costs
   const deliveryCosts: Record<string, number> = {
     STANDARD: 60,
@@ -43,7 +49,32 @@ export default function CheckoutPage() {
   };
 
   const currentDeliveryCost = cartSubtotal >= 2000 && deliveryMethod === "STANDARD" ? 0 : deliveryCosts[deliveryMethod];
-  const grandTotal = cartSubtotal + currentDeliveryCost;
+  const grandTotal = Math.max(0, cartSubtotal - couponDiscount + currentDeliveryCost);
+
+  const handleApplyCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!couponCode.trim()) return;
+    try {
+      setIsCheckingCoupon(true);
+      const res = await StorefrontAPI.validateCoupon(couponCode.trim(), cartSubtotal);
+      if (res.valid) {
+        setAppliedCoupon(couponCode.trim().toUpperCase());
+        setCouponDiscount(res.discount);
+        toast.success(res.message || "Coupon applied successfully!");
+      } else {
+        toast.error(res.message || "Invalid coupon code");
+      }
+    } finally {
+      setIsCheckingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponDiscount(0);
+    setCouponCode("");
+    toast.success("Coupon removed");
+  };
 
   if (cart.length === 0) {
     return (
@@ -74,7 +105,8 @@ export default function CheckoutPage() {
         shippingAddress: `${address.trim()}, ${city}`,
         paymentMethod,
         shippingCost: currentDeliveryCost,
-        notes: `Delivery: ${deliveryMethod} | ${notes}`.trim(),
+        discountTotal: couponDiscount,
+        notes: `Delivery: ${deliveryMethod} | Coupon: ${appliedCoupon || "None"} | ${notes}`.trim(),
         items: cart.map((item) => ({
           productId: item.productId,
           qty: item.qty,
@@ -349,11 +381,57 @@ export default function CheckoutPage() {
             ))}
           </div>
 
+          {/* Coupon Voucher Input */}
+          <div className="pt-2">
+            {appliedCoupon ? (
+              <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <div>
+                    <span className="font-bold text-emerald-800 uppercase font-mono">{appliedCoupon}</span>
+                    <span className="text-emerald-600 block text-[10px]">Discount Applied: -৳{couponDiscount.toLocaleString()}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveCoupon}
+                  className="text-xs text-rose-600 font-bold hover:underline"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter Promo Code (e.g. SAVE20)"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono uppercase focus:bg-white focus:outline-none"
+                />
+                <button
+                  type="button"
+                  disabled={isCheckingCoupon || !couponCode.trim()}
+                  onClick={handleApplyCoupon}
+                  className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
+                >
+                  {isCheckingCoupon ? "Applying..." : "Apply"}
+                </button>
+              </div>
+            )}
+          </div>
+
           <div className="space-y-2.5 text-xs pt-4 border-t border-slate-100">
             <div className="flex justify-between text-slate-500">
               <span>Subtotal</span>
               <span className="font-bold text-slate-800">৳{cartSubtotal.toLocaleString()}</span>
             </div>
+            {couponDiscount > 0 && (
+              <div className="flex justify-between text-emerald-600 font-bold">
+                <span>Coupon Discount ({appliedCoupon})</span>
+                <span>-৳{couponDiscount.toLocaleString()}</span>
+              </div>
+            )}
             <div className="flex justify-between text-slate-500">
               <span>Delivery Cost</span>
               <span className="font-bold text-slate-800">

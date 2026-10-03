@@ -303,6 +303,41 @@ export const StorefrontAPI = {
     return res.data?.data || res.data;
   },
 
+  async uploadImage(file: File): Promise<{ url: string; filename: string; size: number }> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await api.post("/upload-image", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data?.data || res.data;
+  },
+
+  async validateCoupon(code: string, cartTotal: number): Promise<{ valid: boolean; discount: number; message?: string }> {
+    try {
+      const promotions = await this.getPromotions();
+      const upper = code.trim().toUpperCase();
+      const match = promotions.coupons?.find((c) => c.code.toUpperCase() === upper && (c.status === "ACTIVE" || !c.status));
+      if (!match) {
+        return { valid: false, discount: 0, message: "Invalid or expired coupon code" };
+      }
+      if (match.minOrderAmount && cartTotal < match.minOrderAmount) {
+        return { valid: false, discount: 0, message: `Minimum order amount for this coupon is ৳${match.minOrderAmount}` };
+      }
+      let discount = 0;
+      if (match.discountType === "PERCENTAGE") {
+        discount = (cartTotal * match.discountValue) / 100;
+        if (match.maxDiscountAmount && discount > match.maxDiscountAmount) {
+          discount = match.maxDiscountAmount;
+        }
+      } else {
+        discount = match.discountValue;
+      }
+      return { valid: true, discount: Math.min(discount, cartTotal), message: `Coupon ${upper} applied successfully!` };
+    } catch (e) {
+      return { valid: false, discount: 0, message: "Failed to validate coupon" };
+    }
+  },
+
   async login(identifier: string, password: string) {
     const res = await api.post("/auth/login", { identifier, password });
     return res.data?.data || res.data;

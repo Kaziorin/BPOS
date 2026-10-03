@@ -8,6 +8,7 @@ import { SectionItem } from "@/lib/builderTypes";
 import { useCart } from "@/context/CartContext";
 import { useStoreConfig } from "@/context/StoreConfigContext";
 import { useTheme } from "@/context/ThemeContext";
+import ProductQuickViewModal from "@/components/common/ProductQuickViewModal";
 import toast from "react-hot-toast";
 
 interface Props {
@@ -25,6 +26,7 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
   const [addedMap, setAddedMap] = useState<Record<string, boolean>>({});
   const [viewMode, setViewMode] = useState<"grid" | "list">(settings?.layout === "list" ? "list" : "grid");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [quickViewProduct, setQuickViewProduct] = useState<ProductItem | null>(null);
 
   const limit = settings?.limit || 12;
   const columns = settings?.columns || 4;
@@ -335,6 +337,19 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
                         </span>
                       </div>
                     )}
+                    {/* Quick View Button on Hover */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setQuickViewProduct(p);
+                      }}
+                      className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-xl bg-slate-900/90 hover:bg-sky-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:scale-105 active:scale-95"
+                      title="Quick View Details"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
                   </div>
 
                   {/* Info */}
@@ -403,6 +418,14 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
         )}
 
       </div>
+
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <ProductQuickViewModal
+          product={quickViewProduct}
+          onClose={() => setQuickViewProduct(null)}
+        />
+      )}
     </section>
   );
 }

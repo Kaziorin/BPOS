@@ -56,6 +56,20 @@ export interface ThemeConfig {
   announcementBgColor?: string;
   announcementTextColor?: string;
   announcementLink?: string;
+  // Footer settings
+  footerAboutText?: string;
+  footerPhone?: string;
+  footerEmail?: string;
+  footerAddress?: string;
+  footerCopyright?: string;
+  footerFacebook?: string;
+  footerInstagram?: string;
+  footerWhatsapp?: string;
+  footerYoutube?: string;
+  footerShowPaymentIcons?: boolean;
+  // WhatsApp Quick Order
+  whatsappOrderEnabled?: boolean;
+  whatsappOrderPhone?: string;
   sections: SectionItem[];
 }
 

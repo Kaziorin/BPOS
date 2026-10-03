@@ -50,9 +50,36 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+
   useEffect(() => {
-    StorefrontAPI.getCategories().then(setCategories).catch(console.error);
-  }, []);
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setShowSearchDropdown(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setIsSearching(true);
+        const res = await StorefrontAPI.getProducts({
+          search: searchQuery.trim(),
+          categoryId: selectedCat !== "All Categories" ? selectedCat : undefined,
+          limit: 6,
+        });
+        setSearchResults(res.items || []);
+        setShowSearchDropdown(true);
+      } catch (e) {
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, selectedCat]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,43 +173,115 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
               )}
             </Link>
 
-            {/* Search Bar with Category Selector */}
-            <form
-              onSubmit={handleSearchSubmit}
-              className={`hidden md:flex flex-1 max-w-2xl items-center rounded-full border px-4 py-2 transition-all ${
-                isDark
-                  ? "bg-zinc-900 border-zinc-700/80 focus-within:border-sky-500"
-                  : "bg-slate-50 border-slate-200 focus-within:bg-white shadow-xs"
-              }`}
-              style={{
-                borderColor: undefined,
-              }}
-            >
-              <Search className="w-4 h-4 text-slate-400 shrink-0 mr-2.5" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for products, brands, coupons and more..."
-                className="w-full bg-transparent text-xs sm:text-sm focus:outline-hidden placeholder-slate-400 text-slate-900 dark:text-white"
-              />
+            {/* Search Bar with Category Selector & Autocomplete Dropdown */}
+            <div className="hidden md:flex flex-1 max-w-2xl relative">
+              <form
+                onSubmit={handleSearchSubmit}
+                className={`w-full flex items-center rounded-full border px-4 py-2 transition-all ${
+                  isDark
+                    ? "bg-zinc-900 border-zinc-700/80 focus-within:border-sky-500"
+                    : "bg-slate-50 border-slate-200 focus-within:bg-white shadow-xs"
+                }`}
+              >
+                <Search className="w-4 h-4 text-slate-400 shrink-0 mr-2.5" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => searchQuery.trim() && setShowSearchDropdown(true)}
+                  placeholder="Search for products, brands, coupons and more..."
+                  className="w-full bg-transparent text-xs sm:text-sm focus:outline-none placeholder-slate-400 text-slate-900 dark:text-white"
+                />
 
-              {/* Category selector inside Search */}
-              <div className="relative border-l border-slate-200 dark:border-zinc-700 pl-3 ml-2 shrink-0">
-                <select
-                  value={selectedCat}
-                  onChange={(e) => setSelectedCat(e.target.value)}
-                  className="bg-transparent text-xs font-semibold text-slate-600 dark:text-zinc-300 focus:outline-hidden cursor-pointer"
-                >
-                  <option value="All Categories" className="dark:bg-zinc-900">All Categories</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id} className="dark:bg-zinc-900">
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </form>
+                {/* Category selector inside Search */}
+                <div className="relative border-l border-slate-200 dark:border-zinc-700 pl-3 ml-2 shrink-0">
+                  <select
+                    value={selectedCat}
+                    onChange={(e) => setSelectedCat(e.target.value)}
+                    className="bg-transparent text-xs font-semibold text-slate-600 dark:text-zinc-300 focus:outline-none cursor-pointer"
+                  >
+                    <option value="All Categories" className="dark:bg-zinc-900">All Categories</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id} className="dark:bg-zinc-900">
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </form>
+
+              {/* Autocomplete Results Dropdown */}
+              {showSearchDropdown && searchResults.length > 0 && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowSearchDropdown(false)}
+                  />
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl overflow-hidden z-50 divide-y divide-slate-800 animate-in fade-in zoom-in-95">
+                    <div className="p-3 bg-slate-950/80 flex items-center justify-between text-[11px] font-bold text-slate-400">
+                      <span>Live Results ({searchResults.length})</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowSearchDropdown(false)}
+                        className="text-slate-500 hover:text-white"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <div className="p-2 space-y-1 max-h-72 overflow-y-auto">
+                      {searchResults.map((item) => (
+                        <Link
+                          key={item.id}
+                          href={`/products/${item.id}`}
+                          onClick={() => {
+                            setShowSearchDropdown(false);
+                            setSearchQuery("");
+                          }}
+                          className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-800 transition-colors group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 overflow-hidden shrink-0 flex items-center justify-center">
+                              {item.imageUrl ? (
+                                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <ShoppingBag className="w-4 h-4 text-slate-400" />
+                              )}
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-bold text-white group-hover:text-sky-400 transition-colors line-clamp-1">
+                                {item.name}
+                              </h4>
+                              <span className="text-[10px] text-slate-400 font-medium">
+                                {item.categoryName || "Product"}
+                              </span>
+                            </div>
+                          </div>
+
+                          <span
+                            className="text-xs font-black shrink-0 ml-2"
+                            style={{ color: primaryColor }}
+                          >
+                            ৳{Number(item.sellingPrice || item.price || 0).toLocaleString()}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+
+                    <div className="p-2.5 bg-slate-950/90 text-center">
+                      <Link
+                        href={`/products?search=${encodeURIComponent(searchQuery.trim())}`}
+                        onClick={() => setShowSearchDropdown(false)}
+                        className="text-xs font-bold text-sky-400 hover:underline inline-flex items-center gap-1"
+                      >
+                        <span>View all matching products</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
 
             {/* Right Action Icons (Location, Wishlist, Notification, Account, Cart) */}
             <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
