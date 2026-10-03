@@ -1,9 +1,14 @@
 import {
   ThemeConfig,
+  BusinessPresetId,
   DEFAULT_VIBRANT_THEME,
   DEFAULT_SIDEBAR_THEME,
   DEFAULT_DARK_LUXURY_THEME,
-  SectionItem,
+  DEFAULT_ELECTRONICS_THEME,
+  DEFAULT_FASHION_THEME,
+  DEFAULT_PHARMACY_THEME,
+  DEFAULT_RESTAURANT_THEME,
+  DEFAULT_BEAUTY_THEME,
 } from "./builderTypes";
 import api, { getTenantSlug } from "./api";
 
@@ -66,12 +71,22 @@ export async function saveActiveTheme(theme: ThemeConfig): Promise<boolean> {
   }
 }
 
-export function getPresetTheme(preset: "shopease-vibrant" | "shopease-sidebar-grocery" | "shopease-dark-luxury"): ThemeConfig {
+export function getPresetTheme(preset: BusinessPresetId): ThemeConfig {
   switch (preset) {
     case "shopease-sidebar-grocery":
       return JSON.parse(JSON.stringify(DEFAULT_SIDEBAR_THEME));
     case "shopease-dark-luxury":
       return JSON.parse(JSON.stringify(DEFAULT_DARK_LUXURY_THEME));
+    case "shopease-electronics":
+      return JSON.parse(JSON.stringify(DEFAULT_ELECTRONICS_THEME));
+    case "shopease-fashion":
+      return JSON.parse(JSON.stringify(DEFAULT_FASHION_THEME));
+    case "shopease-pharmacy":
+      return JSON.parse(JSON.stringify(DEFAULT_PHARMACY_THEME));
+    case "shopease-restaurant":
+      return JSON.parse(JSON.stringify(DEFAULT_RESTAURANT_THEME));
+    case "shopease-beauty":
+      return JSON.parse(JSON.stringify(DEFAULT_BEAUTY_THEME));
     case "shopease-vibrant":
     default:
       return JSON.parse(JSON.stringify(DEFAULT_VIBRANT_THEME));

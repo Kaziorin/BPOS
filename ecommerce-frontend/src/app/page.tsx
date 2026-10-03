@@ -17,6 +17,13 @@ import BrandsCarouselSection from "@/components/sections/BrandsCarouselSection";
 import CuratedRecommendationsSection from "@/components/sections/CuratedRecommendationsSection";
 import BlogStoriesSection from "@/components/sections/BlogStoriesSection";
 import NewsletterSection from "@/components/sections/NewsletterSection";
+import TestimonialsSection from "@/components/sections/TestimonialsSection";
+import FaqSection from "@/components/sections/FaqSection";
+import SpecialNoticeSection from "@/components/sections/SpecialNoticeSection";
+import AppDownloadSection from "@/components/sections/AppDownloadSection";
+import PharmacyUploadSection from "@/components/sections/PharmacyUploadSection";
+import RestaurantMenuSection from "@/components/sections/RestaurantMenuSection";
+import RichTextSection from "@/components/sections/RichTextSection";
 import SidebarCategoryNav from "@/components/layout/SidebarCategoryNav";
 import AdminBar from "@/components/layout/AdminBar";
 
@@ -132,6 +139,20 @@ function renderStoreSection(
       return <CuratedRecommendationsSection section={sec} products={products} isDarkMode={isDarkMode} />;
     case "blog_stories":
       return <BlogStoriesSection section={sec} isDarkMode={isDarkMode} />;
+    case "testimonials":
+      return <TestimonialsSection section={sec} isDarkMode={isDarkMode} />;
+    case "faq_section":
+      return <FaqSection section={sec} isDarkMode={isDarkMode} />;
+    case "special_notice":
+      return <SpecialNoticeSection section={sec} isDarkMode={isDarkMode} />;
+    case "app_download":
+      return <AppDownloadSection section={sec} isDarkMode={isDarkMode} />;
+    case "pharmacy_upload":
+      return <PharmacyUploadSection section={sec} isDarkMode={isDarkMode} />;
+    case "restaurant_menu":
+      return <RestaurantMenuSection section={sec} isDarkMode={isDarkMode} />;
+    case "rich_text":
+      return <RichTextSection section={sec} isDarkMode={isDarkMode} />;
     case "newsletter":
       return <NewsletterSection section={sec} isDarkMode={isDarkMode} />;
     default:

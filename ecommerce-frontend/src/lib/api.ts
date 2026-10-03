@@ -8,7 +8,7 @@ export const MEDIA_BASE_URL = process.env.NEXT_PUBLIC_MEDIA_URL || "http://local
  */
 export function getTenantSlug(): string {
   if (typeof window === "undefined") {
-    return process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG || "default-store";
+    return process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG || "demo-shop";
   }
 
   // 1. Check URL query parameters (e.g. ?store=aarong)
@@ -35,7 +35,7 @@ export function getTenantSlug(): string {
   }
 
   // 4. Default fallback
-  return process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG || "default-store";
+  return process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG || "demo-shop";
 }
 
 const api = axios.create({

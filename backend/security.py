@@ -81,6 +81,7 @@ async def resolve_tenant(
     """Resolve tenant by slug or UUID — fallback to JWT token or default tenant if missing."""
     auth = request.headers.get("authorization", "")
     token_tenant = None
+    payload = None
     if auth.startswith("Bearer "):
         try:
             payload = jwt.decode(auth[7:], JWT_SECRET, algorithms=["HS256"])
@@ -108,6 +109,10 @@ async def resolve_tenant(
         if token_tenant:
             request.state.tenantId = token_tenant
             return token_tenant
+        fallback_row = (await db.execute(text("SELECT id FROM tenants ORDER BY createdAt ASC LIMIT 1"))).first()
+        if fallback_row:
+            request.state.tenantId = fallback_row[0]
+            return fallback_row[0]
         raise HTTPException(404, f"Tenant not found for '{ident}'")
 
     role_name = (payload.get("roleName") or "").lower() if payload else ""

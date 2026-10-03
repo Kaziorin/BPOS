@@ -43,7 +43,7 @@ async def get_store_config(
 ):
     """Returns store metadata, business type, branding, contact info."""
     tenant = (await db.execute(
-        text("SELECT id, name, slug, businessType, address, phone, email, currency FROM tenants WHERE id=:t"),
+        text("SELECT id, name, slug, businessType, contactPhone, contactEmail, currency FROM tenants WHERE id=:t"),
         {"t": tenantId}
     )).first()
 
@@ -53,11 +53,12 @@ async def get_store_config(
     t_dict = dict(tenant._mapping) if hasattr(tenant, "_mapping") else {
         "id": tenant[0], "name": tenant[1], "slug": tenant[2],
         "businessType": tenant[3] if len(tenant) > 3 else "RETAIL",
-        "address": tenant[4] if len(tenant) > 4 else "",
-        "phone": tenant[5] if len(tenant) > 5 else "",
-        "email": tenant[6] if len(tenant) > 6 else "",
-        "currency": tenant[7] if len(tenant) > 7 else "BDT"
+        "phone": tenant[4] if len(tenant) > 4 else "",
+        "email": tenant[5] if len(tenant) > 5 else "",
+        "currency": tenant[6] if len(tenant) > 6 else "BDT"
     }
+    t_dict["phone"] = t_dict.get("contactPhone") or t_dict.get("phone") or ""
+    t_dict["email"] = t_dict.get("contactEmail") or t_dict.get("email") or ""
 
     # Fetch tenant settings if any
     settings_rows = rows_to_dicts(
@@ -103,12 +104,12 @@ async def list_storefront_categories(
     rows = rows_to_dicts(
         (await db.execute(
             text(
-                "SELECT c.id, c.name, c.code, c.description, c.parentId, c.status, "
+                "SELECT c.id, c.name, c.description, c.parentId, c.status, "
                 "COUNT(p.id) AS productCount "
                 "FROM categories c "
                 "LEFT JOIN products p ON p.categoryId = c.id AND p.status='ACTIVE' "
                 "WHERE c.tenantId = :t "
-                "GROUP BY c.id, c.name, c.code, c.description, c.parentId, c.status "
+                "GROUP BY c.id, c.name, c.description, c.parentId, c.status "
                 "ORDER BY c.name ASC"
             ),
             {"t": tenantId}
@@ -137,11 +138,11 @@ async def list_storefront_brands(
     rows = rows_to_dicts(
         (await db.execute(
             text(
-                "SELECT b.id, b.name, b.code, b.description, COUNT(p.id) AS productCount "
+                "SELECT b.id, b.name, b.status, COUNT(p.id) AS productCount "
                 "FROM brands b "
                 "LEFT JOIN products p ON p.brandId = b.id AND p.status='ACTIVE' "
                 "WHERE b.tenantId = :t "
-                "GROUP BY b.id, b.name, b.code, b.description "
+                "GROUP BY b.id, b.name, b.status "
                 "ORDER BY b.name ASC"
             ),
             {"t": tenantId}

@@ -9,6 +9,13 @@ export type SectionType =
   | "brands_carousel"
   | "curated_recommendations"
   | "blog_stories"
+  | "testimonials"
+  | "faq_section"
+  | "special_notice"
+  | "app_download"
+  | "pharmacy_upload"
+  | "restaurant_menu"
+  | "rich_text"
   | "newsletter";
 
 export interface SectionItem {
@@ -21,16 +28,29 @@ export interface SectionItem {
   settings: Record<string, any>;
 }
 
+export type BusinessPresetId =
+  | "shopease-vibrant"
+  | "shopease-sidebar-grocery"
+  | "shopease-dark-luxury"
+  | "shopease-electronics"
+  | "shopease-fashion"
+  | "shopease-pharmacy"
+  | "shopease-restaurant"
+  | "shopease-beauty";
+
 export interface ThemeConfig {
-  themePreset: "shopease-vibrant" | "shopease-sidebar-grocery" | "shopease-dark-luxury";
-  headerStyle: "standard" | "sidebar_integrated" | "dark_luxury";
+  themePreset: BusinessPresetId;
+  headerStyle: "standard" | "sidebar_integrated" | "dark_luxury" | "minimal";
   primaryColor: string;
   accentColor: string;
   isDarkMode: boolean;
   fontFamily: string;
+  announcementText?: string;
+  showAnnouncement?: boolean;
   sections: SectionItem[];
 }
 
+// ── 1. VIBRANT MEGA STORE (GENERAL E-COMMERCE) ──
 export const DEFAULT_VIBRANT_THEME: ThemeConfig = {
   themePreset: "shopease-vibrant",
   headerStyle: "standard",
@@ -38,7 +58,18 @@ export const DEFAULT_VIBRANT_THEME: ThemeConfig = {
   accentColor: "#f59e0b",
   isDarkMode: false,
   fontFamily: "Inter, system-ui, sans-serif",
+  showAnnouncement: true,
+  announcementText: "🎉 Super Spring Sale! Free Shipping on orders over $50 / ৳500 with code FREESHIP",
   sections: [
+    {
+      id: "sec-notice-1",
+      type: "special_notice",
+      title: "⚡ Weekend Mega Flash Sale: Up to 60% OFF Across All Trending Collections!",
+      subtitle: "Use voucher code SHOP2026 for instant checkout discounts.",
+      badge: "HOT OFFER",
+      enabled: true,
+      settings: { ctaText: "Shop Deals", ctaLink: "/products", themeStyle: "gradient" },
+    },
     {
       id: "sec-hero-1",
       type: "hero_slider",
@@ -78,10 +109,7 @@ export const DEFAULT_VIBRANT_THEME: ThemeConfig = {
       subtitle: "Explore our wide range of popular collections",
       badge: "COLLECTIONS",
       enabled: true,
-      settings: {
-        style: "circles", // 'circles' | 'cards' | 'pills'
-        limit: 8,
-      },
+      settings: { style: "circles", limit: 8 },
     },
     {
       id: "sec-flash-1",
@@ -90,11 +118,7 @@ export const DEFAULT_VIBRANT_THEME: ThemeConfig = {
       subtitle: "Top deals. Limited time, don't miss out!",
       badge: "FLASH DEAL",
       enabled: true,
-      settings: {
-        hoursLeft: 8,
-        discountText: "UP TO 70% OFF",
-        limit: 6,
-      },
+      settings: { hoursLeft: 8, discountText: "UP TO 70% OFF", limit: 6 },
     },
     {
       id: "sec-bento-1",
@@ -140,11 +164,7 @@ export const DEFAULT_VIBRANT_THEME: ThemeConfig = {
       subtitle: "Loved by thousands. Shop what's trending now!",
       badge: "POPULAR",
       enabled: true,
-      settings: {
-        filter: "all",
-        limit: 8,
-        columns: 4,
-      },
+      settings: { filter: "all", limit: 8, columns: 4 },
     },
     {
       id: "sec-brands-1",
@@ -166,31 +186,31 @@ export const DEFAULT_VIBRANT_THEME: ThemeConfig = {
       },
     },
     {
-      id: "sec-split-1",
-      type: "promo_split_banner",
-      title: "Live Better With Premium Picks",
-      subtitle: "Top quality. Trusted brands. Unbeatable value guaranteed.",
-      badge: "SPECIAL OFFER",
+      id: "sec-test-1",
+      type: "testimonials",
+      title: "Loved by Over 50,000+ Happy Customers",
+      subtitle: "Real reviews from real shoppers who love our fast service and authentic items",
+      badge: "VERIFIED REVIEWS",
       enabled: true,
-      settings: {
-        ctaText: "Shop Now",
-        ctaLink: "/products",
-        sideCardTitle: "Smart Choices",
-        sideCardSubtitle: "For a Brighter Tomorrow",
-        bgGradient: "from-cyan-900 via-blue-900 to-slate-900",
-        image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80",
-      },
+      settings: {},
     },
     {
-      id: "sec-justforyou-1",
-      type: "curated_recommendations",
-      title: "Just For You",
-      subtitle: "Personalized recommendations based on your interests",
-      badge: "RECOMMENDED",
+      id: "sec-app-1",
+      type: "app_download",
+      title: "Shop On the Go with ShopEase Mobile App",
+      subtitle: "Get exclusive mobile discounts, track live deliveries and enjoy instant reorders.",
+      badge: "DOWNLOAD APP",
       enabled: true,
-      settings: {
-        limit: 6,
-      },
+      settings: {},
+    },
+    {
+      id: "sec-faq-1",
+      type: "faq_section",
+      title: "Frequently Asked Questions",
+      subtitle: "Quick answers about delivery, payment methods, warranty and refunds",
+      badge: "HELP & SUPPORT",
+      enabled: true,
+      settings: {},
     },
     {
       id: "sec-newsletter-1",
@@ -198,13 +218,12 @@ export const DEFAULT_VIBRANT_THEME: ThemeConfig = {
       title: "Subscribe to Our Newsletter",
       subtitle: "Get the latest updates, promotions and exclusive vouchers delivered right to your inbox.",
       enabled: true,
-      settings: {
-        buttonText: "Subscribe",
-      },
+      settings: { buttonText: "Subscribe" },
     },
   ],
 };
 
+// ── 2. SIDEBAR GROCERY & SUPERMARKET THEME ──
 export const DEFAULT_SIDEBAR_THEME: ThemeConfig = {
   themePreset: "shopease-sidebar-grocery",
   headerStyle: "sidebar_integrated",
@@ -212,16 +231,18 @@ export const DEFAULT_SIDEBAR_THEME: ThemeConfig = {
   accentColor: "#f59e0b",
   isDarkMode: false,
   fontFamily: "Inter, system-ui, sans-serif",
+  showAnnouncement: true,
+  announcementText: "🥬 100% Farm Fresh Groceries Delivered in 2 Hours! Free Delivery over ৳500",
   sections: [
     {
       id: "sec-hero-sidebar",
       type: "hero_slider",
-      title: "Everything You Need in One Place",
-      subtitle: "Shop groceries, pharmacy, electronics & fashion with express home delivery.",
-      badge: "MEGA STORE",
+      title: "Daily Fresh Essentials Delivered in 2 Hours",
+      subtitle: "Shop farm fresh vegetables, fruits, dairy, rice, spices and household staples directly from verified distributors.",
+      badge: "FARM FRESH",
       enabled: true,
       settings: {
-        ctaText: "Shop Now",
+        ctaText: "Shop Groceries",
         ctaLink: "/products",
         sideDealTitle: "Fresh Groceries",
         sideDealBadge: "Farm Fresh Best Quality",
@@ -237,137 +258,67 @@ export const DEFAULT_SIDEBAR_THEME: ThemeConfig = {
       enabled: true,
       settings: {
         items: [
-          { icon: "Truck", title: "Free Shipping", desc: "On orders over ৳500" },
-          { icon: "ShieldCheck", title: "Secure Payment", desc: "100% secure checkout" },
-          { icon: "RotateCcw", title: "Easy Returns", desc: "Within 7 days return policy" },
-          { icon: "Headphones", title: "24/7 Support", desc: "Instant customer helpline" },
+          { icon: "Truck", title: "2-Hour Express Delivery", desc: "Straight to your doorstep" },
+          { icon: "ShieldCheck", title: "100% Organic & Fresh", desc: "Daily quality checked" },
+          { icon: "RotateCcw", title: "Instant Doorstep Return", desc: "Check before you pay" },
+          { icon: "Headphones", title: "Direct Helpline", desc: "Friendly customer support" },
         ],
       },
     },
     {
       id: "sec-cats-sidebar",
       type: "category_showcase",
-      title: "Shop by Category",
-      subtitle: "Browse departments and special categories",
-      badge: "DEPARTMENTS",
+      title: "Browse Fresh Departments",
+      subtitle: "From fresh produce to household pantry staples",
+      badge: "CATEGORIES",
       enabled: true,
-      settings: {
-        style: "cards",
-        limit: 8,
-      },
-    },
-    {
-      id: "sec-bento-sidebar",
-      type: "featured_collections",
-      title: "Featured Categories",
-      subtitle: "Explore our popular fresh and tech categories",
-      enabled: true,
-      settings: {
-        layout: "grid_4",
-        cards: [
-          {
-            title: "Latest Smartphones",
-            subtitle: "Up to 40% Off",
-            cta: "Shop Now",
-            link: "/products?category=Electronics",
-            image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80",
-            bg: "from-blue-50 to-sky-100 text-slate-900",
-          },
-          {
-            title: "Home Essentials",
-            subtitle: "Make Your Home Beautiful",
-            cta: "Shop Now",
-            link: "/products?category=Home",
-            image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600&auto=format&fit=crop&q=80",
-            bg: "from-emerald-50 to-teal-100 text-slate-900",
-          },
-          {
-            title: "Fashion Forward",
-            subtitle: "Trendy Styles For Everyone",
-            cta: "Shop Now",
-            link: "/products?category=Fashion",
-            image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&auto=format&fit=crop&q=80",
-            bg: "from-pink-50 to-rose-100 text-slate-900",
-          },
-          {
-            title: "Fresh Groceries",
-            subtitle: "Farm Fresh Best Quality",
-            cta: "Shop Now",
-            link: "/products?category=Groceries",
-            image: "https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=600&auto=format&fit=crop&q=80",
-            bg: "from-amber-50 to-orange-100 text-slate-900",
-          },
-        ],
-      },
+      settings: { style: "cards", limit: 8 },
     },
     {
       id: "sec-products-sidebar",
       type: "product_grid",
-      title: "Top Selling Products",
-      subtitle: "Fastest moving products with guaranteed stock",
+      title: "Top Daily Essentials & Staples",
+      subtitle: "High demand grocery items in stock and ready to ship",
       enabled: true,
-      settings: {
-        filter: "all",
-        limit: 8,
-        columns: 4,
-      },
+      settings: { filter: "all", limit: 8, columns: 4 },
     },
     {
       id: "sec-split-sidebar",
       type: "promo_split_banner",
-      title: "Save More, Live Better",
-      subtitle: "Get exclusive deals, discounts and direct factory savings on your favorite products.",
-      badge: "SPECIAL OFFER",
+      title: "Save Big on Monthly Family Grocery Bundles",
+      subtitle: "Get guaranteed wholesale prices on rice, cooking oil, flour, and daily hygiene packs.",
+      badge: "MONTHLY SAVINGS",
       enabled: true,
       settings: {
-        ctaText: "Shop Now",
+        ctaText: "Shop Bundles",
         ctaLink: "/products",
-        sideCardTitle: "Up to 70% OFF",
-        sideCardSubtitle: "Exclusive App & Web Discounts",
-        bgGradient: "from-indigo-900 via-purple-900 to-slate-900",
-        image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800&auto=format&fit=crop&q=80",
+        sideCardTitle: "Up to 35% OFF",
+        sideCardSubtitle: "Exclusive Bulk Savings",
+        bgGradient: "from-emerald-900 via-teal-900 to-slate-900",
+        image: "https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=800&auto=format&fit=crop&q=80",
       },
     },
     {
-      id: "sec-brands-sidebar",
-      type: "brands_carousel",
-      title: "Top Brands",
+      id: "sec-test-grocery",
+      type: "testimonials",
+      title: "Why Families Love Our Grocery Delivery",
+      subtitle: "Read feedback from thousands of home chefs and busy households",
+      badge: "HAPPY FAMILIES",
       enabled: true,
-      settings: {
-        brands: [
-          { name: "Samsung", logo: "SAMSUNG" },
-          { name: "Nike", logo: "NIKE" },
-          { name: "Adidas", logo: "adidas" },
-          { name: "Apple", logo: "" },
-          { name: "L'Oreal", logo: "L'ORÉAL" },
-          { name: "Unilever", logo: "Unilever" },
-          { name: "Coca-Cola", logo: "Coca-Cola" },
-        ],
-      },
-    },
-    {
-      id: "sec-blog-sidebar",
-      type: "blog_stories",
-      title: "Latest From Our Blog",
-      subtitle: "Tips, trends and guides for a better you",
-      enabled: true,
-      settings: {
-        limit: 4,
-      },
+      settings: {},
     },
     {
       id: "sec-newsletter-sidebar",
       type: "newsletter",
-      title: "Subscribe to Our Newsletter",
-      subtitle: "Get the latest updates and exclusive offers delivered to your inbox.",
+      title: "Get Weekly Grocery Deals & Discount Coupons",
+      subtitle: "Subscribe to receive weekly fresh catch and fruit deals in your inbox.",
       enabled: true,
-      settings: {
-        buttonText: "Subscribe",
-      },
+      settings: { buttonText: "Get Discounts" },
     },
   ],
 };
 
+// ── 3. DARK LUXURY & PREMIUM FASHION THEME ──
 export const DEFAULT_DARK_LUXURY_THEME: ThemeConfig = {
   themePreset: "shopease-dark-luxury",
   headerStyle: "dark_luxury",
@@ -375,6 +326,8 @@ export const DEFAULT_DARK_LUXURY_THEME: ThemeConfig = {
   accentColor: "#fbbf24",
   isDarkMode: true,
   fontFamily: "Outfit, system-ui, sans-serif",
+  showAnnouncement: true,
+  announcementText: "✨ Private VIP Drop Now Live — Complimentary White Glove Courier on All Luxury Orders",
   sections: [
     {
       id: "sec-hero-dark",
@@ -401,10 +354,7 @@ export const DEFAULT_DARK_LUXURY_THEME: ThemeConfig = {
       subtitle: "Curated collections crafted for distinction",
       badge: "PREMIUM CATEGORIES",
       enabled: true,
-      settings: {
-        style: "pills",
-        limit: 8,
-      },
+      settings: { style: "pills", limit: 8 },
     },
     {
       id: "sec-bento-dark",
@@ -441,11 +391,7 @@ export const DEFAULT_DARK_LUXURY_THEME: ThemeConfig = {
       subtitle: "Limited time exclusive private drops",
       badge: "PRIVATE SALE",
       enabled: true,
-      settings: {
-        hoursLeft: 14,
-        discountText: "UP TO 50% OFF",
-        limit: 6,
-      },
+      settings: { hoursLeft: 14, discountText: "UP TO 50% OFF", limit: 6 },
     },
     {
       id: "sec-products-dark",
@@ -454,27 +400,19 @@ export const DEFAULT_DARK_LUXURY_THEME: ThemeConfig = {
       subtitle: "Handpicked collections, tailored for your exquisite taste",
       badge: "COLLECTIONS",
       enabled: true,
-      settings: {
-        filter: "all",
-        limit: 8,
-        columns: 4,
-      },
+      settings: { filter: "all", limit: 8, columns: 4 },
     },
     {
-      id: "sec-brands-dark",
-      type: "brands_carousel",
-      title: "Trusted by Millions Worldwide",
-      subtitle: "Top brands. Genuine products. Better together.",
+      id: "sec-story-dark",
+      type: "rich_text",
+      title: "Timeless Luxury & Uncompromising Craftsmanship",
+      subtitle: "Every item in our luxury vault is authenticated by master curators and delivered in signature bespoke packaging.",
+      badge: "OUR PROMISE",
       enabled: true,
       settings: {
-        brands: [
-          { name: "Apple", logo: "" },
-          { name: "Samsung", logo: "SAMSUNG" },
-          { name: "Nike", logo: "NIKE" },
-          { name: "Adidas", logo: "adidas" },
-          { name: "L'Oreal", logo: "L'ORÉAL" },
-          { name: "P&G", logo: "P&G" },
-        ],
+        image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop&q=80",
+        ctaText: "Read Story",
+        ctaLink: "/products",
       },
     },
     {
@@ -483,9 +421,488 @@ export const DEFAULT_DARK_LUXURY_THEME: ThemeConfig = {
       title: "Subscribe to Exclusive Insider Drops",
       subtitle: "Be first to receive private collection access and VIP privileges.",
       enabled: true,
+      settings: { buttonText: "Join VIP" },
+    },
+  ],
+};
+
+// ── 4. ELECTRONICS & GADGETS THEME ──
+export const DEFAULT_ELECTRONICS_THEME: ThemeConfig = {
+  themePreset: "shopease-electronics",
+  headerStyle: "standard",
+  primaryColor: "#0284c7",
+  accentColor: "#38bdf8",
+  isDarkMode: true,
+  fontFamily: "Inter, system-ui, sans-serif",
+  showAnnouncement: true,
+  announcementText: "🚀 Next-Gen Tech Drops! Official Brand Warranty on All Smartphones, Laptops & Audio Devices",
+  sections: [
+    {
+      id: "sec-hero-tech",
+      type: "hero_slider",
+      title: "Next-Gen Electronics & Smart Gadgets",
+      subtitle: "Experience cutting-edge smartphones, high-performance laptops, noise-canceling audio and smart home gear.",
+      badge: "SMART TECH 2026",
+      enabled: true,
       settings: {
-        buttonText: "Join VIP",
+        ctaText: "Explore Tech",
+        ctaLink: "/products",
+        sideDealTitle: "Wireless Audio Deal",
+        sideDealBadge: "50% OFF",
+        sideDealSubtitle: "Pro ANC Earbuds",
+        sideDealImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
+        heroImage: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1000&auto=format&fit=crop&q=80",
+        bgColor: "from-slate-950 via-slate-900 to-indigo-950 text-white",
       },
+    },
+    {
+      id: "sec-badges-tech",
+      type: "feature_badges",
+      enabled: true,
+      settings: {
+        items: [
+          { icon: "ShieldCheck", title: "100% Genuine Warranty", desc: "Official brand replacement" },
+          { icon: "Truck", title: "Express 24H Courier", desc: "Insured safe shipping" },
+          { icon: "RotateCcw", title: "7-Day Replacement", desc: "Zero risk guarantee" },
+          { icon: "Headphones", title: "Tech Support Team", desc: "Instant setup assistance" },
+        ],
+      },
+    },
+    {
+      id: "sec-cats-tech",
+      type: "category_showcase",
+      title: "Popular Tech Categories",
+      subtitle: "Browse laptops, smartphones, wearables, gaming & accessories",
+      badge: "DEVICES",
+      enabled: true,
+      settings: { style: "cards", limit: 8 },
+    },
+    {
+      id: "sec-flash-tech",
+      type: "flash_sale",
+      title: "Limited Tech Deals & Flash Price Drops",
+      subtitle: "Special clearance & promotional pricing with countdown timer",
+      badge: "HOT GADGETS",
+      enabled: true,
+      settings: { hoursLeft: 6, discountText: "UP TO 45% OFF", limit: 6 },
+    },
+    {
+      id: "sec-products-tech",
+      type: "product_grid",
+      title: "Top Rated Gadgets & Peripherals",
+      subtitle: "Best performance picks tested and recommended by tech enthusiasts",
+      enabled: true,
+      settings: { filter: "all", limit: 8, columns: 4 },
+    },
+    {
+      id: "sec-brands-tech",
+      type: "brands_carousel",
+      title: "Authorized Global Brand Partners",
+      subtitle: "Official certified reseller for top global technology leaders",
+      enabled: true,
+      settings: {
+        brands: [
+          { name: "Apple", logo: "" },
+          { name: "Sony", logo: "SONY" },
+          { name: "Samsung", logo: "SAMSUNG" },
+          { name: "Asus", logo: "ASUS" },
+          { name: "Dell", logo: "DELL" },
+          { name: "Logitech", logo: "logi" },
+          { name: "Bose", logo: "BOSE" },
+        ],
+      },
+    },
+    {
+      id: "sec-faq-tech",
+      type: "faq_section",
+      title: "Warranty & Shipping FAQ",
+      subtitle: "Everything you need to know about claiming warranty, IMEI checks and tracking",
+      badge: "SUPPORT",
+      enabled: true,
+      settings: {},
+    },
+    {
+      id: "sec-newsletter-tech",
+      type: "newsletter",
+      title: "Join Tech Insiders Club",
+      subtitle: "Get early access to pre-orders, gadget giveaways and hardware discounts.",
+      enabled: true,
+      settings: { buttonText: "Join Insiders" },
+    },
+  ],
+};
+
+// ── 5. FASHION & APPAREL BOUTIQUE THEME ──
+export const DEFAULT_FASHION_THEME: ThemeConfig = {
+  themePreset: "shopease-fashion",
+  headerStyle: "standard",
+  primaryColor: "#e11d48",
+  accentColor: "#f43f5e",
+  isDarkMode: false,
+  fontFamily: "Outfit, system-ui, sans-serif",
+  showAnnouncement: true,
+  announcementText: "👗 Summer Lookbook 2026 is LIVE! Enjoy Flat 20% OFF on all dresses with code SUMMER20",
+  sections: [
+    {
+      id: "sec-hero-fashion",
+      type: "hero_slider",
+      title: "Define Your Signature Look",
+      subtitle: "Explore high-street trends, designer outfits, elegant footwear & bespoke styling.",
+      badge: "NEW SUMMER COLLECTION",
+      enabled: true,
+      settings: {
+        ctaText: "Shop Lookbook",
+        ctaLink: "/products",
+        sideDealTitle: "Trending Dresses",
+        sideDealBadge: "Flat 30% OFF",
+        sideDealSubtitle: "Limited Edition Run",
+        sideDealImage: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80",
+        heroImage: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1000&auto=format&fit=crop&q=80",
+        bgColor: "from-rose-50 via-pink-50/50 to-white",
+      },
+    },
+    {
+      id: "sec-badges-fashion",
+      type: "feature_badges",
+      enabled: true,
+      settings: {
+        items: [
+          { icon: "Truck", title: "Fast Express Delivery", desc: "Doorstep delivery in 24-48h" },
+          { icon: "RotateCcw", title: "Easy Size Exchange", desc: "No questions asked size swaps" },
+          { icon: "ShieldCheck", title: "Premium Fabrics", desc: "100% authentic quality" },
+          { icon: "Headphones", title: "Style Advisory", desc: "Chat with personal stylists" },
+        ],
+      },
+    },
+    {
+      id: "sec-cats-fashion",
+      type: "category_showcase",
+      title: "Shop By Department",
+      subtitle: "Women's, Men's, Kids, Footwear, Bags & Accessories",
+      badge: "LOOKS",
+      enabled: true,
+      settings: { style: "circles", limit: 8 },
+    },
+    {
+      id: "sec-products-fashion",
+      type: "product_grid",
+      title: "Trending In High Fashion",
+      subtitle: "Most coveted pieces of the season curated for distinction",
+      enabled: true,
+      settings: { filter: "all", limit: 8, columns: 4 },
+    },
+    {
+      id: "sec-bento-fashion",
+      type: "featured_collections",
+      title: "Curated Style Edits",
+      subtitle: "Handpicked thematic outfits ready for any occasion",
+      enabled: true,
+      settings: {
+        layout: "bento_3",
+        cards: [
+          {
+            title: "Summer Resort Wear",
+            subtitle: "Breezy linens & casual fits",
+            cta: "Shop Now",
+            link: "/products?category=Fashion",
+            image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&auto=format&fit=crop&q=80",
+            bg: "from-pink-900 to-rose-900 text-white",
+          },
+          {
+            title: "Minimalist Essentials",
+            subtitle: "Monochrome tones & clean silhouettes",
+            cta: "Shop Now",
+            link: "/products?category=Fashion",
+            image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80",
+            bg: "from-slate-900 to-zinc-900 text-white",
+          },
+        ],
+      },
+    },
+    {
+      id: "sec-test-fashion",
+      type: "testimonials",
+      title: "Fashionistas Love ShopEase",
+      subtitle: "See how our community styles their favorite outfits",
+      badge: "COMMUNITY",
+      enabled: true,
+      settings: {},
+    },
+    {
+      id: "sec-newsletter-fashion",
+      type: "newsletter",
+      title: "Get 15% Off Your Next Outfit",
+      subtitle: "Join our fashion insider list for private sale invitations and lookbook previews.",
+      enabled: true,
+      settings: { buttonText: "Claim 15% OFF" },
+    },
+  ],
+};
+
+// ── 6. PHARMACY & HEALTHCARE THEME ──
+export const DEFAULT_PHARMACY_THEME: ThemeConfig = {
+  themePreset: "shopease-pharmacy",
+  headerStyle: "standard",
+  primaryColor: "#0d9488",
+  accentColor: "#14b8a6",
+  isDarkMode: false,
+  fontFamily: "Inter, system-ui, sans-serif",
+  showAnnouncement: true,
+  announcementText: "💊 24/7 Registered Pharmacist On-Call & Urgent Prescription Delivery in 2 Hours",
+  sections: [
+    {
+      id: "sec-hero-pharmacy",
+      type: "hero_slider",
+      title: "Your Trusted Online Pharmacy & Healthcare Partner",
+      subtitle: "Order authentic prescription medicines, wellness supplements, surgical gear & personal healthcare essentials safely online.",
+      badge: "GOVT. LICENSED PHARMACY",
+      enabled: true,
+      settings: {
+        ctaText: "Order Medicine",
+        ctaLink: "/products",
+        sideDealTitle: "First Aid Kit",
+        sideDealBadge: "Essential Pack",
+        sideDealSubtitle: "Home Emergency Care",
+        sideDealImage: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80",
+        heroImage: "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1000&auto=format&fit=crop&q=80",
+        bgColor: "from-teal-50 via-emerald-50/50 to-white",
+      },
+    },
+    {
+      id: "sec-rx-upload",
+      type: "pharmacy_upload",
+      title: "Quick Prescription Upload & Fast Medicine Delivery",
+      subtitle: "Simply upload a picture of your doctor's prescription. Our registered pharmacists will review, verify dosages, and arrange fast doorstep delivery.",
+      badge: "ONLINE RX DISPATCH",
+      enabled: true,
+      settings: {},
+    },
+    {
+      id: "sec-badges-pharmacy",
+      type: "feature_badges",
+      enabled: true,
+      settings: {
+        items: [
+          { icon: "ShieldCheck", title: "100% Genuine Medicines", desc: "Sourced directly from pharma lab" },
+          { icon: "Truck", title: "2-Hour Emergency Delivery", desc: "Cold-chain temperature control" },
+          { icon: "Headphones", title: "Doctor & Pharmacist On-Call", desc: "Free dosage consultation" },
+          { icon: "RotateCcw", title: "Safe Tamper-Proof Pack", desc: "Sealed hygienic delivery" },
+        ],
+      },
+    },
+    {
+      id: "sec-cats-pharmacy",
+      type: "category_showcase",
+      title: "Browse Healthcare & OTC Categories",
+      subtitle: "Prescription drugs, vitamins, baby care, diabetic care, medical devices & hygiene",
+      badge: "DEPARTMENTS",
+      enabled: true,
+      settings: { style: "cards", limit: 8 },
+    },
+    {
+      id: "sec-products-pharmacy",
+      type: "product_grid",
+      title: "Popular Wellness & OTC Medicines",
+      subtitle: "Trusted daily healthcare essentials, vitamins, and medical care supplies",
+      enabled: true,
+      settings: { filter: "all", limit: 8, columns: 4 },
+    },
+    {
+      id: "sec-faq-pharmacy",
+      type: "faq_section",
+      title: "Prescription & Healthcare Guidelines FAQ",
+      subtitle: "Important questions regarding valid prescriptions, refrigerated items and dosage guidance",
+      badge: "PATIENT HELP",
+      enabled: true,
+      settings: {},
+    },
+    {
+      id: "sec-newsletter-pharmacy",
+      type: "newsletter",
+      title: "Subscribe to Monthly Health & Wellness Tips",
+      subtitle: "Receive regular medical advice, seasonal disease precautions, and refill reminders.",
+      enabled: true,
+      settings: { buttonText: "Subscribe" },
+    },
+  ],
+};
+
+// ── 7. RESTAURANT, CAFE & FOOD DELIVERY THEME ──
+export const DEFAULT_RESTAURANT_THEME: ThemeConfig = {
+  themePreset: "shopease-restaurant",
+  headerStyle: "standard",
+  primaryColor: "#ea580c",
+  accentColor: "#f97316",
+  isDarkMode: false,
+  fontFamily: "Outfit, system-ui, sans-serif",
+  showAnnouncement: true,
+  announcementText: "🍕 Hot & Fresh Food Delivered in 30 Minutes! Free Drink with every Platter",
+  sections: [
+    {
+      id: "sec-hero-food",
+      type: "hero_slider",
+      title: "Delicious Gourmet Meals Delivered Hot & Fresh",
+      subtitle: "Handcrafted gourmet burgers, woodfired pizzas, fragrant biryanis and authentic delicacies prepared upon order.",
+      badge: "CHEF'S FRESH KITCHEN",
+      enabled: true,
+      settings: {
+        ctaText: "Order Food Now",
+        ctaLink: "/products",
+        sideDealTitle: "Chef's Combo",
+        sideDealBadge: "Save 30%",
+        sideDealSubtitle: "Burger + Fries + Drink",
+        sideDealImage: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80",
+        heroImage: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1000&auto=format&fit=crop&q=80",
+        bgColor: "from-orange-50 via-amber-50/50 to-white",
+      },
+    },
+    {
+      id: "sec-menu-food",
+      type: "restaurant_menu",
+      title: "Chef's Signature Dishes & Daily Specials",
+      subtitle: "Choose from our handpicked gourmet menu prepared with fresh farm ingredients and authentic secret spices.",
+      badge: "SIGNATURE MENU",
+      enabled: true,
+      settings: {},
+    },
+    {
+      id: "sec-badges-food",
+      type: "feature_badges",
+      enabled: true,
+      settings: {
+        items: [
+          { icon: "Truck", title: "30-Minute Hot Delivery", desc: "Thermal insulated delivery bags" },
+          { icon: "ShieldCheck", title: "100% Fresh Ingredients", desc: "Cooked to order hygiene" },
+          { icon: "RotateCcw", title: "Live Order Tracking", desc: "Follow rider GPS in real time" },
+          { icon: "Headphones", title: "Customer Care", desc: "Instant meal replacement if late" },
+        ],
+      },
+    },
+    {
+      id: "sec-products-food",
+      type: "product_grid",
+      title: "Popular Fast Food, Desserts & Beverages",
+      subtitle: "Add sides, thirst-quenching shakes, and sweet desserts to complete your feast",
+      enabled: true,
+      settings: { filter: "all", limit: 8, columns: 4 },
+    },
+    {
+      id: "sec-test-food",
+      type: "testimonials",
+      title: "What Foodies Say About Us",
+      subtitle: "Loved by over 20,000 food lovers across the city",
+      badge: "FOOD LOVERS",
+      enabled: true,
+      settings: {},
+    },
+    {
+      id: "sec-app-food",
+      type: "app_download",
+      title: "Order Food Faster With Our Mobile App",
+      subtitle: "Get free delivery on your first 3 food orders, track rider live on map and earn reward coins.",
+      badge: "FOOD DELIVERY APP",
+      enabled: true,
+      settings: {},
+    },
+    {
+      id: "sec-newsletter-food",
+      type: "newsletter",
+      title: "Subscribe for Weekend Food Deals & Vouchers",
+      subtitle: "Never miss out on buy-1-get-1 pizza days and holiday feast discounts.",
+      enabled: true,
+      settings: { buttonText: "Get Food Deals" },
+    },
+  ],
+};
+
+// ── 8. BEAUTY & COSMETICS BOUTIQUE THEME ──
+export const DEFAULT_BEAUTY_THEME: ThemeConfig = {
+  themePreset: "shopease-beauty",
+  headerStyle: "standard",
+  primaryColor: "#db2777",
+  accentColor: "#f472b6",
+  isDarkMode: false,
+  fontFamily: "Outfit, system-ui, sans-serif",
+  showAnnouncement: true,
+  announcementText: "💄 100% Authentic Korean & Global Skincare Brands! Free Beauty Samples with every order",
+  sections: [
+    {
+      id: "sec-hero-beauty",
+      type: "hero_slider",
+      title: "Glow Everyday with Premium Skincare & Makeup",
+      subtitle: "Discover authentic Korean skincare, luxury cosmetics, dermatologically tested serums, and fragrance collections.",
+      badge: "100% AUTHENTIC BEAUTY",
+      enabled: true,
+      settings: {
+        ctaText: "Shop Skincare",
+        ctaLink: "/products",
+        sideDealTitle: "Glow Serum Box",
+        sideDealBadge: "Save 40%",
+        sideDealSubtitle: "Hydrating Essentials",
+        sideDealImage: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&auto=format&fit=crop&q=80",
+        heroImage: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1000&auto=format&fit=crop&q=80",
+        bgColor: "from-pink-50 via-rose-50/50 to-white",
+      },
+    },
+    {
+      id: "sec-badges-beauty",
+      type: "feature_badges",
+      enabled: true,
+      settings: {
+        items: [
+          { icon: "ShieldCheck", title: "100% Original Brands", desc: "Direct from Korea & USA" },
+          { icon: "Truck", title: "Free Samples Included", desc: "Every order gets trial minis" },
+          { icon: "RotateCcw", title: "Derm-Approved", desc: "Safe for sensitive skin" },
+          { icon: "Headphones", title: "Beauty Consultation", desc: "Personalized skin advice" },
+        ],
+      },
+    },
+    {
+      id: "sec-cats-beauty",
+      type: "category_showcase",
+      title: "Shop By Beauty Routine",
+      subtitle: "Cleansers, Toners, Serums, Sunscreens, Lipsticks, Fragrances & Haircare",
+      badge: "SKINCARE STEPS",
+      enabled: true,
+      settings: { style: "circles", limit: 8 },
+    },
+    {
+      id: "sec-products-beauty",
+      type: "product_grid",
+      title: "Best Selling Skincare & Cosmetics",
+      subtitle: "Top rated serums, lip tints and moisture creams loved by beauty experts",
+      enabled: true,
+      settings: { filter: "all", limit: 8, columns: 4 },
+    },
+    {
+      id: "sec-story-beauty",
+      type: "rich_text",
+      title: "Clean Ingredients, Pure Beauty, Real Results",
+      subtitle: "We believe beauty should be safe, transparent and cruelty-free. Every product in our catalog undergoes rigorous safety and authenticity verification.",
+      badge: "OUR BEAUTY PHILOSOPHY",
+      enabled: true,
+      settings: {
+        image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&auto=format&fit=crop&q=80",
+        ctaText: "Learn More",
+        ctaLink: "/products",
+      },
+    },
+    {
+      id: "sec-test-beauty",
+      type: "testimonials",
+      title: "Real Glowing Skin Results",
+      subtitle: "See how thousands of customers transformed their skin routine",
+      badge: "REVIEWS",
+      enabled: true,
+      settings: {},
+    },
+    {
+      id: "sec-newsletter-beauty",
+      type: "newsletter",
+      title: "Get Beauty Tips & Exclusive Member Vouchers",
+      subtitle: "Subscribe to receive skin routines, dermat advice and VIP product launches.",
+      enabled: true,
+      settings: { buttonText: "Join Beauty Club" },
     },
   ],
 };
