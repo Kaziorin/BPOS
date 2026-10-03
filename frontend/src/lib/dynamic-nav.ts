@@ -397,6 +397,18 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
       },
       { label: "Delivery & Logistics",   href: "/delivery",    icon: Truck    },
       { label: "Marketing Campaigns",     href: "/marketing",   icon: Megaphone},
+      {
+        label: "E-Commerce Storefront",
+        href: "http://localhost:3001",
+        icon: Globe,
+        badge: "Omnichannel",
+        children: [
+          { label: "Live Online Store",     href: "http://localhost:3001",             icon: Store        },
+          { label: "Visual Page Builder",   href: "http://localhost:3001/setup",       icon: Layers       },
+          { label: "Online Orders & Sales", href: "/sales/orders",                    icon: ShoppingCart },
+          { label: "Track Order Portal",    href: "http://localhost:3001/track-order", icon: Truck        },
+        ],
+      },
     ],
   },
 

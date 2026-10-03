@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Search,
   Package,
@@ -31,25 +32,31 @@ const ORDER_STEPS = [
   { key: "DELIVERED", label: "Delivered", desc: "Successfully completed" },
 ];
 
-export default function TrackOrderPage() {
+function TrackOrderContent() {
+  const searchParams = useSearchParams();
+  const initialOrderNo = searchParams.get("orderNo") || "";
+  const initialPhone = searchParams.get("phone") || "";
+
   const { theme } = useTheme();
-  const [orderNo, setOrderNo] = useState("");
-  const [phone, setPhone] = useState("");
+  const [orderNo, setOrderNo] = useState(initialOrderNo);
+  const [phone, setPhone] = useState(initialPhone);
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<any>(null);
   const [searched, setSearched] = useState(false);
 
-  const handleTrack = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!orderNo.trim()) {
-      toast.error("Please enter an order or invoice number");
-      return;
+  useEffect(() => {
+    if (initialOrderNo) {
+      setOrderNo(initialOrderNo);
+      setPhone(initialPhone);
+      executeTracking(initialOrderNo, initialPhone);
     }
+  }, [initialOrderNo, initialPhone]);
 
+  const executeTracking = async (searchNum: string, phoneNum?: string) => {
     try {
       setLoading(true);
       setSearched(true);
-      const res = await StorefrontAPI.trackOrder(orderNo.trim(), phone.trim() || undefined);
+      const res = await StorefrontAPI.trackOrder(searchNum.trim(), phoneNum?.trim() || undefined);
       if (res && (res.id || res.orderNo)) {
         setOrder(res);
       } else {
@@ -60,6 +67,15 @@ export default function TrackOrderPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleTrack = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!orderNo.trim()) {
+      toast.error("Please enter an order or invoice number");
+      return;
+    }
+    executeTracking(orderNo, phone);
   };
 
   const getStepIndex = (status?: string) => {
@@ -338,3 +354,12 @@ export default function TrackOrderPage() {
     </div>
   );
 }
+
+export default function TrackOrderPage() {
+  return (
+    <Suspense fallback={<div className="p-12 text-center text-sm text-slate-500">Loading tracking data...</div>}>
+      <TrackOrderContent />
+    </Suspense>
+  );
+}
+
