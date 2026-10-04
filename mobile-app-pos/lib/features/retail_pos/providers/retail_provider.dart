@@ -1,4 +1,7 @@
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import '../../../core/services/api_service.dart';
 import '../models/retail_product.dart';
 import '../models/retail_cart_item.dart';
@@ -404,9 +407,140 @@ class RetailProvider extends ChangeNotifier {
   ];
 
   final List<RetailCartItem> _cart = [];
+  bool _isRemoteCartUpdate = false;
+  final Set<String> _dynamicCategories = {};
+
+  List<Map<String, dynamic>> _apiCustomers = [];
+  List<Map<String, dynamic>> get apiCustomers => _apiCustomers;
 
   RetailProvider() {
     loadProducts(businessType: 'retail');
+    loadCustomers();
+    _initLiveCart();
+  }
+
+  void _initLiveCart() {
+    // 1. Initial live cart restore from backend
+    ApiService.instance.fetchActiveCart(businessType: 'retail').then((live) {
+      if (live != null && live['items'] is List) {
+        final items = live['items'] as List;
+        if (items.isNotEmpty && _cart.isEmpty) {
+          _isRemoteCartUpdate = true;
+          _applyIncomingCart(items, live);
+        }
+      }
+    }).catchError((_) {});
+
+    // 2. Start SSE listener for real-time live cart updates from web POS
+    _startSseListener();
+  }
+
+  void _startSseListener() {
+    final tenantId = ApiService.businessTenantIds['retail'] ?? '19f2452c-78dc-4309-9a41-6463c93ccaf7';
+    final streamUri = Uri.parse('${ApiService.instance.baseUrl}/v1/realtime/stream?channel=POS&tenantId=$tenantId');
+    final client = http.Client();
+    final request = http.Request('GET', streamUri);
+    request.headers['Accept'] = 'text/event-stream';
+    request.headers['Cache-Control'] = 'no-cache';
+
+    client.send(request).then((response) {
+      response.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .listen((line) {
+        if (line.startsWith('data: ')) {
+          try {
+            final jsonStr = line.substring(6).trim();
+            final event = jsonDecode(jsonStr);
+            if (event['type'] == 'CART_UPDATED' && event['payload'] is Map) {
+              final payload = event['payload'] as Map<String, dynamic>;
+              if (payload['source'] != 'MOBILE_RETAIL') {
+                _isRemoteCartUpdate = true;
+                final items = payload['items'] as List? ?? [];
+                _applyIncomingCart(items, payload);
+              }
+            }
+          } catch (_) {}
+        }
+      }, onError: (_) {});
+    }).catchError((_) {});
+  }
+
+  void _applyIncomingCart(List rawItems, Map<String, dynamic> payload) {
+    _cart.clear();
+    for (final it in rawItems) {
+      if (it is Map) {
+        final pid = it['productId']?.toString() ?? it['id']?.toString() ?? '';
+        final name = it['name']?.toString() ?? 'Item';
+        final price = (it['unitPrice'] as num?)?.toDouble() ?? 0.0;
+        final qty = (it['qty'] as num?)?.toInt() ?? 1;
+        final discount = (it['discountAmount'] as num?)?.toDouble() ?? 0.0;
+        final img = it['imageUrl']?.toString() ?? it['image']?.toString() ?? '';
+        final sku = it['sku']?.toString() ?? '';
+
+        final existingProd = _allProducts.cast<RetailProduct?>().firstWhere(
+          (p) => p?.id == pid || p?.name == name,
+          orElse: () => null,
+        );
+
+        final product = existingProd ?? RetailProduct(
+          id: pid.isNotEmpty ? pid : 'prod-${DateTime.now().millisecondsSinceEpoch}',
+          name: name,
+          nameBn: name,
+          unit: 'pcs',
+          unitBn: 'পিস',
+          price: price,
+          costPrice: price * 0.8,
+          stock: 100,
+          category: 'General',
+          sku: sku,
+          barcode: sku,
+          imageUrl: img.isNotEmpty ? img : 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80',
+        );
+
+        _cart.add(RetailCartItem(product: product, qty: qty, discountAmount: discount));
+      }
+    }
+    if (payload['customerName'] != null && payload['customerName'].toString().isNotEmpty) {
+      _selectedCustomer = payload['customerName'].toString();
+    }
+    if (payload['discountTotal'] != null) {
+      _discountTotal = (payload['discountTotal'] as num).toDouble();
+    }
+    notifyListeners();
+  }
+
+  void _syncLiveCart() {
+    if (_isRemoteCartUpdate) {
+      _isRemoteCartUpdate = false;
+      return;
+    }
+
+    final itemsPayload = _cart.map((c) => {
+      'productId': c.product.id,
+      'variantId': null,
+      'name': c.product.name,
+      'qty': c.qty,
+      'unitPrice': c.product.price,
+      'discountAmount': c.discountAmount,
+      'lineTotal': c.lineTotal,
+      'imageUrl': c.product.imageUrl,
+      'sku': c.product.sku,
+    }).toList();
+
+    ApiService.instance.saveActiveCart(
+      businessType: 'retail',
+      payload: {
+        'items': itemsPayload,
+        'total': total,
+        'subtotal': subtotal,
+        'taxTotal': taxTotal,
+        'discountTotal': _discountTotal,
+        'serviceCharge': _serviceCharge,
+        'customerName': _selectedCustomer,
+        'source': 'MOBILE_RETAIL',
+      },
+    );
   }
 
   final List<HeldRetailSale> _heldSales = [];
@@ -419,7 +553,7 @@ class RetailProvider extends ChangeNotifier {
   String _orderNote = '';
   double _discountTotal = 0.0;
   double _serviceCharge = 0.0;
-  final double _taxRate = 0.15; // 15% System Standard VAT
+  double _taxRate = 0.15; // System VAT rate fetched from API
 
   // Getters
   double get taxRate => _taxRate;
@@ -436,23 +570,28 @@ class RetailProvider extends ChangeNotifier {
   double get discountTotal => _discountTotal;
   double get serviceCharge => _serviceCharge;
 
-  List<String> get categories => [
-        'All',
-        'All Products',
-        'Beverages',
-        'Bread & Bakery',
-        'Cake & Pastry',
-        'Cookies & Biscuits',
-        'Dairy & Egg',
-        'Flour & Raw Material',
-        'Packaging',
-        'Snacks',
-        'Grocery',
-        'Personal Care',
-        'Household',
-        'Dairy',
-        'Frozen',
-      ];
+  List<String> get categories {
+    if (_dynamicCategories.isNotEmpty) {
+      return ['All', ..._dynamicCategories.where((c) => c != 'All' && c != 'All Products')];
+    }
+    return [
+      'All',
+      'All Products',
+      'Beverages',
+      'Bread & Bakery',
+      'Cake & Pastry',
+      'Cookies & Biscuits',
+      'Dairy & Egg',
+      'Flour & Raw Material',
+      'Packaging',
+      'Snacks',
+      'Grocery',
+      'Personal Care',
+      'Household',
+      'Dairy',
+      'Frozen',
+    ];
+  }
 
   List<RetailProduct> get filteredProducts {
     return _allProducts.where((p) {
@@ -498,6 +637,7 @@ class RetailProvider extends ChangeNotifier {
   void setDiscount(double amount) {
     _discountTotal = amount;
     notifyListeners();
+    _syncLiveCart();
   }
 
   void addToCart(RetailProduct product) {
@@ -508,6 +648,7 @@ class RetailProvider extends ChangeNotifier {
       _cart.add(RetailCartItem(product: product, qty: 1));
     }
     notifyListeners();
+    _syncLiveCart();
   }
 
   void updateQty(int index, int qty) {
@@ -518,6 +659,7 @@ class RetailProvider extends ChangeNotifier {
         _cart[index].qty = qty;
       }
       notifyListeners();
+      _syncLiveCart();
     }
   }
 
@@ -525,6 +667,7 @@ class RetailProvider extends ChangeNotifier {
     if (index >= 0 && index < _cart.length) {
       _cart.removeAt(index);
       notifyListeners();
+      _syncLiveCart();
     }
   }
 
@@ -533,6 +676,7 @@ class RetailProvider extends ChangeNotifier {
     _discountTotal = 0.0;
     _serviceCharge = 0.0;
     notifyListeners();
+    _syncLiveCart();
   }
 
   void holdSale({String? note}) {
@@ -573,13 +717,34 @@ class RetailProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> loadCustomers() async {
+    try {
+      final list = await ApiService.instance.fetchCustomers(businessType: 'retail');
+      if (list.isNotEmpty) {
+        _apiCustomers = list;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error loading retail customers: $e');
+    }
+  }
+
   Future<void> loadProducts({String businessType = 'retail'}) async {
     _isLoadingProducts = true;
     notifyListeners();
     try {
+      // 1. Fetch system tax rate dynamically from API
+      final systemTax = await ApiService.instance.fetchDefaultTaxRate(businessType: businessType);
+      if (systemTax > 0) {
+        _taxRate = systemTax;
+      }
+
+      // 2. Fetch products from API
       final apiProducts = await ApiService.instance.fetchProducts(businessType: businessType);
       if (apiProducts.isNotEmpty) {
         final List<RetailProduct> loaded = [];
+        final Set<String> dynCategories = {'All', 'All Products'};
+
         for (int i = 0; i < apiProducts.length; i++) {
           final p = apiProducts[i];
           final sellingPrice = (p['sellingPrice'] as num?)?.toDouble() ??
@@ -592,24 +757,46 @@ class RetailProvider extends ChangeNotifier {
               (p['stock_qty'] as num?)?.toDouble() ??
               0.0;
           final stock = rawStock <= 0 ? 0 : rawStock.toInt();
+
+          String catName = 'General';
+          if (p['category'] is Map && (p['category'] as Map)['name'] != null) {
+            catName = (p['category'] as Map)['name'].toString();
+          } else if (p['categoryName'] != null) {
+            catName = p['categoryName'].toString();
+          } else if (p['category'] != null) {
+            catName = p['category'].toString();
+          }
+          if (catName.isNotEmpty) {
+            dynCategories.add(catName);
+          }
+
+          String unitName = 'pcs';
+          if (p['unit'] is Map && (p['unit'] as Map)['name'] != null) {
+            unitName = (p['unit'] as Map)['name'].toString();
+          } else if (p['unit'] != null) {
+            unitName = p['unit'].toString();
+          }
+
           loaded.add(RetailProduct(
             id: p['id']?.toString() ?? 'prod-$i',
             name: p['name']?.toString() ?? 'Product $i',
-            nameBn: p['name']?.toString() ?? 'Product $i',
-            unit: p['unit']?.toString() ?? 'pcs',
-            unitBn: p['unit']?.toString() ?? 'পিস',
+            nameBn: p['nameBn']?.toString() ?? p['name']?.toString() ?? 'Product $i',
+            unit: unitName,
+            unitBn: 'পিস',
             price: sellingPrice,
             costPrice: costPrice,
             stock: stock,
-            category: p['categoryName']?.toString() ?? p['category']?.toString() ?? 'General',
+            category: catName,
             sku: p['sku']?.toString() ?? 'SKU-$i',
-            barcode: p['barcode']?.toString() ?? '8941100112${i.toString().padLeft(3, '0')}',
+            barcode: p['barcode']?.toString() ?? p['sku']?.toString() ?? '8941100112${i.toString().padLeft(3, '0')}',
             imageUrl: p['imageUrl']?.toString() ??
                 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80',
           ));
         }
         _allProducts.clear();
         _allProducts.addAll(loaded);
+        _dynamicCategories.clear();
+        _dynamicCategories.addAll(dynCategories);
       }
     } catch (e) {
       debugPrint('Error loading retail products: $e');
@@ -624,6 +811,7 @@ class RetailProvider extends ChangeNotifier {
     final changeAmount = paidAmount > total ? paidAmount - total : 0.0;
 
     String realInvoice = 'INV-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}';
+    Map<String, dynamic>? res;
     try {
       final itemsPayload = _cart.map((c) => {
         'productId': c.product.id,
@@ -634,14 +822,22 @@ class RetailProvider extends ChangeNotifier {
         'lineTotal': c.lineTotal,
       }).toList();
 
-      final res = await ApiService.instance.confirmSale(
+      res = await ApiService.instance.confirmSale(
         payload: {
           'items': itemsPayload,
           'payments': [
-            {'method': finalMethod, 'amount': paidAmount > total ? total : paidAmount}
+            {'method': finalMethod, 'amount': paidAmount}
           ],
+          'tendered': paidAmount,
+          'tenderedAmount': paidAmount,
+          'paid': paidAmount > total ? total : paidAmount,
+          'paidTotal': paidAmount > total ? total : paidAmount,
+          'changeReturn': changeAmount,
           'discountTotal': _discountTotal,
           'serviceCharge': _serviceCharge,
+          'taxTotal': taxTotal,
+          'subtotal': subtotal,
+          'total': total,
           'source': 'RETAIL',
           'customerName': _selectedCustomer,
           'note': _orderNote,
@@ -655,16 +851,22 @@ class RetailProvider extends ChangeNotifier {
       debugPrint('Error confirming retail sale with API: $e');
     }
 
+    final effectiveTotal = (res?['total'] as num?)?.toDouble() ?? total;
+    final effectivePaid = (res?['paidTotal'] as num?)?.toDouble() ?? (paidAmount > effectiveTotal ? effectiveTotal : paidAmount);
+    final effectiveTendered = (res?['tenderedAmount'] as num?)?.toDouble() ?? (res?['tendered'] as num?)?.toDouble() ?? paidAmount;
+    final effectiveChange = (res?['changeReturn'] as num?)?.toDouble() ?? (res?['change'] as num?)?.toDouble() ?? (effectiveTendered > effectiveTotal ? effectiveTendered - effectiveTotal : changeAmount);
+
     final sale = RetailSale(
-      id: 'SALE-${DateTime.now().millisecondsSinceEpoch}',
+      id: res?['saleId']?.toString() ?? 'SALE-${DateTime.now().millisecondsSinceEpoch}',
       invoiceNo: realInvoice,
       items: List.from(_cart),
-      subtotal: subtotal,
-      discountTotal: _discountTotal,
-      taxTotal: taxTotal,
-      total: total,
-      paidAmount: paidAmount,
-      changeAmount: changeAmount,
+      subtotal: (res?['subtotal'] as num?)?.toDouble() ?? subtotal,
+      discountTotal: (res?['discountTotal'] as num?)?.toDouble() ?? _discountTotal,
+      taxTotal: (res?['taxTotal'] as num?)?.toDouble() ?? taxTotal,
+      total: effectiveTotal,
+      paidAmount: effectivePaid,
+      tenderedAmount: effectiveTendered,
+      changeAmount: effectiveChange,
       paymentMethod: finalMethod,
       customerName: _selectedCustomer,
       createdAt: DateTime.now(),

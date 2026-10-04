@@ -1314,6 +1314,22 @@ class RetailReceiptModal extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (sale.tenderedAmount > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Tendered / Received:',
+                          style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        ),
+                        Text(
+                          '৳${sale.tenderedAmount.toStringAsFixed(2)}',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1328,20 +1344,22 @@ class RetailReceiptModal extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Return Amount:',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF059669), fontFamily: 'monospace'),
-                      ),
-                      Text(
-                        '৳${sale.changeAmount.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF059669), fontFamily: 'monospace'),
-                      ),
-                    ],
-                  ),
+                  if (sale.changeAmount > 0 || (sale.tenderedAmount > sale.total)) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Change / Return:',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF059669), fontFamily: 'monospace'),
+                        ),
+                        Text(
+                          '৳${(sale.changeAmount > 0 ? sale.changeAmount : (sale.tenderedAmount - sale.total)).toStringAsFixed(2)}',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF059669), fontFamily: 'monospace'),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 10),
 
                   // Divider

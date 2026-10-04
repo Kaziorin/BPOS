@@ -59,10 +59,10 @@ class SalesOrder {
   final double taxTotal;
   final double discountTotal;
   final double serviceCharge;
-  final double total;
   final double paidTotal;
   final double dueTotal;
   final double changeReturn;
+  final double tenderedAmount;
   final String paymentStatus;
   final String paymentMethod;
   final String cashierName;
@@ -87,6 +87,7 @@ class SalesOrder {
     this.paidTotal = 0.0,
     this.dueTotal = 0.0,
     this.changeReturn = 0.0,
+    this.tenderedAmount = 0.0,
     required this.paymentStatus,
     required this.paymentMethod,
     required this.cashierName,
@@ -135,7 +136,9 @@ class SalesOrder {
     final rawPaidVal = ((json['paidTotal'] ?? totalVal) as num).toDouble();
     final paidVal = rawPaidVal > totalVal && totalVal > 0 ? totalVal : rawPaidVal;
     final dueVal = ((json['dueTotal'] ?? 0) as num).toDouble();
-    final changeVal = ((json['changeReturn'] ?? json['change'] ?? (rawPaidVal > totalVal ? rawPaidVal - totalVal : 0)) as num).toDouble();
+    final rawTendered = ((json['tenderedAmount'] ?? json['tendered'] ?? 0) as num).toDouble();
+    final tenderedVal = rawTendered > 0 ? rawTendered : (rawPaidVal > totalVal ? rawPaidVal : totalVal);
+    final changeVal = ((json['changeReturn'] ?? json['change'] ?? (tenderedVal > totalVal ? tenderedVal - totalVal : (rawPaidVal > totalVal ? rawPaidVal - totalVal : 0))) as num).toDouble();
 
     return SalesOrder(
       id: json['id']?.toString() ?? 'so_1',
@@ -157,6 +160,7 @@ class SalesOrder {
       paidTotal: paidVal,
       dueTotal: dueVal,
       changeReturn: changeVal,
+      tenderedAmount: tenderedVal,
       paymentStatus: (json['paymentStatus']?.toString() ?? 'PAID').toUpperCase(),
       paymentMethod: (json['paymentMethod']?.toString() ?? 'CASH').toUpperCase(),
       cashierName: json['cashierName']?.toString() ?? 'Wadi Restaurant',

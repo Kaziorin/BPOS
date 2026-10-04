@@ -96,6 +96,10 @@ export interface InvoiceData {
   total?: number;
   paidTotal: number;
   dueTotal: number;
+  tendered?: number;
+  tenderedAmount?: number;
+  changeReturn?: number;
+  payments?: any[];
   paymentMethod?: string;
   notes?: string;
   branchName?: string;
@@ -435,7 +439,17 @@ function RetailInvoiceTemplate({ data, fmt, invoiceDate, invoiceSettings }: { da
         </div>
         <div className="flex justify-between text-gray-600">
           <span>Tender Method:</span>
-          <span className="font-bold">{data.paymentMethod || "CASH"} (Paid: {fmt(data.paidTotal)})</span>
+          <span className="font-bold">{data.paymentMethod || "CASH"}</span>
+        </div>
+        {Number(data.tenderedAmount ?? data.tendered ?? 0) > 0 && (
+          <div className="flex justify-between text-gray-600 font-semibold">
+            <span>Tendered / Received:</span>
+            <span className="font-bold text-gray-900">{fmt(Number(data.tenderedAmount ?? data.tendered))}</span>
+          </div>
+        )}
+        <div className="flex justify-between text-gray-600">
+          <span>Paid Amount:</span>
+          <span className="font-bold">{fmt(data.paidTotal)}</span>
         </div>
         {data.dueTotal > 0 && (
           <div className="flex justify-between text-amber-700 font-bold">
@@ -443,10 +457,10 @@ function RetailInvoiceTemplate({ data, fmt, invoiceDate, invoiceSettings }: { da
             <span>{fmt(data.dueTotal)}</span>
           </div>
         )}
-        {data.paidTotal > data.grandTotal && (
+        {(Number(data.changeReturn ?? 0) > 0 || Number(data.tenderedAmount ?? data.tendered ?? data.paidTotal) > data.grandTotal) && (
           <div className="flex justify-between text-emerald-700 font-bold">
             <span>Change Return:</span>
-            <span>{fmt(data.paidTotal - data.grandTotal)}</span>
+            <span>{fmt(Number(data.changeReturn ?? (Number(data.tenderedAmount ?? data.tendered ?? data.paidTotal) - data.grandTotal)))}</span>
           </div>
         )}
       </div>

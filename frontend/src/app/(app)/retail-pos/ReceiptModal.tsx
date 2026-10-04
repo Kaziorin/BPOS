@@ -84,6 +84,13 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
     )
   );
 
+  const rawTendered = Number(
+    (result as any).tenderedAmount ??
+    (result as any).tendered ??
+    (payments && payments.length > 0 ? payments.reduce((acc, p) => acc + (Number(p.amount) || 0), 0) : 0)
+  );
+  const tenderedAmount = rawTendered > 0 ? rawTendered : (paidTotal + changeReturn);
+
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-[400px] mx-auto">
       {/* Success Badge */}
@@ -188,6 +195,13 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
             <span className="font-bold text-gray-600 text-right font-mono">{primaryMethod}</span>
           </div>
 
+          {tenderedAmount > 0 && (
+            <div className="flex justify-between items-baseline gap-2">
+              <span className="text-gray-500 shrink-0">Tendered / Received:</span>
+              <span className="font-bold text-gray-700 text-right font-mono">৳{tenderedAmount.toFixed(2)}</span>
+            </div>
+          )}
+
           <div className="flex justify-between items-baseline gap-2">
             <span className="text-gray-500 shrink-0">Paid Amount:</span>
             <span className="font-bold text-gray-600 text-right font-mono">৳{paidTotal.toFixed(2)}</span>
@@ -201,7 +215,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
           )}
 
           <div className="flex justify-between font-bold text-emerald-700">
-            <span>Return Amount:</span>
+            <span>Change / Return:</span>
             <span className="font-mono">৳{changeReturn.toFixed(2)}</span>
           </div>
         </div>

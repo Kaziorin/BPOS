@@ -200,6 +200,13 @@ export default function SalesOrdersPage() {
   function handleOpenInvoice(order: SalesOrder) {
     const rawPaid = Number(order.paidTotal ?? (order as any).paidAmount ?? order.total ?? 0);
     const orderTotal = Number(order.total || 0);
+    const rawTendered = Number(
+      (order as any).tenderedAmount ??
+      (order as any).tendered ??
+      (Array.isArray((order as any).payments) && (order as any).payments.length > 0
+        ? (order as any).payments.reduce((acc: number, p: any) => acc + (Number(p.amount) || 0), 0)
+        : 0)
+    );
     const rawChange = Math.max(
       0,
       Number(
@@ -207,7 +214,7 @@ export default function SalesOrdersPage() {
         order.change ??
         order.returnAmount ??
         (order as any).change_return ??
-        (rawPaid > orderTotal ? rawPaid - orderTotal : 0)
+        (rawTendered > orderTotal ? rawTendered - orderTotal : (rawPaid > orderTotal ? rawPaid - orderTotal : 0))
       )
     );
 
@@ -219,7 +226,7 @@ export default function SalesOrdersPage() {
       items: order.items && order.items.length > 0
         ? order.items.map((it) => ({
             id: it.id,
-            name: it.name || "Item",
+            name: it.name || (it as any).productName || (it as any).product?.name || "Item",
             sku: it.sku,
             productId: it.productId,
             qty: Number(it.qtyOrdered || it.qty || 1),
@@ -239,8 +246,11 @@ export default function SalesOrdersPage() {
       total: orderTotal,
       paidTotal: rawPaid,
       dueTotal: Number(order.dueTotal || 0),
+      tendered: rawTendered > 0 ? rawTendered : (rawPaid + rawChange),
+      tenderedAmount: rawTendered > 0 ? rawTendered : (rawPaid + rawChange),
       changeReturn: rawChange,
       paymentMethod: (order as any).paymentMethod || "CASH",
+      payments: (order as any).payments || [],
     });
   }
 

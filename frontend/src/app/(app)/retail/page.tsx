@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { CustomBreadcrumb } from '@/components/custom/CustomBreadcrumb';
-import { UniversalInvoiceModal } from '@/components/invoices/UniversalInvoiceModal';
+import { SaleReceiptViewModal, type ReceiptViewData } from '@/components/pos/SaleReceiptViewModal';
 
 function RetailContent() {
   return (
@@ -288,37 +288,69 @@ function RetailHubView() {
         )}
       </section>
 
-      {selectedSale && (
-        <UniversalInvoiceModal
-          data={{
-            id: selectedSale.id,
-            invoiceNo: selectedSale.invoiceNo || `POS-${selectedSale.id.slice(0, 8)}`,
-            saleDate: selectedSale.createdAt,
-            vertical: 'retail',
-            customer: selectedSale.customer,
-            items: (selectedSale.items || []).map((it: any) => ({
-              name: it.productName || it.product?.name || 'Retail Product',
-              productName: it.productName || it.product?.name || 'Retail Product',
-              qty: Number(it.qty || 1),
-              unitPrice: Number(it.unitPrice || 0),
-              sku: it.sku || 'POS-SKU',
-            })),
-            subTotal: Number(
-              selectedSale.subTotal || selectedSale.grandTotal || selectedSale.total || 0,
-            ),
-            grandTotal: Number(
-              selectedSale.grandTotal || selectedSale.totalAmount || selectedSale.total || 0,
-            ),
-            paidTotal: Number(
-              selectedSale.paidTotal || selectedSale.grandTotal || selectedSale.total || 0,
-            ),
-            dueTotal: Number(selectedSale.dueTotal || 0),
-            paymentMethod: selectedSale.paymentMethod || 'CASH',
-          }}
-          initialVertical="retail"
-          onClose={() => setSelectedSale(null)}
-        />
-      )}
+      {selectedSale && (() => {
+        const rawPaid = Number(selectedSale.paidTotal ?? selectedSale.grandTotal ?? selectedSale.total ?? 0);
+        const orderTotal = Number(selectedSale.grandTotal || selectedSale.totalAmount || selectedSale.total || 0);
+        const rawTendered = Number(
+          selectedSale.tenderedAmount ??
+          selectedSale.tendered ??
+          (Array.isArray(selectedSale.payments) && selectedSale.payments.length > 0
+            ? selectedSale.payments.reduce((acc: number, p: any) => acc + (Number(p.amount) || 0), 0)
+            : 0)
+        );
+        const rawChange = Math.max(
+          0,
+          Number(
+            selectedSale.changeReturn ??
+            selectedSale.change ??
+            selectedSale.returnAmount ??
+            (rawTendered > orderTotal ? rawTendered - orderTotal : (rawPaid > orderTotal ? rawPaid - orderTotal : 0))
+          )
+        );
+        const receiptData: ReceiptViewData = {
+          invoiceNo: selectedSale.invoiceNo || `POS-${selectedSale.id.slice(0, 8)}`,
+          createdAt: selectedSale.createdAt,
+          customerName: selectedSale.customer?.name || selectedSale.customerName || 'Walk-in Customer',
+          cashierName: selectedSale.cashierName || selectedSale.cashier?.name || 'Cashier',
+          items: (selectedSale.items && selectedSale.items.length > 0)
+            ? selectedSale.items.map((it: any) => ({
+                id: it.id,
+                sku: it.sku,
+                productId: it.productId,
+                name: it.productName || it.name || it.product?.name || 'Retail Product',
+                qty: Number(it.qty || 1),
+                unitPrice: Number(it.unitPrice || 0),
+                lineTotal: Number(it.lineTotal || (Number(it.qty || 1) * Number(it.unitPrice || 0))),
+              }))
+            : [{
+                name: 'Retail Product',
+                qty: 1,
+                unitPrice: orderTotal,
+                lineTotal: orderTotal,
+              }],
+          subtotal: Number(selectedSale.subtotal ?? orderTotal),
+          discountTotal: Number(selectedSale.discountTotal || 0),
+          taxTotal: Number(selectedSale.taxTotal || 0),
+          serviceCharge: Number(selectedSale.serviceCharge || 0),
+          total: orderTotal,
+          paidTotal: rawPaid,
+          dueTotal: Number(selectedSale.dueTotal || 0),
+          tendered: rawTendered > 0 ? rawTendered : (rawPaid + rawChange),
+          tenderedAmount: rawTendered > 0 ? rawTendered : (rawPaid + rawChange),
+          changeReturn: rawChange,
+          paymentMethod: selectedSale.paymentMethod || 'CASH',
+          payments: selectedSale.payments || [],
+          vertical: 'retail',
+        };
+
+        return (
+          <SaleReceiptViewModal
+            open={Boolean(selectedSale)}
+            data={receiptData}
+            onClose={() => setSelectedSale(null)}
+          />
+        );
+      })()}
     </div>
   );
 }

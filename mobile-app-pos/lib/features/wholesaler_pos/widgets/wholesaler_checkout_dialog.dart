@@ -19,6 +19,7 @@ class WholesalerSale {
   final String paymentMethod;
   final double paidAmount;
   final double changeAmount;
+  final double tenderedAmount;
   final DateTime createdAt;
   final String? trxId;
 
@@ -34,6 +35,7 @@ class WholesalerSale {
     required this.paymentMethod,
     required this.paidAmount,
     required this.changeAmount,
+    this.tenderedAmount = 0.0,
     required this.createdAt,
     this.trxId,
   });
@@ -193,6 +195,8 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
           'payments': [
             {'method': _selectedMethod, 'amount': paid}
           ],
+          'tendered': paid,
+          'tenderedAmount': paid,
           'total': total,
           'grandTotal': total,
           'subtotal': w.subtotal,
@@ -226,8 +230,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
       shipping: w.shippingCost,
       total: total,
       paymentMethod: methodLabel,
-      paidAmount: paid,
+      paidAmount: paid > total ? total : paid,
       changeAmount: change,
+      tenderedAmount: paid,
       createdAt: DateTime.now(),
       trxId: _selectedMethod == 'MOBILE_PAY'
           ? _trxIdCtrl.text.trim()
@@ -1564,6 +1569,22 @@ class WholesalerReceiptModal extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (sale.tenderedAmount > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Tendered / Received:',
+                          style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        ),
+                        Text(
+                          '৳${fmt.format(sale.tenderedAmount)}',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1578,20 +1599,22 @@ class WholesalerReceiptModal extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Return Amount:',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF059669), fontFamily: 'monospace'),
-                      ),
-                      Text(
-                        '৳${fmt.format(sale.changeAmount)}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF059669), fontFamily: 'monospace'),
-                      ),
-                    ],
-                  ),
+                  if (sale.changeAmount > 0 || (sale.tenderedAmount > sale.total)) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Change / Return:',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF059669), fontFamily: 'monospace'),
+                        ),
+                        Text(
+                          '৳${fmt.format(sale.changeAmount > 0 ? sale.changeAmount : (sale.tenderedAmount - sale.total))}',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF059669), fontFamily: 'monospace'),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 10),
 
                   // Divider

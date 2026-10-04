@@ -622,7 +622,7 @@ async def list_sales_orders(
                        0.00 AS paidTotal, so.total AS dueTotal, so.createdAt AS orderDate, so.createdAt, so.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                        b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName,
-                       NULL AS paymentMethod
+                       NULL AS paymentMethod, 0.00 AS tenderedAmount
                 FROM sales_orders so
                 LEFT JOIN customers c ON c.id = so.customerId
                 LEFT JOIN branches b ON b.id = so.branchId
@@ -635,7 +635,8 @@ async def list_sales_orders(
                        s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                        b.name AS branchName, s.paymentStatus, s.userId AS cashierId, u.name AS cashierName,
-                       (SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod
+                       (SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod,
+                       (SELECT COALESCE(SUM(amount), 0) FROM payments WHERE saleId = s.id) AS tenderedAmount
                 FROM sales s
                 LEFT JOIN customers c ON c.id = s.customerId
                 LEFT JOIN branches b ON b.id = s.branchId
@@ -664,7 +665,8 @@ async def list_sales_orders(
                    s.paymentStatus, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                    b.name AS branchName,
                    s.userId AS cashierId, u.name AS cashierName,
-                   (SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod
+                   (SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod,
+                   (SELECT COALESCE(SUM(amount), 0) FROM payments WHERE saleId = s.id) AS tenderedAmount
             FROM sales s
             LEFT JOIN customers c ON c.id = s.customerId
             LEFT JOIN branches b ON b.id = s.branchId
@@ -688,7 +690,7 @@ async def list_sales_orders(
                        0.00 AS paidTotal, so.total AS dueTotal, so.createdAt AS orderDate, so.createdAt, so.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                        b.name AS branchName, 'PENDING' AS paymentStatus, NULL AS cashierId, NULL AS cashierName,
-                       NULL AS paymentMethod
+                       NULL AS paymentMethod, 0.00 AS tenderedAmount
                 FROM sales_orders so
                 LEFT JOIN customers c ON c.id = so.customerId
                 LEFT JOIN branches b ON b.id = so.branchId
@@ -701,7 +703,8 @@ async def list_sales_orders(
                        s.paidTotal, s.dueTotal, s.createdAt AS orderDate, s.createdAt, s.customerId,
                        c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail,
                        b.name AS branchName, s.paymentStatus, s.userId AS cashierId, u.name AS cashierName,
-                       (SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod
+                       (SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod,
+                       (SELECT COALESCE(SUM(amount), 0) FROM payments WHERE saleId = s.id) AS tenderedAmount
                 FROM sales s
                 LEFT JOIN customers c ON c.id = s.customerId
                 LEFT JOIN branches b ON b.id = s.branchId
@@ -717,9 +720,33 @@ async def list_sales_orders(
         r["discountTotal"] = round(float(r.get("discountTotal", 0) or 0), 2)
         r["taxTotal"] = round(float(r.get("taxTotal", 0) or 0), 2)
         r["serviceCharge"] = round(float(r.get("serviceCharge", 0) or 0), 2)
-        r["paidTotal"] = round(float(r.get("paidTotal", 0) or 0), 2)
-        r["dueTotal"] = round(float(r.get("dueTotal", 0) or 0), 2)
-        r["changeReturn"] = max(round(r["paidTotal"] - r["total"], 2), 0.0)
+        raw_paid = round(float(r.get("paidTotal", 0) or 0), 2)
+        raw_due = round(float(r.get("dueTotal", 0) or 0), 2)
+        pm = (r.get("paymentMethod") or "CASH").upper()
+
+        payments = rows_to_dicts((await db.execute(text("""
+            SELECT id, method, amount FROM payments WHERE saleId = :id
+        """), {"id": r["id"]})).fetchall())
+        r["payments"] = payments
+
+        tendered = float(r.get("tenderedAmount") or 0)
+        if tendered <= 0 and payments:
+            tendered = sum(float(p.get("amount", 0) or 0) for p in payments)
+        if tendered <= 0:
+            tendered = raw_paid if raw_paid > 0 else r["total"]
+
+        r["tendered"] = round(tendered, 2)
+        r["tenderedAmount"] = round(tendered, 2)
+
+        if pm != "CREDIT":
+            r["paidTotal"] = min(raw_paid, r["total"]) if raw_paid > 0 else r["total"]
+            r["dueTotal"] = max(round(r["total"] - r["paidTotal"], 2), 0.0)
+            r["changeReturn"] = max(round(tendered - r["total"], 2), 0.0)
+        else:
+            r["paidTotal"] = min(raw_paid, r["total"])
+            r["dueTotal"] = max(raw_due, round(r["total"] - r["paidTotal"], 2))
+            r["changeReturn"] = 0.0
+
         r["change"] = r["changeReturn"]
         r["returnAmount"] = r["changeReturn"]
         r["customer"] = {

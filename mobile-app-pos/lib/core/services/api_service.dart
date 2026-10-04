@@ -520,7 +520,7 @@ class ApiService {
     }
 
     try {
-      final uri = Uri.parse('$_baseUrl/v1/pos/active-cart?channel=$channel');
+      final uri = Uri.parse('$_baseUrl/v1/pos/live-cart');
       final resp = await http.get(uri, headers: reqHeaders).timeout(const Duration(seconds: 5));
       if (resp.statusCode == 200) {
         final resData = jsonDecode(resp.body);
@@ -557,7 +557,7 @@ class ApiService {
     }
 
     try {
-      final uri = Uri.parse('$_baseUrl/v1/pos/active-cart');
+      final uri = Uri.parse('$_baseUrl/v1/pos/live-cart');
       await http.post(
         uri,
         headers: reqHeaders,

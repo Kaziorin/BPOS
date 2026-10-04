@@ -158,6 +158,7 @@ export default function PosPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const searchRef = useRef<HTMLInputElement>(null);
+  const isRemoteCartUpdate = useRef(false);
 
   // Cart (restored from localStorage if available, otherwise empty)
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -599,7 +600,7 @@ export default function PosPage() {
     ? (selectedCustomer as any).name || (selectedCustomer as any).fullName || "Customer"
     : "";
 
-  // ── Customer display sync ──
+  // ── Customer display & Live Cart sync ──
   useEffect(() => {
     publishCart({
       updatedAt: Date.now(),
@@ -620,7 +621,95 @@ export default function PosPage() {
       if (customerId) localStorage.setItem("bpos_general_customer", customerId);
       else localStorage.removeItem("bpos_general_customer");
     } catch {}
-  }, [cart, customerId, note, discountTotal, serviceCharge, subtotal, taxTotal, total, customerName]);
+
+    // Broadcast to backend for real-time mobile app sync
+    if (isRemoteCartUpdate.current) {
+      isRemoteCartUpdate.current = false;
+      return;
+    }
+
+    try {
+      api.post("/api/v1/pos/live-cart", {
+        items: cart,
+        customerId,
+        customerName,
+        discountTotal,
+        serviceCharge,
+        taxTotal,
+        subtotal,
+        total,
+        source: "WEB_RETAIL",
+      }).catch(() => {});
+    } catch {}
+  }, [cart, customerId, note, discountTotal, serviceCharge, subtotal, taxTotal, total, customerName, cashierName]);
+
+  // ── Real-time Mobile App Cart Synchronization (SSE + Initial Fetch) ──
+  useEffect(() => {
+    // 1. Initial live cart restore from backend
+    api.get<any>("/api/v1/pos/live-cart")
+      .then((res) => {
+        const live = res.data?.data || res.data;
+        if (live && Array.isArray(live.items) && live.items.length > 0) {
+          isRemoteCartUpdate.current = true;
+          setCart(live.items.map((i: any) => calcLine({
+            productId: i.productId || i.id || "",
+            variantId: i.variantId || null,
+            name: i.name || "Item",
+            qty: Number(i.qty || 1),
+            unitPrice: Number(i.unitPrice || 0),
+            discountAmount: Number(i.discountAmount || 0),
+            lineTotal: Number(i.lineTotal || (Number(i.unitPrice || 0) * Number(i.qty || 1))),
+            image: i.imageUrl || i.image || "",
+            sku: i.sku || "",
+          })));
+          if (live.customerId) setCustomerId(live.customerId);
+          if (live.discountTotal) setDiscountTotal(Number(live.discountTotal));
+        }
+      })
+      .catch(() => {});
+
+    // 2. Real-time SSE listener
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource(`${backendUrl}/api/v1/realtime/stream?channel=POS&tenantId=19f2452c-78dc-4309-9a41-6463c93ccaf7`);
+      es.onmessage = (e) => {
+        try {
+          const msg = JSON.parse(e.data);
+          if (msg.type === "CART_UPDATED" && msg.payload) {
+            const payload = msg.payload;
+            if (payload.source !== "WEB_RETAIL") {
+              isRemoteCartUpdate.current = true;
+              const newItems: CartItem[] = (payload.items || []).map((i: any) => calcLine({
+                productId: i.productId || i.id || "",
+                variantId: i.variantId || null,
+                name: i.name || "Item",
+                qty: Number(i.qty || 1),
+                unitPrice: Number(i.unitPrice || 0),
+                discountAmount: Number(i.discountAmount || 0),
+                lineTotal: Number(i.lineTotal || (Number(i.unitPrice || 0) * Number(i.qty || 1))),
+                image: i.imageUrl || i.image || "",
+                sku: i.sku || "",
+              }));
+              setCart(newItems);
+              if (payload.customerId !== undefined) setCustomerId(payload.customerId || "");
+              if (payload.discountTotal !== undefined) setDiscountTotal(Number(payload.discountTotal || 0));
+              if (newItems.length > 0) {
+                toast.info(`Cart updated from Mobile POS (${newItems.length} items)`, {
+                  autoClose: 2000,
+                  toastId: "mobile-cart-sync",
+                });
+              }
+            }
+          }
+        } catch (_) {}
+      };
+    } catch (_) {}
+
+    return () => {
+      es?.close();
+    };
+  }, []);
 
   // Sync payment amount with total
   useEffect(() => {
@@ -748,10 +837,11 @@ export default function PosPage() {
       let saleRes: SaleResult;
 
       if (onlineNow) {
+        const validCustomerId = customerId && !customerId.startsWith("local_") ? customerId : null;
         const payload = {
           branchId,
           warehouseId,
-          customerId: customerId || null,
+          customerId: validCustomerId,
           customerName: customerNameSnapshot !== "Walk-in Retail Customer" ? customerNameSnapshot : undefined,
           customerPhone: (selectedCustomer as any)?.phone || undefined,
           items: cart.map((i) => ({
@@ -783,6 +873,8 @@ export default function PosPage() {
           invoiceId: serverData.invoiceId || serverData.saleId || crypto.randomUUID(),
           total: Number(serverData.total ?? total),
           paidTotal: Number(serverData.paidTotal ?? finalTendered),
+          tendered: Number(serverData.tendered ?? serverData.tenderedAmount ?? finalTendered),
+          tenderedAmount: Number(serverData.tendered ?? serverData.tenderedAmount ?? finalTendered),
           dueTotal: Number(serverData.dueTotal ?? (payMethod === "CREDIT" ? total : 0)),
           change: Number(serverData.changeReturn ?? serverData.change ?? changeAmount),
           changeAmount: Number(serverData.changeReturn ?? serverData.change ?? changeAmount),
@@ -816,6 +908,8 @@ export default function PosPage() {
         const localResult = makeOfflineResult(invoiceNo, cartSnapshot, total, paymentsSnapshot);
         (localResult as any).change = changeAmount;
         (localResult as any).changeAmount = changeAmount;
+        (localResult as any).tendered = finalTendered;
+        (localResult as any).tenderedAmount = finalTendered;
         saleRes = localResult;
         setSaleSnapshot({ cart: cartSnapshot, payments: paymentsSnapshot, customerName: customerNameSnapshot });
         setResult(saleRes);

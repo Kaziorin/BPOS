@@ -1798,6 +1798,22 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (order.tenderedAmount > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Tendered / Received:',
+                          style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        ),
+                        Text(
+                          '৳${fmt.format(order.tenderedAmount)}',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1818,7 +1834,7 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          'Due Amount:',
+                          'Remaining Due:',
                           style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFEF4444), fontFamily: 'monospace'),
                         ),
                         Text(
@@ -1828,20 +1844,22 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                       ],
                     ),
                   ],
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Return Amount:',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF059669), fontFamily: 'monospace'),
-                      ),
-                      Text(
-                        '৳${fmt.format(order.changeReturn)}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF059669), fontFamily: 'monospace'),
-                      ),
-                    ],
-                  ),
+                  if (order.changeReturn > 0 || order.tenderedAmount > order.total) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Change / Return:',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF059669), fontFamily: 'monospace'),
+                        ),
+                        Text(
+                          '৳${fmt.format(order.changeReturn > 0 ? order.changeReturn : (order.tenderedAmount - order.total))}',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF059669), fontFamily: 'monospace'),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 10),
 
                   // Divider
