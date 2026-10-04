@@ -35,6 +35,16 @@ def _uuid() -> str:
     return str(uuid.uuid4())
 
 
+def round_half_up(val: float, places: int = 2) -> float:
+    """Standard commercial half-up rounding (0.5 paisa rounds up) for currency & tax calculations."""
+    try:
+        d = Decimal(str(round(float(val), 8)))
+        q = Decimal("10") ** -places
+        return float(d.quantize(q, rounding=ROUND_HALF_UP))
+    except Exception:
+        return round(float(val), places)
+
+
 # ──────────────────── RATE RESOLUTION ────────────────────
 
 
@@ -222,11 +232,13 @@ def calculate_tax(
         else:
             tax = r
             taxable = a
+        taxable_r = round_half_up(taxable, 2)
+        tax_r = round_half_up(tax, 2)
         return {
-            "taxableAmount": round(taxable, 2),
+            "taxableAmount": taxable_r,
             "taxRate": r,
-            "taxAmount": round(tax, 2),
-            "totalWithTax": round(taxable + tax, 2),
+            "taxAmount": tax_r,
+            "totalWithTax": round_half_up(taxable_r + tax_r, 2),
         }
 
     # PERCENTAGE
@@ -235,20 +247,24 @@ def calculate_tax(
         # amount = taxable + taxable * rate/100 = taxable * (1 + rate/100)
         taxable = a / (1 + r / 100) if (1 + r / 100) != 0 else a
         tax = a - taxable
+        taxable_r = round_half_up(taxable, 2)
+        tax_r = round_half_up(tax, 2)
         return {
-            "taxableAmount": round(taxable, 2),
+            "taxableAmount": taxable_r,
             "taxRate": r,
-            "taxAmount": round(tax, 2),
-            "totalWithTax": round(a, 2),
+            "taxAmount": tax_r,
+            "totalWithTax": round_half_up(a, 2),
         }
     else:
         # amount is pre-tax
         tax = a * r / 100
+        taxable_r = round_half_up(a, 2)
+        tax_r = round_half_up(tax, 2)
         return {
-            "taxableAmount": round(a, 2),
+            "taxableAmount": taxable_r,
             "taxRate": r,
-            "taxAmount": round(tax, 2),
-            "totalWithTax": round(a + tax, 2),
+            "taxAmount": tax_r,
+            "totalWithTax": round_half_up(taxable_r + tax_r, 2),
         }
 
 

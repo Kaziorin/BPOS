@@ -174,6 +174,43 @@ class PharmacyHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
+          // ── BACK BUTTON (Web/Desktop) ──
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                } else {
+                  Navigator.of(context).maybePop();
+                }
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: context.isDark ? context.surfaceColor : Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: context.dividerColor),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.arrow_back_rounded,
+                  size: 20,
+                  color: context.isDark ? Colors.white : Colors.grey.shade800,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+
           // ── LOGO ──
           Row(
             children: [

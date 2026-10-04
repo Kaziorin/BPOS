@@ -57,6 +57,41 @@ class _DesktopHeader extends StatelessWidget {
     return Row(
       children: [
         // ── 1. Left: Back Button + BPOS / WHOLESALE & B2B ────────
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                Navigator.of(context).maybePop();
+              }
+            },
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: isDark ? WholesalerColors.cardBg(isDark) : Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: WholesalerColors.border(isDark)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                size: 18,
+                color: WholesalerColors.textPrimary(isDark),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
         _LogoBlock(isDark: isDark, compact: isTablet),
 
         // Flexible empty space pushing Customer Box to the right-center

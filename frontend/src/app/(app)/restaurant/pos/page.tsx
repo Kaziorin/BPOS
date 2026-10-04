@@ -1367,14 +1367,15 @@ export default function RestaurantPOSPage() {
 
   // Round inclusive tax to 2 decimal places so taxableBase + tax = total with zero rounding errors
   const roundedInclusiveTax = Math.round(estimateInclusiveTax * 100) / 100;
+  const roundedExclusiveTax = Math.round(estimateExclusiveTax * 100) / 100;
   const taxableBase = Math.max(0, subTotal - roundedInclusiveTax);
 
   // Service charge:
   // Dine-in applies service charge (default 0%), Takeaway/Delivery defaults to 0%
   const effectiveServicePercent = orderType === "DINE_IN" ? serviceChargePercent : 0;
-  const estimateService = (subTotal * effectiveServicePercent) / 100;
+  const estimateService = Math.round(((subTotal * effectiveServicePercent) / 100) * 100) / 100;
   // If items have inclusive tax, that tax is already included in subTotal. Only add exclusive tax:
-  const estimateGrandTotal = subTotal + estimateExclusiveTax + estimateService;
+  const estimateGrandTotal = Math.round((subTotal + roundedExclusiveTax + estimateService) * 100) / 100;
 
   const handlePlaceOrder = async (payMethod: string = "CASH", tenderedAmount?: number) => {
     if (cart.length === 0 || submittingCheckout) return;
@@ -1393,6 +1394,11 @@ export default function RestaurantPOSPage() {
           ? tenderedAmount
           : estimateGrandTotal;
 
+      const normalizedMethod =
+        payMethod === "MFS" ? "BKASH" :
+        payMethod === "DUE" ? "CREDIT" :
+        payMethod;
+
       // Build payload for the backend POS confirm endpoint
       // Let the backend calculate tax and totals (server-side tax rules)
       const payload = {
@@ -1405,9 +1411,10 @@ export default function RestaurantPOSPage() {
           discountAmount: 0,
           lineTotal: i.qty * i.unitPrice,
         })),
-        payments: [{ method: payMethod, amount: finalTendered }],
+        payments: [{ method: normalizedMethod, amount: finalTendered }],
         discountTotal: discountAmount,
         serviceCharge: estimateService,
+        taxTotal: roundedExclusiveTax,
         source: "RESTAURANT",
         customerName: customerName || undefined,
         customerPhone: customerPhone || undefined,
@@ -2966,10 +2973,16 @@ export default function RestaurantPOSPage() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => setCashTenderedInput(estimateGrandTotal.toFixed(0))}
+                  onClick={() =>
+                    setCashTenderedInput(
+                      estimateGrandTotal % 1 === 0
+                        ? estimateGrandTotal.toFixed(0)
+                        : estimateGrandTotal.toFixed(2)
+                    )
+                  }
                   className="px-2.5 py-1 text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-sm border border-orange-200 transition cursor-pointer"
                 >
-                  Exact (৳{fmt(estimateGrandTotal)})
+                  Exact ({fmt(estimateGrandTotal)})
                 </button>
               </div>
 
@@ -3000,7 +3013,8 @@ export default function RestaurantPOSPage() {
                     type="button"
                     onClick={() => {
                       const cur = parseFloat(cashTenderedInput) || 0;
-                      setCashTenderedInput((cur + denom).toString());
+                      const next = Math.round((cur + denom) * 100) / 100;
+                      setCashTenderedInput(next % 1 === 0 ? next.toFixed(0) : next.toFixed(2));
                     }}
                     className="rounded-sm border border-slate-200 bg-white py-1.5 text-xs font-bold text-gray-600 hover:bg-orange-50 hover:border-orange-300 transition cursor-pointer"
                   >

@@ -121,6 +121,27 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
         tot_amt = float(body.get("paidTotal") or body.get("tenderedAmount") or body.get("cashTendered") or body.get("grandTotal") or body.get("total") or calc_sub)
         payments = [{"method": pm, "amount": tot_amt}]
 
+    # Normalize payment methods to prevent MySQL enum truncation errors (e.g. MFS -> BKASH, DUE -> CREDIT)
+    VALID_PAYMENT_METHODS = {'CASH', 'CARD', 'BANK', 'BKASH', 'NAGAD', 'ROCKET', 'GATEWAY', 'CREDIT', 'GIFT_CARD', 'WALLET', 'STORE_CREDIT', 'COD'}
+    METHOD_ALIASES = {
+        'MFS': 'BKASH',
+        'MOBILE': 'BKASH',
+        'MOBILE_BANKING': 'BKASH',
+        'DUE': 'CREDIT',
+        'TABLE_DUE': 'CREDIT',
+        'PAY_LATER': 'CREDIT',
+        'POS': 'CARD',
+        'ONLINE': 'GATEWAY',
+        'CHEQUE': 'BANK',
+        'CHECK': 'BANK',
+    }
+    for p in payments:
+        raw_m = str(p.get("method") or "CASH").strip().upper()
+        if raw_m in VALID_PAYMENT_METHODS:
+            p["method"] = raw_m
+        else:
+            p["method"] = METHOD_ALIASES.get(raw_m, "CASH")
+
     # Auto-create missing products for demo/frontend resilience
     for it in items:
         p_id = it.get("productId")
@@ -180,25 +201,25 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                 taxTotal += tc["taxAmount"]
                 if not tr["taxInclusive"]:
                     exclusive_tax_total += tc["taxAmount"]
-        taxTotal = round(taxTotal, 2)
-        exclusive_tax_total = round(exclusive_tax_total, 2)
+        taxTotal = tax_engine.round_half_up(taxTotal, 2)
+        exclusive_tax_total = tax_engine.round_half_up(exclusive_tax_total, 2)
 
     # Fallback to client-submitted tax if DB had no explicit tax rules configured
     if exclusive_tax_total == 0.0:
         client_tax = float(body.get("taxTotal") or body.get("taxAmount") or 0.0)
         if client_tax > 0:
-            taxTotal = round(client_tax, 2)
-            exclusive_tax_total = round(client_tax, 2)
+            taxTotal = tax_engine.round_half_up(client_tax, 2)
+            exclusive_tax_total = tax_engine.round_half_up(client_tax, 2)
 
     service = float(body.get("serviceCharge", 0) or 0)
     delivery = float(body.get("deliveryFee") or body.get("shipping") or body.get("shippingTotal") or 0)
     tips = float(body.get("tips", 0) or 0)
     roundOff = float(body.get("roundOff", 0) or 0)
-    total = round(max(subtotal - discountTotal + exclusive_tax_total + service + delivery + tips + roundOff, 0), 2)
-    tendered = round(sum(float(p.get("amount", 0)) for p in payments), 2)
+    total = tax_engine.round_half_up(max(subtotal - discountTotal + exclusive_tax_total + service + delivery + tips + roundOff, 0), 2)
+    tendered = tax_engine.round_half_up(sum(float(p.get("amount", 0)) for p in payments), 2)
     paid = min(tendered, total)
     credit_amt = sum(float(p.get("amount", 0)) for p in payments if p.get("method") == "CREDIT")
-    due = max(round(total - tendered, 2), 0)
+    due = max(tax_engine.round_half_up(total - tendered, 2), 0)
 
     # credit limit check for CREDIT payments (§10.13)
     customerId = body.get("customerId")
