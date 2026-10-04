@@ -296,6 +296,50 @@ class ApiService {
     return [];
   }
 
+  // ── TAX RATES ─────────────────────────────────────────────────────────────
+  Future<double> fetchDefaultTaxRate({required String businessType}) async {
+    final cleanBiz = businessType.toLowerCase().trim();
+    String? tenantIdToSend = _tenantId;
+    if (businessTenantIds.containsKey(cleanBiz)) {
+      tenantIdToSend = businessTenantIds[cleanBiz];
+    }
+    final token = await _getTokenForTenant(tenantIdToSend);
+
+    final reqHeaders = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    if (tenantIdToSend != null && tenantIdToSend.isNotEmpty) {
+      reqHeaders['X-Tenant-ID'] = tenantIdToSend;
+    }
+    if (token != null && token.isNotEmpty) {
+      reqHeaders['Authorization'] = 'Bearer $token';
+    }
+
+    try {
+      final uri = Uri.parse('$_baseUrl/v1/tax/rates');
+      final resp = await http.get(uri, headers: reqHeaders).timeout(const Duration(seconds: 10));
+      if (resp.statusCode == 200) {
+        final data = jsonDecode(resp.body);
+        final list = (data is Map && data['data'] is List) ? (data['data'] as List) : (data is List ? data : []);
+        final activeRates = list.where((r) => r is Map && (r['status'] == 'ACTIVE' || r['isActive'] == 1 || r['isActive'] == true || r['status'] == null)).toList();
+        final defaultRate = activeRates.firstWhere(
+          (r) => r['isDefault'] == 1 || r['isDefault'] == true,
+          orElse: () => activeRates.isNotEmpty ? activeRates.first : null,
+        );
+        if (defaultRate != null && defaultRate['rate'] != null) {
+          final rateVal = (defaultRate['rate'] as num?)?.toDouble() ??
+              double.tryParse(defaultRate['rate'].toString()) ??
+              15.0;
+          return rateVal / 100.0; // returns 0.15 for 15%
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching tax rate for $businessType: $e');
+    }
+    return 0.15; // default fallback 15% system standard
+  }
+
   Future<Map<String, dynamic>?> createCustomer({
     required String businessType,
     required Map<String, dynamic> payload,

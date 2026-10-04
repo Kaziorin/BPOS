@@ -98,9 +98,9 @@ class _DesktopTabletLayout extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Left: catalog
+                // Left: catalog (~70% width)
                 Expanded(
-                  flex: isTablet ? 55 : 62,
+                  flex: isTablet ? 65 : 68,
                   child: Container(
                     decoration: BoxDecoration(
                       color: GroceryColors.cardBg(isDark),
@@ -123,9 +123,9 @@ class _DesktopTabletLayout extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: isTablet ? 8 : 12),
-                // Right: cart
+                // Right: cart (~30% width)
                 Expanded(
-                  flex: isTablet ? 45 : 38,
+                  flex: isTablet ? 35 : 32,
                   child: const GroceryCartPanel(),
                 ),
               ],

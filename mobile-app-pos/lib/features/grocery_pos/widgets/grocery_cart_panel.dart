@@ -33,7 +33,7 @@ class GroceryCartPanel extends StatelessWidget {
           const Divider(height: 1),
           const Expanded(child: _CartList()),
           const Divider(height: 1),
-          // Bottom section — scrollable on mobile to avoid overflow
+          // Bottom section: mobile view (no calculator, clean pay row) vs web view (unified 4-column checkout card)
           if (narrow)
             SingleChildScrollView(
               child: Column(
@@ -43,7 +43,7 @@ class GroceryCartPanel extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
                     child: Column(
                       children: const [
-                        _AdjustmentInputs(expandNote: false),
+                        _AdjustmentInputs(),
                         SizedBox(height: 6),
                         _PaymentSummary(),
                       ],
@@ -59,14 +59,15 @@ class GroceryCartPanel extends StatelessWidget {
             )
           else ...[
             Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
-              child: const IntrinsicHeight(
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+              child: const SizedBox(
+                height: 118,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
                       flex: 48,
-                      child: _AdjustmentInputs(expandNote: true),
+                      child: _AdjustmentInputs(),
                     ),
                     SizedBox(width: 8),
                     Expanded(
@@ -77,27 +78,9 @@ class GroceryCartPanel extends StatelessWidget {
                 ),
               ),
             ),
-            const Divider(height: 1),
             const Padding(
-              padding: EdgeInsets.fromLTRB(12, 4, 12, 4),
-              child: _PaymentMethods(),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
-              child: const Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 58,
-                    child: _NumpadAndTools(),
-                  ),
-                  SizedBox(width: 8),
-                  Expanded(
-                    flex: 42,
-                    child: _PayButtons(),
-                  ),
-                ],
-              ),
+              padding: EdgeInsets.fromLTRB(8, 0, 8, 6),
+              child: _BottomCheckoutCard(),
             ),
           ],
         ],
@@ -114,22 +97,20 @@ class _CartColumnHeaders extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = context.watch<AppProvider>().isDarkMode;
     final locale = context.watch<AppProvider>().locale;
-    final narrow = MediaQuery.of(context).size.width < 700;
-
-    final totalWidth = narrow ? 58.0 : 70.0;
-    final deleteWidth = narrow ? 20.0 : 24.0;
+    final totalWidth = 52.0;
+    final deleteWidth = 18.0;
 
     TextStyle style() => TextStyle(
-          fontSize: narrow ? 9 : 10,
+          fontSize: 8.5,
           fontWeight: FontWeight.w800,
-          letterSpacing: 0.4,
+          letterSpacing: 0.3,
           color: GroceryColors.textSecondary(isDark),
         );
 
     String t(String en, String bn) => locale == 'bn' ? bn : en;
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: narrow ? 13 : 14, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       color: isDark ? GroceryColors.inputBg(true) : const Color(0xFFF8FFF8),
       child: Row(
         children: [
@@ -171,19 +152,21 @@ class _CartHeader extends StatelessWidget {
     final p = context.watch<GroceryProvider>();
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 12, 10, 10),
+      padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
       child: Row(
         children: [
-          Icon(Icons.shopping_cart_rounded, size: 18, color: GroceryColors.primary),
-          const SizedBox(width: 8),
+          Icon(Icons.shopping_cart_rounded, size: 16, color: GroceryColors.primary),
+          const SizedBox(width: 6),
           Expanded(
             child: Text(
-              '${AppStrings.get('cart', locale)} (${NumberUtils.toLocalized(p.totalItems, locale)} ${AppStrings.get('items', locale)})',
+              '${AppStrings.get('cart', locale)} (${NumberUtils.toLocalized(p.totalItems, locale)})',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w800,
                 color: GroceryColors.textPrimary(isDark),
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           _SmallBtn(
@@ -194,14 +177,9 @@ class _CartHeader extends StatelessWidget {
               if (!gRequireCart(context)) return;
               final ok = context.read<GroceryProvider>().holdCurrentBill();
               if (ok) gSnack(context, AppStrings.get('g_bill_held', locale));
-              // Offer recall list if any held
-              final held = context.read<GroceryProvider>().heldBills;
-              if (held.isNotEmpty) {
-                // no auto-open; user can open via recent sales or we show a hint
-              }
             },
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 4),
           _SmallBtn(
             label: AppStrings.get('clear_cart_btn', locale),
             color: const Color(0xFFEF4444),
@@ -226,17 +204,17 @@ class _CartHeader extends StatelessWidget {
                 ),
               );
             },
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(6),
             child: Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 color: GroceryColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(6),
               ),
               child: Badge(
                 isLabelVisible: p.heldBills.isNotEmpty,
-                label: Text('${p.heldBills.length}', style: const TextStyle(fontSize: 9)),
-                child: const Icon(Icons.inventory_rounded, size: 16, color: GroceryColors.primary),
+                label: Text('${p.heldBills.length}', style: const TextStyle(fontSize: 8)),
+                child: const Icon(Icons.inventory_rounded, size: 14, color: GroceryColors.primary),
               ),
             ),
           ),
@@ -283,7 +261,6 @@ class _CartList extends StatelessWidget {
     final locale = context.watch<AppProvider>().locale;
     final isDark = context.watch<AppProvider>().isDarkMode;
     final cart = context.watch<GroceryProvider>().cart;
-    final narrow = MediaQuery.of(context).size.width < 700;
 
     if (cart.isEmpty) {
       return Center(
@@ -302,11 +279,11 @@ class _CartList extends StatelessWidget {
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       itemCount: cart.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 4),
+      separatorBuilder: (_, _) => const SizedBox(height: 3),
       itemBuilder: (context, index) {
-        return _CartRow(item: cart[index], locale: locale, isDark: isDark, narrow: narrow);
+        return _CartRow(item: cart[index], locale: locale, isDark: isDark, narrow: true);
       },
     );
   }
@@ -535,8 +512,7 @@ class _QtyStepper extends StatelessWidget {
 
 // ── Discount / Coupon / Note inputs ──────────────────────────
 class _AdjustmentInputs extends StatefulWidget {
-  final bool expandNote;
-  const _AdjustmentInputs({this.expandNote = true});
+  const _AdjustmentInputs();
 
   @override
   State<_AdjustmentInputs> createState() => _AdjustmentInputsState();
@@ -545,473 +521,277 @@ class _AdjustmentInputs extends StatefulWidget {
 class _AdjustmentInputsState extends State<_AdjustmentInputs> {
   final _discountCtrl = TextEditingController();
   final _couponCtrl = TextEditingController();
+  final _noteCtrl = TextEditingController();
 
   @override
   void dispose() {
     _discountCtrl.dispose();
     _couponCtrl.dispose();
+    _noteCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final locale = context.watch<AppProvider>().locale;
     final isDark = context.watch<AppProvider>().isDarkMode;
+    final locale = context.watch<AppProvider>().locale;
     final provider = context.read<GroceryProvider>();
 
-    final noteBox = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: isDark ? GroceryColors.cardBg(true) : Colors.white,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: GroceryColors.border(isDark)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 3, right: 6),
-            child: Icon(Icons.notes_rounded, size: 14, color: GroceryColors.textSecondary(isDark)),
-          ),
-          Expanded(
-            child: TextField(
-              onChanged: (v) => provider.setSalesNote(v),
-              maxLines: widget.expandNote ? null : 1,
-              expands: widget.expandNote,
-              textAlignVertical: TextAlignVertical.top,
-              style: TextStyle(fontSize: 10.5, color: GroceryColors.textPrimary(isDark)),
-              decoration: InputDecoration(
-                hintText: AppStrings.get('sales_note_hint', locale),
-                hintStyle: TextStyle(fontSize: 10, color: GroceryColors.textSecondary(isDark)),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: const EdgeInsets.only(top: 2),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: isDark ? GroceryColors.inputBg(true) : GroceryColors.primarySoft,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: GroceryColors.border(isDark)),
+        color: isDark ? GroceryColors.inputBg(true) : const Color(0xFFF0FDF4),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDark ? GroceryColors.border(true) : const Color(0xFFDCFCE7),
+          width: 1.2,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _inputRow(
-            label: AppStrings.get('discount_pct', locale),
-            hint: '0',
-            controller: _discountCtrl,
-            isDark: isDark,
-            locale: locale,
-            onApply: () {
-              final pct = double.tryParse(_discountCtrl.text) ?? 0;
-              provider.applyBillDiscount(pct);
-              gSnack(context, '${NumberUtils.toLocalized(pct.toStringAsFixed(0), locale)}% ${AppStrings.get('discount_label', locale)}');
-            },
-          ),
-          const SizedBox(height: 5),
-          _inputRow(
-            label: AppStrings.get('coupon_code', locale),
-            hint: 'SAVE10',
-            controller: _couponCtrl,
-            isDark: isDark,
-            locale: locale,
-            onChanged: (v) => provider.setCouponCode(v),
-            onApply: () {
-              final ok = provider.applyCouponCode(_couponCtrl.text);
-              gSnack(
-                context,
-                ok
-                    ? (locale == 'bn' ? 'কুপন প্রয়োগ হয়েছে' : 'Coupon applied')
-                    : (locale == 'bn' ? 'অবৈধ কুপন' : 'Invalid coupon'),
-                color: ok ? GroceryColors.primaryDark : Colors.red.shade700,
-              );
-            },
-          ),
-          const SizedBox(height: 5),
-          // Fill vertical height if expanded (in side-by-side mode), or fixed height if narrow (in column mode)
-          if (widget.expandNote)
-            Expanded(child: noteBox)
-          else
-            SizedBox(height: 34, child: noteBox),
-        ],
-      ),
-    );
-  }
-
-  Widget _inputRow({
-    required String label,
-    required String hint,
-    required TextEditingController controller,
-    required bool isDark,
-    required String locale,
-    ValueChanged<String>? onChanged,
-    required VoidCallback onApply,
-  }) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 76,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 9.5,
-              fontWeight: FontWeight.w700,
-              color: GroceryColors.textSecondary(isDark),
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Expanded(
-          child: Container(
-            height: 29,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              color: isDark ? GroceryColors.cardBg(true) : Colors.white,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: GroceryColors.border(isDark)),
-            ),
-            child: TextField(
-              controller: controller,
-              onChanged: onChanged,
-              style: TextStyle(fontSize: 11, color: GroceryColors.textPrimary(isDark)),
-              decoration: InputDecoration(
-                hintText: hint,
-                hintStyle: TextStyle(fontSize: 10.5, color: GroceryColors.textSecondary(isDark)),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 6),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 5),
-        InkWell(
-          onTap: onApply,
-          borderRadius: BorderRadius.circular(6),
-          child: Container(
-            height: 29,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              gradient: GroceryColors.primaryGradient,
-              borderRadius: BorderRadius.circular(6),
-              boxShadow: [
-                BoxShadow(
-                  color: GroceryColors.primary.withValues(alpha: 0.25),
-                  blurRadius: 3,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            child: Text(
-              AppStrings.get('apply', locale),
-              style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, color: Colors.white),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ── Numpad + Tools ───────────────────────────────────────────
-class _NumpadAndTools extends StatelessWidget {
-  const _NumpadAndTools();
-
-  @override
-  Widget build(BuildContext context) {
-    final locale = context.watch<AppProvider>().locale;
-    final isDark = context.watch<AppProvider>().isDarkMode;
-    final provider = context.watch<GroceryProvider>();
-
-    final tools = [
-      (Icons.sell_outlined, 'price_check', () {
-        showDialog(context: context, builder: (_) => ChangeNotifierProvider.value(
-          value: provider, child: const GroceryPriceCheckDialog(),
-        ));
-      }),
-      (Icons.qr_code_rounded, 'barcode_lookup', () {
-        showDialog(context: context, builder: (_) => ChangeNotifierProvider.value(
-          value: provider, child: const GroceryBarcodeDialog(),
-        ));
-      }),
-      (Icons.history_rounded, 'recent_sales', () {
-        showDialog(context: context, builder: (_) => ChangeNotifierProvider.value(
-          value: provider, child: const GrocerySalesHistoryDialog(),
-        ));
-      }),
-      (Icons.undo_rounded, 'return_refund', () {
-        showDialog(context: context, builder: (_) => ChangeNotifierProvider.value(
-          value: provider, child: const GroceryReturnDialog(),
-        ));
-      }),
-    ];
-
-    final keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', '⌫'];
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Tools sidebar
-        Column(
-          children: tools.map((t) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Tooltip(
-                message: AppStrings.get(t.$2, locale),
-                child: InkWell(
-                  onTap: t.$3,
-                  borderRadius: BorderRadius.circular(6),
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: isDark ? GroceryColors.inputBg(true) : Colors.white,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: GroceryColors.border(isDark)),
-                      boxShadow: GroceryColors.softShadow(isDark),
-                    ),
-                    child: Icon(t.$1, size: 14, color: GroceryColors.primary),
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-        const SizedBox(width: 6),
-        // Numpad
-        Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          // Row 1: Discount
+          Row(
             children: [
-              // Tender input display
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(bottom: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                height: 26,
-                decoration: BoxDecoration(
-                  color: isDark ? GroceryColors.inputBg(true) : GroceryColors.primary.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: provider.numpadValue.isNotEmpty
-                        ? GroceryColors.primary.withValues(alpha: 0.3)
-                        : (isDark ? GroceryColors.border(true) : Colors.grey.shade200),
+              SizedBox(
+                width: 52,
+                child: Text(
+                  'Discount',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: GroceryColors.textPrimary(isDark),
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Text(
-                      AppStrings.get('cash_tendered', locale),
-                      style: TextStyle(
-                        fontSize: 9.5,
-                        fontWeight: FontWeight.w700,
-                        color: GroceryColors.textSecondary(isDark),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      AppStrings.currency,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        color: GroceryColors.primaryDark,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        provider.numpadValue.isEmpty
-                            ? '0.00'
-                            : NumberUtils.toLocalized(provider.numpadValue, locale),
-                        textAlign: TextAlign.right,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                          color: GroceryColors.primaryDark,
-                        ),
-                      ),
-                    ),
-                    if (provider.numpadValue.isNotEmpty) ...[
-                      const SizedBox(width: 4),
-                      InkWell(
-                        onTap: () => context.read<GroceryProvider>().clearNumpad(),
-                        borderRadius: BorderRadius.circular(8),
-                        child: const Padding(
-                          padding: EdgeInsets.all(1),
-                          child: Icon(Icons.close_rounded, size: 12, color: Colors.grey),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
               ),
-              // 4 Rows of Numpad Keys - Balanced comfortable height
-              for (int r = 0; r < 4; r++) ...[
-                if (r > 0) const SizedBox(height: 4),
-                SizedBox(
-                  height: 31,
+              Expanded(
+                child: Container(
+                  height: 27,
+                  decoration: BoxDecoration(
+                    color: isDark ? GroceryColors.cardBg(true) : Colors.white,
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                      color: isDark ? GroceryColors.border(true) : const Color(0xFFCBD5E1),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  alignment: Alignment.center,
                   child: Row(
                     children: [
-                      for (int c = 0; c < 3; c++) ...[
-                        if (c > 0) const SizedBox(width: 4),
-                        Expanded(
-                          child: _NumKey(
-                            label: keys[r * 3 + c],
-                            isDark: isDark,
-                            isSpecial: keys[r * 3 + c] == '⌫',
-                            onTap: () => context.read<GroceryProvider>().numpadPress(keys[r * 3 + c]),
+                      Expanded(
+                        child: TextField(
+                          controller: _discountCtrl,
+                          textAlign: TextAlign.right,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: GroceryColors.textPrimary(isDark),
+                          ),
+                          decoration: const InputDecoration(
+                            hintText: '0.00',
+                            hintStyle: TextStyle(fontSize: 10.5, color: Color(0xFF94A3B8)),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
                           ),
                         ),
-                      ],
+                      ),
+                      const SizedBox(width: 4),
+                      const Text(
+                        '%',
+                        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      ),
                     ],
                   ),
                 ),
-              ],
-              const SizedBox(height: 4),
-              // Clear & Exact Amount Action Buttons
-              SizedBox(
-                height: 29,
-                child: Row(
-                  children: [
-                    // Clear button
-                    InkWell(
-                      onTap: () => context.read<GroceryProvider>().clearNumpad(),
-                      borderRadius: BorderRadius.circular(6),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: isDark ? GroceryColors.inputBg(true) : Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: isDark ? GroceryColors.border(true) : Colors.grey.shade300),
-                        ),
-                        child: Text(
-                          'C',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            color: GroceryColors.textSecondary(isDark),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    // Exact Amount button
-                    Expanded(
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () => context.read<GroceryProvider>().setExactTender(),
-                          borderRadius: BorderRadius.circular(6),
-                          child: Ink(
-                            decoration: BoxDecoration(
-                              gradient: GroceryColors.primaryGradient,
-                              borderRadius: BorderRadius.circular(6),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: GroceryColors.primary.withValues(alpha: 0.3),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 1),
-                                ),
-                              ],
-                            ),
-                            child: Container(
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.done_all_rounded, size: 13, color: Colors.white),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        '${AppStrings.get('exact_amount', locale)} (${AppStrings.currency}${NumberUtils.toLocalized(provider.grandTotal.toStringAsFixed(2), locale)})',
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+              ),
+              const SizedBox(width: 5),
+              InkWell(
+                onTap: () {
+                  final pct = double.tryParse(_discountCtrl.text) ?? 0;
+                  provider.applyBillDiscount(pct);
+                  gSnack(context, '$pct% ${AppStrings.get('discount_label', locale)}');
+                },
+                borderRadius: BorderRadius.circular(5),
+                child: Container(
+                  height: 27,
+                  padding: const EdgeInsets.symmetric(horizontal: 9),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF047857),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: const Text(
+                    'Apply',
+                    style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.white),
+                  ),
                 ),
               ),
             ],
           ),
-        ),
-      ],
+          // Row 2: Coupon
+          Row(
+            children: [
+              SizedBox(
+                width: 52,
+                child: Text(
+                  'Coupon',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: GroceryColors.textPrimary(isDark),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  height: 27,
+                  decoration: BoxDecoration(
+                    color: isDark ? GroceryColors.cardBg(true) : Colors.white,
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                      color: isDark ? GroceryColors.border(true) : const Color(0xFFCBD5E1),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  alignment: Alignment.center,
+                  child: TextField(
+                    controller: _couponCtrl,
+                    onChanged: (v) => provider.setCouponCode(v),
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: GroceryColors.textPrimary(isDark),
+                    ),
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. SAVE10',
+                      hintStyle: TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 5),
+              InkWell(
+                onTap: () {
+                  final ok = provider.applyCouponCode(_couponCtrl.text);
+                  gSnack(
+                    context,
+                    ok
+                        ? (locale == 'bn' ? 'কুপন প্রয়োগ হয়েছে' : 'Coupon applied')
+                        : (locale == 'bn' ? 'অবৈধ কুপন' : 'Invalid coupon'),
+                    color: ok ? const Color(0xFF047857) : Colors.red.shade700,
+                  );
+                },
+                borderRadius: BorderRadius.circular(5),
+                child: Container(
+                  height: 27,
+                  padding: const EdgeInsets.symmetric(horizontal: 9),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF047857),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: const Text(
+                    'Apply',
+                    style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // Row 3: Note
+          Row(
+            children: [
+              SizedBox(
+                width: 52,
+                child: Text(
+                  'Note',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: GroceryColors.textPrimary(isDark),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  height: 27,
+                  decoration: BoxDecoration(
+                    color: isDark ? GroceryColors.cardBg(true) : Colors.white,
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                      color: isDark ? GroceryColors.border(true) : const Color(0xFFCBD5E1),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  alignment: Alignment.center,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _noteCtrl,
+                          onChanged: (v) => provider.setSalesNote(v),
+                          style: TextStyle(fontSize: 10.5, color: GroceryColors.textPrimary(isDark)),
+                          decoration: const InputDecoration(
+                            hintText: 'Add note...',
+                            hintStyle: TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ),
+                      const Icon(Icons.notes_rounded, size: 16, color: Color(0xFF059669)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _NumKey extends StatefulWidget {
-  final String label;
-  final bool isDark;
-  final bool isSpecial;
-  final VoidCallback onTap;
-  const _NumKey({
-    required this.label,
-    required this.isDark,
-    required this.isSpecial,
-    required this.onTap,
-  });
+// ── Dotted Divider ───────────────────────────────────────────
+class _DottedDivider extends StatelessWidget {
+  final Color color;
 
-  @override
-  State<_NumKey> createState() => _NumKeyState();
-}
-
-class _NumKeyState extends State<_NumKey> {
-  bool _down = false;
+  const _DottedDivider({this.color = const Color(0xFF86EFAC)});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _down = true),
-      onTapUp: (_) => setState(() => _down = false),
-      onTapCancel: () => setState(() => _down = false),
-      onTap: widget.onTap,
-      child: AnimatedScale(
-        scale: _down ? 0.92 : 1,
-        duration: const Duration(milliseconds: 60),
-        child: Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: widget.isSpecial
-                ? GroceryColors.primary.withValues(alpha: 0.12)
-                : (widget.isDark ? GroceryColors.inputBg(true) : Colors.white),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: GroceryColors.border(widget.isDark)),
-            boxShadow: GroceryColors.softShadow(widget.isDark),
-          ),
-          child: widget.label == '⌫'
-              ? Icon(Icons.backspace_outlined, size: 14, color: GroceryColors.primary)
-              : Text(
-                  widget.label,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: GroceryColors.textPrimary(widget.isDark),
-                  ),
+    const double height = 1.0;
+    const double dashWidth = 4.0;
+    const double dashSpace = 3.0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final boxWidth = constraints.constrainWidth();
+        final dashCount = (boxWidth / (dashWidth + dashSpace)).floor();
+        return SizedBox(
+          width: boxWidth,
+          height: height,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(dashCount, (_) {
+              return SizedBox(
+                width: dashWidth,
+                height: height,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(color: color),
                 ),
-        ),
-      ),
+              );
+            }),
+          ),
+        );
+      },
     );
   }
 }
@@ -1022,113 +802,332 @@ class _PaymentSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locale = context.watch<AppProvider>().locale;
     final isDark = context.watch<AppProvider>().isDarkMode;
     final p = context.watch<GroceryProvider>();
 
-    Widget row(String label, String value, {bool bold = false, Color? valueColor}) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 0.7),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: bold ? 11.5 : 9.5,
-                fontWeight: bold ? FontWeight.w900 : FontWeight.w600,
-                color: bold
-                    ? GroceryColors.textPrimary(isDark)
-                    : GroceryColors.textSecondary(isDark),
-              ),
-            ),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: bold ? 13.5 : 10,
-                fontWeight: FontWeight.w900,
-                color: valueColor ??
-                    (bold ? GroceryColors.primaryDark : GroceryColors.textPrimary(isDark)),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: isDark ? GroceryColors.inputBg(true) : GroceryColors.primarySoft,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: GroceryColors.border(isDark)),
+        color: isDark ? GroceryColors.inputBg(true) : const Color(0xFFF0FDF4),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDark ? GroceryColors.border(true) : const Color(0xFFDCFCE7),
+          width: 1.2,
+        ),
       ),
-      child: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            row(
-              AppStrings.get('subtotal', locale),
-              '${AppStrings.currency} ${NumberUtils.toLocalized(p.subtotal.toStringAsFixed(2), locale)}',
-            ),
-            row(
-              AppStrings.get('discount_label', locale),
-              '- ${AppStrings.currency} ${NumberUtils.toLocalized(p.totalDiscount.toStringAsFixed(2), locale)}',
-              valueColor: const Color(0xFFEF4444),
-            ),
-            row(
-              AppStrings.get('vat_label', locale),
-              '${AppStrings.currency} ${NumberUtils.toLocalized(p.vat.toStringAsFixed(2), locale)}',
-            ),
-            Divider(color: GroceryColors.border(isDark), height: 5),
-            row(
-              AppStrings.get('total', locale),
-              '${AppStrings.currency} ${NumberUtils.toLocalized(p.grandTotal.toStringAsFixed(2), locale)}',
-              bold: true,
-              valueColor: GroceryColors.primaryDark,
-            ),
-            Divider(color: GroceryColors.border(isDark), height: 5),
-            // Cash Tendered Row
-            row(
-              AppStrings.get('cash_tendered', locale),
-              '${AppStrings.currency} ${NumberUtils.toLocalized(p.tenderedAmount.toStringAsFixed(2), locale)}',
-              bold: p.tenderedAmount > 0,
-              valueColor: p.tenderedAmount > 0
-                  ? (isDark ? Colors.white : const Color(0xFF1E293B))
-                  : GroceryColors.textSecondary(isDark),
-            ),
-            // Change Return Row
-            row(
-              AppStrings.get('change_return', locale),
-              p.tenderedAmount >= p.grandTotal
-                  ? '${AppStrings.currency} ${NumberUtils.toLocalized(p.changeAmount.toStringAsFixed(2), locale)}'
-                  : (p.tenderedAmount > 0
-                      ? '- ${AppStrings.currency} ${NumberUtils.toLocalized(p.remainingDue.toStringAsFixed(2), locale)} (${locale == 'bn' ? 'বাকি' : 'Due'})'
-                      : '${AppStrings.currency} ${NumberUtils.toLocalized('0.00', locale)}'),
-              bold: p.tenderedAmount > 0,
-              valueColor: p.tenderedAmount >= p.grandTotal
-                  ? const Color(0xFF10B981)
-                  : (p.tenderedAmount > 0 ? const Color(0xFFEF4444) : GroceryColors.textSecondary(isDark)),
-            ),
-            if (p.totalSavings > 0) ...[
-              const SizedBox(height: 2),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1.5),
-                decoration: BoxDecoration(
-                  color: GroceryColors.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '${AppStrings.get('you_save', locale)} ${AppStrings.currency} ${NumberUtils.toLocalized(p.totalSavings.toStringAsFixed(2), locale)}',
-                  style: const TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
-                    color: GroceryColors.primaryDark,
-                  ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Subtotal',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
+              ),
+              Text(
+                '৳ ${p.subtotal.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: GroceryColors.textPrimary(isDark),
                 ),
               ),
             ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Tax (${p.taxRatePct}%)',
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
+              ),
+              Text(
+                '৳ ${p.vat.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: GroceryColors.textPrimary(isDark),
+                ),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 1.5),
+            child: _DottedDivider(color: Color(0xFF86EFAC)),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'NET TOTAL',
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w900,
+                  color: GroceryColors.textPrimary(isDark),
+                ),
+              ),
+              Text(
+                '৳ ${p.grandTotal.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 16.5,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF047857),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Cash Given:',
+                style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
+              ),
+              Text(
+                '৳ ${p.tenderedAmount.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
+                  color: GroceryColors.textPrimary(isDark),
+                ),
+              ),
+            ],
+          ),
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF064E3B) : const Color(0xFFD1FAE5),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF059669) : const Color(0xFFA7F3D0),
+                ),
+              ),
+              child: Text(
+                'Change: ৳ ${p.changeAmount.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? const Color(0xFFA7F3D0) : const Color(0xFF065F46),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Unified Bottom Checkout Card (4 Columns) ─────────────────
+class _BottomCheckoutCard extends StatelessWidget {
+  const _BottomCheckoutCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = context.watch<AppProvider>().isDarkMode;
+
+    return Container(
+      height: 175,
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: isDark ? GroceryColors.cardBg(true) : Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: GroceryColors.border(isDark)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 1. Column 1: Function Keys
+          const Expanded(
+            flex: 23,
+            child: _POSFunctionKeys(),
+          ),
+          const SizedBox(width: 5),
+          // 2. Column 2: Calculator Pad
+          const Expanded(
+            flex: 34,
+            child: _POSCalculatorPad(),
+          ),
+          const SizedBox(width: 5),
+          // Subtle Vertical Divider
+          VerticalDivider(
+            width: 1,
+            thickness: 1,
+            color: isDark ? GroceryColors.border(true) : const Color(0xFFE2E8F0),
+          ),
+          const SizedBox(width: 5),
+          // 3. Column 3: Payment Methods
+          const Expanded(
+            flex: 23,
+            child: _POSPaymentMethods(),
+          ),
+          const SizedBox(width: 5),
+          // 4. Column 4: Action Buttons (Hold, Pay, Save & Print)
+          const Expanded(
+            flex: 24,
+            child: _POSActionButtons(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Column 1: POS Function Keys ──────────────────────────────
+class _POSFunctionKeys extends StatelessWidget {
+  const _POSFunctionKeys();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = context.watch<AppProvider>().isDarkMode;
+    final provider = context.watch<GroceryProvider>();
+
+    return Column(
+      children: [
+        Expanded(
+          child: _fnBtn(
+            icon: Icons.search_rounded,
+            title: 'Price Check',
+            shortcut: 'F3',
+            isDark: isDark,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (_) => ChangeNotifierProvider.value(
+                  value: provider,
+                  child: const GroceryPriceCheckDialog(),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 3),
+        Expanded(
+          child: _fnBtn(
+            icon: Icons.crop_free_rounded,
+            title: 'Barcode Scan',
+            shortcut: 'F4',
+            isDark: isDark,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (_) => ChangeNotifierProvider.value(
+                  value: provider,
+                  child: const GroceryBarcodeDialog(),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 3),
+        Expanded(
+          child: _fnBtn(
+            icon: Icons.history_rounded,
+            title: 'Recent Sales',
+            shortcut: 'F5',
+            isDark: isDark,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (_) => ChangeNotifierProvider.value(
+                  value: provider,
+                  child: const GrocerySalesHistoryDialog(),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 3),
+        Expanded(
+          child: _fnBtn(
+            icon: Icons.replay_rounded,
+            title: 'Returns',
+            shortcut: 'F6',
+            isDark: isDark,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (_) => ChangeNotifierProvider.value(
+                  value: provider,
+                  child: const GroceryReturnDialog(),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _fnBtn({
+    required IconData icon,
+    required String title,
+    required String shortcut,
+    required bool isDark,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(6),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        decoration: BoxDecoration(
+          color: isDark ? GroceryColors.inputBg(true) : Colors.white,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: isDark ? GroceryColors.border(true) : const Color(0xFFE2E8F0)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: const Color(0xFF059669)),
+            const SizedBox(width: 5),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w700,
+                        color: GroceryColors.textPrimary(isDark),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 0.5),
+                    decoration: BoxDecoration(
+                      color: isDark ? GroceryColors.cardBg(true) : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(3),
+                      border: Border.all(color: isDark ? GroceryColors.border(true) : const Color(0xFFE2E8F0)),
+                    ),
+                    child: Text(
+                      shortcut,
+                      style: const TextStyle(
+                        fontSize: 7.5,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -1136,37 +1135,183 @@ class _PaymentSummary extends StatelessWidget {
   }
 }
 
-// ── Payment Methods ──────────────────────────────────────────
-class _PaymentMethods extends StatelessWidget {
-  const _PaymentMethods();
+// ── Column 2: 4x4 Calculator Pad ─────────────────────────────
+class _POSCalculatorPad extends StatelessWidget {
+  const _POSCalculatorPad();
 
   @override
   Widget build(BuildContext context) {
-    final locale = context.watch<AppProvider>().locale;
     final isDark = context.watch<AppProvider>().isDarkMode;
-    final selected = context.watch<GroceryProvider>().selectedPayment;
+    final provider = context.read<GroceryProvider>();
+
+    return Column(
+      children: [
+        // Row 1: 7, 8, 9, ⌫
+        Expanded(
+          child: Row(
+            children: [
+              _calcKey('7', isDark: isDark, onTap: () => provider.numpadPress('7')),
+              const SizedBox(width: 3),
+              _calcKey('8', isDark: isDark, onTap: () => provider.numpadPress('8')),
+              const SizedBox(width: 3),
+              _calcKey('9', isDark: isDark, onTap: () => provider.numpadPress('9')),
+              const SizedBox(width: 3),
+              _calcKey(
+                '⌫',
+                isDark: isDark,
+                isRed: true,
+                onTap: () => provider.numpadPress('⌫'),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 3),
+        // Row 2: 4, 5, 6, +
+        Expanded(
+          child: Row(
+            children: [
+              _calcKey('4', isDark: isDark, onTap: () => provider.numpadPress('4')),
+              const SizedBox(width: 3),
+              _calcKey('5', isDark: isDark, onTap: () => provider.numpadPress('5')),
+              const SizedBox(width: 3),
+              _calcKey('6', isDark: isDark, onTap: () => provider.numpadPress('6')),
+              const SizedBox(width: 3),
+              _calcKey('+', isDark: isDark, onTap: () {
+                if (provider.cart.isNotEmpty) {
+                  provider.updateQuantity(provider.cart.last.product.id, 1);
+                }
+              }),
+            ],
+          ),
+        ),
+        const SizedBox(height: 3),
+        // Row 3: 1, 2, 3, -
+        Expanded(
+          child: Row(
+            children: [
+              _calcKey('1', isDark: isDark, onTap: () => provider.numpadPress('1')),
+              const SizedBox(width: 3),
+              _calcKey('2', isDark: isDark, onTap: () => provider.numpadPress('2')),
+              const SizedBox(width: 3),
+              _calcKey('3', isDark: isDark, onTap: () => provider.numpadPress('3')),
+              const SizedBox(width: 3),
+              _calcKey('-', isDark: isDark, onTap: () {
+                if (provider.cart.isNotEmpty) {
+                  provider.updateQuantity(provider.cart.last.product.id, -1);
+                }
+              }),
+            ],
+          ),
+        ),
+        const SizedBox(height: 3),
+        // Row 4: 0, 00, ., - (green button)
+        Expanded(
+          child: Row(
+            children: [
+              _calcKey('0', isDark: isDark, onTap: () => provider.numpadPress('0')),
+              const SizedBox(width: 3),
+              _calcKey('00', isDark: isDark, onTap: () => provider.numpadPress('00')),
+              const SizedBox(width: 3),
+              _calcKey('.', isDark: isDark, onTap: () => provider.numpadPress('.')),
+              const SizedBox(width: 3),
+              _calcKey(
+                '-',
+                isDark: isDark,
+                isGreenAction: true,
+                onTap: () => provider.setExactTender(),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _calcKey(
+    String label, {
+    required bool isDark,
+    required VoidCallback onTap,
+    bool isRed = false,
+    bool isGreenAction = false,
+  }) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isGreenAction
+                ? const Color(0xFF047857)
+                : (isRed
+                    ? (isDark ? const Color(0xFF7F1D1D).withValues(alpha: 0.3) : const Color(0xFFFEF2F2))
+                    : (isDark ? GroceryColors.inputBg(true) : Colors.white)),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: isGreenAction
+                  ? const Color(0xFF047857)
+                  : (isRed
+                      ? (isDark ? const Color(0xFFEF4444).withValues(alpha: 0.4) : const Color(0xFFFECACA))
+                      : (isDark ? GroceryColors.border(true) : const Color(0xFFE2E8F0))),
+            ),
+          ),
+          child: isRed
+              ? const Icon(Icons.backspace_outlined, size: 14, color: Color(0xFFEF4444))
+              : isGreenAction
+                  ? Container(
+                      width: 12,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    )
+                  : Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: GroceryColors.textPrimary(isDark),
+                      ),
+                    ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Column 3: Payment Methods ────────────────────────────────
+class _POSPaymentMethods extends StatelessWidget {
+  const _POSPaymentMethods();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = context.watch<AppProvider>().isDarkMode;
+    final provider = context.watch<GroceryProvider>();
+    final selected = provider.selectedPayment;
 
     final methods = [
-      ('Cash', 'payment_cash', Icons.payments_outlined),
-      ('Card', 'payment_card', Icons.credit_card_rounded),
-      ('UPI / QR', 'payment_upi', Icons.qr_code_2_rounded),
-      ('Wallet', 'payment_wallet', Icons.account_balance_wallet_outlined),
-      ('Split', 'payment_split', Icons.call_split_rounded),
+      ('Cash', Icons.payments_outlined),
+      ('Card', Icons.credit_card_outlined),
+      ('UPI / QR', Icons.grid_view_rounded),
+      ('Wallet', Icons.account_balance_wallet_outlined),
+      ('Split Payment', Icons.layers_outlined),
     ];
 
-    return Row(
+    return Column(
       children: [
         for (int i = 0; i < methods.length; i++) ...[
-          if (i > 0) const SizedBox(width: 4),
+          if (i > 0) const SizedBox(height: 3),
           Expanded(
-            child: _buildChip(
-              context: context,
-              name: methods[i].$1,
-              labelKey: methods[i].$2,
-              icon: methods[i].$3,
-              isSelected: selected == methods[i].$1,
+            child: _payMethodBtn(
+              title: methods[i].$1,
+              icon: methods[i].$2,
+              isSelected: selected == methods[i].$1 || (selected == 'Split' && methods[i].$1 == 'Split Payment'),
               isDark: isDark,
-              locale: locale,
+              onTap: () {
+                final val = methods[i].$1 == 'Split Payment' ? 'Split' : methods[i].$1;
+                context.read<GroceryProvider>().setPayment(val);
+              },
             ),
           ),
         ],
@@ -1174,62 +1319,223 @@ class _PaymentMethods extends StatelessWidget {
     );
   }
 
-  Widget _buildChip({
-    required BuildContext context,
-    required String name,
-    required String labelKey,
+  Widget _payMethodBtn({
+    required String title,
     required IconData icon,
     required bool isSelected,
     required bool isDark,
-    required String locale,
+    required VoidCallback onTap,
   }) {
     return InkWell(
-      onTap: () => context.read<GroceryProvider>().setPayment(name),
+      onTap: onTap,
       borderRadius: BorderRadius.circular(6),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(vertical: 4.5, horizontal: 2),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
-          gradient: isSelected ? GroceryColors.primaryGradient : null,
-          color: isSelected ? null : (isDark ? GroceryColors.inputBg(true) : Colors.white),
+          color: isSelected
+              ? const Color(0xFF047857)
+              : (isDark ? GroceryColors.inputBg(true) : Colors.white),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: isSelected ? Colors.transparent : GroceryColors.border(isDark),
+            color: isSelected
+                ? const Color(0xFF047857)
+                : (isDark ? GroceryColors.border(true) : const Color(0xFFE2E8F0)),
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: GroceryColors.primary.withValues(alpha: 0.25),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
-                  ),
-                ]
-              : null,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
           children: [
             Icon(
               icon,
-              size: 13,
-              color: isSelected ? Colors.white : GroceryColors.primary,
+              size: 15,
+              color: isSelected
+                  ? Colors.white
+                  : (isDark ? GroceryColors.textSecondary(true) : const Color(0xFF64748B)),
             ),
-            const SizedBox(height: 1.5),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                AppStrings.get(labelKey, locale),
-                style: TextStyle(
-                  fontSize: 9.5,
-                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
-                  color: isSelected ? Colors.white : GroceryColors.textPrimary(isDark),
+            const SizedBox(width: 6),
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: isSelected ? Colors.white : GroceryColors.textPrimary(isDark),
+                  ),
                 ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+// ── Column 4: Hold, Pay, Print Buttons ─────────────────────────
+class _POSActionButtons extends StatelessWidget {
+  const _POSActionButtons();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = context.watch<AppProvider>().isDarkMode;
+    final locale = context.watch<AppProvider>().locale;
+    final provider = context.watch<GroceryProvider>();
+    final total = provider.grandTotal.toStringAsFixed(2);
+    final hasItems = provider.cart.isNotEmpty;
+
+    return Column(
+      children: [
+        // 1. Hold Bill (F7)
+        InkWell(
+          onTap: () {
+            if (!gRequireCart(context)) return;
+            final ok = context.read<GroceryProvider>().holdCurrentBill();
+            if (ok) gSnack(context, AppStrings.get('g_bill_held', locale));
+          },
+          borderRadius: BorderRadius.circular(6),
+          child: Container(
+            height: 33,
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            decoration: BoxDecoration(
+              color: isDark ? GroceryColors.inputBg(true) : Colors.white,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: const Color(0xFFF59E0B), width: 1.2),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.pause_circle_outline_rounded, size: 15, color: Color(0xFFD97706)),
+                const SizedBox(width: 4),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'Hold Bill (F7)',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : const Color(0xFF1E293B),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 3),
+        // 2. Pay Button (Sage Green when empty, Light/Bright Emerald Green when cart has items)
+        Expanded(
+          child: InkWell(
+            onTap: () {
+              if (!gRequireCart(context)) return;
+              showDialog(
+                context: context,
+                builder: (_) => ChangeNotifierProvider.value(
+                  value: provider,
+                  child: const GroceryCheckoutDialog(),
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(6),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: hasItems ? const Color(0xFF10B981) : const Color(0xFF86B8A5),
+                gradient: hasItems
+                    ? const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF34D399), Color(0xFF10B981)],
+                      )
+                    : null,
+                borderRadius: BorderRadius.circular(6),
+                boxShadow: [
+                  BoxShadow(
+                    color: hasItems
+                        ? const Color(0xFF10B981).withValues(alpha: 0.4)
+                        : const Color(0xFF86B8A5).withValues(alpha: 0.25),
+                    blurRadius: hasItems ? 6 : 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Pay',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Text(
+                        '৳ $total',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 3),
+        // 3. Save & Print Bill
+        InkWell(
+          onTap: () {
+            if (!gRequireCart(context)) return;
+            showDialog(
+              context: context,
+              builder: (_) => ChangeNotifierProvider.value(
+                value: provider,
+                child: const GroceryBillPrintDialog(),
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(6),
+          child: Container(
+            height: 30,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            decoration: BoxDecoration(
+              color: isDark ? GroceryColors.inputBg(true) : Colors.white,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: isDark ? GroceryColors.border(true) : const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.print_outlined, size: 13, color: Color(0xFF94A3B8)),
+                const SizedBox(width: 4),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'Save & Print Bill',
+                    style: TextStyle(
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? GroceryColors.textSecondary(true) : const Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1377,22 +1683,30 @@ class _MobilePayButtons extends StatelessWidget {
                   ),
                 );
               },
-              borderRadius: BorderRadius.circular(8),
-              child: Ink(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                height: 44,
                 decoration: BoxDecoration(
-                  gradient: GroceryColors.payGradient,
+                  color: p.cart.isNotEmpty ? const Color(0xFF10B981) : const Color(0xFF86B8A5),
+                  gradient: p.cart.isNotEmpty
+                      ? const LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [Color(0xFF34D399), Color(0xFF10B981)],
+                        )
+                      : null,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: GroceryColors.primary.withValues(alpha: 0.35),
-                      blurRadius: 6,
+                      color: p.cart.isNotEmpty
+                          ? const Color(0xFF10B981).withValues(alpha: 0.4)
+                          : const Color(0xFF86B8A5).withValues(alpha: 0.25),
+                      blurRadius: p.cart.isNotEmpty ? 6 : 3,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-                child: Container(
-                  height: 44,
-                  alignment: Alignment.center,
+                alignment: Alignment.center,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -1422,244 +1736,8 @@ class _MobilePayButtons extends StatelessWidget {
               ),
             ),
           ),
-        ),
       ],
     );
   }
 }
 
-// ── Pay Buttons ──────────────────────────────────────────────
-class _PayButtons extends StatelessWidget {
-  const _PayButtons();
-
-  @override
-  Widget build(BuildContext context) {
-    final locale = context.watch<AppProvider>().locale;
-    final isDark = context.watch<AppProvider>().isDarkMode;
-    final p = context.watch<GroceryProvider>();
-    final total = NumberUtils.toLocalized(p.grandTotal.toStringAsFixed(2), locale);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // 1. Hold Button
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              if (!gRequireCart(context)) return;
-              final ok = context.read<GroceryProvider>().holdCurrentBill();
-              if (ok) gSnack(context, AppStrings.get('g_bill_held', locale));
-            },
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              width: double.infinity,
-              height: 50,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: isDark ? GroceryColors.inputBg(true) : const Color(0xFFFFFBEB),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isDark ? const Color(0xFFD97706).withValues(alpha: 0.4) : const Color(0xFFFCD34D),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Icon(Icons.pause_circle_outline_rounded, size: 18, color: Color(0xFFD97706)),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          AppStrings.get('hold_f7', locale),
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E),
-                          ),
-                        ),
-                        Text(
-                          locale == 'bn' ? 'বিল হোল্ড করুন' : 'Hold Current Order',
-                          style: TextStyle(
-                            fontSize: 9.5,
-                            color: GroceryColors.textSecondary(isDark),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (p.heldBills.isNotEmpty)
-                    InkWell(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => ChangeNotifierProvider.value(
-                            value: p,
-                            child: const GroceryHeldBillsDialog(),
-                          ),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF59E0B),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          '${p.heldBills.length}',
-                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 6),
-        // 2. Pay Button (Prominent Main Action)
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              if (!gRequireCart(context)) return;
-              showDialog(
-                context: context,
-                builder: (_) => ChangeNotifierProvider.value(
-                  value: p,
-                  child: const GroceryCheckoutDialog(),
-                ),
-              );
-            },
-            borderRadius: BorderRadius.circular(8),
-            child: Ink(
-              decoration: BoxDecoration(
-                gradient: GroceryColors.payGradient,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: GroceryColors.primary.withValues(alpha: 0.35),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Container(
-                width: double.infinity,
-                height: 76,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.check_circle_rounded, color: Colors.white, size: 15),
-                        const SizedBox(width: 5),
-                        Text(
-                          AppStrings.get('pay', locale),
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.white),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
-                      ],
-                    ),
-                    const SizedBox(height: 3),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        '${AppStrings.currency} $total',
-                        style: const TextStyle(
-                          fontSize: 19,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 6),
-        // 3. Save & Print Bill Button
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              if (!gRequireCart(context)) return;
-              showDialog(
-                context: context,
-                builder: (_) => ChangeNotifierProvider.value(
-                  value: p,
-                  child: const GroceryBillPrintDialog(),
-                ),
-              );
-            },
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              width: double.infinity,
-              height: 50,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: isDark ? GroceryColors.inputBg(true) : Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: GroceryColors.primary.withValues(alpha: 0.45)),
-                boxShadow: GroceryColors.softShadow(isDark),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: GroceryColors.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Icon(Icons.print_rounded, size: 18, color: GroceryColors.primary),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          AppStrings.get('save_print_bill', locale),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: GroceryColors.primaryDark,
-                          ),
-                        ),
-                        Text(
-                          locale == 'bn' ? 'রসিদ প্রিন্ট করুন' : 'Print Receipt',
-                          style: TextStyle(
-                            fontSize: 9.5,
-                            color: GroceryColors.textSecondary(isDark),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Icon(Icons.chevron_right_rounded, size: 18, color: Colors.grey),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}

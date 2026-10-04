@@ -322,6 +322,8 @@ class WholesalerProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
+      final systemTax = await ApiService.instance.fetchDefaultTaxRate(businessType: businessType);
+      _taxRate = systemTax;
       final apiProducts = await ApiService.instance.fetchProducts(businessType: businessType);
       if (apiProducts.isNotEmpty) {
         final List<WProduct> loaded = [];
@@ -615,8 +617,9 @@ class WholesalerProvider extends ChangeNotifier {
     _pushCartToBackend();
   }
 
-  double get taxRate => 0.15; // 15% VAT Mushak-6.3
-  double get taxAmount => (subtotal - _discountFlat).clamp(0, double.infinity) * taxRate;
+  double _taxRate = 0.15; // 15% VAT Mushak-6.3
+  double get taxRate => _taxRate;
+  double get taxAmount => (subtotal - _discountFlat).clamp(0, double.infinity) * _taxRate;
 
   double _shippingCost = 0.0;
   double get shippingCost => _shippingCost;
