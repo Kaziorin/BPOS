@@ -82,7 +82,11 @@ class POSHeader extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: isMobile
-                          ? _RightIcons(isMobile: true, locale: locale)
+                          ? FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerRight,
+                              child: _RightIcons(isMobile: true, locale: locale),
+                            )
                           : SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               physics: const BouncingScrollPhysics(),
