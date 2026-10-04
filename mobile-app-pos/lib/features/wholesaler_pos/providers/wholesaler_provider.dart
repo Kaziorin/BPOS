@@ -80,14 +80,12 @@ class WOrderItem {
   double unitPrice;
 
   WOrderItem({required this.product, this.qty = 1, double? unitPrice})
-      : unitPrice = unitPrice ?? product.price;
+      : unitPrice = unitPrice ?? product.b2bPrice;
 
   double get lineTotal => qty * unitPrice;
 
-  /// Return B2B or bulk price if applicable
-  double effectivePrice(bool isBulk) {
-    if (isBulk || qty >= product.bulkMinQty) return product.bulkPrice;
-    return product.b2bPrice;
+  double effectivePrice([bool? isBulk]) {
+    return unitPrice;
   }
 }
 
@@ -331,11 +329,10 @@ class WholesalerProvider extends ChangeNotifier {
           final p = apiProducts[i];
           final sellingPrice = (p['sellingPrice'] as num?)?.toDouble() ??
               (p['price'] as num?)?.toDouble() ??
-              (double.tryParse(p['sellingPrice']?.toString() ?? '') ?? 500.0);
-          final wholesalePrice = (p['wholesalePrice'] as num?)?.toDouble() ?? sellingPrice;
+              (double.tryParse(p['sellingPrice']?.toString() ?? '') ?? 0.0);
           final price = sellingPrice;
-          final b2bPrice = wholesalePrice;
-          final bulkPrice = b2bPrice * 0.95;
+          final b2bPrice = price;
+          final bulkPrice = price;
 
           final rawStock = (p['totalStock'] as num?)?.toDouble() ??
               (p['stock'] as num?)?.toDouble() ??
@@ -374,92 +371,7 @@ class WholesalerProvider extends ChangeNotifier {
     }
   }
 
-  final List<WProduct> _allProducts = [
-    const WProduct(
-      id: 'p1', name: 'Noise Cancelling Headphones', sku: 'EL-HP-1001',
-      warehouseId: 'WH-01', category: 'Electronics',
-      price: 65.0, b2bPrice: 60.0, bulkPrice: 55.0, bulkMinQty: 10,
-      stock: 145, stockStatus: WStockStatus.inStock,
-      emoji: '🎧', imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&fit=crop&q=80',
-    ),
-    WProduct(
-      id: 'p2', name: 'Smart Watch Series 8', sku: 'SW-2008',
-      warehouseId: 'WH-01', category: 'Electronics',
-      price: 120.0, b2bPrice: 110.0, bulkPrice: 100.0, bulkMinQty: 5,
-      stock: 88, stockStatus: WStockStatus.inStock,
-      emoji: '⌚', imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&fit=crop&q=80',
-    ),
-    WProduct(
-      id: 'p3', name: 'Portable Bluetooth Speaker', sku: 'SP-3001',
-      warehouseId: 'WH-02', category: 'Electronics',
-      price: 45.0, b2bPrice: 40.0, bulkPrice: 35.0, bulkMinQty: 20,
-      stock: 230, stockStatus: WStockStatus.inStock,
-      emoji: '🔊', imageUrl: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=400&fit=crop&q=80',
-    ),
-    WProduct(
-      id: 'p4', name: 'Kitchen Blender Pro', sku: 'KB-5002',
-      warehouseId: 'WH-02', category: 'Home Appliances',
-      price: 85.0, b2bPrice: 78.0, bulkPrice: 70.0, bulkMinQty: 10,
-      stock: 67, stockStatus: WStockStatus.inStock,
-      emoji: '🥤', imageUrl: 'https://images.unsplash.com/photo-1570222094114-d054a817e56b?w=400&fit=crop&q=80',
-    ),
-    WProduct(
-      id: 'p5', name: 'Smartphone X Pro', sku: 'MB-XP-256',
-      warehouseId: 'WH-02', category: 'Mobiles',
-      price: 680.0, b2bPrice: 650.0, bulkPrice: 620.0, bulkMinQty: 5,
-      stock: 12, stockStatus: WStockStatus.lowStock,
-      emoji: '📱', imageUrl: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&fit=crop&q=80',
-    ),
-    WProduct(
-      id: 'p6', name: '24" Full HD Monitor', sku: 'MN-2401',
-      warehouseId: 'WH-01', category: 'Computers',
-      price: 150.0, b2bPrice: 138.0, bulkPrice: 125.0, bulkMinQty: 5,
-      stock: 43, stockStatus: WStockStatus.inStock,
-      emoji: '🖥️', imageUrl: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&fit=crop&q=80',
-    ),
-    WProduct(
-      id: 'p7', name: 'All-in-One Printer', sku: 'PR-6001',
-      warehouseId: 'WH-01', category: 'Computers',
-      price: 210.0, b2bPrice: 195.0, bulkPrice: 180.0, bulkMinQty: 3,
-      stock: 28, stockStatus: WStockStatus.inStock,
-      emoji: '🖨️', imageUrl: 'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=400&fit=crop&q=80',
-    ),
-    WProduct(
-      id: 'p8', name: 'Ergonomic Office Chair', sku: 'CH-7001',
-      warehouseId: 'WH-03', category: 'Office Supplies',
-      price: 155.0, b2bPrice: 142.0, bulkPrice: 130.0, bulkMinQty: 5,
-      stock: 35, stockStatus: WStockStatus.inStock,
-      emoji: '🪑', imageUrl: 'https://images.unsplash.com/photo-1580481077195-c3a821a58875?w=400&fit=crop&q=80',
-    ),
-    WProduct(
-      id: 'p9', name: 'Wireless Keyboard & Mouse', sku: 'KM-9001',
-      warehouseId: 'WH-01', category: 'Accessories',
-      price: 35.0, b2bPrice: 30.0, bulkPrice: 26.0, bulkMinQty: 20,
-      stock: 192, stockStatus: WStockStatus.inStock,
-      emoji: '⌨️', imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&fit=crop&q=80',
-    ),
-    WProduct(
-      id: 'p10', name: '32GB USB 3.0 Drive', sku: 'USB-32GB',
-      warehouseId: 'WH-01', category: 'Accessories',
-      price: 12.0, b2bPrice: 10.0, bulkPrice: 8.0, bulkMinQty: 50,
-      stock: 540, stockStatus: WStockStatus.inStock,
-      emoji: '💾', imageUrl: 'https://images.unsplash.com/photo-1618764400608-9e7115eabb74?w=400&fit=crop&q=80',
-    ),
-    WProduct(
-      id: 'p11', name: 'Laptop Stand Aluminum', sku: 'LS-1102',
-      warehouseId: 'WH-02', category: 'Accessories',
-      price: 28.0, b2bPrice: 24.0, bulkPrice: 20.0, bulkMinQty: 30,
-      stock: 8, stockStatus: WStockStatus.lowStock,
-      emoji: '💻', imageUrl: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=200',
-    ),
-    WProduct(
-      id: 'p12', name: 'LED Desk Lamp', sku: 'DL-4401',
-      warehouseId: 'WH-03', category: 'Office Supplies',
-      price: 22.0, b2bPrice: 18.0, bulkPrice: 15.0, bulkMinQty: 25,
-      stock: 115, stockStatus: WStockStatus.inStock,
-      emoji: '💡', imageUrl: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=200',
-    ),
-  ];
+  final List<WProduct> _allProducts = [];
 
   List<WProduct> get allProducts => _allProducts;
 
@@ -623,11 +535,11 @@ class WholesalerProvider extends ChangeNotifier {
         return false; // Stock limit reached!
       }
       _items[existingIndex].qty++;
-      _items[existingIndex].unitPrice = _items[existingIndex].effectivePrice(_isBulkPricing);
+      _items[existingIndex].unitPrice = p.price;
     } else {
       _items.add(WOrderItem(
         product: p,
-        unitPrice: _isBulkPricing ? p.bulkPrice : p.b2bPrice,
+        unitPrice: p.price,
       ));
     }
     notifyListeners();
@@ -643,7 +555,7 @@ class WholesalerProvider extends ChangeNotifier {
         return false; // Stock limit reached
       }
       item.qty++;
-      item.unitPrice = item.effectivePrice(_isBulkPricing);
+      item.unitPrice = item.product.price;
       notifyListeners();
       _pushCartToBackend();
       return true;
@@ -655,7 +567,7 @@ class WholesalerProvider extends ChangeNotifier {
     final item = _items.firstWhere((i) => i.product.id == productId);
     if (item.qty > 1) {
       item.qty--;
-      item.unitPrice = item.effectivePrice(_isBulkPricing);
+      item.unitPrice = item.product.price;
     } else {
       _items.removeWhere((i) => i.product.id == productId);
     }
@@ -672,7 +584,7 @@ class WholesalerProvider extends ChangeNotifier {
         final maxStock = _items[index].product.stock;
         final finalQty = (maxStock > 0 && newQty > maxStock) ? maxStock : newQty;
         _items[index].qty = finalQty;
-        _items[index].unitPrice = _items[index].effectivePrice(_isBulkPricing);
+        _items[index].unitPrice = _items[index].product.price;
       }
       notifyListeners();
       _pushCartToBackend();

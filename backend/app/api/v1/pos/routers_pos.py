@@ -125,16 +125,20 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     for it in items:
         p_id = it.get("productId")
         if p_id:
-            p_exist = (await db.execute(text("SELECT id FROM products WHERE id=:p AND tenantId=:t"), {"p": p_id, "t": tenant})).first()
+            p_exist = (await db.execute(text("SELECT id FROM products WHERE id=:p"), {"p": p_id})).first()
             if not p_exist:
                 u_val = getattr(user, "id", None)
                 if not u_val:
                     u_row = (await db.execute(text("SELECT id FROM users LIMIT 1"))).first()
                     u_val = u_row[0] if u_row else "system"
+                sku_val = it.get("sku") or p_id
+                sku_exist = (await db.execute(text("SELECT id FROM products WHERE tenantId=:t AND sku=:sku"), {"t": tenant, "sku": sku_val})).first()
+                if sku_exist:
+                    sku_val = f"{sku_val}-{_uuid_str()[:6]}"
                 await db.execute(text(
                     "INSERT INTO products (id, tenantId, name, sku, productType, status, sellingPrice, createdBy, updatedAt) "
                     "VALUES (:id, :t, :n, :sku, 'SERVICE', 'ACTIVE', :sp, :u, NOW())"),
-                    {"id": p_id, "t": tenant, "n": it.get("name", "Demo Item"), "sku": p_id, "sp": float(it.get("unitPrice", 0)), "u": u_val})
+                    {"id": p_id, "t": tenant, "n": it.get("name", "Demo Item"), "sku": sku_val, "sp": float(it.get("unitPrice", 0)), "u": u_val})
                 await db.commit()
 
     # stock check
@@ -189,6 +193,7 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     service = float(body.get("serviceCharge", 0) or 0)
     delivery = float(body.get("deliveryFee") or body.get("shipping") or body.get("shippingTotal") or 0)
     tips = float(body.get("tips", 0) or 0)
+    roundOff = float(body.get("roundOff", 0) or 0)
     total = round(max(subtotal - discountTotal + exclusive_tax_total + service + delivery + tips + roundOff, 0), 2)
     tendered = round(sum(float(p.get("amount", 0)) for p in payments), 2)
     paid = min(tendered, total)

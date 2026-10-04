@@ -644,11 +644,17 @@ async def list_sales_orders(
             ) AS combined_b2b_orders
             ORDER BY createdAt DESC LIMIT :lim OFFSET :off
         """), {**params, "lim": lim, "off": off})).fetchall())
-    elif src_norm in ("POS", "RETAIL", "RESTAURANT"):
-        if src_norm == "RESTAURANT":
+    elif src_norm in ("POS", "RETAIL", "RESTAURANT", "PHARMACY", "GROCERY", "WHOLESALE", "WHOLESALER"):
+        if src_norm == "POS":
+            pos_where += " AND (s.source IS NULL OR s.source IN ('POS', 'RETAIL', 'GROCERY', 'PHARMACY'))"
+        elif src_norm == "RESTAURANT":
             pos_where += " AND s.source = 'RESTAURANT'"
+        elif src_norm in ("WHOLESALE", "WHOLESALER"):
+            pos_where += " AND s.source IN ('WHOLESALE', 'WHOLESALER', 'B2B')"
+        elif src_norm == "RETAIL":
+            pos_where += " AND (s.source = 'RETAIL' OR s.source = 'POS' OR s.source IS NULL)"
         else:
-            pos_where += " AND (s.source IS NULL OR s.source = 'POS')"
+            pos_where += f" AND (s.source = '{src_norm}' OR s.source = 'POS' OR s.source IS NULL)"
         total = (await db.execute(text(f"SELECT COUNT(*) FROM sales s LEFT JOIN customers c ON c.id = s.customerId WHERE {pos_where}"), params)).scalar() or 0
         total_vol = (await db.execute(text(f"SELECT COALESCE(SUM(s.total), 0) FROM sales s LEFT JOIN customers c ON c.id = s.customerId WHERE {pos_where}"), params)).scalar() or 0
         rows = rows_to_dicts((await db.execute(text(f"""
