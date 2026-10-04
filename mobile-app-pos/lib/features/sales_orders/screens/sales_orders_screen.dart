@@ -455,6 +455,45 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
       ),
       child: Row(
         children: [
+          // Back button on web/desktop view (only shown if there is a previous route)
+          if (!isMobile && (ModalRoute.of(context)?.canPop ?? false)) ...[
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  } else {
+                    Navigator.of(context).maybePop();
+                  }
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E1D24) : Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: borderColor),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_rounded,
+                    size: 20,
+                    color: textPrimary,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+          ],
+
           // Switch business if multi-business
           if (user != null && user.isMultiBusiness) ...[
             IconButton(

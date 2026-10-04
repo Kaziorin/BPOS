@@ -272,10 +272,16 @@ class _RetailHeaderState extends State<RetailHeader> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
               children: [
-                // 1. Back Button (only shown on desktop / tablet >= 900px)
-                if (!isMobile) ...[
+                // 1. Back Button (only shown on desktop / tablet >= 900px and if can pop)
+                if (!isMobile && (ModalRoute.of(context)?.canPop ?? false)) ...[
                   InkWell(
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      } else {
+                        Navigator.of(context).maybePop();
+                      }
+                    },
                     borderRadius: BorderRadius.circular(4),
                     child: Container(
                       width: 36,

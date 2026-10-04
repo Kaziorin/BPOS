@@ -135,15 +135,21 @@ class PharmacyHeader extends StatelessWidget {
                 ),
                 const SizedBox(width: 2),
 
-                // Sales History Button
+                // Home Button (on mobile view)
                 IconButton(
-                  onPressed: () => showLiveSalesHistoryDialog(context, businessType: 'pharmacy'),
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context).maybePop();
+                    }
+                  },
                   icon: const Icon(
-                    Icons.receipt_long_rounded,
+                    Icons.home_rounded,
                     color: primaryTeal,
                     size: 20,
                   ),
-                  tooltip: 'Sales History',
+                  tooltip: 'Home',
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                 ),
@@ -174,42 +180,44 @@ class PharmacyHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          // ── BACK BUTTON (Web/Desktop) ──
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                if (Navigator.of(context).canPop()) {
-                  Navigator.of(context).pop();
-                } else {
-                  Navigator.of(context).maybePop();
-                }
-              },
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: context.isDark ? context.surfaceColor : Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: context.dividerColor),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.arrow_back_rounded,
-                  size: 20,
-                  color: context.isDark ? Colors.white : Colors.grey.shade800,
+          // ── BACK BUTTON (Web/Desktop - only shown if can pop) ──
+          if (ModalRoute.of(context)?.canPop ?? false) ...[
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  } else {
+                    Navigator.of(context).maybePop();
+                  }
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: context.isDark ? context.surfaceBg : Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: context.dividerColor),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_rounded,
+                    size: 20,
+                    color: context.isDark ? Colors.white : Colors.grey.shade800,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
+            const SizedBox(width: 12),
+          ],
 
           // ── LOGO ──
           Row(

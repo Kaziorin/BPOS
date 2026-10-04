@@ -36,8 +36,8 @@ class GroceryHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Back button on web/desktop view
-          if (!isMobile) ...[
+          // Back button on web/desktop view (only shown if there is a previous route)
+          if (!isMobile && (ModalRoute.of(context)?.canPop ?? false)) ...[
             _BackBtn(isDark: isDark),
             const SizedBox(width: 10),
           ],
@@ -55,15 +55,17 @@ class GroceryHeader extends StatelessWidget {
           ],
 
           const SizedBox(width: 8),
-          // Fullscreen
-          FullscreenButton(
-            builder: (context, isFull, toggle) => _IconChip(
-              icon: isFull ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
-              isDark: isDark,
-              onTap: toggle,
+          // Fullscreen (Desktop only)
+          if (!isMobile) ...[
+            FullscreenButton(
+              builder: (context, isFull, toggle) => _IconChip(
+                icon: isFull ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
+                isDark: isDark,
+                onTap: toggle,
+              ),
             ),
-          ),
-          const SizedBox(width: 6),
+            const SizedBox(width: 6),
+          ],
           // Theme
           _IconChip(
             icon: app.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
