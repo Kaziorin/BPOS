@@ -62,16 +62,13 @@ class _PharmacyPOSScreenState extends State<PharmacyPOSScreen> {
                     ),
                     const Divider(height: 1),
 
-                    // Category on top of products (Sidebar removed on mobile)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      child: CategorySelector(),
-                    ),
+                    // Unified Category & Quick Filter Toolbar on Mobile
+                    const CategorySelector(),
 
                     // Products Area
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 0),
                         child: Column(
                           children: [
                             const Expanded(

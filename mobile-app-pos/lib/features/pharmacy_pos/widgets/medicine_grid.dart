@@ -25,42 +25,43 @@ class MedicineGrid extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Top Navigation/Filter Bar ──
-        Row(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _filterTags.map((tag) {
-                    final label = tag['label'] as String;
-                    final isSelected = provider.selectedFilterTag == label;
-                    final color = tag['color'] as Color?;
+        // ── Top Navigation/Filter Bar (Desktop/Web only; on mobile it's handled by CategorySelector) ──
+        if (!isMobile) ...[
+          Row(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: _filterTags.map((tag) {
+                      final label = tag['label'] as String;
+                      final isSelected = provider.selectedFilterTag == label;
+                      final color = tag['color'] as Color?;
 
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: InkWell(
-                        onTap: () => provider.setFilterTag(label),
-                        borderRadius: BorderRadius.circular(10),
-                        child: _NavButton(
-                          label: label,
-                          icon: tag['icon'] as IconData?,
-                          iconColor: color,
-                          isSelected: isSelected,
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: InkWell(
+                          onTap: () => provider.setFilterTag(label),
+                          borderRadius: BorderRadius.circular(10),
+                          child: _NavButton(
+                            label: label,
+                            icon: tag['icon'] as IconData?,
+                            iconColor: color,
+                            isSelected: isSelected,
+                          ),
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            // ── Sort & Filter Section ──
-            _buildSortAndFilter(context, provider),
-          ],
-        ),
-        
-        SizedBox(height: isMobile ? 10 : 16),
+              const SizedBox(width: 8),
+              // ── Sort & Filter Section ──
+              _buildSortAndFilter(context, provider),
+            ],
+          ),
+          const SizedBox(height: 16),
+        ],
         
         // ── Medicine Grid ──
         Expanded(

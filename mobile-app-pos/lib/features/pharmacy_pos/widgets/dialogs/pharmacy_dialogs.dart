@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/services/api_service.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../models/medicine_model.dart';
 import '../../models/pharmacy_cart_item.dart';
@@ -25,12 +26,27 @@ void showPharmacyCustomerDialog(BuildContext context, PharmacyProvider provider)
     {'name': 'Nusrat Jahan', 'phone': '01655443322', 'points': 90, 'allergy': 'Aspirin'},
   ];
 
+  // Merge API customers with defaults (API takes priority if non-empty)
+  final List<Map<String, dynamic>> allCustomers;
+  if (provider.customersLoaded && provider.apiCustomers.isNotEmpty) {
+    // Map API customer fields to the format used by the dialog
+    allCustomers = provider.apiCustomers.map((c) => {
+      'id': c['id']?.toString() ?? '',
+      'name': c['name']?.toString() ?? 'Unknown',
+      'phone': c['phone']?.toString() ?? 'N/A',
+      'points': (c['loyaltyPoints'] as num?)?.toInt() ?? 0,
+      'allergy': c['allergy']?.toString() ?? 'None',
+    }).toList();
+  } else {
+    allCustomers = defaultCustomers;
+  }
+
   showDialog(
     context: context,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) {
         final query = searchCtrl.text.toLowerCase();
-        final filtered = defaultCustomers.where((c) =>
+        final filtered = allCustomers.where((c) =>
           c['name'].toString().toLowerCase().contains(query) ||
           c['phone'].toString().contains(query)
         ).toList();
@@ -191,7 +207,7 @@ void showPharmacyCustomerDialog(BuildContext context, PharmacyProvider provider)
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (nameCtrl.text.trim().isEmpty) return;
                       final newCust = {
                         'name': nameCtrl.text.trim(),
@@ -199,11 +215,29 @@ void showPharmacyCustomerDialog(BuildContext context, PharmacyProvider provider)
                         'points': 0,
                         'allergy': allergyCtrl.text.trim().isEmpty ? 'None' : allergyCtrl.text.trim(),
                       };
-                      provider.setCustomer(newCust);
-                      Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Added & selected "${newCust['name']}"'), duration: const Duration(seconds: 1)),
-                      );
+                      // Try to save to backend
+                      try {
+                        final nav = Navigator.of(ctx);
+                        final sm = ScaffoldMessenger.of(context);
+                        final saved = await ApiService.instance.createCustomer(
+                          businessType: 'pharmacy',
+                          payload: {
+                            'name': newCust['name'],
+                            'phone': newCust['phone'] != 'N/A' ? newCust['phone'] : null,
+                          },
+                        );
+                        if (saved != null) {
+                          newCust['id'] = saved['id']?.toString() ?? '';
+                        }
+                        provider.setCustomer(newCust);
+                        nav.pop();
+                        sm.showSnackBar(
+                          SnackBar(content: Text('Added & selected "${newCust['name']}"'), duration: const Duration(seconds: 1)),
+                        );
+                      } catch (_) {
+                        provider.setCustomer(newCust);
+                        if (ctx.mounted) Navigator.pop(ctx);
+                      }
                     },
                     child: const Text('Add & Select Patient'),
                   ),
@@ -790,6 +824,7 @@ void showPharmacyAddMedicineDialog(BuildContext context, PharmacyProvider provid
 void showPharmacyGenericAlternativesDialog(BuildContext context, PharmacyProvider provider) {
   final isDark = context.isDark;
   final current = provider.focusedMedicine;
+  if (current == null) return;
   final alternatives = provider.getAlternativesFor(current);
 
   showDialog(
@@ -1699,9 +1734,9 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                           const SizedBox(height: 3),
                           Row(
                             children: [
-                              const Text('Tax / VAT (5%):   ', style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
+                              const Text('Tax / VAT:   ', style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
                               Text(
-                                '৳${tax.toStringAsFixed(2)}',
+                                'VAT (${widget.provider.taxRatePct}%) = ৳${tax.toStringAsFixed(2)}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -2693,7 +2728,7 @@ class PharmacyReceiptModal extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'VAT (Mushak 6.3 - 5%):',
+                        'VAT (Mushak 6.3):',
                         style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
                       ),
                       Text(

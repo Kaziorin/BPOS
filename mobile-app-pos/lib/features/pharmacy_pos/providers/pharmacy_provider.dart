@@ -8,6 +8,17 @@ class PharmacyProvider extends ChangeNotifier {
     loadProducts(businessType: 'pharmacy');
   }
 
+  // System VAT rate fetched from API (e.g., 0.15 for 15%)
+  double _taxRate = 0.15; // default fallback 15%
+  double get taxRate => _taxRate;
+  int get taxRatePct => (_taxRate * 100).round();
+
+  // API-loaded customers
+  List<Map<String, dynamic>> _apiCustomers = [];
+  bool _customersLoaded = false;
+  List<Map<String, dynamic>> get apiCustomers => _apiCustomers;
+  bool get customersLoaded => _customersLoaded;
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -15,6 +26,11 @@ class PharmacyProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
+      // 1. Fetch system VAT rate from API
+      final systemTax = await ApiService.instance.fetchDefaultTaxRate(businessType: businessType);
+      _taxRate = systemTax;
+
+      // 2. Fetch products from API
       final apiProducts = await ApiService.instance.fetchProducts(businessType: businessType);
       if (apiProducts.isNotEmpty) {
         final List<MedicineModel> loaded = [];
@@ -29,16 +45,24 @@ class PharmacyProvider extends ChangeNotifier {
               (p['stock_qty'] as num?)?.toDouble() ??
               0.0;
           final stock = rawStock <= 0 ? 0 : rawStock.toInt();
+          // Extract pharmacy attributes if present
+          final attrs = p['attributes'] is Map ? p['attributes'] as Map : {};
+          final pharmaAttrs = attrs['pharmacy'] is Map ? attrs['pharmacy'] as Map : {};
+          final genericNameApi = pharmaAttrs['genericName']?.toString() ?? p['description']?.toString() ?? 'General Medicine';
+          final dosageForm = pharmaAttrs['dosageForm']?.toString() ?? 'Tablet';
+          final isPrescription = pharmaAttrs['isPrescriptionRequired'] == true;
+          final mfr = pharmaAttrs['manufacturer']?.toString();
+          final catVal = p['category'] is Map ? (p['category']['name'] ?? 'General').toString() : (p['category']?.toString() ?? 'General');
           loaded.add(MedicineModel(
             id: p['id']?.toString() ?? 'm-$i',
             name: p['name']?.toString() ?? 'Medicine $i',
-            genericName: p['description']?.toString() ?? 'General Medicine',
+            genericName: genericNameApi.isNotEmpty ? '$genericNameApi • $dosageForm' : dosageForm,
             price: price,
-            category: p['category'] is Map ? (p['category']['name'] ?? 'General').toString() : (p['category']?.toString() ?? 'General'),
+            category: catVal,
             imagePath: p['imageUrl']?.toString() ?? 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200',
             stock: stock,
-            isRx: false,
-            manufacturer: 'Blue Oceans Pharma',
+            isRx: isPrescription,
+            manufacturer: (mfr != null && mfr.isNotEmpty) ? mfr : 'Blue Oceans Pharma',
             barcode: p['barcode']?.toString() ?? '8941100${i.toString().padLeft(2, '0')}',
             batchNumber: 'BAT-${DateTime.now().year}-$i',
             expiryDate: '12/2027',
@@ -47,6 +71,10 @@ class PharmacyProvider extends ChangeNotifier {
         _allMedicines.clear();
         _allMedicines.addAll(loaded);
       }
+
+      // 3. Fetch customers from API
+      _apiCustomers = await ApiService.instance.fetchCustomers(businessType: businessType);
+      _customersLoaded = true;
     } catch (e) {
       debugPrint('Error loading pharmacy products: $e');
     } finally {
@@ -201,7 +229,8 @@ class PharmacyProvider extends ChangeNotifier {
   Map<String, dynamic>? get attachedPrescription => _attachedPrescription;
   List<Map<String, dynamic>> get heldBills => _heldBills;
   List<Map<String, dynamic>> get orderHistory => _orderHistory;
-  MedicineModel get focusedMedicine => _focusedMedicine ?? _allMedicines[1]; // default Augmentin
+  MedicineModel? get focusedMedicine =>
+      _focusedMedicine ?? (_allMedicines.isNotEmpty ? _allMedicines.first : null);
   List<MedicineModel> get frequentlySold => _allMedicines.take(6).toList();
 
   List<MedicineModel> get filteredMedicines {
@@ -447,8 +476,13 @@ class PharmacyProvider extends ChangeNotifier {
         'name': c.medicine.name,
         'qty': c.quantity,
         'unitPrice': c.medicine.price,
+        'discountAmount': 0,
         'lineTotal': c.medicine.price * c.quantity,
       }).toList();
+
+      final custId = _selectedCustomer?['id']?.toString();
+      final custName = _selectedCustomer?['name']?.toString() ?? 'Walk-in Customer';
+      final custPhone = _selectedCustomer?['phone']?.toString() ?? '';
 
       ApiService.instance.confirmSale(
         payload: {
@@ -456,9 +490,15 @@ class PharmacyProvider extends ChangeNotifier {
           'payments': [
             {'method': paymentMethod, 'amount': total}
           ],
+          'subtotal': subTotal,
           'discountTotal': totalDiscount,
+          'taxTotal': vat,
+          'taxAmount': vat,
+          'total': total,
           'source': 'PHARMACY',
-          'customerName': _selectedCustomer?['name']?.toString() ?? 'Walk-in Customer',
+          if (custId != null && custId.isNotEmpty) 'customerId': custId,
+          'customerName': custName,
+          'customerPhone': custPhone.isNotEmpty && custPhone != 'N/A' ? custPhone : null,
           'note': _salesNote,
         },
         businessType: 'pharmacy',
@@ -486,7 +526,8 @@ class PharmacyProvider extends ChangeNotifier {
   // Financial calculations
   double get subTotal => _cart.fold(0.0, (sum, item) => sum + (item.medicine.price * item.quantity));
   double get totalDiscount => (subTotal * (_globalDiscount / 100.0));
-  double get vat => (subTotal - totalDiscount) * 0.05;
+  // VAT is calculated using the system tax rate (fetched from API)
+  double get vat => (subTotal - totalDiscount) * _taxRate;
   double get total => (subTotal - totalDiscount + vat).clamp(0.0, double.infinity);
   int get totalItemCount => _cart.fold(0, (sum, item) => sum + item.quantity);
 

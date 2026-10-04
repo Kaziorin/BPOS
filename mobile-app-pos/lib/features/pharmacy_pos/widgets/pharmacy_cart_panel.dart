@@ -548,7 +548,7 @@ class _PharmacyCartPanelState extends State<PharmacyCartPanel> {
                 _totalRow('Sub Total', '৳ ${provider.subTotal.toStringAsFixed(2)}'),
                 if (provider.globalDiscount > 0)
                   _totalRow('Discount (${provider.globalDiscount}%)', '- ৳ ${provider.totalDiscount.toStringAsFixed(2)}', color: Colors.green),
-                _totalRow('VAT (5%)', '৳ ${provider.vat.toStringAsFixed(2)}'),
+                _totalRow('VAT (${provider.taxRatePct}%)', '৳ ${provider.vat.toStringAsFixed(2)}'),
                 const Divider(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
