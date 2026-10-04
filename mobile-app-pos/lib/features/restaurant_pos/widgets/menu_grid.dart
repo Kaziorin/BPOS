@@ -456,9 +456,26 @@ class _MenuListView extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: CachedNetworkImage(
-                      imageUrl: item.imageUrl,
-                      width: 80, height: 80, fit: BoxFit.cover,
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      color: primaryOrange.withValues(alpha: 0.08),
+                      child: CachedNetworkImage(
+                        imageUrl: item.imageUrl,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: primaryOrange),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Center(
+                          child: Icon(Icons.fastfood, color: context.dividerColor, size: 32),
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),

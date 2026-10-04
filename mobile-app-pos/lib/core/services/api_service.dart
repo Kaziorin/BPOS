@@ -340,6 +340,50 @@ class ApiService {
     return 0.15; // default fallback 15% system standard
   }
 
+  // ── RESTAURANT KOT (Kitchen Order Ticket) ──────────────────────────────────
+  Future<Map<String, dynamic>?> sendRestaurantKot({
+    required List<Map<String, dynamic>> items,
+    String? tableId,
+    String? orderType,
+    String? notes,
+  }) async {
+    const businessType = 'restaurant';
+    String? tenantIdToSend = _tenantId;
+    if (businessTenantIds.containsKey(businessType)) {
+      tenantIdToSend = businessTenantIds[businessType];
+    }
+    final token = await _getTokenForTenant(tenantIdToSend);
+
+    final reqHeaders = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    if (tenantIdToSend != null && tenantIdToSend.isNotEmpty) {
+      reqHeaders['X-Tenant-ID'] = tenantIdToSend;
+    }
+    if (token != null && token.isNotEmpty) {
+      reqHeaders['Authorization'] = 'Bearer $token';
+    }
+
+    try {
+      final uri = Uri.parse('$_baseUrl/v1/restaurant/kot');
+      final body = {
+        'tableId': tableId ?? '',
+        'orderType': (orderType ?? 'DINE_IN').toUpperCase().replaceAll('-', '_'),
+        'station': 'KITCHEN',
+        'notes': notes ?? '',
+        'items': items,
+      };
+      final resp = await http.post(uri, headers: reqHeaders, body: jsonEncode(body)).timeout(const Duration(seconds: 10));
+      if (resp.statusCode == 200 || resp.statusCode == 201) {
+        return jsonDecode(resp.body) as Map<String, dynamic>;
+      }
+    } catch (e) {
+      debugPrint('Error sending KOT to kitchen: $e');
+    }
+    return null;
+  }
+
   Future<Map<String, dynamic>?> createCustomer({
     required String businessType,
     required Map<String, dynamic> payload,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/models/menu_item.dart';
 import '../../../../core/providers/pos_provider.dart';
 import '../../../../core/providers/app_provider.dart';
@@ -1152,7 +1153,54 @@ class _ItemCustomizationDialogState extends State<ItemCustomizationDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(children: [ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.network(widget.item.imageUrl, width: 60, height: 60, fit: BoxFit.cover)), const SizedBox(width: 12), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(widget.item.localizedName(locale), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)), Text('৳${NumberUtils.toLocalized(widget.item.price.toStringAsFixed(2), locale)}', style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w600))]))]),
+              Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      width: 60,
+                      height: 60,
+                      color: primaryOrange.withValues(alpha: 0.1),
+                      child: widget.item.imageUrl.isNotEmpty
+                          ? CachedNetworkImage(
+                              imageUrl: widget.item.imageUrl,
+                              width: 60,
+                              height: 60,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => const Center(
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: primaryOrange),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => const Center(
+                                child: Icon(Icons.fastfood_rounded, color: primaryOrange, size: 28),
+                              ),
+                            )
+                          : const Center(
+                              child: Icon(Icons.fastfood_rounded, color: primaryOrange, size: 28),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.item.localizedName(locale),
+                          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                        ),
+                        Text(
+                          '৳${NumberUtils.toLocalized(widget.item.price.toStringAsFixed(2), locale)}',
+                          style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 20),
               if (widget.item.modifierGroups != null) ...widget.item.modifierGroups!.asMap().entries.map((entry) {
                 final groupIndex = entry.key;
