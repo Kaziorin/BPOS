@@ -653,17 +653,20 @@ input[type="button"]:not(:disabled),
     top: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
+    box-sizing: border-box !important;
     margin: 0 !important;
-    padding: 16px !important;
+    padding: 10mm 12mm !important;
     box-shadow: none !important;
     border: none !important;
     background: #ffffff !important;
-    color: #4b5563 !important;
+    color: #1e293b !important;
     overflow: visible !important;
     max-height: none !important;
     height: auto !important;
     display: block !important;
     z-index: 99999 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   /* Hide print buttons, close buttons, modal backdrops in print */
