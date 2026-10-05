@@ -266,7 +266,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                   placeholder="Search menu..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-sm border border-brand-border bg-white pl-9 pr-8 py-1.5 text-xs text-gray-600 placeholder:text-slate-400 outline-none focus:outline-none focus:border-brand-primary focus:ring-0 shadow-none transition-colors"
+                  className="theme-search-input w-full rounded-full pl-9 pr-8 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 outline-none"
                 />
                 {searchQuery && (
                   <button

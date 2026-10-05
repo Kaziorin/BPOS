@@ -71,7 +71,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#edf5fd]">
+    <div
+      className="flex h-screen flex-col overflow-hidden transition-colors duration-300"
+      style={{ backgroundColor: "var(--theme-page-bg, #edf5fd)" }}
+    >
       {/* Full-width Top Ocean Wave Header */}
       <Header />
 
@@ -80,7 +83,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Sidebar />
         <div className="flex flex-1 flex-col overflow-hidden min-w-0">
           <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-5 custom-scrollbar">
-            <div className="min-h-full w-full rounded-2xl border border-sky-100/90 bg-white/95 p-4 sm:p-6 shadow-xs">
+            <div className="min-h-full w-full rounded-2xl border border-brand-border/60 bg-white/95 p-4 sm:p-6 shadow-xs">
               {children}
             </div>
           </main>
