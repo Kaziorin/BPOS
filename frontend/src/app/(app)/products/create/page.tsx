@@ -284,8 +284,17 @@ export default function CreateProductPage() {
     method: "Inclusive",
   });
 
+  const isProductionBusiness =
+    selectedVertical === "RESTAURANT" ||
+    selectedVertical === "FOOD" ||
+    selectedVertical === "BAKERY" ||
+    selectedVertical === "MANUFACTURING";
+
   const defaultTypeOptions: SearchableSelectOption[] = [
     { value: "Standard", label: "Standard Product (Physical item)" },
+    ...(isProductionBusiness
+      ? [{ value: "Raw Material", label: "Raw Material / Ingredient (Used in Recipes/BOM)" }]
+      : []),
     { value: "Combo", label: "Combo / Kit (Package deal)" },
     { value: "Digital", label: "Digital / License (Non-physical download)" },
     { value: "Service", label: "Service (Labor or consulting)" },
