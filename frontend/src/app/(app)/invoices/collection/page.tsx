@@ -81,6 +81,9 @@ export default function CollectionPage() {
   const [entries, setEntries] = useState<CollectionEntry[]>([]);
   const [schedules, setSchedules] = useState<CollectionSchedule[]>([]);
   const [performance, setPerformance] = useState<Performance[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -113,8 +116,10 @@ export default function CollectionPage() {
 
   const [schedForm, setSchedForm] = useState({
     collectorId: "COLLECTOR-1",
+    customerId: "",
     customerName: "",
     customerPhone: "",
+    invoiceId: "",
     invoiceNo: "",
     scheduledAt: "",
     expectedAmount: "",
@@ -131,19 +136,28 @@ export default function CollectionPage() {
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [e, s, p] = await Promise.allSettled([
+      const [e, s, p, cRes, iRes, uRes] = await Promise.allSettled([
         api.get<any>("/v1/invoices/collection/entries"),
         api.get<any>("/v1/invoices/collection/schedules"),
         api.get<any>("/v1/invoices/collection/performance"),
+        api.get<any>("/v1/customers?limit=500"),
+        api.get<any>("/v1/invoices?limit=500"),
+        api.get<any>("/api/v1/rbac/users?limit=100"),
       ]);
 
-      const entryList = e.status === "fulfilled" ? (e.value?.data?.data ?? e.value?.data ?? e.value ?? []) : [];
-      const schedList = s.status === "fulfilled" ? (s.value?.data?.data ?? s.value?.data ?? s.value ?? []) : [];
-      const perfList = p.status === "fulfilled" ? (p.value?.data?.data ?? p.value?.data ?? p.value ?? []) : [];
+      const entryList = e.status === "fulfilled" ? (Array.isArray(e.value?.data) ? e.value.data : Array.isArray(e.value) ? e.value : (e.value?.data?.data ?? [])) : [];
+      const schedList = s.status === "fulfilled" ? (Array.isArray(s.value?.data) ? s.value.data : Array.isArray(s.value) ? s.value : (s.value?.data?.data ?? [])) : [];
+      const perfList = p.status === "fulfilled" ? (Array.isArray(p.value?.data) ? p.value.data : Array.isArray(p.value) ? p.value : (p.value?.data?.data ?? [])) : [];
+      const custList = cRes.status === "fulfilled" ? (Array.isArray(cRes.value?.data) ? cRes.value.data : Array.isArray(cRes.value) ? cRes.value : (cRes.value?.data?.data ?? [])) : [];
+      const invList = iRes.status === "fulfilled" ? (Array.isArray(iRes.value?.data) ? iRes.value.data : Array.isArray(iRes.value) ? iRes.value : (iRes.value?.data?.data ?? [])) : [];
+      const userList = uRes.status === "fulfilled" ? (Array.isArray(uRes.value?.data) ? uRes.value.data : Array.isArray(uRes.value) ? uRes.value : (uRes.value?.data?.data ?? [])) : [];
 
       setEntries(Array.isArray(entryList) ? entryList : []);
       setSchedules(Array.isArray(schedList) ? schedList : []);
       setPerformance(Array.isArray(perfList) ? perfList : []);
+      setCustomers(Array.isArray(custList) ? custList : []);
+      setInvoices(Array.isArray(invList) ? invList : []);
+      setUsers(Array.isArray(userList) ? userList : []);
     } catch (err) {
       console.error("Failed to load collections:", err);
     } finally {
@@ -166,7 +180,7 @@ export default function CollectionPage() {
     try {
       await api.post("/v1/invoices/collection/entries", {
         branchId: entryForm.branchId || "default",
-        collectorId: entryForm.collectorId || "COLLECTOR-1",
+        collectorId: entryForm.collectorId || undefined,
         customerId: entryForm.customerId || undefined,
         customerName: entryForm.customerName || undefined,
         customerPhone: entryForm.customerPhone || undefined,
@@ -183,7 +197,7 @@ export default function CollectionPage() {
       setShowCreateEntry(false);
       setEntryForm({
         branchId: "default",
-        collectorId: "COLLECTOR-1",
+        collectorId: users[0]?.id || "COLLECTOR-1",
         customerId: "",
         customerName: "",
         customerPhone: "",
@@ -208,9 +222,11 @@ export default function CollectionPage() {
     e.preventDefault();
     try {
       await api.post("/v1/invoices/collection/schedules", {
-        collectorId: schedForm.collectorId || "COLLECTOR-1",
+        collectorId: schedForm.collectorId || undefined,
+        customerId: schedForm.customerId || undefined,
         customerName: schedForm.customerName || undefined,
         customerPhone: schedForm.customerPhone || undefined,
+        invoiceId: schedForm.invoiceId || undefined,
         invoiceNo: schedForm.invoiceNo || undefined,
         scheduledAt: schedForm.scheduledAt,
         expectedAmount: Number(schedForm.expectedAmount) || 0,
@@ -219,10 +235,12 @@ export default function CollectionPage() {
 
       setShowScheduleModal(false);
       setSchedForm({
-        collectorId: "COLLECTOR-1",
+        collectorId: users[0]?.id || "COLLECTOR-1",
+        customerId: "",
         customerName: "",
         customerPhone: "",
         invoiceNo: "",
+        invoiceId: "",
         scheduledAt: "",
         expectedAmount: "",
         note: "",
@@ -239,7 +257,7 @@ export default function CollectionPage() {
     e.preventDefault();
     try {
       await api.post("/v1/invoices/collection/targets", {
-        collectorId: targetForm.collectorId || "COLLECTOR-1",
+        collectorId: targetForm.collectorId || undefined,
         period: targetForm.period,
         targetAmount: Number(targetForm.targetAmount) || 0,
         branchId: targetForm.branchId || "default",
@@ -247,7 +265,7 @@ export default function CollectionPage() {
 
       setShowTargetModal(false);
       setTargetForm({
-        collectorId: "COLLECTOR-1",
+        collectorId: users[0]?.id || "COLLECTOR-1",
         period: new Date().toISOString().slice(0, 7),
         targetAmount: "",
         branchId: "default",
@@ -306,6 +324,69 @@ export default function CollectionPage() {
     { label: "Bank Transfer", value: "BANK" },
     { label: "Cheque", value: "CHEQUE" },
   ];
+
+  const customerOptions = useMemo(() => {
+    const list = [{ label: "Walk-in Customer / Direct", value: "" }];
+    customers.forEach((c: any) => {
+      const due = Number(c.currentDue || 0);
+      const dueStr = due > 0 ? ` [Due: ৳${due.toLocaleString()}]` : "";
+      const phoneStr = c.phone ? ` • ${c.phone}` : "";
+      list.push({
+        label: `${c.name || "Customer"}${phoneStr}${dueStr}`,
+        value: c.id,
+      });
+    });
+    return list;
+  }, [customers]);
+
+  const collectorOptions = useMemo(() => {
+    const list: { label: string; value: string }[] = [];
+    users.forEach((u: any) => {
+      const roleStr = u.role || u.roleName ? ` (${u.role || u.roleName})` : "";
+      list.push({
+        label: `${u.name || u.email || "Agent"}${roleStr}`,
+        value: u.id,
+      });
+    });
+    if (list.length === 0) {
+      list.push({ label: "Collector Agent (COLLECTOR-1)", value: "COLLECTOR-1" });
+    }
+    return list;
+  }, [users]);
+
+  const entryInvoiceOptions = useMemo(() => {
+    const list = [{ label: "No specific invoice (General Collection)", value: "" }];
+    const filtered = entryForm.customerId
+      ? invoices.filter((i: any) => i.customerId === entryForm.customerId)
+      : invoices;
+    filtered.forEach((inv: any) => {
+      const total = Number(inv.total || 0);
+      const paid = Number(inv.paidTotal || 0);
+      const due = Math.max(0, total - paid);
+      list.push({
+        label: `${inv.invoiceNo || "INV"} • Total: ৳${total.toLocaleString()} • Due: ৳${due.toLocaleString()} [${inv.status || "UNPAID"}]`,
+        value: inv.id,
+      });
+    });
+    return list;
+  }, [invoices, entryForm.customerId]);
+
+  const schedInvoiceOptions = useMemo(() => {
+    const list = [{ label: "All Overdue Invoices (General Follow-up)", value: "" }];
+    const filtered = schedForm.customerId
+      ? invoices.filter((i: any) => i.customerId === schedForm.customerId)
+      : invoices;
+    filtered.forEach((inv: any) => {
+      const total = Number(inv.total || 0);
+      const paid = Number(inv.paidTotal || 0);
+      const due = Math.max(0, total - paid);
+      list.push({
+        label: `${inv.invoiceNo || "INV"} • Due: ৳${due.toLocaleString()} (Total: ৳${total.toLocaleString()})`,
+        value: inv.id,
+      });
+    });
+    return list;
+  }, [invoices, schedForm.customerId]);
 
   const collectionTabs = [
     { id: "entries", label: `Collection Receipts (${entries.length})` },
@@ -811,13 +892,65 @@ export default function CollectionPage() {
         <CustomModal
           open={showCreateEntry}
           onClose={() => setShowCreateEntry(false)}
-          title="Record Field Collection"
-          subtitle="Log customer payment recovery against invoice."
+          title="Record Field Collection Receipt"
+          subtitle="Log customer payment recovery against invoice with searchable customer & invoice selection."
           size="2xl"
           themeColor="primary"
           icon={<Receipt size={18} />}
         >
           <form onSubmit={handleCreateEntry} className="space-y-4 text-xs text-gray-600">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-start">
+              <div>
+                <CustomDropdownSelect
+                  label="Select Customer"
+                  searchable={true}
+                  searchPlaceholder="Search customer by name or phone..."
+                  options={customerOptions}
+                  value={entryForm.customerId}
+                  onChange={(val) => {
+                    const cust = customers.find((c: any) => c.id === val);
+                    const custInvs = val ? invoices.filter((i: any) => i.customerId === val) : [];
+                    const firstDueInv = custInvs.find((i: any) => (Number(i.total || 0) - Number(i.paidTotal || 0)) > 0.01);
+                    const autoAmt = firstDueInv
+                      ? Math.max(0, Number(firstDueInv.total || 0) - Number(firstDueInv.paidTotal || 0))
+                      : (cust?.currentDue ? Number(cust.currentDue) : "");
+
+                    setEntryForm({
+                      ...entryForm,
+                      customerId: val,
+                      customerName: cust?.name || "",
+                      customerPhone: cust?.phone || "",
+                      invoiceId: firstDueInv?.id || "",
+                      invoiceNo: firstDueInv?.invoiceNo || "",
+                      amount: autoAmt ? String(autoAmt) : entryForm.amount,
+                    });
+                  }}
+                  className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
+                />
+              </div>
+
+              <div>
+                <CustomDropdownSelect
+                  label="Select Invoice (Optional)"
+                  searchable={true}
+                  searchPlaceholder="Search invoice #..."
+                  options={entryInvoiceOptions}
+                  value={entryForm.invoiceId}
+                  onChange={(val) => {
+                    const inv = invoices.find((i: any) => i.id === val);
+                    const dueAmt = inv ? Math.max(0, Number(inv.total || 0) - Number(inv.paidTotal || 0)) : 0;
+                    setEntryForm({
+                      ...entryForm,
+                      invoiceId: val,
+                      invoiceNo: inv?.invoiceNo || "",
+                      amount: dueAmt > 0 ? String(dueAmt) : entryForm.amount,
+                    });
+                  }}
+                  className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
+                />
+              </div>
+            </div>
+
             <div>
               <CustomInput
                 label="Collection Amount (৳)"
@@ -859,31 +992,32 @@ export default function CollectionPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-start">
-              <CustomInput
-                label="Customer Name (Optional)"
-                type="text"
-                placeholder="e.g. Acme Corp"
-                value={entryForm.customerName}
-                onChange={(e) => setEntryForm({ ...entryForm, customerName: e.target.value })}
+              <CustomDropdownSelect
+                label="Collector Agent / Officer"
+                searchable={true}
+                searchPlaceholder="Search collector agent..."
+                options={collectorOptions}
+                value={entryForm.collectorId}
+                onChange={(val) => setEntryForm({ ...entryForm, collectorId: val })}
                 className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
               />
 
               <CustomInput
-                label="Collector Agent / Officer"
+                label="Money Receipt Number (Optional)"
                 type="text"
-                placeholder="e.g. Officer Rafiq (ID: COL-102)"
-                value={entryForm.collectorId}
-                onChange={(e) => setEntryForm({ ...entryForm, collectorId: e.target.value })}
+                placeholder="Auto-generated if blank (e.g. RCP-2610-...)"
+                value={entryForm.receiptNo}
+                onChange={(e) => setEntryForm({ ...entryForm, receiptNo: e.target.value })}
                 className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
               />
             </div>
 
             <CustomInput
-              label="Money Receipt Number (Optional)"
+              label="Notes & Remarks (Optional)"
               type="text"
-              placeholder="e.g. MR-90214"
-              value={entryForm.receiptNo}
-              onChange={(e) => setEntryForm({ ...entryForm, receiptNo: e.target.value })}
+              placeholder="e.g. Partial collection via field visit"
+              value={entryForm.note}
+              onChange={(e) => setEntryForm({ ...entryForm, note: e.target.value })}
               className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
             />
 
@@ -937,16 +1071,55 @@ export default function CollectionPage() {
         >
           <form onSubmit={handleCreateSchedule} className="space-y-4 text-xs text-gray-600">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-start">
-              <CustomInput
-                label="Customer / Client Name"
-                type="text"
+              <CustomDropdownSelect
+                label="Customer / Client"
                 required
-                placeholder="Customer or Organization Name"
-                value={schedForm.customerName}
-                onChange={(e) => setSchedForm({ ...schedForm, customerName: e.target.value })}
+                searchable={true}
+                searchPlaceholder="Search customer by name or phone..."
+                options={customerOptions.filter((c) => c.value)}
+                value={schedForm.customerId}
+                onChange={(val) => {
+                  const cust = customers.find((c: any) => c.id === val);
+                  const custInvs = val ? invoices.filter((i: any) => i.customerId === val) : [];
+                  const firstDueInv = custInvs.find((i: any) => (Number(i.total || 0) - Number(i.paidTotal || 0)) > 0.01);
+                  const autoAmt = firstDueInv
+                    ? Math.max(0, Number(firstDueInv.total || 0) - Number(firstDueInv.paidTotal || 0))
+                    : (cust?.currentDue ? Number(cust.currentDue) : "");
+
+                  setSchedForm({
+                    ...schedForm,
+                    customerId: val,
+                    customerName: cust?.name || "",
+                    customerPhone: cust?.phone || "",
+                    invoiceId: firstDueInv?.id || "",
+                    invoiceNo: firstDueInv?.invoiceNo || "",
+                    expectedAmount: autoAmt ? String(autoAmt) : schedForm.expectedAmount,
+                  });
+                }}
                 className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
               />
 
+              <CustomDropdownSelect
+                label="Overdue Invoice (Optional)"
+                searchable={true}
+                searchPlaceholder="Search invoice #..."
+                options={schedInvoiceOptions}
+                value={schedForm.invoiceId}
+                onChange={(val) => {
+                  const inv = invoices.find((i: any) => i.id === val);
+                  const dueAmt = inv ? Math.max(0, Number(inv.total || 0) - Number(inv.paidTotal || 0)) : 0;
+                  setSchedForm({
+                    ...schedForm,
+                    invoiceId: val,
+                    invoiceNo: inv?.invoiceNo || "",
+                    expectedAmount: dueAmt > 0 ? String(dueAmt) : schedForm.expectedAmount,
+                  });
+                }}
+                className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-start">
               <CustomDatePicker
                 label="Scheduled Date & Time"
                 type="datetime-local"
@@ -955,6 +1128,16 @@ export default function CollectionPage() {
                 onChange={(val) => setSchedForm({ ...schedForm, scheduledAt: val })}
                 placeholder="Select appointment date & time"
                 className="h-[38px] text-xs sm:text-[13px] font-semibold text-gray-600 border-brand-border"
+              />
+
+              <CustomDropdownSelect
+                label="Assigned Collector Agent"
+                searchable={true}
+                searchPlaceholder="Search collector agent..."
+                options={collectorOptions}
+                value={schedForm.collectorId}
+                onChange={(val) => setSchedForm({ ...schedForm, collectorId: val })}
+                className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
               />
             </div>
 
@@ -1017,6 +1200,16 @@ export default function CollectionPage() {
           icon={<Target size={18} />}
         >
           <form onSubmit={handleSetTarget} className="space-y-4 text-xs text-gray-600">
+            <CustomDropdownSelect
+              label="Collector Officer"
+              searchable={true}
+              searchPlaceholder="Search collector agent..."
+              options={collectorOptions}
+              value={targetForm.collectorId}
+              onChange={(val) => setTargetForm({ ...targetForm, collectorId: val })}
+              className="h-[38px] text-xs font-semibold text-gray-600 border-brand-border"
+            />
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-start">
               <CustomDatePicker
                 label="Target Period (Month)"

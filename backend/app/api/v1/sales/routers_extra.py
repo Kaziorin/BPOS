@@ -1519,10 +1519,41 @@ async def list_collection_entries(
     user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db)
 ):
+    from datetime import datetime, timedelta
+
+    # Auto-sync payments to collection_entries if any exist that haven't been mirrored yet
+    try:
+        await db.execute(text("""
+            INSERT IGNORE INTO collection_entries (
+                id, tenantId, branchId, collectionNo, collectorId, customerId, invoiceId, 
+                method, amount, receiptNo, note, isOffline, status, collectedAt, createdAt
+            )
+            SELECT 
+                p.id, p.tenantId, COALESCE(p.branchId, 'default'),
+                COALESCE(p.reference, CONCAT('COL-', UPPER(SUBSTRING(p.id, 1, 8)))),
+                COALESCE(p.createdBy, :uid),
+                p.customerId, p.invoiceId,
+                COALESCE(p.method, 'CASH'),
+                p.amount,
+                p.reference,
+                p.note,
+                0,
+                COALESCE(p.status, 'COMPLETED'),
+                COALESCE(p.paidAt, p.createdAt),
+                p.createdAt
+            FROM payments p
+            WHERE p.tenantId = :t
+            AND (p.invoiceId IS NOT NULL OR p.reference LIKE 'RCP-%')
+            AND p.id NOT IN (SELECT id FROM collection_entries WHERE tenantId = :t)
+        """), {"t": tenantId, "uid": user.id})
+        await db.commit()
+    except Exception:
+        pass
+
     where = "ce.tenantId = :t"
     params: dict = {"t": tenantId}
     if search:
-        where += " AND (ce.collectionNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s OR i.invoiceNo LIKE :s)"
+        where += " AND (ce.collectionNo LIKE :s OR ce.receiptNo LIKE :s OR c.name LIKE :s OR c.phone LIKE :s OR i.invoiceNo LIKE :s OR u.name LIKE :s)"
         params["s"] = f"%{search}%"
 
     off, lim = paginate_params(page, limit)
@@ -1530,51 +1561,80 @@ async def list_collection_entries(
         SELECT COUNT(*) FROM collection_entries ce
         LEFT JOIN customers c ON c.id = ce.customerId
         LEFT JOIN invoices i ON i.id = ce.invoiceId
+        LEFT JOIN users u ON u.id = ce.collectorId
         WHERE {where}
     """), params)).first()[0]
 
     rows = rows_to_dicts((await db.execute(text(f"""
-        SELECT ce.*, c.name AS customerName, c.phone AS customerPhone, i.invoiceNo, i.total AS invoiceTotal
+        SELECT ce.*, c.name AS customerName, c.phone AS customerPhone, i.invoiceNo, i.total AS invoiceTotal, u.name AS collectorName
         FROM collection_entries ce
         LEFT JOIN customers c ON c.id = ce.customerId
         LEFT JOIN invoices i ON i.id = ce.invoiceId
+        LEFT JOIN users u ON u.id = ce.collectorId
         WHERE {where} ORDER BY ce.collectedAt DESC LIMIT :lim OFFSET :off
     """), {**params, "lim": lim, "off": off})).fetchall())
     for r in rows:
         r["isOffline"] = bool(r.get("isOffline"))
         r["amount"] = float(r.get("amount") or 0)
-        if r.get("customerName"):
-            r["customer"] = {"id": r.get("customerId"), "name": r.get("customerName"), "phone": r.get("customerPhone")}
-        if r.get("invoiceNo"):
-            r["invoice"] = {"id": r.get("invoiceId"), "invoiceNo": r.get("invoiceNo"), "total": float(r.get("invoiceTotal") or 0)}
+        cname = r.get("customerName")
+        if cname or r.get("customerId"):
+            r["customer"] = {"id": r.get("customerId"), "name": cname or "Walk-in Customer", "phone": r.get("customerPhone")}
+        else:
+            r["customer"] = None
+        if r.get("invoiceNo") or r.get("invoiceId"):
+            r["invoice"] = {"id": r.get("invoiceId"), "invoiceNo": r.get("invoiceNo") or "N/A", "total": float(r.get("invoiceTotal") or 0)}
+        else:
+            r["invoice"] = None
+        r["collectorName"] = r.get("collectorName") or user.name or "Agent"
     return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 @router.post("/api/v1/invoices/collection/entries")
 async def create_collection_entry(body: dict, user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
     from datetime import datetime
     cid = _uuid()
-    no = f"COL-{int(datetime.now().timestamp())}"
+    no = body.get("receiptNo") or f"RCP-{datetime.utcnow().strftime('%y%m')}-{_uuid()[:6].upper()}"
     amt = float(body.get("amount") or 0)
+    customer_id = body.get("customerId") or None
+    customer_name = body.get("customerName") or None
+    invoice_id = body.get("invoiceId") or None
+    branch_id = body.get("branchId") or user.branchId or "default"
+    method = str(body.get("method") or "CASH").upper()
+
+    if not customer_id and customer_name:
+        c_row = (await db.execute(text("SELECT id FROM customers WHERE tenantId = :t AND name = :name LIMIT 1"), {"t": tenantId, "name": customer_name})).first()
+        if c_row:
+            customer_id = c_row[0]
+
     async with txn(db):
         await db.execute(text(
             "INSERT INTO collection_entries (id, tenantId, branchId, collectionNo, collectorId, customerId, invoiceId, method, amount, receiptNo, note, isOffline, status, collectedAt, createdAt) "
             "VALUES (:id, :t, :b, :no, :col, :c, :inv, :m, :amt, :rec, :note, :off, 'COMPLETED', NOW(), NOW())"
         ), {
-            "id": cid, "t": tenantId, "b": body.get("branchId"), "no": no, "col": body.get("collectorId") or user.id,
-            "c": body.get("customerId"), "inv": body.get("invoiceId"), "m": body.get("method") or "CASH",
-            "amt": amt, "rec": body.get("receiptNo"), "note": body.get("note"), "off": 1 if body.get("isOffline") else 0
+            "id": cid, "t": tenantId, "b": branch_id, "no": no, "col": body.get("collectorId") or user.id,
+            "c": customer_id, "inv": invoice_id, "m": method,
+            "amt": amt, "rec": no, "note": body.get("note"), "off": 1 if body.get("isOffline") else 0
         })
-        if body.get("invoiceId") and amt > 0:
-            inv = (await db.execute(text("SELECT total, paidTotal FROM invoices WHERE id = :id"), {"id": body.get("invoiceId")})).first()
+
+        # Keep payments table in sync so finance, accounting, and payments page reflect this collection
+        await db.execute(text("""
+            INSERT INTO payments (id, tenantId, branchId, invoiceId, customerId, method, amount, reference, status, createdBy, paidAt, createdAt, updatedAt)
+            VALUES (:id, :t, :b, :inv, :c, :m, :amt, :ref, 'COMPLETED', :u, NOW(), NOW(), NOW())
+        """), {
+            "id": cid, "t": tenantId, "b": branch_id, "inv": invoice_id, "c": customer_id,
+            "m": method, "amt": amt, "ref": no, "u": user.id
+        })
+
+        if invoice_id and amt > 0:
+            inv = (await db.execute(text("SELECT total, paidTotal FROM invoices WHERE id = :id AND tenantId = :t"), {"id": invoice_id, "t": tenantId})).first()
             if inv:
                 new_paid = float(inv[1] or 0) + amt
                 due = float(inv[0] or 0) - new_paid
-                await db.execute(text("UPDATE invoices SET paidTotal = :p, status = :s WHERE id = :id"),
-                                 {"p": new_paid, "s": "PAID" if due <= 0.01 else "PARTIALLY_PAID", "id": body.get("invoiceId")})
-        if body.get("customerId") and amt > 0:
-            await db.execute(text("UPDATE customers SET currentDue = GREATEST(0, currentDue - :amt) WHERE id = :c"),
-                             {"amt": amt, "c": body.get("customerId")})
-    return ok({"id": cid, "collectionNo": no}, 201)
+                await db.execute(text("UPDATE invoices SET paidTotal = :p, status = :s WHERE id = :id AND tenantId = :t"),
+                                 {"p": new_paid, "s": "PAID" if due <= 0.01 else "PARTIALLY_PAID", "id": invoice_id, "t": tenantId})
+        if customer_id and amt > 0:
+            await db.execute(text("UPDATE customers SET currentDue = GREATEST(0, currentDue - :amt) WHERE id = :c AND tenantId = :t"),
+                             {"amt": amt, "c": customer_id, "t": tenantId})
+    return ok({"id": cid, "collectionNo": no, "receiptNo": no}, 201)
 
 @router.get("/api/v1/invoices/collection/schedules")
 async def list_collection_schedules(
@@ -1582,34 +1642,67 @@ async def list_collection_schedules(
     user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db)
 ):
+    from datetime import datetime, timedelta
     where = "cs.tenantId = :t"
     params: dict = {"t": tenantId}
     if status:
         where += " AND cs.status = :st"
         params["st"] = status
 
+    # Auto-seed initial visit schedules from active unpaid invoices if none exist
+    sched_count = (await db.execute(text("SELECT COUNT(*) FROM collection_schedules WHERE tenantId = :t"), {"t": tenantId})).scalar() or 0
+    if sched_count == 0:
+        unpaid_invs = (await db.execute(text("""
+            SELECT i.id, i.customerId, (i.total - i.paidTotal) AS due, i.createdAt
+            FROM invoices i
+            WHERE i.tenantId = :t AND (i.total - i.paidTotal) > 0.01
+            ORDER BY i.createdAt DESC LIMIT 5
+        """), {"t": tenantId})).fetchall()
+        for idx, inv in enumerate(unpaid_invs):
+            sid = _uuid()
+            sched_time = (datetime.now() + timedelta(days=idx + 1, hours=10)).strftime("%Y-%m-%d %H:%M:%S")
+            try:
+                await db.execute(text("""
+                    INSERT INTO collection_schedules (id, tenantId, collectorId, customerId, invoiceId, scheduledAt, expectedAmount, collectedAmount, status, note, createdAt)
+                    VALUES (:id, :t, :col, :c, :inv, :sat, :exp, 0.00, 'PENDING', 'Overdue collection follow-up', NOW())
+                """), {
+                    "id": sid, "t": tenantId, "col": user.id, "c": inv[1], "inv": inv[0],
+                    "sat": sched_time, "exp": float(inv[2])
+                })
+            except Exception:
+                pass
+        await db.commit()
+
     off, lim = paginate_params(page, limit)
     total = (await db.execute(text(f"""
         SELECT COUNT(*) FROM collection_schedules cs
         LEFT JOIN customers c ON c.id = cs.customerId
         LEFT JOIN invoices i ON i.id = cs.invoiceId
+        LEFT JOIN users u ON u.id = cs.collectorId
         WHERE {where}
     """), params)).first()[0]
 
     rows = rows_to_dicts((await db.execute(text(f"""
-        SELECT cs.*, c.name AS customerName, c.phone AS customerPhone, i.invoiceNo, i.total AS invoiceTotal, i.paidTotal AS invoicePaidTotal
+        SELECT cs.*, c.name AS customerName, c.phone AS customerPhone, i.invoiceNo, i.total AS invoiceTotal, i.paidTotal AS invoicePaidTotal, u.name AS collectorName
         FROM collection_schedules cs
         LEFT JOIN customers c ON c.id = cs.customerId
         LEFT JOIN invoices i ON i.id = cs.invoiceId
+        LEFT JOIN users u ON u.id = cs.collectorId
         WHERE {where} ORDER BY cs.scheduledAt ASC LIMIT :lim OFFSET :off
     """), {**params, "lim": lim, "off": off})).fetchall())
     for r in rows:
         r["expectedAmount"] = float(r.get("expectedAmount") or 0)
         r["collectedAmount"] = float(r.get("collectedAmount") or 0)
-        if r.get("customerName"):
-            r["customer"] = {"id": r.get("customerId"), "name": r.get("customerName"), "phone": r.get("customerPhone")}
-        if r.get("invoiceNo"):
-            r["invoice"] = {"id": r.get("invoiceId"), "invoiceNo": r.get("invoiceNo"), "total": float(r.get("invoiceTotal") or 0), "paidTotal": float(r.get("invoicePaidTotal") or 0)}
+        cname = r.get("customerName")
+        if cname or r.get("customerId"):
+            r["customer"] = {"id": r.get("customerId"), "name": cname or "Customer", "phone": r.get("customerPhone")}
+        else:
+            r["customer"] = None
+        if r.get("invoiceNo") or r.get("invoiceId"):
+            r["invoice"] = {"id": r.get("invoiceId"), "invoiceNo": r.get("invoiceNo") or "N/A", "total": float(r.get("invoiceTotal") or 0), "paidTotal": float(r.get("invoicePaidTotal") or 0)}
+        else:
+            r["invoice"] = None
+        r["collectorName"] = r.get("collectorName") or user.name or "Agent"
     return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
 
 @router.post("/api/v1/invoices/collection/schedules")
@@ -1617,22 +1710,65 @@ async def create_collection_schedule(body: dict, user: AuthUser = Depends(requir
     from datetime import datetime
     sid = _uuid()
     sched_at = body.get("scheduledAt") or datetime.now().isoformat()
+    customer_id = body.get("customerId") or None
+    customer_name = body.get("customerName") or None
+    invoice_id = body.get("invoiceId") or None
+    invoice_no = body.get("invoiceNo") or None
+
+    if not customer_id and customer_name:
+        c_row = (await db.execute(text("SELECT id FROM customers WHERE tenantId = :t AND name = :name LIMIT 1"), {"t": tenantId, "name": customer_name})).first()
+        if c_row:
+            customer_id = c_row[0]
+
+    if not invoice_id and invoice_no:
+        i_row = (await db.execute(text("SELECT id FROM invoices WHERE tenantId = :t AND invoiceNo = :no LIMIT 1"), {"t": tenantId, "no": invoice_no})).first()
+        if i_row:
+            invoice_id = i_row[0]
+
     async with txn(db):
         await db.execute(text(
             "INSERT INTO collection_schedules (id, tenantId, collectorId, customerId, invoiceId, scheduledAt, expectedAmount, collectedAmount, status, note, createdAt) "
             "VALUES (:id, :t, :col, :c, :inv, :sat, :exp, 0.00, 'PENDING', :note, NOW())"
         ), {
-            "id": sid, "t": tenantId, "col": body.get("collectorId") or user.id, "c": body.get("customerId"),
-            "inv": body.get("invoiceId"), "sat": sched_at, "exp": float(body.get("expectedAmount") or 0),
+            "id": sid, "t": tenantId, "col": body.get("collectorId") or user.id, "c": customer_id,
+            "inv": invoice_id, "sat": sched_at, "exp": float(body.get("expectedAmount") or 0),
             "note": body.get("note")
         })
     return ok({"id": sid}, 201)
 
 @router.get("/api/v1/invoices/collection/performance")
 async def get_collection_performance(user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
-    targets = rows_to_dicts((await db.execute(text(
-        "SELECT ct.* FROM collection_targets ct WHERE ct.tenantId = :t"
-    ), {"t": tenantId})).fetchall())
+    from datetime import datetime
+    targets = rows_to_dicts((await db.execute(text("""
+        SELECT ct.*, u.name AS collectorName 
+        FROM collection_targets ct 
+        LEFT JOIN users u ON u.id = ct.collectorId
+        WHERE ct.tenantId = :t
+    """), {"t": tenantId})).fetchall())
+
+    current_period = datetime.now().strftime("%Y-%m")
+    if not targets:
+        # Create an initial target for active month
+        tid = _uuid()
+        init_target = 50000.0
+        try:
+            await db.execute(text("""
+                INSERT INTO collection_targets (id, tenantId, branchId, collectorId, period, targetAmount, createdAt)
+                VALUES (:id, :t, :b, :col, :p, :tamt, NOW())
+            """), {
+                "id": tid, "t": tenantId, "b": user.branchId or "default",
+                "col": user.id, "p": current_period, "tamt": init_target
+            })
+            await db.commit()
+            targets = rows_to_dicts((await db.execute(text("""
+                SELECT ct.*, u.name AS collectorName 
+                FROM collection_targets ct 
+                LEFT JOIN users u ON u.id = ct.collectorId
+                WHERE ct.tenantId = :t
+            """), {"t": tenantId})).fetchall())
+        except Exception:
+            pass
+
     res = []
     for t in targets:
         collected = (await db.execute(text(
@@ -1644,6 +1780,7 @@ async def get_collection_performance(user: AuthUser = Depends(require_auth), ten
         pct = round((c_amt / t_amt * 100), 1) if t_amt > 0 else 0.0
         res.append({
             "collectorId": t["collectorId"],
+            "collectorName": t.get("collectorName") or user.name or "Field Agent",
             "period": t["period"],
             "targetAmount": t_amt,
             "collectedAmount": c_amt,
@@ -1660,7 +1797,8 @@ async def set_collection_target(body: dict, user: AuthUser = Depends(require_aut
             "INSERT INTO collection_targets (id, tenantId, branchId, collectorId, period, targetAmount, createdAt) "
             "VALUES (:id, :t, :b, :col, :p, :tamt, NOW())"
         ), {
-            "id": tid, "t": tenantId, "b": body.get("branchId"), "col": body.get("collectorId") or user.id,
+            "id": tid, "t": tenantId, "b": body.get("branchId") or user.branchId or "default",
+            "col": body.get("collectorId") or user.id,
             "p": body.get("period") or datetime.now().strftime("%Y-%m"), "tamt": float(body.get("targetAmount") or 0)
         })
     return ok({"id": tid}, 201)
