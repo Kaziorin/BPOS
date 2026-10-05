@@ -7,6 +7,7 @@ class RetailSale {
   final double subtotal;
   final double discountTotal;
   final double taxTotal;
+  final double total;
   final double paidAmount;
   final double changeAmount;
   final double tenderedAmount;

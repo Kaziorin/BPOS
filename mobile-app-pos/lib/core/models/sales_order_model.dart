@@ -59,6 +59,7 @@ class SalesOrder {
   final double taxTotal;
   final double discountTotal;
   final double serviceCharge;
+  final double total;
   final double paidTotal;
   final double dueTotal;
   final double changeReturn;
