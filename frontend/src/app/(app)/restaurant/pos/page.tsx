@@ -100,6 +100,7 @@ interface MenuItem {
   image: string;
   sku?: string;
   barcode?: string;
+  stockQty?: number;
   isPopular?: boolean;
   isVeg?: boolean;
   isKitchenProduct?: boolean;
@@ -125,6 +126,7 @@ interface RestaurantCartItem {
   qty: number;
   unitPrice: number;
   image?: string;
+  stockQty?: number;
   modifiers?: CartModifier[];
   extras?: { label: string; price: number }[];
   notes?: string;
@@ -228,12 +230,16 @@ function mapApiProductToMenuItem(p: any): MenuItem {
     }
   } catch (e) { }
 
+  const rawStock = p.totalStock !== undefined ? p.totalStock : (p.stockQty !== undefined ? p.stockQty : p.stock);
+  const stockQty = rawStock !== undefined && rawStock !== null ? Math.max(0, Number(rawStock)) : undefined;
+
   return {
     id: String(p.id || p._id),
     name: p.name || "Untitled Item",
     category: catName,
     sellingPrice: Number(p.sellingPrice || p.price || 0),
     image: p.imageUrl || p.image || "",
+    stockQty,
     isPopular: Boolean(p.isPopular),
     isVeg: Boolean(p.isVeg),
     isKitchenProduct: isKitchen,
@@ -1116,6 +1122,22 @@ export default function RestaurantPOSPage() {
       );
       toast.success(`Updated add-ons for ${editingCartItem.name}`);
     } else {
+      const maxStock = selectedProductForAddons.stockQty;
+      if (maxStock !== undefined && maxStock <= 0) {
+        toast.error(`"${selectedProductForAddons.name}" is Out of Stock! Cannot add to order.`);
+        setSelectedProductForAddons(null);
+        setEditingCartItem(null);
+        return;
+      }
+      const existing = cart.find((i) => i.productId === selectedProductForAddons.id);
+      const currentQty = existing ? existing.qty : 0;
+      if (maxStock !== undefined && currentQty + 1 > maxStock) {
+        toast.warning(`Cannot add more "${selectedProductForAddons.name}". Only ${maxStock} available in stock!`);
+        setSelectedProductForAddons(null);
+        setEditingCartItem(null);
+        return;
+      }
+
       const isKitchen = selectedProductForAddons.isKitchenProduct ?? true;
       setCart((prev) => [
         ...prev,
@@ -1126,6 +1148,7 @@ export default function RestaurantPOSPage() {
           image: selectedProductForAddons.image || "",
           qty: 1,
           unitPrice: finalUnitPrice,
+          stockQty: selectedProductForAddons.stockQty,
           modifiers: modifiersList,
           notes: itemNote,
           isKitchenProduct: isKitchen,
@@ -1173,6 +1196,21 @@ export default function RestaurantPOSPage() {
 
   const addToCart = (item: MenuItem) => {
     const isKitchen = item.isKitchenProduct ?? true;
+    const maxStock = item.stockQty;
+
+    // Out of stock guard
+    if (maxStock !== undefined && maxStock <= 0) {
+      toast.error(`"${item.name}" is Out of Stock! Cannot add to order.`);
+      return;
+    }
+
+    const existing = cart.find((i) => i.productId === item.id);
+    const currentQty = existing ? existing.qty : 0;
+    if (maxStock !== undefined && currentQty + 1 > maxStock) {
+      toast.warning(`Cannot add more "${item.name}". Only ${maxStock} available in stock!`);
+      return;
+    }
+
     setCart((prev) => {
       const existingIdx = prev.findIndex((i) => i.productId === item.id);
       if (existingIdx >= 0) {
@@ -1189,6 +1227,7 @@ export default function RestaurantPOSPage() {
           image: item.image || "",
           qty: 1,
           unitPrice: item.sellingPrice,
+          stockQty: item.stockQty,
           taxRate: item.taxRate ?? 0,
           taxMethod: item.taxMethod || "Exclusive",
           isKitchenProduct: isKitchen,
@@ -1203,7 +1242,17 @@ export default function RestaurantPOSPage() {
   const updateQty = (id: string, delta: number) => {
     setCart((prev) =>
       prev
-        .map((item) => (item.id === id ? { ...item, qty: item.qty + delta } : item))
+        .map((item) => {
+          if (item.id === id) {
+            const newQty = item.qty + delta;
+            if (delta > 0 && item.stockQty !== undefined && newQty > item.stockQty) {
+              toast.warning(`Stock limit reached for "${item.name}". Available stock: ${item.stockQty}`);
+              return item;
+            }
+            return { ...item, qty: newQty };
+          }
+          return item;
+        })
         .filter((item) => item.qty > 0)
     );
   };
@@ -1379,6 +1428,21 @@ export default function RestaurantPOSPage() {
 
   const handlePlaceOrder = async (payMethod: string = "CASH", tenderedAmount?: number) => {
     if (cart.length === 0 || submittingCheckout) return;
+
+    // Pre-flight check: ensure no items in cart exceed available stock or are out of stock
+    for (const item of cart) {
+      if (item.stockQty !== undefined) {
+        if (item.stockQty <= 0) {
+          toast.error(`"${item.name}" is Out of Stock! (Available: 0, Ordered: ${item.qty}). Please remove it to proceed.`);
+          return;
+        }
+        if (item.qty > item.stockQty) {
+          toast.warning(`Cannot order ${item.qty} of "${item.name}". Only ${item.stockQty} available in stock! Please adjust quantity.`);
+          return;
+        }
+      }
+    }
+
     setSubmittingCheckout(true);
     try {
       // Auto-send KOT to kitchen if there are unsent kitchen products
@@ -1506,7 +1570,12 @@ export default function RestaurantPOSPage() {
       loadData();
     } catch (err: any) {
       console.error("Restaurant POS order error:", err);
-      toast.error(err?.response?.data?.message || err?.message || "Failed to place order. Please try again.");
+      const errorMsg =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to place order. Please try again.";
+      toast.error(errorMsg);
     } finally {
       setSubmittingCheckout(false);
     }
@@ -2117,6 +2186,20 @@ export default function RestaurantPOSPage() {
                             <SlidersHorizontal size={9} strokeWidth={3} /> Custom
                           </span>
                         )}
+                        {item.stockQty !== undefined && (
+                          <span
+                            className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-black shadow-xs ${
+                              item.stockQty <= 0
+                                ? "bg-rose-600 text-white animate-pulse"
+                                : item.stockQty <= 5
+                                ? "bg-amber-500 text-white"
+                                : "bg-slate-800/80 text-white"
+                            }`}
+                            title={`Stock: ${item.stockQty}`}
+                          >
+                            {item.stockQty <= 0 ? "Out of Stock" : `Stock: ${item.stockQty}`}
+                          </span>
+                        )}
                         {item.isPopular && (
                           <span
                             className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[9px] font-black shadow-xs"
@@ -2153,10 +2236,25 @@ export default function RestaurantPOSPage() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          if (item.stockQty !== undefined && item.stockQty <= 0) {
+                            toast.error(`"${item.name}" is Out of Stock!`);
+                            return;
+                          }
                           handleProductAction(item);
                         }}
-                        className="flex h-8 w-8 items-center justify-center rounded-sm bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-xs hover:from-orange-700 hover:to-amber-600 transition cursor-pointer shrink-0"
-                        title={isItemCustomizable(item) ? "Customize Add-ons & Add" : "Add to Order"}
+                        disabled={item.stockQty !== undefined && item.stockQty <= 0}
+                        className={`flex h-8 w-8 items-center justify-center rounded-sm text-white shadow-xs transition shrink-0 ${
+                          item.stockQty !== undefined && item.stockQty <= 0
+                            ? "bg-slate-300 text-slate-500 cursor-not-allowed opacity-50"
+                            : "bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 cursor-pointer"
+                        }`}
+                        title={
+                          item.stockQty !== undefined && item.stockQty <= 0
+                            ? "Out of Stock"
+                            : isItemCustomizable(item)
+                            ? "Customize Add-ons & Add"
+                            : "Add to Order"
+                        }
                       >
                         <Plus size={16} />
                       </button>

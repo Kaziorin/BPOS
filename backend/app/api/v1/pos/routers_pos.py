@@ -213,17 +213,21 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                     {"id": p_id, "t": tenant, "n": it.get("name", "Demo Item"), "sku": sku_val, "sp": float(it.get("unitPrice", 0)), "u": u_val})
                 await db.commit()
 
-    # stock check
+    # stock check — disallow negative stock unless tenant explicitly enabled it
     cfg = (await db.execute(text("SELECT allowNegativeStock FROM tenant_inventory_configs WHERE tenantId=:t"), {"t": tenant})).first()
-    allow_negative = bool(cfg[0]) if cfg else True
+    allow_negative = bool(cfg[0]) if cfg else False
     if not allow_negative:
         for it in items:
             s = (await db.execute(text(
                 "SELECT qtyOnHand, qtyReserved FROM stock WHERE tenantId=:t AND warehouseId=:w AND productId=:p AND (variantId IS NULL OR variantId = :v)"),
                 {"t": tenant, "w": warehouseId, "p": it["productId"], "v": it.get("variantId")})).first()
-            avail = (float(s[0]) - float(s[1])) if s else 0.0
-            if avail < float(it.get("qty", 0)):
-                return err(f'Insufficient stock for "{it.get("name", it["productId"])}": need {it["qty"]}, available {avail}', 400)
+            avail = max(0.0, (float(s[0]) - float(s[1]))) if s else 0.0
+            req_qty = float(it.get("qty", 0))
+            if avail < req_qty:
+                item_label = it.get("name") or it.get("productId")
+                if avail <= 0:
+                    return err(f'"{item_label}" is Out of Stock! (Available: 0, Requested: {int(req_qty) if req_qty.is_integer() else req_qty})', 400)
+                return err(f'Insufficient stock for "{item_label}": Available stock is {int(avail) if avail.is_integer() else avail}, but you ordered {int(req_qty) if req_qty.is_integer() else req_qty}.', 400)
 
     subtotal = sum(float(i.get("qty", 0)) * float(i.get("unitPrice", 0)) - float(i.get("discountAmount", 0) or 0) for i in items)
     discountTotal = float(body.get("discountTotal", 0) or 0)
