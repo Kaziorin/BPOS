@@ -340,11 +340,12 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     async with txn(db):
         await db.execute(text(
             "INSERT INTO sales (id, tenantId, branchId, terminalId, userId, customerId, invoiceNo, subtotal, "
-            "discountTotal, taxTotal, serviceCharge, roundOff, total, paidTotal, dueTotal, paymentStatus, status, shiftId, note, source, createdBy) "
-            "VALUES (:id, :t, :b, :term, :u, :cust, :inv, :sub, :disc, :tax, :svc, :ro, :total, :paid, :due, :ps, 'CONFIRMED', :shift, :note, :source, :u)"),
+            "discountTotal, taxTotal, serviceCharge, roundOff, total, paidTotal, tenderedAmount, changeAmount, dueTotal, paymentStatus, status, shiftId, note, source, createdBy) "
+            "VALUES (:id, :t, :b, :term, :u, :cust, :inv, :sub, :disc, :tax, :svc, :ro, :total, :paid, :tendered, :change, :due, :ps, 'CONFIRMED', :shift, :note, :source, :u)"),
             {"id": saleId, "t": tenant, "b": branchId, "term": body.get("terminalId"), "u": user_id,
              "cust": customerId, "inv": invoiceNo, "sub": subtotal, "disc": discountTotal, "tax": taxTotal,
              "svc": service or None, "ro": roundOff or None, "total": total, "paid": paid, "due": due,
+             "tendered": tendered, "change": change_return,
              "ps": "PAID" if due <= 0 else ("PARTIAL" if paid > 0 else "UNPAID"),
              "shift": shiftId, "note": body.get("note"), "source": body.get("source", "POS"), })
         for it in items:
@@ -439,23 +440,26 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
         remaining_change = change_return
         for p in payments:
             pid = _uuid_str()
+            raw_amt = float(p.get("amount", 0) or 0)
+            net_amt = raw_amt
+            p_tendered = raw_amt
+            p_change = 0.0
+            if p.get("method") == "CASH" and remaining_change > 0:
+                p_change = min(raw_amt, remaining_change)
+                net_amt = raw_amt - p_change
+                remaining_change -= p_change
             await db.execute(text(
-                "INSERT INTO payments (id, tenantId, branchId, saleId, invoiceId, customerId, method, amount, reference, idempotencyKey, status, createdBy, updatedAt) "
-                "VALUES (:id, :t, :b, :s, :inv, :cust, :m, :amt, :ref, :ik, 'COMPLETED', :u, NOW())"),
+                "INSERT INTO payments (id, tenantId, branchId, saleId, invoiceId, customerId, method, amount, tenderedAmount, changeAmount, reference, idempotencyKey, status, createdBy, updatedAt) "
+                "VALUES (:id, :t, :b, :s, :inv, :cust, :m, :amt, :tendered, :change, :ref, :ik, 'COMPLETED', :u, NOW())"),
                 {"id": pid, "t": tenant, "b": branchId, "s": saleId, "inv": invoiceId, "cust": customerId,
-                 "m": p.get("method", "CASH"), "amt": p["amount"], "ref": p.get("reference"),
-                 "ik": p.get("idempotencyKey"), "u": user_id})
+                 "m": p.get("method", "CASH"), "amt": net_amt, "tendered": p_tendered, "change": p_change,
+                 "ref": p.get("reference"), "ik": p.get("idempotencyKey"), "u": user_id})
             payment_ids.append(pid)
             if p.get("method") == "CASH":
-                net_cash = float(p["amount"])
-                if remaining_change > 0:
-                    deduct = min(net_cash, remaining_change)
-                    net_cash -= deduct
-                    remaining_change -= deduct
                 await db.execute(text(
                     "INSERT INTO shift_txns (id, tenantId, shiftId, type, amount, refType, refId, note, userId) "
                     "VALUES (:id, :t, :sh, 'CASH_SALE', :amt, 'SALE', :rid, :note, :u)"),
-                    {"id": _uuid_str(), "t": tenant, "sh": shiftId, "amt": net_cash, "rid": saleId,
+                    {"id": _uuid_str(), "t": tenant, "sh": shiftId, "amt": net_amt, "rid": saleId,
                      "note": f"Cash sale {invoiceNo}", "u": user_id})
         # customer dues update for credit
         if credit_amt > 0 and customerId:
@@ -699,10 +703,12 @@ async def pos_sales(
 
     rows = rows_to_dicts((await db.execute(text(
         f"SELECT s.id, s.invoiceNo, s.subtotal, s.discountTotal, s.taxTotal, s.serviceCharge, s.total, s.paidTotal, s.dueTotal, s.status, s.createdAt, "
+        f"s.tenderedAmount AS saleTenderedAmount, s.changeAmount AS saleChangeAmount, "
         f"s.userId AS cashierId, u.name AS cashierName, "
         f"c.id AS customerId, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail, c.loyaltyPoints AS customerPoints, "
         f"(SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod, "
-        f"(SELECT COALESCE(SUM(amount), 0) FROM payments WHERE saleId = s.id) AS tenderedAmount "
+        f"(SELECT COALESCE(SUM(COALESCE(tenderedAmount, amount)), 0) FROM payments WHERE saleId = s.id) AS tenderedAmount, "
+        f"(SELECT COALESCE(SUM(COALESCE(changeAmount, 0)), 0) FROM payments WHERE saleId = s.id) AS changeAmount "
         f"FROM sales s LEFT JOIN customers c ON c.id=s.customerId LEFT JOIN users u ON u.id=s.userId WHERE {where_sql} ORDER BY {sort_col} {sort_direction} LIMIT :lim OFFSET :off"),
         {**params, "lim": lim, "off": off})).fetchall())
 
@@ -716,7 +722,7 @@ async def pos_sales(
                 "FROM sale_items si LEFT JOIN products p ON p.id = si.productId WHERE si.saleId = :sid"),
                 {"sid": sale_ids[0]})).fetchall())
             all_payments = rows_to_dicts((await db.execute(text(
-                "SELECT id, saleId, method, amount FROM payments WHERE saleId = :sid"),
+                "SELECT id, saleId, method, amount, tenderedAmount, changeAmount FROM payments WHERE saleId = :sid"),
                 {"sid": sale_ids[0]})).fetchall())
         else:
             all_items = rows_to_dicts((await db.execute(text(
@@ -724,7 +730,7 @@ async def pos_sales(
                 "FROM sale_items si LEFT JOIN products p ON p.id = si.productId WHERE si.saleId IN :sids"),
                 {"sids": tuple(sale_ids)})).fetchall())
             all_payments = rows_to_dicts((await db.execute(text(
-                "SELECT id, saleId, method, amount FROM payments WHERE saleId IN :sids"),
+                "SELECT id, saleId, method, amount, tenderedAmount, changeAmount FROM payments WHERE saleId IN :sids"),
                 {"sids": tuple(sale_ids)})).fetchall())
 
         items_by_sale = {}
@@ -754,22 +760,18 @@ async def pos_sales(
             raw_due = float(r.get("dueTotal", 0) or 0)
             pm = r.get("paymentMethod") or "CASH"
             r["payments"] = payments_by_sale.get(r["id"], [])
-            tendered = float(r.get("tenderedAmount") or 0)
+            tendered = float(r.get("saleTenderedAmount") or r.get("tenderedAmount") or 0)
             if tendered <= 0 and r["payments"]:
-                tendered = sum(p["amount"] for p in r["payments"])
+                tendered = sum(float(p.get("tenderedAmount") or p.get("amount") or 0) for p in r["payments"])
             if tendered <= 0:
                 tendered = raw_paid if raw_paid > 0 else tot
             r["tendered"] = round(tendered, 2)
             r["tenderedAmount"] = round(tendered, 2)
 
-            if pm != "CREDIT":
-                r["paidTotal"] = min(raw_paid, tot) if raw_paid > 0 else tot
-                r["dueTotal"] = max(round(tot - r["paidTotal"], 2), 0.0)
-                r["changeReturn"] = max(round(tendered - tot, 2), 0.0)
-            else:
-                r["paidTotal"] = min(raw_paid, tot)
-                r["dueTotal"] = max(raw_due, round(tot - r["paidTotal"], 2))
-                r["changeReturn"] = 0.0
+            chg = float(r.get("saleChangeAmount") or r.get("changeAmount") or 0)
+            if chg <= 0 and tendered > tot and pm != "CREDIT":
+                chg = tendered - tot
+            r["changeReturn"] = max(round(chg, 2), 0.0)
             r["change"] = r["changeReturn"]
             r["returnAmount"] = r["changeReturn"]
             cust_name = r.get("customerName")

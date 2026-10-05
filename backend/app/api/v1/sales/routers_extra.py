@@ -1328,7 +1328,7 @@ async def list_payments(
     select_q = text(f"""
         SELECT 
             p.id, p.tenantId, p.branchId, p.saleId, p.invoiceId, p.customerId,
-            p.method, p.amount, p.reference, p.status, p.createdBy, p.createdAt, p.updatedAt,
+            p.method, p.amount, p.tenderedAmount, p.changeAmount, p.reference, p.status, p.createdBy, p.createdAt, p.updatedAt,
             c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail, c.address AS customerAddress,
             inv.invoiceNo AS invoiceNo, inv.total AS invoiceTotal, inv.paidTotal AS invoicePaidTotal, inv.status AS invoiceStatus,
             s.invoiceNo AS saleInvoiceNo, s.total AS saleTotal,
@@ -1369,6 +1369,8 @@ async def list_payments(
                 r["invoice"] = None
 
         r["amount"] = float(r.get("amount") or 0)
+        r["tenderedAmount"] = float(r.get("tenderedAmount") or r.get("amount") or 0)
+        r["changeAmount"] = float(r.get("changeAmount") or 0)
         data.append(r)
 
     return ok(data, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})

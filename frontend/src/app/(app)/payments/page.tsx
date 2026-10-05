@@ -45,6 +45,8 @@ import {
 interface Payment {
   id: string;
   amount: number;
+  tenderedAmount?: number;
+  changeAmount?: number;
   method: string;
   reference?: string | null;
   status: "COMPLETED" | "REFUNDED" | "PENDING" | "FAILED" | string;
@@ -209,15 +211,17 @@ export default function PaymentsPage() {
     async function loadAux() {
       try {
         const [cRes, bRes, iRes]: any = await Promise.all([
-          api.get("/v1/customers?limit=250").catch(() => ({ data: { data: [] } })),
-          api.get("/v1/branches?limit=50").catch(() => ({ data: { data: [] } })),
-          api.get("/v1/invoices?status=UNPAID&limit=100").catch(() => ({ data: { data: [] } })),
+          api.get("/v1/customers?limit=250").catch(() => ({ data: [] })),
+          api.get("/v1/branches?limit=50").catch(() => ({ data: [] })),
+          api.get("/v1/invoices?status=UNPAID&limit=100").catch(() => ({ data: [] })),
         ]);
-        setCustomers(cRes.data?.data ?? []);
-        const bList = bRes.data?.data ?? [];
-        setBranches(bList);
-        setOpenInvoices(iRes.data?.data ?? []);
-        if (bList.length > 0 && !recordForm.branchId) {
+        const cList = Array.isArray(cRes?.data) ? cRes.data : (Array.isArray(cRes) ? cRes : (cRes?.data?.data ?? []));
+        setCustomers(Array.isArray(cList) ? cList : []);
+        const bList = Array.isArray(bRes?.data) ? bRes.data : (Array.isArray(bRes) ? bRes : (bRes?.data?.data ?? []));
+        setBranches(Array.isArray(bList) ? bList : []);
+        const iList = Array.isArray(iRes?.data) ? iRes.data : (Array.isArray(iRes) ? iRes : (iRes?.data?.data ?? []));
+        setOpenInvoices(Array.isArray(iList) ? iList : []);
+        if (Array.isArray(bList) && bList.length > 0 && !recordForm.branchId) {
           setRecordForm((p) => ({ ...p, branchId: bList[0].id }));
         }
       } catch (err) {
@@ -232,7 +236,8 @@ export default function PaymentsPage() {
     setStatsLoading(true);
     try {
       const res: any = await api.get("/v1/payments/stats");
-      setStats(res.data?.data ?? null);
+      const statsData = res?.data?.data ?? res?.data ?? res ?? null;
+      setStats(statsData);
     } catch (err) {
       console.error("Failed to load payment stats", err);
     } finally {
@@ -267,10 +272,14 @@ export default function PaymentsPage() {
       if (endDate) params.set("dateTo", endDate);
 
       const res: any = await api.get(`/v1/payments?${params.toString()}`);
-      const dataList = res.data?.data ?? [];
+      const dataList = Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res)
+        ? res
+        : (res?.data?.data ?? []);
       setPayments(dataList);
 
-      const pagination = res.data?.pagination || res.data?.extra?.pagination;
+      const pagination = res?.extra?.pagination || res?.pagination || res?.data?.pagination || res?.data?.extra?.pagination;
       if (pagination) {
         setTotalPages(pagination.totalPages || 1);
         setTotalRecords(pagination.total || dataList.length);
@@ -280,7 +289,7 @@ export default function PaymentsPage() {
       }
     } catch (err: any) {
       console.error("Failed to load payments", err);
-      toast.error(err.response?.data?.error ?? "Error loading payments");
+      toast.error(err.response?.data?.error ?? err.message ?? "Error loading payments");
     } finally {
       setLoading(false);
     }
@@ -363,7 +372,7 @@ export default function PaymentsPage() {
     }
     try {
       const res: any = await api.get(`/v1/invoices?customerId=${cid}&status=UNPAID&limit=50`);
-      const unpaids = res.data?.data ?? [];
+      const unpaids = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : (res?.data?.data ?? []));
       setAllocRows(
         unpaids.map((inv: any) => ({
           invoiceId: inv.id,
@@ -629,17 +638,27 @@ export default function PaymentsPage() {
     {
       key: "invoice",
       header: "Linked Invoice",
-      render: (p) =>
-        p.invoice?.invoiceNo ? (
+      render: (p) => {
+        const invoiceDue = Math.max(0, Number(p.invoice?.total || 0) - Number(p.invoice?.paidTotal || 0));
+        const hasDue = Boolean(p.invoice?.invoiceNo && invoiceDue > 0.01);
+        return p.invoice?.invoiceNo ? (
           <div className="flex flex-col">
-            <span className="font-mono font-bold text-gray-600">{p.invoice.invoiceNo}</span>
-            <span className="text-[10px] text-gray-500 font-medium">
-              Total: ৳{Number(p.invoice.total || 0).toLocaleString()}
-            </span>
+            <span className="font-mono font-bold text-gray-700">{p.invoice.invoiceNo}</span>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-[10px] text-gray-500 font-medium">
+                Total: ৳{Number(p.invoice.total || 0).toLocaleString()}
+              </span>
+              {hasDue && (
+                <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1 py-0.2 rounded border border-amber-200">
+                  Due: ৳{invoiceDue.toLocaleString()}
+                </span>
+              )}
+            </div>
           </div>
         ) : (
           <span className="text-[11px] text-gray-500 italic">Direct Receipt</span>
-        ),
+        );
+      },
     },
     {
       key: "amount",
@@ -647,14 +666,24 @@ export default function PaymentsPage() {
       align: "right",
       render: (p) => {
         const isRefunded = p.status === "REFUNDED";
+        const hasTenderChange =
+          (Number(p.tenderedAmount || 0) > Number(p.amount) && Number(p.tenderedAmount || 0) > 0) ||
+          Number(p.changeAmount || 0) > 0;
         return (
-          <span
-            className={`font-black tabular-nums text-xs sm:text-sm ${
-              isRefunded ? "text-rose-600 line-through" : "text-emerald-700"
-            }`}
-          >
-            ৳{Number(p.amount).toLocaleString()}
-          </span>
+          <div className="flex flex-col items-end gap-0.5">
+            <span
+              className={`font-black tabular-nums text-xs sm:text-sm ${
+                isRefunded ? "text-rose-600 line-through" : "text-emerald-700"
+              }`}
+            >
+              ৳{Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+            {hasTenderChange && (
+              <span className="text-[10px] text-slate-500 font-mono font-medium">
+                Tendered: ৳{Number(p.tenderedAmount).toLocaleString()} • Change: ৳{Number(p.changeAmount || 0).toLocaleString()}
+              </span>
+            )}
+          </div>
         );
       },
     },
@@ -663,7 +692,34 @@ export default function PaymentsPage() {
       header: "Status",
       align: "center",
       render: (p) => {
+        const isRefunded = p.status === "REFUNDED";
+        const invoiceDue = Math.max(0, Number(p.invoice?.total || 0) - Number(p.invoice?.paidTotal || 0));
+        const hasDue = Boolean(p.invoice?.invoiceNo && invoiceDue > 0.01);
         const statusCfg = STATUS_CONFIG[p.status] || STATUS_CONFIG.COMPLETED;
+
+        if (isRefunded) {
+          return (
+            <span className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold bg-rose-50 border-rose-200 text-rose-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+              Refunded / Void
+            </span>
+          );
+        }
+
+        if (hasDue) {
+          return (
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold bg-amber-50 border-amber-300 text-amber-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                Partial Payment
+              </span>
+              <span className="text-[10px] font-bold text-amber-600">
+                Due: ৳{invoiceDue.toLocaleString()}
+              </span>
+            </div>
+          );
+        }
+
         return (
           <span
             className={`inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold ${statusCfg.bg} ${statusCfg.text}`}
@@ -1095,6 +1151,11 @@ export default function PaymentsPage() {
                     const methodCfg = METHOD_CONFIG[p.method] || METHOD_CONFIG.CASH;
                     const MethodIcon = methodCfg.icon;
                     const statusCfg = STATUS_CONFIG[p.status] || STATUS_CONFIG.COMPLETED;
+                    const invoiceDue = Math.max(0, Number(p.invoice?.total || 0) - Number(p.invoice?.paidTotal || 0));
+                    const hasDue = Boolean(p.invoice?.invoiceNo && invoiceDue > 0.01);
+                    const hasTenderChange =
+                      (Number(p.tenderedAmount || 0) > Number(p.amount) && Number(p.tenderedAmount || 0) > 0) ||
+                      Number(p.changeAmount || 0) > 0;
 
                     return (
                       <tr
@@ -1170,9 +1231,16 @@ export default function PaymentsPage() {
                           {p.invoice?.invoiceNo ? (
                             <div className="flex flex-col">
                               <span className="font-mono font-bold text-gray-600">{p.invoice.invoiceNo}</span>
-                              <span className="text-[10px] text-gray-500 font-medium">
-                                Total: ৳{Number(p.invoice.total || 0).toLocaleString()}
-                              </span>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className="text-[10px] text-gray-500 font-medium">
+                                  Total: ৳{Number(p.invoice.total || 0).toLocaleString()}
+                                </span>
+                                {hasDue && (
+                                  <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1 py-0.2 rounded border border-amber-200">
+                                    Due: ৳{invoiceDue.toLocaleString()}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           ) : (
                             <span className="text-[11px] text-gray-500 italic">Direct Receipt</span>
@@ -1181,19 +1249,43 @@ export default function PaymentsPage() {
 
                         {/* Amount */}
                         <td className="px-3 py-3.5 text-right font-black tabular-nums text-xs sm:text-sm">
-                          <span className={isRefunded ? "text-rose-600 line-through" : "text-emerald-700"}>
-                            ৳{Number(p.amount).toLocaleString()}
-                          </span>
+                          <div className="flex flex-col items-end gap-0.5">
+                            <span className={isRefunded ? "text-rose-600 line-through" : "text-emerald-700"}>
+                              ৳{Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                            {hasTenderChange && (
+                              <span className="text-[10px] text-slate-500 font-mono font-medium">
+                                Tendered: ৳{Number(p.tenderedAmount).toLocaleString()} • Change: ৳{Number(p.changeAmount || 0).toLocaleString()}
+                              </span>
+                            )}
+                          </div>
                         </td>
 
                         {/* Status */}
                         <td className="px-3 py-3.5 text-center">
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold ${statusCfg.bg} ${statusCfg.text}`}
-                          >
-                            <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dot}`} />
-                            {statusCfg.label}
-                          </span>
+                          {isRefunded ? (
+                            <span className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold bg-rose-50 border-rose-200 text-rose-700">
+                              <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                              Refunded / Void
+                            </span>
+                          ) : hasDue ? (
+                            <div className="flex flex-col items-center gap-0.5">
+                              <span className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold bg-amber-50 border-amber-300 text-amber-700">
+                                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                                Partial Payment
+                              </span>
+                              <span className="text-[10px] font-bold text-amber-600">
+                                Due: ৳{invoiceDue.toLocaleString()}
+                              </span>
+                            </div>
+                          ) : (
+                            <span
+                              className={`inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold ${statusCfg.bg} ${statusCfg.text}`}
+                            >
+                              <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dot}`} />
+                              {statusCfg.label}
+                            </span>
+                          )}
                         </td>
 
                         {/* Date & Time */}
@@ -1274,6 +1366,11 @@ export default function PaymentsPage() {
                 const MethodIcon = methodCfg.icon;
                 const statusCfg = STATUS_CONFIG[p.status] || STATUS_CONFIG.COMPLETED;
                 const isRefunded = p.status === "REFUNDED";
+                const invoiceDue = Math.max(0, Number(p.invoice?.total || 0) - Number(p.invoice?.paidTotal || 0));
+                const hasDue = Boolean(p.invoice?.invoiceNo && invoiceDue > 0.01);
+                const hasTenderChange =
+                  (Number(p.tenderedAmount || 0) > Number(p.amount) && Number(p.tenderedAmount || 0) > 0) ||
+                  Number(p.changeAmount || 0) > 0;
 
                 return (
                   <div
@@ -1294,12 +1391,24 @@ export default function PaymentsPage() {
                             {methodCfg.label}
                           </span>
                         </div>
-                        <span
-                          className={`inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold ${statusCfg.bg} ${statusCfg.text}`}
-                        >
-                          <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dot}`} />
-                          {statusCfg.label}
-                        </span>
+                        {isRefunded ? (
+                          <span className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold bg-rose-50 border-rose-200 text-rose-700">
+                            <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                            Refunded
+                          </span>
+                        ) : hasDue ? (
+                          <span className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold bg-amber-50 border-amber-300 text-amber-700">
+                            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                            Partial (Due: ৳{invoiceDue.toLocaleString()})
+                          </span>
+                        ) : (
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold ${statusCfg.bg} ${statusCfg.text}`}
+                          >
+                            <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dot}`} />
+                            {statusCfg.label}
+                          </span>
+                        )}
                       </div>
 
                       {/* Customer Info */}
@@ -1309,15 +1418,40 @@ export default function PaymentsPage() {
                         {p.customer?.phone && <p className="text-[11px] text-gray-500">{p.customer.phone}</p>}
                       </div>
 
+                      {/* Invoice Info */}
+                      {p.invoice?.invoiceNo && (
+                        <div className="mt-2 rounded-sm bg-slate-50 p-2.5 border border-slate-100 flex items-center justify-between text-xs">
+                          <div>
+                            <span className="text-[10px] font-bold text-gray-500 block">Invoice</span>
+                            <span className="font-mono font-bold text-gray-700">{p.invoice.invoiceNo}</span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-[10px] text-gray-500 block">Total: ৳{Number(p.invoice.total || 0).toLocaleString()}</span>
+                            {hasDue && (
+                              <span className="text-[10px] font-bold text-amber-600">
+                                Due: ৳{invoiceDue.toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Financial Amount */}
                       <div className="mt-3 flex items-center justify-between">
-                        <span className="text-xs font-medium text-gray-500">Collected Amount</span>
+                        <div>
+                          <span className="text-xs font-medium text-gray-500 block">Collected Amount</span>
+                          {hasTenderChange && (
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              Tender: ৳{Number(p.tenderedAmount).toLocaleString()}
+                            </span>
+                          )}
+                        </div>
                         <span
                           className={`text-base font-black tabular-nums ${
                             isRefunded ? "text-rose-600 line-through" : "text-emerald-700"
                           }`}
                         >
-                          ৳{Number(p.amount).toLocaleString()}
+                          ৳{Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </div>
                     </div>
@@ -1790,21 +1924,50 @@ export default function PaymentsPage() {
                 Collected Amount
               </span>
               <div className="mt-1 text-3xl font-black text-brand-dark">
-                ৳{Number(selectedPaymentForDrawer.amount).toLocaleString()}
+                ৳{Number(selectedPaymentForDrawer.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
+              {selectedPaymentForDrawer.tenderedAmount && Number(selectedPaymentForDrawer.tenderedAmount) > Number(selectedPaymentForDrawer.amount) && (
+                <div className="mt-1 text-xs text-gray-500 font-mono">
+                  Tendered: ৳{Number(selectedPaymentForDrawer.tenderedAmount).toLocaleString()} • Change: ৳{Number(selectedPaymentForDrawer.changeAmount || 0).toLocaleString()}
+                </div>
+              )}
               <div className="mt-2 flex items-center justify-center gap-2">
-                <span
-                  className={`inline-flex items-center gap-1 rounded-sm border px-2.5 py-0.5 text-[10px] font-bold ${
-                    STATUS_CONFIG[selectedPaymentForDrawer.status]?.bg || ""
-                  } ${STATUS_CONFIG[selectedPaymentForDrawer.status]?.text || ""}`}
-                >
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      STATUS_CONFIG[selectedPaymentForDrawer.status]?.dot || ""
-                    }`}
-                  />
-                  {selectedPaymentForDrawer.status}
-                </span>
+                {(() => {
+                  const invTotal = Number(selectedPaymentForDrawer.invoice?.total || 0);
+                  const invPaid = Number(selectedPaymentForDrawer.invoice?.paidTotal || 0);
+                  const invDue = Math.max(0, invTotal - invPaid);
+                  const hasDue = Boolean(selectedPaymentForDrawer.invoice?.invoiceNo && invDue > 0.01);
+                  if (selectedPaymentForDrawer.status === "REFUNDED") {
+                    return (
+                      <span className="inline-flex items-center gap-1 rounded-sm border px-2.5 py-0.5 text-[10px] font-bold bg-rose-50 border-rose-200 text-rose-700">
+                        <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                        Refunded / Void
+                      </span>
+                    );
+                  }
+                  if (hasDue) {
+                    return (
+                      <span className="inline-flex items-center gap-1 rounded-sm border px-2.5 py-0.5 text-[10px] font-bold bg-amber-50 border-amber-300 text-amber-700">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                        Partial Payment (Due: ৳{invDue.toLocaleString()})
+                      </span>
+                    );
+                  }
+                  return (
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-sm border px-2.5 py-0.5 text-[10px] font-bold ${
+                        STATUS_CONFIG[selectedPaymentForDrawer.status]?.bg || ""
+                      } ${STATUS_CONFIG[selectedPaymentForDrawer.status]?.text || ""}`}
+                    >
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          STATUS_CONFIG[selectedPaymentForDrawer.status]?.dot || ""
+                        }`}
+                      />
+                      Settled / Paid
+                    </span>
+                  );
+                })()}
                 <span className="text-[11px] font-semibold text-gray-500">
                   • {selectedPaymentForDrawer.method}
                 </span>
@@ -1833,19 +1996,42 @@ export default function PaymentsPage() {
             </div>
 
             {/* Target Invoice */}
-            {selectedPaymentForDrawer.invoice && (
-              <div className="rounded-sm bg-white p-4 space-y-2 border border-slate-200 shadow-2xs">
-                <span className="font-bold text-brand-dark uppercase text-[10px] tracking-wider">Target Invoice</span>
-                <div className="flex justify-between items-center">
-                  <span className="font-mono font-bold text-gray-600">
-                    {selectedPaymentForDrawer.invoice.invoiceNo}
-                  </span>
-                  <span className="font-bold text-brand-primary">
-                    ৳{Number(selectedPaymentForDrawer.invoice.total || 0).toLocaleString()}
-                  </span>
+            {selectedPaymentForDrawer.invoice && (() => {
+              const invTotal = Number(selectedPaymentForDrawer.invoice.total || 0);
+              const invPaid = Number(selectedPaymentForDrawer.invoice.paidTotal || 0);
+              const invDue = Math.max(0, invTotal - invPaid);
+              return (
+                <div className="rounded-sm bg-white p-4 space-y-2 border border-slate-200 shadow-2xs">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-brand-dark uppercase text-[10px] tracking-wider">Target Invoice</span>
+                    {invDue > 0.01 ? (
+                      <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                        Partially Paid (Remaining Due: ৳{invDue.toLocaleString()})
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        Fully Settled
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-mono font-bold text-gray-600">
+                      {selectedPaymentForDrawer.invoice.invoiceNo}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-brand-primary">
+                        Total: ৳{invTotal.toLocaleString()}
+                      </span>
+                      {invDue > 0.01 && (
+                        <span className="font-bold text-rose-600">
+                          Due: ৳{invDue.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Audit & Trace */}
             <div className="rounded-sm border border-slate-200 bg-slate-50/70 p-4 space-y-2 text-xs">
