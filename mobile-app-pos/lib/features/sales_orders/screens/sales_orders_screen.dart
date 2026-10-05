@@ -265,10 +265,15 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
     return Scaffold(
       backgroundColor: bgColor,
       body: SafeArea(
-        child: Column(
-          children: [
-            // ── TOP HEADER ──
-            _buildTopHeader(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxHeight < 200 || constraints.maxWidth < 200) {
+              return const SizedBox.shrink();
+            }
+            return Column(
+              children: [
+                // ── TOP HEADER ──
+                _buildTopHeader(
               context: context,
               user: user,
               appProvider: appProvider,
@@ -418,10 +423,12 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
             ),
           ),
         ],
-        ),
-      ),
-    );
-  }
+      );
+    },
+  ),
+),
+);
+}
 
   // ── TOP HEADER ──
   Widget _buildTopHeader({
@@ -739,34 +746,41 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Text(
-                locale == 'bn' ? 'অর্ডার তালিকা' : 'Orders List',
-                style: TextStyle(
-                  fontSize: 14.5,
-                  fontWeight: FontWeight.w900,
-                  color: textPrimary,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: BoxDecoration(
-                  color: bizTheme.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  NumberUtils.formatNumber(_orders.length, locale),
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: bizTheme.primary,
+          Expanded(
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    locale == 'bn' ? 'অর্ডার তালিকা' : 'Orders List',
+                    style: TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w900,
+                      color: textPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: bizTheme.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    NumberUtils.formatNumber(_orders.length, locale),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: bizTheme.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
           Row(
             children: [
               // Modern Mobile Export CSV Button
@@ -2871,27 +2885,35 @@ class _OrdersCardList extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // Items count & payment method
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${order.items.length} ${locale == 'bn' ? 'টি আইটেম' : 'items'}',
-                          style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(height: 1),
-                        Text(
-                          '${order.paymentStatus} (${order.paymentMethod})',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: isPaid ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${order.items.length} ${locale == 'bn' ? 'টি আইটেম' : 'items'}',
+                            style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w500),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 1),
+                          Text(
+                            '${order.paymentStatus} (${order.paymentMethod})',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: isPaid ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
 
                     // Amount & Actions
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,

@@ -88,21 +88,25 @@ class _RetailAiInsightsModalState extends State<RetailAiInsightsModal> {
 
   Widget _buildHeader(bool isDark, Color borderColor) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 12, 14),
+      padding: const EdgeInsets.fromLTRB(16, 14, 12, 12),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: borderColor)),
       ),
       child: Row(
         children: [
-          Text(
-            'AI Assistant & Smart Insights',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white : const Color(0xFF1E293B),
+          Expanded(
+            child: Text(
+              'AI Assistant & Smart Insights',
+              style: TextStyle(
+                fontSize: 14.5,
+                fontWeight: FontWeight.w800,
+                color: isDark ? Colors.white : const Color(0xFF1E293B),
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Container(
@@ -150,17 +154,21 @@ class _RetailAiInsightsModalState extends State<RetailAiInsightsModal> {
               children: [
                 Row(
                   children: [
-                    const Text(
-                      'Enterprise POS AI Engine',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                    Flexible(
+                      child: Text(
+                        'Enterprise POS AI Engine',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                       decoration: BoxDecoration(
                         color: const Color(0xFF10B981),
                         borderRadius: BorderRadius.circular(20),
@@ -168,7 +176,7 @@ class _RetailAiInsightsModalState extends State<RetailAiInsightsModal> {
                       child: const Text(
                         'LIVE',
                         style: TextStyle(
-                          fontSize: 9,
+                          fontSize: 8.5,
                           fontWeight: FontWeight.w900,
                           color: Colors.white,
                           letterSpacing: 0.5,
@@ -181,10 +189,12 @@ class _RetailAiInsightsModalState extends State<RetailAiInsightsModal> {
                 const Text(
                   'Analyzing 3 items in order for live cross-sell & bundle recommendations',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 10.5,
                     color: Color(0xFFDDD6FE),
                     fontWeight: FontWeight.w400,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -196,75 +206,90 @@ class _RetailAiInsightsModalState extends State<RetailAiInsightsModal> {
   }
 
   Widget _buildTabs(bool isDark, Color borderColor) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF242424) : const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: borderColor),
-      ),
-      padding: const EdgeInsets.all(3),
-      child: Row(
-        children: List.generate(_tabs.length, (i) {
-          final isActive = _activeTab == i;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _activeTab = i),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 7),
-                decoration: BoxDecoration(
-                  color: isActive
-                      ? (isDark ? const Color(0xFF7C3AED) : Colors.white)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(3),
-                  boxShadow: isActive
-                      ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4)]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      i == 0 ? Icons.auto_awesome_rounded : i == 1 ? Icons.trending_up_rounded : Icons.store_rounded,
-                      size: 13,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 500;
+        final tabLabels = isNarrow
+            ? ['Recommendations', 'Predictions', 'Store Intel']
+            : _tabs;
+
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF242424) : const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: borderColor),
+          ),
+          padding: const EdgeInsets.all(3),
+          child: Row(
+            children: List.generate(_tabs.length, (i) {
+              final isActive = _activeTab == i;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _activeTab = i),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 2),
+                    decoration: BoxDecoration(
                       color: isActive
-                          ? (isDark ? Colors.white : const Color(0xFF7C3AED))
-                          : (isDark ? Colors.grey.shade400 : const Color(0xFF64748B)),
+                          ? (isDark ? const Color(0xFF7C3AED) : Colors.white)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: isActive
+                          ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4)]
+                          : null,
                     ),
-                    const SizedBox(width: 5),
-                    Flexible(
-                      child: Text(
-                        _tabs[i],
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          i == 0
+                              ? Icons.auto_awesome_rounded
+                              : i == 1
+                                  ? Icons.trending_up_rounded
+                                  : Icons.store_rounded,
+                          size: 13,
                           color: isActive
                               ? (isDark ? Colors.white : const Color(0xFF7C3AED))
                               : (isDark ? Colors.grey.shade400 : const Color(0xFF64748B)),
                         ),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (i == 0) ...[
-                      const SizedBox(width: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF7C3AED),
-                          borderRadius: BorderRadius.circular(10),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            tabLabels[i],
+                            style: TextStyle(
+                              fontSize: isNarrow ? 9.5 : 10.5,
+                              fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                              color: isActive
+                                  ? (isDark ? Colors.white : const Color(0xFF7C3AED))
+                                  : (isDark ? Colors.grey.shade400 : const Color(0xFF64748B)),
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        child: const Text('6', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.white)),
-                      ),
-                    ],
-                  ],
+                        if (i == 0 && !isNarrow) ...[
+                          const SizedBox(width: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF7C3AED),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Text('6',
+                                style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.white)),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          );
-        }),
-      ),
+              );
+            }),
+          ),
+        );
+      },
     );
   }
 
@@ -289,89 +314,123 @@ class _RetailAiInsightsModalState extends State<RetailAiInsightsModal> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              "Contextual suggestions matching current customer's cart:",
-              style: TextStyle(fontSize: 11, color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B)),
+            Expanded(
+              child: Text(
+                "Contextual suggestions matching current customer's cart:",
+                style: TextStyle(fontSize: 11, color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B)),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
+            const SizedBox(width: 8),
             const Text(
-              '1-Click Add to Cart',
+              '1-Click Add',
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF7C3AED)),
             ),
           ],
         ),
         const SizedBox(height: 10),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 3.2,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-          ),
-          itemCount: _recommendations.length,
-          itemBuilder: (ctx, i) {
-            final r = _recommendations[i];
-            return Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: borderColor),
+        LayoutBuilder(
+          builder: (ctx, constraints) {
+            final isNarrow = constraints.maxWidth < 500;
+            if (isNarrow) {
+              return Column(
+                children: _recommendations
+                    .map((r) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: _buildRecommendationCard(r, isDark, borderColor),
+                        ))
+                    .toList(),
+              );
+            }
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 2.3,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
               ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Icon(Icons.inventory_2_outlined, size: 18, color: isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8)),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF7C3AED).withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                              child: Text(r['match'] as String, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Color(0xFF7C3AED))),
-                            ),
-                            const SizedBox(width: 4),
-                            Text('Stock: ${r['stock']}', style: const TextStyle(fontSize: 9, color: Color(0xFF94A3B8))),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(r['name'] as String, style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF1E293B))),
-                        Text(r['price'] as String, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF7C3AED))),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)]),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Text('+ Add', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
-                  ),
-                ],
-              ),
+              itemCount: _recommendations.length,
+              itemBuilder: (ctx, i) => _buildRecommendationCard(_recommendations[i], isDark, borderColor),
             );
           },
         ),
         const SizedBox(height: 4),
       ],
+    );
+  }
+
+  Widget _buildRecommendationCard(Map<String, dynamic> r, bool isDark, Color borderColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Icon(Icons.inventory_2_outlined, size: 18, color: isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8)),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF7C3AED).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(r['match'] as String, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Color(0xFF7C3AED))),
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        'Stock: ${r['stock']}',
+                        style: const TextStyle(fontSize: 9, color: Color(0xFF94A3B8)),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  r['name'] as String,
+                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF1E293B)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(r['price'] as String, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Color(0xFF7C3AED))),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)]),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: const Text('+ Add', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -402,7 +461,10 @@ class _RetailAiInsightsModalState extends State<RetailAiInsightsModal> {
           ),
           actionButton: Container(
             margin: const EdgeInsets.only(top: 8),
-            child: Row(
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -412,7 +474,6 @@ class _RetailAiInsightsModalState extends State<RetailAiInsightsModal> {
                   ),
                   child: const Text('Trigger Reorder Requisition', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.white)),
                 ),
-                const SizedBox(width: 10),
                 const Text('Reorder Qty: 48 pcs recommended', style: TextStyle(fontSize: 10.5, color: Color(0xFF64748B))),
               ],
             ),
@@ -506,14 +567,30 @@ class _RetailAiInsightsModalState extends State<RetailAiInsightsModal> {
   Widget _buildStoreIntelligence(bool isDark, Color borderColor) {
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(child: _buildStatCard(isDark, borderColor, 'PREDICTED PEAK RUSH', '5:30 PM - 8:30 PM', 'Est. 45+ Customers/hr', const Color(0xFF7C3AED))),
-            const SizedBox(width: 10),
-            Expanded(child: _buildStatCard(isDark, borderColor, 'UPSELL OPPORTUNITY', '+18.2% Basket Size', 'Pairing Snacks with Drinks', const Color(0xFF10B981))),
-            const SizedBox(width: 10),
-            Expanded(child: _buildStatCard(isDark, borderColor, 'CASHIER SPEED', '42 sec / checkout', 'Top 5% Performance', const Color(0xFF3B82F6))),
-          ],
+        LayoutBuilder(
+          builder: (ctx, constraints) {
+            final isNarrow = constraints.maxWidth < 450;
+            if (isNarrow) {
+              return Column(
+                children: [
+                  _buildStatCard(isDark, borderColor, 'PREDICTED PEAK RUSH', '5:30 PM - 8:30 PM', 'Est. 45+ Customers/hr', const Color(0xFF7C3AED)),
+                  const SizedBox(height: 8),
+                  _buildStatCard(isDark, borderColor, 'UPSELL OPPORTUNITY', '+18.2% Basket Size', 'Pairing Snacks with Drinks', const Color(0xFF10B981)),
+                  const SizedBox(height: 8),
+                  _buildStatCard(isDark, borderColor, 'CASHIER SPEED', '42 sec / checkout', 'Top 5% Performance', const Color(0xFF3B82F6)),
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: _buildStatCard(isDark, borderColor, 'PREDICTED PEAK RUSH', '5:30 PM - 8:30 PM', 'Est. 45+ Customers/hr', const Color(0xFF7C3AED))),
+                const SizedBox(width: 8),
+                Expanded(child: _buildStatCard(isDark, borderColor, 'UPSELL OPPORTUNITY', '+18.2% Basket Size', 'Pairing Snacks with Drinks', const Color(0xFF10B981))),
+                const SizedBox(width: 8),
+                Expanded(child: _buildStatCard(isDark, borderColor, 'CASHIER SPEED', '42 sec / checkout', 'Top 5% Performance', const Color(0xFF3B82F6))),
+              ],
+            );
+          },
         ),
         const SizedBox(height: 12),
         Container(
@@ -611,11 +688,15 @@ class _RetailAiInsightsModalState extends State<RetailAiInsightsModal> {
         children: [
           const Icon(Icons.smart_toy_rounded, size: 13, color: Color(0xFF94A3B8)),
           const SizedBox(width: 6),
-          const Text(
-            'Enterprise AI POS Engine • Auto-learning active',
-            style: TextStyle(fontSize: 10.5, color: Color(0xFF94A3B8)),
+          const Flexible(
+            child: Text(
+              'Enterprise AI POS Engine • Auto-learning active',
+              style: TextStyle(fontSize: 10.5, color: Color(0xFF94A3B8)),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          const Spacer(),
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Container(

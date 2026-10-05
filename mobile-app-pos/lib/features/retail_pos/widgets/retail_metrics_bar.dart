@@ -27,7 +27,7 @@ class RetailMetricsBar extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= 1300;
+          final isWide = constraints.maxWidth >= 1440;
 
           final card1 = RetailMetricCard(
             title: 'SALES TODAY',

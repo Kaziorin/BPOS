@@ -630,7 +630,7 @@ class _RetailHeaderState extends State<RetailHeader> {
                   const SizedBox(width: 8),
 
                   // Quick Actions Button
-                  if (screenWidth >= 950) ...[
+                  if (screenWidth >= 1050) ...[
                     InkWell(
                       onTap: () => showRetailHoldsDialog(context, retailProvider, isDark),
                       borderRadius: BorderRadius.circular(4),
@@ -669,7 +669,7 @@ class _RetailHeaderState extends State<RetailHeader> {
                   ],
 
                   // Date & Time Pill
-                  if (screenWidth >= 1200) ...[
+                  if (screenWidth >= 1250) ...[
                     Container(
                       height: 36,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -731,7 +731,7 @@ class _RetailHeaderState extends State<RetailHeader> {
                           ),
                           child: const Icon(Icons.person_rounded, size: 12, color: Colors.white),
                         ),
-                        if (screenWidth >= 1100) ...[
+                        if (screenWidth >= 1150) ...[
                           const SizedBox(width: 6),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

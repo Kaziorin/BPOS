@@ -48,6 +48,10 @@ class _RetailPOSScreenState extends State<RetailPOSScreen> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
+            if (constraints.maxHeight < 200 || constraints.maxWidth < 200) {
+              return const SizedBox.shrink();
+            }
+
             final isMobile = constraints.maxWidth < 900;
 
             return Column(

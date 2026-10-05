@@ -176,21 +176,21 @@ class RetailProductCatalog extends StatelessWidget {
       builder: (context, catalogConstraints) {
         final catalogWidth = catalogConstraints.maxWidth;
         int crossAxisCount = 2;
-        if (catalogWidth >= 1400) {
-          crossAxisCount = 6;
-        } else if (catalogWidth >= 1100) {
+        if (catalogWidth >= 1300) {
           crossAxisCount = 5;
-        } else if (catalogWidth >= 800) {
+        } else if (catalogWidth >= 950) {
           crossAxisCount = 4;
-        } else if (catalogWidth >= 520) {
+        } else if (catalogWidth >= 650) {
           crossAxisCount = 3;
+        } else if (catalogWidth >= 380) {
+          crossAxisCount = 2;
         }
 
         return GridView.builder(
           padding: const EdgeInsets.all(6),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            childAspectRatio: 1.0,
+            childAspectRatio: 0.82,
             crossAxisSpacing: 6,
             mainAxisSpacing: 6,
           ),
@@ -398,12 +398,16 @@ class RetailProductCatalog extends StatelessWidget {
                                             ),
                                           ),
                                           const SizedBox(width: 3),
-                                          const Text(
-                                            'In Stock',
-                                            style: TextStyle(
-                                              fontSize: 8,
-                                              fontWeight: FontWeight.w600,
-                                              color: Color(0xFF10B981),
+                                          const Flexible(
+                                            child: Text(
+                                              'In Stock',
+                                              style: TextStyle(
+                                                fontSize: 8,
+                                                fontWeight: FontWeight.w600,
+                                                color: Color(0xFF10B981),
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                         ],

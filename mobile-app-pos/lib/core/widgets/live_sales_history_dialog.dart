@@ -162,6 +162,8 @@ class _LiveSalesHistoryDialogState extends State<LiveSalesHistoryDialog> {
                             fontWeight: FontWeight.w900,
                             color: Colors.white,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           isBn ? 'সরাসরি ব্যাকএন্ড সিস্টেমের সাথে সংযুক্ত' : 'Live synced with backend system',
@@ -170,6 +172,8 @@ class _LiveSalesHistoryDialogState extends State<LiveSalesHistoryDialog> {
                             fontWeight: FontWeight.w500,
                             color: Colors.white.withValues(alpha: 0.85),
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -204,7 +208,7 @@ class _LiveSalesHistoryDialogState extends State<LiveSalesHistoryDialog> {
                     children: [
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                           decoration: BoxDecoration(
                             color: primaryColor.withValues(alpha: isDark ? 0.15 : 0.08),
                             borderRadius: BorderRadius.circular(10),
@@ -214,22 +218,36 @@ class _LiveSalesHistoryDialogState extends State<LiveSalesHistoryDialog> {
                             children: [
                               Icon(Icons.shopping_bag_outlined, color: primaryColor, size: 18),
                               const SizedBox(width: 8),
-                              Text(
-                                isBn ? 'মোট অর্ডার: ' : 'Total Orders: ',
-                                style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600),
-                              ),
-                              Text(
-                                NumberUtils.toLocalized(_orders.length, locale),
-                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: primaryColor),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      isBn ? 'মোট অর্ডার' : 'Total Orders',
+                                      style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        NumberUtils.toLocalized(_orders.length, locale),
+                                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: primaryColor),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                           decoration: BoxDecoration(
                             color: Colors.green.withValues(alpha: isDark ? 0.15 : 0.08),
                             borderRadius: BorderRadius.circular(10),
@@ -239,15 +257,26 @@ class _LiveSalesHistoryDialogState extends State<LiveSalesHistoryDialog> {
                             children: [
                               const Icon(Icons.payments_outlined, color: Colors.green, size: 18),
                               const SizedBox(width: 8),
-                              Text(
-                                isBn ? 'মোট বিক্রয়: ' : 'Revenue: ',
-                                style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600),
-                              ),
                               Expanded(
-                                child: Text(
-                                  '৳${NumberUtils.toLocalized(totalRevenue.toStringAsFixed(0), locale)}',
-                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: Colors.green),
-                                  overflow: TextOverflow.ellipsis,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      isBn ? 'মোট বিক্রয়' : 'Revenue',
+                                      style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        '৳${NumberUtils.toLocalized(totalRevenue.toStringAsFixed(0), locale)}',
+                                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: Colors.green),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -382,43 +411,54 @@ class _LiveSalesHistoryDialogState extends State<LiveSalesHistoryDialog> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: primaryColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      order.orderNo,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: primaryColor,
+              Expanded(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: primaryColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          order.orderNo,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: primaryColor,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(4),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'PAID',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF10B981)),
+                      ),
                     ),
-                    child: const Text(
-                      'PAID',
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF10B981)),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              Text(
-                '৳${NumberUtils.toLocalized(order.total.toStringAsFixed(2), locale)}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF10B981),
+              const SizedBox(width: 8),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '৳${NumberUtils.toLocalized(order.total.toStringAsFixed(2), locale)}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF10B981),
+                  ),
                 ),
               ),
             ],
@@ -428,12 +468,16 @@ class _LiveSalesHistoryDialogState extends State<LiveSalesHistoryDialog> {
 
           // Customer + Date
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                order.customerName,
-                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: textPrimary),
+              Expanded(
+                child: Text(
+                  order.customerName,
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: textPrimary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 8),
               Text(
                 DateFormat('dd MMM yyyy, hh:mm a').format(order.orderDate),
                 style: TextStyle(fontSize: 11, color: textSecondary),
