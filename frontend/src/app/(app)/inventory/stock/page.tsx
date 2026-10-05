@@ -230,11 +230,14 @@ export default function StockPage() {
       header: "On Hand",
       align: "right",
       width: "110px",
-      render: (r) => (
-        <span className="font-mono font-bold text-xs text-gray-600">
-          {Number(r.qtyOnHand)}
-        </span>
-      ),
+      render: (r) => {
+        const onHand = Math.max(0, Number(r.qtyOnHand));
+        return (
+          <span className="font-mono font-bold text-xs text-gray-600">
+            {onHand}
+          </span>
+        );
+      },
     },
     {
       key: "reserved",
@@ -243,7 +246,7 @@ export default function StockPage() {
       width: "100px",
       render: (r) => (
         <span className="font-mono text-xs text-slate-500">
-          {Number(r.qtyReserved)}
+          {Math.max(0, Number(r.qtyReserved))}
         </span>
       ),
     },
@@ -253,7 +256,7 @@ export default function StockPage() {
       align: "right",
       width: "120px",
       render: (r) => {
-        const avail = Number(r.qtyOnHand) - Number(r.qtyReserved);
+        const avail = Math.max(0, Number(r.qtyOnHand) - Number(r.qtyReserved));
         const colorClass =
           avail <= 0
             ? "text-rose-600"

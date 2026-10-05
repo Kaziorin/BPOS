@@ -719,6 +719,19 @@ export default function PosPage() {
 
   // ── Cart operations ──
   function addProduct(p: CachedProduct) {
+    const maxStock = p.stockQty !== undefined ? Number(p.stockQty) : undefined;
+    if (maxStock !== undefined && maxStock <= 0) {
+      toast.error(`"${p.name}" is Out of Stock! Cannot add to cart.`);
+      return;
+    }
+
+    const existing = cart.find((i) => (i.productId === p.id || i.name === p.name) && !i.variantId);
+    const curQty = existing ? existing.qty : 0;
+    if (maxStock !== undefined && curQty + 1 > maxStock) {
+      toast.warning(`Cannot add more "${p.name}". Available stock is only ${maxStock}!`);
+      return;
+    }
+
     setCart((prev) => {
       const idx = prev.findIndex((i) => (i.productId === p.id || i.name === p.name) && !i.variantId);
       if (idx >= 0) {
@@ -733,6 +746,7 @@ export default function PosPage() {
         discountAmount: 0, lineTotal: Number(p.sellingPrice),
         image: (p as any).imageUrl || (p as any).image,
         sku: p.sku,
+        stockQty: p.stockQty,
         taxRate: (p as any).taxRate !== undefined && (p as any).taxRate !== null && !isNaN(Number((p as any).taxRate))
           ? Number((p as any).taxRate)
           : systemTaxRate,
@@ -742,6 +756,14 @@ export default function PosPage() {
 
   function handleQtyChange(idx: number, qty: number) {
     if (qty <= 0) { removeItem(idx); return; }
+    const currentItem = cart[idx];
+    if (currentItem && (currentItem as any).stockQty !== undefined) {
+      const maxStock = Number((currentItem as any).stockQty);
+      if (qty > maxStock) {
+        toast.warning(`Cannot order ${qty} of "${currentItem.name}". Available stock: ${maxStock}`);
+        return;
+      }
+    }
     setCart((prev) => prev.map((item, i) => i === idx ? calcLine({ ...item, qty }) : item));
   }
 

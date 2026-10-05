@@ -255,10 +255,10 @@ function RestaurantPageContent() {
       {/* Custom Tabs Navigation (Full-Width Card) */}
       <CustomTabs
         tabs={[
-          { id: "floors", label: "Sections & Table Grid", icon: <LayoutGrid className="w-4 h-4 text-orange-600" /> },
-          { id: "kds", label: "Kitchen Management (KDS Routing)", icon: <Flame className="w-4 h-4 text-red-600" /> },
-          { id: "recipes", label: "Recipe BOM & Food Costing", icon: <PieChart className="w-4 h-4 text-orange-600" /> },
-          { id: "shifts", label: "POS Shifts & Time Slots", icon: <Clock className="w-4 h-4 text-brand-primary" /> },
+          { id: "floors", label: "Sections & Table Grid", icon: <LayoutGrid className="w-4 h-4" /> },
+          { id: "kds", label: "Kitchen Management (KDS Routing)", icon: <Flame className="w-4 h-4" /> },
+          { id: "recipes", label: "Recipe BOM & Food Costing", icon: <PieChart className="w-4 h-4" /> },
+          { id: "shifts", label: "POS Shifts & Time Slots", icon: <Clock className="w-4 h-4" /> },
         ]}
         activeTab={activeTab}
         onChange={handleTabChange}

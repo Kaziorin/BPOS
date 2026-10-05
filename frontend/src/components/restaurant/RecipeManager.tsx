@@ -70,24 +70,21 @@ export default function RecipeManager() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Load products list (Enforce Tenant & RESTAURANT Service Isolation)
+  // Load products list (Include all products for ingredients and recipe dishes)
   useEffect(() => {
     api
-      .get<{ data: any[] }>("/v1/products?productType=RESTAURANT&limit=100")
+      .get<any>("/v1/products?limit=200")
       .then((res) => {
-        const apiProds = res.data || [];
-        // Strictly filter to ensure ONLY RESTAURANT items are loaded
-        const filtered = apiProds.filter(
-          (p: any) =>
-            p.vertical === "RESTAURANT" ||
-            p.vertical === "restaurant" ||
-            p.productType === "RESTAURANT" ||
-            p.type === "RESTAURANT"
-        );
-        if (filtered.length > 0) {
-          setProducts(filtered);
+        const rows = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res?.data?.data)
+          ? res.data.data
+          : Array.isArray(res)
+          ? res
+          : [];
+        if (rows.length > 0) {
+          setProducts(rows);
         } else {
-          // If no RESTAURANT products exist for this tenant, show strictly RESTAURANT demo items
           setProducts(RESTAURANT_DEMO_PRODUCTS);
         }
       })
