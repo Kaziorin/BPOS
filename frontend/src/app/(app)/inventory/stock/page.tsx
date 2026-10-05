@@ -12,8 +12,11 @@ import {
   ClipboardList,
   Warehouse as WarehouseIcon,
   X,
+  Edit,
+  CheckCircle2,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { toast } from "react-toastify";
 import {
   CustomBreadcrumb,
   CustomButton,
@@ -21,6 +24,7 @@ import {
   CustomStatCard,
   CustomInput,
   CustomDropdownSelect,
+  CustomModal,
   type CustomTableColumn,
 } from "@/components/custom";
 
@@ -78,6 +82,44 @@ export default function StockPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const limit = 25;
+
+  // Quick Adjustment Modal State
+  const [selectedRowForAdjust, setSelectedRowForAdjust] = useState<StockRow | null>(null);
+  const [adjustQty, setAdjustQty] = useState("");
+  const [adjustNote, setAdjustNote] = useState("");
+  const [adjusting, setAdjusting] = useState(false);
+
+  const openAdjustModal = (row: StockRow) => {
+    setSelectedRowForAdjust(row);
+    setAdjustQty(String(Number(row.qtyOnHand)));
+    setAdjustNote("Inventory stock reconciliation");
+  };
+
+  const handleSaveAdjustment = async () => {
+    if (!selectedRowForAdjust || !warehouseId) return;
+    const qtyVal = parseFloat(adjustQty);
+    if (isNaN(qtyVal) || qtyVal < 0) {
+      toast.error("Please enter a valid stock quantity (0 or greater)");
+      return;
+    }
+
+    setAdjusting(true);
+    try {
+      await api.post("/api/v1/inventory/stock/adjust", {
+        productId: selectedRowForAdjust.product?.id,
+        warehouseId: warehouseId,
+        qty: qtyVal,
+        note: adjustNote || "Manual stock adjustment",
+      });
+      toast.success("Stock quantity updated successfully!");
+      setSelectedRowForAdjust(null);
+      fetchStock();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update stock");
+    } finally {
+      setAdjusting(false);
+    }
+  };
 
   // 1. Fetch Warehouses List
   useEffect(() => {
@@ -246,7 +288,7 @@ export default function StockPage() {
       key: "status",
       header: "Status",
       align: "center",
-      width: "140px",
+      width: "130px",
       render: (r) => {
         const avail = Number(r.qtyOnHand) - Number(r.qtyReserved);
         const cfg = getStockStatus(avail);
@@ -260,6 +302,23 @@ export default function StockPage() {
           </span>
         );
       },
+    },
+    {
+      key: "actions" as any,
+      header: "Action",
+      align: "center",
+      width: "100px",
+      render: (r) => (
+        <CustomButton
+          size="xs"
+          variant="outline"
+          leftIcon={Edit}
+          onClick={() => openAdjustModal(r)}
+          className="text-[11px] font-bold text-brand-primary border-brand-border hover:bg-brand-50 shadow-2xs"
+        >
+          Adjust
+        </CustomButton>
+      ),
     },
   ];
 
@@ -422,6 +481,78 @@ export default function StockPage() {
         onPageChange={(p) => setPage(p)}
         emptyMessage="No stock records found for this warehouse."
       />
+
+      {/* 5. Quick Stock Adjustment Modal */}
+      {selectedRowForAdjust && (
+        <CustomModal
+          isOpen={Boolean(selectedRowForAdjust)}
+          onClose={() => setSelectedRowForAdjust(null)}
+          title="Adjust / Correct Stock Level"
+          subtitle={`Product: ${selectedRowForAdjust.product?.name ?? "Item"} (${selectedRowForAdjust.product?.sku ?? "SKU"})`}
+          size="md"
+        >
+          <div className="space-y-4 pt-2">
+            <div className="rounded-sm bg-slate-50 border border-slate-200 p-3 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-slate-500">Warehouse Location:</span>
+                <span className="font-bold text-gray-700">
+                  {warehouses.find((w) => w.id === warehouseId)?.name || "Main Warehouse"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-slate-500">Current Qty On Hand:</span>
+                <span className="font-bold text-slate-700 font-mono">
+                  {Number(selectedRowForAdjust.qtyOnHand)}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <CustomInput
+                label="New Corrected Stock Quantity"
+                type="number"
+                min="0"
+                step="any"
+                required
+                value={adjustQty}
+                onChange={(e) => setAdjustQty(e.target.value)}
+                placeholder="e.g. 50"
+                helperText="Enter the actual physical count available in this warehouse"
+              />
+            </div>
+
+            <div>
+              <CustomInput
+                label="Adjustment Reason / Note"
+                value={adjustNote}
+                onChange={(e) => setAdjustNote(e.target.value)}
+                placeholder="e.g. Physical inventory count / Damaged stock correction"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <CustomButton
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedRowForAdjust(null)}
+                disabled={adjusting}
+              >
+                Cancel
+              </CustomButton>
+              <CustomButton
+                variant="primary"
+                themeColor="primary"
+                size="sm"
+                loading={adjusting}
+                onClick={handleSaveAdjustment}
+                leftIcon={CheckCircle2}
+              >
+                Save Stock Adjustment
+              </CustomButton>
+            </div>
+          </div>
+        </CustomModal>
+      )}
     </div>
   );
 }
