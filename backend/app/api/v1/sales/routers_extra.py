@@ -1185,27 +1185,38 @@ async def allocate_payment(body: dict, user: AuthUser = Depends(require_auth),
                            tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
     """One payment across multiple invoices (§10.12)."""
     allocations = body.get("allocations") or []
-    amount = float(body.get("amount", 0) or 0)
-    alloc_sum = sum(float(a["amount"]) for a in allocations)
+    alloc_sum = sum(float(a.get("amount", 0)) for a in allocations)
+    amount = float(body.get("amount") or body.get("totalAmount") or 0)
     if not allocations: return err("allocations required", 400)
+    if amount <= 0 and alloc_sum > 0:
+        amount = alloc_sum
     if abs(alloc_sum - amount) > 0.01: return err(f"Allocation mismatch: {alloc_sum} vs {amount}", 400)
     customerId = body.get("customerId")
+    method = str(body.get("method", "CASH")).upper()
+    branchId = body.get("branchId") or user.branchId or None
+    if not branchId:
+        b_row = (await db.execute(text("SELECT id FROM branches WHERE tenantId=:t LIMIT 1"), {"t": tenantId})).first()
+        branchId = b_row[0] if b_row else "default"
+
     async with txn(db):
         for a in allocations:
-            await db.execute(text(
-                "INSERT INTO payments (id, tenantId, branchId, invoiceId, customerId, method, amount, reference, status, createdBy, updatedAt) "
-                "VALUES (UUID(), :t, :b, :inv, :c, :m, :amt, :ref, 'COMPLETED', :u, NOW())"),
-                {"t": tenantId, "b": body.get("branchId"), "inv": a["invoiceId"], "c": customerId,
-                 "m": body.get("method", "CASH"), "amt": a["amount"], "ref": body.get("reference"), "u": user.id})
-            inv = (await db.execute(text("SELECT total, paidTotal FROM invoices WHERE id=:id FOR UPDATE"),
-                                    {"id": a["invoiceId"]})).first()
+            inv = (await db.execute(text("SELECT total, paidTotal, invoiceNo FROM invoices WHERE id=:id AND tenantId=:t FOR UPDATE"),
+                                    {"id": a["invoiceId"], "t": tenantId})).first()
+            if not inv: continue
+            ref = body.get("reference") or f"RCP-{datetime.utcnow().strftime('%y%m')}-{_uuid()[:6].upper()}"
+            await db.execute(text("""
+                INSERT INTO payments (id, tenantId, branchId, invoiceId, customerId, method, amount, reference, status, createdBy, updatedAt)
+                VALUES (UUID(), :t, :b, :inv, :c, :m, :amt, :ref, 'COMPLETED', :u, NOW())
+            """),
+                {"t": tenantId, "b": branchId, "inv": a["invoiceId"], "c": customerId,
+                 "m": method, "amt": a["amount"], "ref": ref, "u": user.id})
             new_paid = float(inv[1]) + float(a["amount"])
             due = float(inv[0]) - new_paid
-            await db.execute(text("UPDATE invoices SET paidTotal=:p, status=:s WHERE id=:id"),
+            await db.execute(text("UPDATE invoices SET paidTotal=:p, status=:s, updatedAt=NOW() WHERE id=:id"),
                              {"p": new_paid, "s": "PAID" if due <= 0.01 else "PARTIALLY_PAID", "id": a["invoiceId"]})
         if customerId:
-            await db.execute(text("UPDATE customers SET currentDue = currentDue - :amt WHERE id=:c"),
-                             {"amt": amount, "c": customerId})
+            await db.execute(text("UPDATE customers SET currentDue = GREATEST(0, currentDue - :amt) WHERE id=:c AND tenantId=:t"),
+                             {"amt": amount, "c": customerId, "t": tenantId})
     return ok({"allocated": amount, "invoices": len(allocations)}, 201)
 
 

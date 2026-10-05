@@ -564,6 +564,7 @@ export default function InvoicesPage() {
         customerId: allocCustId || undefined,
         branchId: form.branchId || undefined,
         method: allocMethod,
+        amount: Number(allocAmount),
         totalAmount: Number(allocAmount),
         reference: allocRef || "Multi-invoice allocation settlement",
         allocations: activeAllocations,

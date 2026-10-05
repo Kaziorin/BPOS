@@ -26,6 +26,7 @@ import {
   Clock,
   LayoutList,
   LayoutGrid,
+  Zap,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "react-toastify";
@@ -374,28 +375,37 @@ export default function PaymentsPage() {
     setAllocCustId(cid);
     if (!cid) {
       setAllocRows([]);
+      setAllocAmount(0);
       return;
     }
     try {
       const res: any = await api.get(`/v1/invoices?customerId=${cid}&status=UNPAID&limit=50`);
       const unpaids = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : (res?.data?.data ?? []));
-      setAllocRows(
-        unpaids.map((inv: any) => ({
+      const rows = unpaids.map((inv: any) => {
+        const total = Number(inv.total) || 0;
+        const paidTotal = Number(inv.paidTotal) || 0;
+        const due = Math.max(0, total - paidTotal);
+        return {
           invoiceId: inv.id,
           invoiceNo: inv.invoiceNo,
-          total: Number(inv.total),
-          paidTotal: Number(inv.paidTotal),
-          due: Math.max(0, Number(inv.total) - Number(inv.paidTotal)),
-          allocated: 0,
-        }))
-      );
+          total,
+          paidTotal,
+          due,
+          allocated: due, // Auto-allocate full due by default for 1-click settlement
+        };
+      });
+      const totalDue = rows.reduce((s: number, r: any) => s + r.due, 0);
+      setAllocRows(rows);
+      setAllocAmount(totalDue);
     } catch (err) {
       console.error("Failed to load customer unpaid invoices", err);
     }
   };
 
-  const handleAutoDistributeAlloc = () => {
-    let remaining = Number(allocAmount) || 0;
+  const handleSettlementAmountChange = (valStr: string) => {
+    const newAmt = Math.max(0, Number(valStr) || 0);
+    setAllocAmount(newAmt);
+    let remaining = newAmt;
     const updated = allocRows.map((r) => {
       const allocateForThis = Math.min(remaining, r.due);
       remaining -= allocateForThis;
@@ -404,24 +414,70 @@ export default function PaymentsPage() {
     setAllocRows(updated);
   };
 
+  const handleAutoDistributeAlloc = () => {
+    let remaining = Number(allocAmount) || 0;
+    if (remaining <= 0) {
+      remaining = allocRows.reduce((s, r) => s + r.due, 0);
+      setAllocAmount(remaining);
+    }
+    const updated = allocRows.map((r) => {
+      const allocateForThis = Math.min(remaining, r.due);
+      remaining -= allocateForThis;
+      return { ...r, allocated: allocateForThis };
+    });
+    setAllocRows(updated);
+  };
+
+  const handleSetRowAllocated = (idx: number, val: number) => {
+    const updated = [...allocRows];
+    const clamped = Math.max(0, Math.min(updated[idx].due, val));
+    updated[idx].allocated = clamped;
+    setAllocRows(updated);
+    const newTotal = updated.reduce((s, r) => s + (Number(r.allocated) || 0), 0);
+    setAllocAmount(newTotal);
+  };
+
+  const handleSettleAllFull = () => {
+    const updated = allocRows.map((r) => ({ ...r, allocated: r.due }));
+    const totalDue = updated.reduce((s, r) => s + r.due, 0);
+    setAllocRows(updated);
+    setAllocAmount(totalDue);
+  };
+
+  const handleClearAllAlloc = () => {
+    const updated = allocRows.map((r) => ({ ...r, allocated: 0 }));
+    setAllocRows(updated);
+    setAllocAmount(0);
+  };
+
   const handleSubmitAllocation = async () => {
-    const totalAllocated = allocRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0);
-    if (Math.abs(totalAllocated - Number(allocAmount)) > 0.01) {
-      toast.error(
-        `Total allocated (৳${totalAllocated.toLocaleString()}) must match settlement amount (৳${Number(
-          allocAmount
-        ).toLocaleString()})`
-      );
+    if (allocRows.length === 0) {
+      toast.error("No unpaid invoices found for this customer");
       return;
     }
+
+    let totalAllocated = allocRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0);
+
+    // If totalAllocated is 0 but user entered an allocAmount, auto-distribute it now
+    if (totalAllocated === 0 && Number(allocAmount) > 0) {
+      let rem = Number(allocAmount);
+      const autoRows = allocRows.map((r) => {
+        const amt = Math.min(rem, r.due);
+        rem -= amt;
+        return { ...r, allocated: amt };
+      });
+      setAllocRows(autoRows);
+      totalAllocated = autoRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0);
+    }
+
+    if (totalAllocated <= 0) {
+      toast.error("Please allocate amounts to at least one invoice or click 'Settle Full Due'");
+      return;
+    }
+
     const activeAllocations = allocRows
       .filter((r) => (Number(r.allocated) || 0) > 0)
       .map((r) => ({ invoiceId: r.invoiceId, amount: Number(r.allocated) }));
-
-    if (activeAllocations.length === 0) {
-      toast.error("Please allocate amounts to at least one invoice");
-      return;
-    }
 
     setAllocSubmitting(true);
     try {
@@ -429,12 +485,13 @@ export default function PaymentsPage() {
         customerId: allocCustId || undefined,
         branchId: recordForm.branchId || undefined,
         method: allocMethod,
-        totalAmount: Number(allocAmount),
-        reference: allocRef || "Consolidated payment allocation settlement",
+        amount: totalAllocated,
+        totalAmount: totalAllocated,
+        reference: allocRef || undefined,
         allocations: activeAllocations,
       });
       toast.success(
-        `Settled payment of ৳${Number(allocAmount).toLocaleString()} across ${activeAllocations.length} invoices!`
+        `Successfully settled ৳${totalAllocated.toLocaleString()} across ${activeAllocations.length} invoices!`
       );
       setShowAllocateModal(false);
       loadPayments();
@@ -1974,9 +2031,9 @@ export default function PaymentsPage() {
               <label className="mb-1 block font-bold text-gray-600">Total Settlement Amount (৳) *</label>
               <input
                 type="number"
-                min={1}
-                value={allocAmount || ""}
-                onChange={(e) => setAllocAmount(Number(e.target.value))}
+                min={0}
+                value={allocAmount === 0 ? "" : allocAmount}
+                onChange={(e) => handleSettlementAmountChange(e.target.value)}
                 placeholder="e.g. 5000"
                 className="w-full rounded-sm border border-brand-border p-2 text-xs font-black text-brand-dark focus:border-brand-primary focus:outline-none"
               />
@@ -2005,20 +2062,59 @@ export default function PaymentsPage() {
             </div>
           </div>
 
+          {/* Customer Summary & Quick Actions */}
+          {allocRows.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-sm bg-brand-50/60 border border-brand-primary/20">
+              <div className="flex items-center gap-4 text-xs">
+                <div>
+                  <span className="text-gray-500 font-medium">Total Customer Due:</span>{" "}
+                  <span className="font-bold text-rose-600">
+                    ৳{allocRows.reduce((s, r) => s + r.due, 0).toLocaleString()}
+                  </span>
+                </div>
+                <div className="h-3 w-px bg-slate-200" />
+                <div>
+                  <span className="text-gray-500 font-medium">Unpaid Invoices:</span>{" "}
+                  <span className="font-bold text-slate-800">{allocRows.length}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleSettleAllFull}
+                  className="inline-flex items-center gap-1 rounded px-2.5 py-1 text-[11px] font-bold bg-brand-primary text-white hover:bg-brand-primary/90 transition shadow-2xs cursor-pointer"
+                >
+                  <Zap size={11} />
+                  Settle Full Due (৳{allocRows.reduce((s, r) => s + r.due, 0).toLocaleString()})
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAutoDistributeAlloc}
+                  className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition shadow-2xs cursor-pointer"
+                >
+                  <Sparkles size={11} className="text-brand-primary" />
+                  Auto-Distribute (FIFO)
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClearAllAlloc}
+                  className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] font-semibold bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 transition shadow-2xs cursor-pointer"
+                >
+                  <RotateCcw size={11} />
+                  Clear
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Invoices to allocate table */}
           <div className="mt-2">
             <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
               <span className="font-bold text-brand-dark">Unpaid Invoices for Allocation</span>
               {allocRows.length > 0 && (
-                <CustomButton
-                  type="button"
-                  variant="secondary"
-                  size="xs"
-                  leftIcon={Sparkles}
-                  onClick={handleAutoDistributeAlloc}
-                >
-                  Auto-Distribute (FIFO / Oldest First)
-                </CustomButton>
+                <span className="text-[11px] text-gray-500">
+                  Allocated: <b>৳{allocRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0).toLocaleString()}</b>
+                </span>
               )}
             </div>
 
@@ -2035,7 +2131,8 @@ export default function PaymentsPage() {
                       <th className="py-2 text-right">Total</th>
                       <th className="py-2 text-right">Paid</th>
                       <th className="py-2 text-right">Due</th>
-                      <th className="py-2 pr-3 text-right w-32">Allocate (৳)</th>
+                      <th className="py-2 pr-3 text-right w-36">Allocate (৳)</th>
+                      <th className="py-2 pr-3 text-center w-28">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -2046,19 +2143,40 @@ export default function PaymentsPage() {
                         <td className="py-2 text-right text-emerald-600">৳{r.paidTotal.toLocaleString()}</td>
                         <td className="py-2 text-right font-bold text-rose-600">৳{r.due.toLocaleString()}</td>
                         <td className="py-2 pr-3 text-right">
-                          <input
-                            type="number"
-                            min={0}
-                            max={r.due}
-                            value={r.allocated || ""}
-                            onChange={(e) => {
-                              const val = Number(e.target.value) || 0;
-                              const updated = [...allocRows];
-                              updated[idx].allocated = val;
-                              setAllocRows(updated);
-                            }}
-                            className="w-24 rounded-sm border border-brand-border p-1 text-right text-xs font-bold text-brand-primary focus:border-brand-primary focus:outline-none"
-                          />
+                          <div className="flex items-center justify-end gap-1">
+                            <input
+                              type="number"
+                              min={0}
+                              max={r.due}
+                              value={r.allocated === 0 ? "" : r.allocated}
+                              onChange={(e) => handleSetRowAllocated(idx, Number(e.target.value) || 0)}
+                              placeholder="0"
+                              className="w-20 rounded-sm border border-brand-border p-1 text-right text-xs font-bold text-brand-primary focus:border-brand-primary focus:outline-none"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSetRowAllocated(idx, r.due)}
+                              title="Allocate full due"
+                              className="rounded bg-slate-100 border border-slate-200 px-1.5 py-1 text-[10px] font-bold text-slate-600 hover:bg-brand-50 hover:border-brand-primary hover:text-brand-primary transition cursor-pointer"
+                            >
+                              Max
+                            </button>
+                          </div>
+                        </td>
+                        <td className="py-2 pr-3 text-center">
+                          {r.allocated >= r.due ? (
+                            <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] font-bold bg-emerald-50 border border-emerald-200 text-emerald-700">
+                              <Check size={9} /> Paid
+                            </span>
+                          ) : r.allocated > 0 ? (
+                            <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] font-bold bg-amber-50 border border-amber-200 text-amber-700">
+                              Partial
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] font-medium bg-slate-50 border border-slate-200 text-slate-400">
+                              Unpaid
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -2069,7 +2187,7 @@ export default function PaymentsPage() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200">
-            <div className="h-[36px] flex items-center gap-2 rounded-sm border border-brand-border bg-white px-3 shadow-2xs">
+            <div className="flex items-center gap-2 rounded-sm border border-brand-border bg-white px-3 py-1.5 shadow-2xs">
               <span className="text-xs font-bold capitalize text-gray-600">Total Allocated:</span>
               <span className="text-xs font-black text-brand-dark">
                 ৳{allocRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0).toLocaleString()}
@@ -2079,6 +2197,11 @@ export default function PaymentsPage() {
               <span className="text-xs font-bold text-gray-600">
                 ৳{Number(allocAmount || 0).toLocaleString()}
               </span>
+              {Math.abs(allocRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0) - Number(allocAmount || 0)) < 0.01 && allocRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0) > 0 && (
+                <span className="ml-1 inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600">
+                  <CheckCircle2 size={12} /> Matched
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <CustomButton
