@@ -652,14 +652,14 @@ export default function PurchaseOrdersPage() {
             <table className="w-full text-left text-xs">
               <thead className="border-b border-slate-200 bg-gray-50/80 text-[11px] font-bold uppercase tracking-wider text-gray-500">
                 <tr>
-                  <th className="py-3.5 px-4 w-12 text-center">#</th>
-                  <th className="py-3.5 px-4">PO Number & Date</th>
-                  <th className="py-3.5 px-4">Supplier</th>
-                  <th className="py-3.5 px-4">Warehouse</th>
-                  <th className="py-3.5 px-4 min-w-[200px]">Items & Progress</th>
-                  <th className="py-3.5 px-4 text-right">Amount (৳)</th>
-                  <th className="py-3.5 px-4 text-center">Status</th>
-                  <th className="py-3.5 px-4 text-right">Actions</th>
+                  <th className="py-3.5 px-4 w-12 text-center whitespace-nowrap">#</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">PO Number & Date</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Supplier</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Warehouse</th>
+                  <th className="py-3.5 px-4 min-w-[200px] whitespace-nowrap">Items & Progress</th>
+                  <th className="py-3.5 px-4 text-right whitespace-nowrap">Amount (৳)</th>
+                  <th className="py-3.5 px-4 text-center whitespace-nowrap">Status</th>
+                  <th className="py-3.5 px-4 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -678,10 +678,10 @@ export default function PurchaseOrdersPage() {
 
                   return (
                     <tr key={po.id} className="hover:bg-gray-50/80 transition group">
-                      <td className="py-3.5 px-4 text-center font-bold text-gray-400">{index + 1}</td>
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 text-center font-bold text-gray-400 whitespace-nowrap">{index + 1}</td>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-black text-gray-600 group-hover:text-sky-600 transition">{po.poNo}</span>
+                          <span className="font-mono font-black text-gray-600 group-hover:text-primary-600 transition">{po.poNo}</span>
                           {po.rebatePercent && Number(po.rebatePercent) > 0 && (
                             <span className="rounded-sm bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 text-[10px] font-bold text-emerald-700">
                               {Number(po.rebatePercent)}% Rebate
@@ -694,12 +694,12 @@ export default function PurchaseOrdersPage() {
                         </p>
                       </td>
 
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <p className="font-bold text-gray-600">{po.supplier?.name || "Supplier"}</p>
                         {po.supplier?.phone && <p className="text-[11px] text-gray-400">{po.supplier.phone}</p>}
                       </td>
 
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <span className="inline-flex items-center gap-1 rounded-sm bg-gray-100 border border-slate-200 px-2 py-1 text-[11px] font-semibold text-gray-600">
                           📍 {wh ? wh.name : "Warehouse"}
                         </span>
@@ -707,7 +707,7 @@ export default function PurchaseOrdersPage() {
 
                       <td className="py-3.5 px-4">
                         <div className="flex items-center justify-between text-[11px] font-bold text-gray-600 mb-1">
-                          <span>{received} / {ordered} units</span>
+                          <span className="whitespace-nowrap">{received} / {ordered} units</span>
                           <span className={pct === 100 ? "text-emerald-600" : pct > 0 ? "text-amber-600" : "text-gray-400"}>{pct}%</span>
                         </div>
                         <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
@@ -730,7 +730,7 @@ export default function PurchaseOrdersPage() {
                         </div>
                       </td>
 
-                      <td className="py-3.5 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <p className="font-black text-gray-600 tabular-nums text-sm">{fmt(Number(po.total))}</p>
                         {purchaseInvoices.length > 0 && (
                           <span className={`text-[10px] font-bold ${hasUnpaidInvoice ? "text-amber-600" : "text-emerald-600"}`}>
@@ -739,18 +739,18 @@ export default function PurchaseOrdersPage() {
                         )}
                       </td>
 
-                      <td className="py-3.5 px-4 text-center">
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold ${meta.cls}`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
                           {meta.label}
                         </span>
                       </td>
 
-                      <td className="py-3.5 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => setViewPo(po)}
-                            className="rounded-sm border border-slate-200 bg-white p-1.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600"
+                            className="rounded-sm border border-slate-200 bg-white p-1.5 text-gray-600 shadow-2xs transition hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200"
                             title="View Full PO Slip"
                           >
                             <Eye size={14} />
@@ -760,7 +760,7 @@ export default function PurchaseOrdersPage() {
                             <button
                               onClick={() => approvePo(po.id)}
                               disabled={busy === po.id + "approve"}
-                              className="flex items-center gap-1 rounded-sm bg-indigo-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:bg-indigo-700 disabled:opacity-50"
+                              className="flex items-center gap-1 rounded-sm bg-primary-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:bg-primary-700 disabled:opacity-50 transition"
                             >
                               {busy === po.id + "approve" ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />} Approve
                             </button>
@@ -769,7 +769,7 @@ export default function PurchaseOrdersPage() {
                           {canReceive && (
                             <button
                               onClick={() => openReceive(po)}
-                              className="flex items-center gap-1 rounded-sm bg-violet-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:bg-violet-700"
+                              className="flex items-center gap-1 rounded-sm bg-brand-primary px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:opacity-90 transition"
                               title="Receive Goods (GRN)"
                             >
                               <PackageCheck size={12} /> Receive GRN
@@ -1334,6 +1334,16 @@ export default function PurchaseOrdersPage() {
                     </option>
                   ))}
                 </select>
+                {(() => {
+                  const inv = (payPo.purchaseInvoices || []).find((i) => i.id === payInvoiceId);
+                  if (!inv) return null;
+                  return (
+                    <div className="mt-2.5 rounded-sm border border-slate-200 bg-slate-50 p-2.5 text-xs flex items-center justify-between">
+                      <span className="text-gray-500 font-medium">Total Payable Amount:</span>
+                      <span className="font-black text-primary-700 text-sm">{fmt(Number(inv.total))}</span>
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
