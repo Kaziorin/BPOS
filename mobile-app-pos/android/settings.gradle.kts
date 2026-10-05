@@ -24,3 +24,4 @@ plugins {
 }
 
 include(":app")
+rootProject.name = "restaurant_pos_android"

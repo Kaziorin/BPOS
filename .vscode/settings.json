@@ -1,3 +1,17 @@
 {
-  "editor.fontSize": 18
+  "editor.fontSize": 18,
+  "files.exclude": {
+    "**/.kilo": true
+  },
+  "search.exclude": {
+    "**/.kilo": true
+  },
+  "files.watcherExclude": {
+    "**/.kilo/**": true
+  },
+  "java.project.resourceFilters": [
+    "node_modules",
+    ".git",
+    ".kilo"
+  ]
 }
