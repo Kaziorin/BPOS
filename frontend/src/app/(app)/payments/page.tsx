@@ -47,6 +47,8 @@ interface Payment {
   amount: number;
   tenderedAmount?: number;
   changeAmount?: number;
+  paymentType?: "POS_SALE" | "DUE_COLLECTION" | string;
+  saleId?: string | null;
   method: string;
   reference?: string | null;
   status: "COMPLETED" | "REFUNDED" | "PENDING" | "FAILED" | string;
@@ -83,6 +85,8 @@ interface PaymentStats {
   mfsAmount: number;
   cardAmount: number;
   bankAmount: number;
+  dueCollectedAmount?: number;
+  dueCollectedCount?: number;
   byMethod?: Array<{ method: string; count: number; totalAmount: number }>;
 }
 
@@ -260,7 +264,9 @@ export default function PaymentsPage() {
       if (filterBranch) params.set("branchId", filterBranch);
 
       // Status / Tab
-      if (activeTab === "COMPLETED") params.set("status", "COMPLETED");
+      if (activeTab === "DUE_COLLECTION") params.set("paymentType", "DUE_COLLECTION");
+      else if (activeTab === "POS_SALE") params.set("paymentType", "POS_SALE");
+      else if (activeTab === "COMPLETED") params.set("status", "COMPLETED");
       else if (activeTab === "REFUNDED") params.set("status", "REFUNDED");
       else if (activeTab === "CASH") params.set("method", "CASH");
       else if (activeTab === "MFS") params.set("method", "BKASH");
@@ -498,6 +504,15 @@ export default function PaymentsPage() {
     return customers.find((c) => c.id === recordForm.customerId);
   }, [customers, recordForm.customerId]);
 
+  const selectedInvObj = useMemo(() => {
+    return openInvoices.find((i) => i.id === recordForm.invoiceId);
+  }, [openInvoices, recordForm.invoiceId]);
+
+  const selectedInvDue = useMemo(() => {
+    if (!selectedInvObj) return 0;
+    return Math.max(0, Number(selectedInvObj.total || 0) - Number(selectedInvObj.paidTotal || 0));
+  }, [selectedInvObj]);
+
   // Dropdown Options
   const methodFilterOptions = [
     { label: "All Payment Methods", value: "" },
@@ -517,12 +532,20 @@ export default function PaymentsPage() {
 
   const customerModalOptions = [
     { label: "Walk-in Customer (General Public)", value: "" },
-    ...customers.map((c) => ({
-      label: `${c.name}${c.phone ? ` (${c.phone})` : ""}${
-        c.currentDue ? ` [Due: ৳${Number(c.currentDue).toLocaleString()}]` : ""
-      }`,
-      value: c.id,
-    })),
+    ...customers.map((c) => {
+      const custInvs = openInvoices.filter((i) => i.customerId === c.id);
+      const invDue = custInvs.reduce(
+        (sum, inv) => sum + Math.max(0, Number(inv.total || 0) - Number(inv.paidTotal || 0)),
+        0
+      );
+      const effectiveDue = Math.max(Number(c.currentDue || 0), invDue);
+      return {
+        label: `${c.name}${c.phone ? ` (${c.phone})` : ""}${
+          effectiveDue > 0 ? ` [Due: ৳${effectiveDue.toLocaleString()}]` : ""
+        }`,
+        value: c.id,
+      };
+    }),
   ];
 
   const branchModalOptions = branches.map((b) => ({
@@ -530,13 +553,18 @@ export default function PaymentsPage() {
     value: b.id,
   }));
 
-  const invoiceModalOptions = [
-    { label: "-- Standalone / General Credit --", value: "" },
-    ...openInvoices.map((inv) => ({
-      label: `${inv.invoiceNo} [Due: ৳${Math.max(0, Number(inv.total) - Number(inv.paidTotal)).toLocaleString()}]`,
-      value: inv.id,
-    })),
-  ];
+  const invoiceModalOptions = useMemo(() => {
+    const list = recordForm.customerId
+      ? openInvoices.filter((inv) => inv.customerId === recordForm.customerId)
+      : openInvoices;
+    return [
+      { label: "-- Standalone / General Credit --", value: "" },
+      ...list.map((inv) => ({
+        label: `${inv.invoiceNo} [Due: ৳${Math.max(0, Number(inv.total) - Number(inv.paidTotal)).toLocaleString()}]`,
+        value: inv.id,
+      })),
+    ];
+  }, [openInvoices, recordForm.customerId]);
 
   const allocCustomerOptions = [
     { label: "-- Choose Customer --", value: "" },
@@ -579,32 +607,50 @@ export default function PaymentsPage() {
     {
       key: "reference",
       header: "Receipt / Trx ID",
-      render: (p) => (
-        <div className="flex flex-col gap-0.5">
-          <div className="flex items-center gap-1.5">
-            <span
-              onClick={(e) => {
-                e.stopPropagation();
-                copyToClipboard(p.reference || p.id, p.id);
-              }}
-              className="cursor-pointer font-mono font-bold text-gray-600 hover:text-brand-primary transition"
-              title="Click to copy receipt #"
-            >
-              {p.reference || `PAY-${p.id.slice(0, 8)}`}
-            </span>
-            {copiedId === p.id ? (
-              <Check size={12} className="text-emerald-600" />
-            ) : (
-              <Copy size={12} className="text-slate-300 opacity-60 hover:opacity-100 transition cursor-pointer" />
-            )}
+      render: (p) => {
+        const isDueCollection =
+          p.paymentType === "DUE_COLLECTION" ||
+          Boolean(p.reference?.startsWith("RCP-")) ||
+          Boolean(p.invoice?.total && Number(p.invoice.total) > Number(p.amount) + 0.01 && !p.saleId);
+        return (
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1.5">
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  copyToClipboard(p.reference || p.id, p.id);
+                }}
+                className="cursor-pointer font-mono font-bold text-gray-700 hover:text-brand-primary transition"
+                title="Click to copy receipt #"
+              >
+                {p.reference || `PAY-${p.id.slice(0, 8)}`}
+              </span>
+              {copiedId === p.id ? (
+                <Check size={12} className="text-emerald-600" />
+              ) : (
+                <Copy size={12} className="text-slate-300 opacity-60 hover:opacity-100 transition cursor-pointer" />
+              )}
+            </div>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {isDueCollection ? (
+                <span className="inline-flex items-center gap-1 rounded bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 text-[9px] font-black text-indigo-700 tracking-tight uppercase shadow-2xs">
+                  <Receipt size={10} className="text-indigo-600" />
+                  Due Collection
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-0.5 rounded bg-slate-100 border border-slate-200 px-1.5 py-0.2 text-[9px] font-medium text-slate-500">
+                  POS Sale
+                </span>
+              )}
+              {p.branchName && (
+                <span className="text-[10px] text-gray-400 truncate max-w-[110px] font-medium">
+                  • {p.branchName}
+                </span>
+              )}
+            </div>
           </div>
-          {p.branchName && (
-            <span className="text-[10px] text-gray-500 truncate max-w-[130px] font-medium">
-              • {p.branchName}
-            </span>
-          )}
-        </div>
-      ),
+        );
+      },
     },
     {
       key: "customer",
@@ -639,20 +685,28 @@ export default function PaymentsPage() {
       key: "invoice",
       header: "Linked Invoice",
       render: (p) => {
+        const isDueCollection =
+          p.paymentType === "DUE_COLLECTION" ||
+          Boolean(p.reference?.startsWith("RCP-")) ||
+          Boolean(p.invoice?.total && Number(p.invoice.total) > Number(p.amount) + 0.01 && !p.saleId);
         const invoiceDue = Math.max(0, Number(p.invoice?.total || 0) - Number(p.invoice?.paidTotal || 0));
         const hasDue = Boolean(p.invoice?.invoiceNo && invoiceDue > 0.01);
         return p.invoice?.invoiceNo ? (
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-0.5">
             <span className="font-mono font-bold text-gray-700">{p.invoice.invoiceNo}</span>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[10px] text-gray-500 font-medium">
+            <div className="flex items-center gap-1.5 text-[10px] flex-wrap mt-0.5">
+              <span className="text-gray-500 font-medium">
                 Total: ৳{Number(p.invoice.total || 0).toLocaleString()}
               </span>
-              {hasDue && (
-                <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1 py-0.2 rounded border border-amber-200">
-                  Due: ৳{invoiceDue.toLocaleString()}
+              {hasDue ? (
+                <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+                  Due Left: ৳{invoiceDue.toLocaleString()}
                 </span>
-              )}
+              ) : isDueCollection ? (
+                <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                  Due Fully Cleared ✓
+                </span>
+              ) : null}
             </div>
           </div>
         ) : (
@@ -666,6 +720,10 @@ export default function PaymentsPage() {
       align: "right",
       render: (p) => {
         const isRefunded = p.status === "REFUNDED";
+        const isDueCollection =
+          p.paymentType === "DUE_COLLECTION" ||
+          Boolean(p.reference?.startsWith("RCP-")) ||
+          Boolean(p.invoice?.total && Number(p.invoice.total) > Number(p.amount) + 0.01 && !p.saleId);
         const hasTenderChange =
           (Number(p.tenderedAmount || 0) > Number(p.amount) && Number(p.tenderedAmount || 0) > 0) ||
           Number(p.changeAmount || 0) > 0;
@@ -673,16 +731,20 @@ export default function PaymentsPage() {
           <div className="flex flex-col items-end gap-0.5">
             <span
               className={`font-black tabular-nums text-xs sm:text-sm ${
-                isRefunded ? "text-rose-600 line-through" : "text-emerald-700"
+                isRefunded ? "text-rose-600 line-through" : isDueCollection ? "text-indigo-700 font-black" : "text-emerald-700"
               }`}
             >
               ৳{Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
-            {hasTenderChange && (
+            {isDueCollection ? (
+              <span className="text-[10px] font-bold text-indigo-600 font-sans">
+                Due Collected
+              </span>
+            ) : hasTenderChange ? (
               <span className="text-[10px] text-slate-500 font-mono font-medium">
                 Tendered: ৳{Number(p.tenderedAmount).toLocaleString()} • Change: ৳{Number(p.changeAmount || 0).toLocaleString()}
               </span>
-            )}
+            ) : null}
           </div>
         );
       },
@@ -693,6 +755,10 @@ export default function PaymentsPage() {
       align: "center",
       render: (p) => {
         const isRefunded = p.status === "REFUNDED";
+        const isDueCollection =
+          p.paymentType === "DUE_COLLECTION" ||
+          Boolean(p.reference?.startsWith("RCP-")) ||
+          Boolean(p.invoice?.total && Number(p.invoice.total) > Number(p.amount) + 0.01 && !p.saleId);
         const invoiceDue = Math.max(0, Number(p.invoice?.total || 0) - Number(p.invoice?.paidTotal || 0));
         const hasDue = Boolean(p.invoice?.invoiceNo && invoiceDue > 0.01);
         const statusCfg = STATUS_CONFIG[p.status] || STATUS_CONFIG.COMPLETED;
@@ -706,15 +772,24 @@ export default function PaymentsPage() {
           );
         }
 
+        if (isDueCollection && !hasDue) {
+          return (
+            <span className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold bg-indigo-50 border-indigo-200 text-indigo-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+              Due Settled
+            </span>
+          );
+        }
+
         if (hasDue) {
           return (
             <div className="flex flex-col items-center gap-0.5">
               <span className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold bg-amber-50 border-amber-300 text-amber-700">
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                Partial Payment
+                Partial Due Paid
               </span>
               <span className="text-[10px] font-bold text-amber-600">
-                Due: ৳{invoiceDue.toLocaleString()}
+                Due Left: ৳{invoiceDue.toLocaleString()}
               </span>
             </div>
           );
@@ -725,7 +800,7 @@ export default function PaymentsPage() {
             className={`inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold ${statusCfg.bg} ${statusCfg.text}`}
           >
             <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dot}`} />
-            {statusCfg.label}
+            Settled / Paid
           </span>
         );
       },
@@ -940,6 +1015,8 @@ export default function PaymentsPage() {
               <CustomTabs
                 tabs={[
                   { id: "ALL", label: "All Receipts" },
+                  { id: "DUE_COLLECTION", label: "Due Collected" },
+                  { id: "POS_SALE", label: "POS Sales" },
                   { id: "COMPLETED", label: "Settled" },
                   { id: "CASH", label: "Cash" },
                   { id: "MFS", label: "Mobile MFS" },
@@ -1156,6 +1233,10 @@ export default function PaymentsPage() {
                     const hasTenderChange =
                       (Number(p.tenderedAmount || 0) > Number(p.amount) && Number(p.tenderedAmount || 0) > 0) ||
                       Number(p.changeAmount || 0) > 0;
+                    const isDueCollection =
+                      p.paymentType === "DUE_COLLECTION" ||
+                      Boolean(p.reference?.startsWith("RCP-")) ||
+                      Boolean(p.invoice?.total && Number(p.invoice.total) > Number(p.amount) + 0.01 && !p.saleId);
 
                     return (
                       <tr
@@ -1178,14 +1259,14 @@ export default function PaymentsPage() {
 
                         {/* Receipt / Trx ID */}
                         <td className="py-3.5 pl-2 pr-3">
-                          <div className="flex flex-col gap-0.5">
+                          <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-1.5">
                               <span
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   copyToClipboard(p.reference || p.id, p.id);
                                 }}
-                                className="cursor-pointer font-mono font-bold text-gray-600 hover:text-brand-primary transition"
+                                className="cursor-pointer font-mono font-bold text-gray-700 hover:text-brand-primary transition"
                                 title="Click to copy receipt #"
                               >
                                 {p.reference || `PAY-${p.id.slice(0, 8)}`}
@@ -1196,11 +1277,23 @@ export default function PaymentsPage() {
                                 <Copy size={12} className="text-slate-300 opacity-0 group-hover:opacity-100 transition cursor-pointer" />
                               )}
                             </div>
-                            {p.branchName && (
-                              <span className="text-[10px] text-gray-500 truncate max-w-[130px] font-medium">
-                                • {p.branchName}
-                              </span>
-                            )}
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {isDueCollection ? (
+                                <span className="inline-flex items-center gap-1 rounded bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 text-[9px] font-black text-indigo-700 tracking-tight uppercase shadow-2xs">
+                                  <Receipt size={10} className="text-indigo-600" />
+                                  Due Collection
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-0.5 rounded bg-slate-100 border border-slate-200 px-1.5 py-0.2 text-[9px] font-medium text-slate-500">
+                                  POS Sale
+                                </span>
+                              )}
+                              {p.branchName && (
+                                <span className="text-[10px] text-gray-400 truncate max-w-[110px] font-medium">
+                                  • {p.branchName}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </td>
 
@@ -1229,17 +1322,21 @@ export default function PaymentsPage() {
                         {/* Linked Invoice */}
                         <td className="px-3 py-3.5">
                           {p.invoice?.invoiceNo ? (
-                            <div className="flex flex-col">
-                              <span className="font-mono font-bold text-gray-600">{p.invoice.invoiceNo}</span>
-                              <div className="flex items-center gap-1.5 mt-0.5">
-                                <span className="text-[10px] text-gray-500 font-medium">
+                            <div className="flex flex-col gap-0.5">
+                              <span className="font-mono font-bold text-gray-700">{p.invoice.invoiceNo}</span>
+                              <div className="flex items-center gap-1.5 text-[10px] flex-wrap mt-0.5">
+                                <span className="text-gray-500 font-medium">
                                   Total: ৳{Number(p.invoice.total || 0).toLocaleString()}
                                 </span>
-                                {hasDue && (
-                                  <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1 py-0.2 rounded border border-amber-200">
-                                    Due: ৳{invoiceDue.toLocaleString()}
+                                {hasDue ? (
+                                  <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+                                    Due Left: ৳{invoiceDue.toLocaleString()}
                                   </span>
-                                )}
+                                ) : isDueCollection ? (
+                                  <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                                    Due Fully Cleared ✓
+                                  </span>
+                                ) : null}
                               </div>
                             </div>
                           ) : (
@@ -1250,14 +1347,22 @@ export default function PaymentsPage() {
                         {/* Amount */}
                         <td className="px-3 py-3.5 text-right font-black tabular-nums text-xs sm:text-sm">
                           <div className="flex flex-col items-end gap-0.5">
-                            <span className={isRefunded ? "text-rose-600 line-through" : "text-emerald-700"}>
+                            <span
+                              className={`font-black tabular-nums text-xs sm:text-sm ${
+                                isRefunded ? "text-rose-600 line-through" : isDueCollection ? "text-indigo-700 font-black" : "text-emerald-700"
+                              }`}
+                            >
                               ৳{Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
-                            {hasTenderChange && (
+                            {isDueCollection ? (
+                              <span className="text-[10px] font-bold text-indigo-600 font-sans">
+                                Due Collected
+                              </span>
+                            ) : hasTenderChange ? (
                               <span className="text-[10px] text-slate-500 font-mono font-medium">
                                 Tendered: ৳{Number(p.tenderedAmount).toLocaleString()} • Change: ৳{Number(p.changeAmount || 0).toLocaleString()}
                               </span>
-                            )}
+                            ) : null}
                           </div>
                         </td>
 
@@ -1268,14 +1373,19 @@ export default function PaymentsPage() {
                               <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
                               Refunded / Void
                             </span>
+                          ) : isDueCollection && !hasDue ? (
+                            <span className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold bg-indigo-50 border-indigo-200 text-indigo-700">
+                              <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                              Due Settled
+                            </span>
                           ) : hasDue ? (
                             <div className="flex flex-col items-center gap-0.5">
                               <span className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold bg-amber-50 border-amber-300 text-amber-700">
                                 <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                                Partial Payment
+                                Partial Due Paid
                               </span>
                               <span className="text-[10px] font-bold text-amber-600">
-                                Due: ৳{invoiceDue.toLocaleString()}
+                                Due Left: ৳{invoiceDue.toLocaleString()}
                               </span>
                             </div>
                           ) : (
@@ -1283,7 +1393,7 @@ export default function PaymentsPage() {
                               className={`inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold ${statusCfg.bg} ${statusCfg.text}`}
                             >
                               <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dot}`} />
-                              {statusCfg.label}
+                              Settled / Paid
                             </span>
                           )}
                         </td>
@@ -1371,6 +1481,10 @@ export default function PaymentsPage() {
                 const hasTenderChange =
                   (Number(p.tenderedAmount || 0) > Number(p.amount) && Number(p.tenderedAmount || 0) > 0) ||
                   Number(p.changeAmount || 0) > 0;
+                const isDueCollection =
+                  p.paymentType === "DUE_COLLECTION" ||
+                  Boolean(p.reference?.startsWith("RCP-")) ||
+                  Boolean(p.invoice?.total && Number(p.invoice.total) > Number(p.amount) + 0.01 && !p.saleId);
 
                 return (
                   <div
@@ -1384,22 +1498,35 @@ export default function PaymentsPage() {
                           <div className="font-mono text-sm font-bold text-brand-dark">
                             {p.reference || `PAY-${p.id.slice(0, 8)}`}
                           </div>
-                          <span
-                            className={`mt-1 inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-bold ${methodCfg.bg} ${methodCfg.text} border border-slate-200`}
-                          >
-                            <MethodIcon size={12} />
-                            {methodCfg.label}
-                          </span>
+                          <div className="flex items-center gap-1 mt-1 flex-wrap">
+                            <span
+                              className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-bold ${methodCfg.bg} ${methodCfg.text} border border-slate-200`}
+                            >
+                              <MethodIcon size={12} />
+                              {methodCfg.label}
+                            </span>
+                            {isDueCollection && (
+                              <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] font-black bg-indigo-50 border border-indigo-200 text-indigo-700 tracking-tight uppercase shadow-2xs">
+                                <Receipt size={10} className="text-indigo-600" />
+                                Due
+                              </span>
+                            )}
+                          </div>
                         </div>
                         {isRefunded ? (
                           <span className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold bg-rose-50 border-rose-200 text-rose-700">
                             <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
                             Refunded
                           </span>
+                        ) : isDueCollection && !hasDue ? (
+                          <span className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold bg-indigo-50 border-indigo-200 text-indigo-700">
+                            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                            Due Settled
+                          </span>
                         ) : hasDue ? (
                           <span className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] font-bold bg-amber-50 border-amber-300 text-amber-700">
                             <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                            Partial (Due: ৳{invoiceDue.toLocaleString()})
+                            Partial Due (Left: ৳{invoiceDue.toLocaleString()})
                           </span>
                         ) : (
                           <span
@@ -1427,11 +1554,15 @@ export default function PaymentsPage() {
                           </div>
                           <div className="text-right">
                             <span className="text-[10px] text-gray-500 block">Total: ৳{Number(p.invoice.total || 0).toLocaleString()}</span>
-                            {hasDue && (
+                            {hasDue ? (
                               <span className="text-[10px] font-bold text-amber-600">
-                                Due: ৳{invoiceDue.toLocaleString()}
+                                Due Left: ৳{invoiceDue.toLocaleString()}
                               </span>
-                            )}
+                            ) : isDueCollection ? (
+                              <span className="text-[10px] font-bold text-emerald-600">
+                                Due Cleared ✓
+                              </span>
+                            ) : null}
                           </div>
                         </div>
                       )}
@@ -1439,16 +1570,22 @@ export default function PaymentsPage() {
                       {/* Financial Amount */}
                       <div className="mt-3 flex items-center justify-between">
                         <div>
-                          <span className="text-xs font-medium text-gray-500 block">Collected Amount</span>
-                          {hasTenderChange && (
+                          <span className="text-xs font-medium text-gray-500 block">
+                            {isDueCollection ? "Due Collected" : "Collected Amount"}
+                          </span>
+                          {isDueCollection ? (
+                            <span className="text-[10px] text-indigo-600 font-bold">
+                              Due Settlement
+                            </span>
+                          ) : hasTenderChange ? (
                             <span className="text-[10px] text-slate-400 font-mono">
                               Tender: ৳{Number(p.tenderedAmount).toLocaleString()}
                             </span>
-                          )}
+                          ) : null}
                         </div>
                         <span
                           className={`text-base font-black tabular-nums ${
-                            isRefunded ? "text-rose-600 line-through" : "text-emerald-700"
+                            isRefunded ? "text-rose-600 line-through" : isDueCollection ? "text-indigo-700 font-black" : "text-emerald-700"
                           }`}
                         >
                           ৳{Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -1545,44 +1682,97 @@ export default function PaymentsPage() {
               <CustomDropdownSelect
                 options={customerModalOptions}
                 value={recordForm.customerId}
-                onChange={(val) => setRecordForm((p) => ({ ...p, customerId: val }))}
+                onChange={(val) => {
+                  const custInvs = openInvoices.filter((i) => i.customerId === val);
+                  setRecordForm((p) => {
+                    const currentInvValid = custInvs.some((i) => i.id === p.invoiceId);
+                    const nextInvId = currentInvValid ? p.invoiceId : (custInvs.length === 1 ? custInvs[0].id : "");
+                    let nextAmount = p.amount;
+                    if (nextInvId) {
+                      const inv = custInvs.find((i) => i.id === nextInvId);
+                      const due = inv ? Math.max(0, Number(inv.total) - Number(inv.paidTotal)) : 0;
+                      if (due > 0 && (!p.amount || p.amount === "0")) {
+                        nextAmount = String(due);
+                      }
+                    }
+                    return {
+                      ...p,
+                      customerId: val,
+                      invoiceId: nextInvId,
+                      amount: nextAmount,
+                    };
+                  });
+                }}
                 placeholder="Walk-in Customer (General Public)"
               />
             </div>
           </div>
 
           {/* Customer Current Due Callout if selected */}
-          {selectedCustObj && Number(selectedCustObj.currentDue || 0) > 0 && (
-            <div className="rounded-sm bg-amber-50/80 border border-amber-200 p-3 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700">
-                  Customer Current Outstanding
-                </span>
-                <p className="font-black text-amber-900 text-sm mt-0.5">
-                  ৳{Number(selectedCustObj.currentDue).toLocaleString()}
-                </p>
+          {(() => {
+            const custDueFromRecord = Number(selectedCustObj?.currentDue || 0);
+            const custInvoices = openInvoices.filter((i) => i.customerId === recordForm.customerId);
+            const invoicesDue = custInvoices.reduce(
+              (sum, inv) => sum + Math.max(0, Number(inv.total || 0) - Number(inv.paidTotal || 0)),
+              0
+            );
+            const totalDue = Math.max(custDueFromRecord, invoicesDue);
+
+            if (!recordForm.customerId || totalDue <= 0) return null;
+
+            return (
+              <div className="rounded-sm bg-amber-50/80 border border-amber-200 p-3 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700">
+                    Customer Current Outstanding
+                  </span>
+                  <p className="font-black text-amber-900 text-sm mt-0.5">
+                    ৳{totalDue.toLocaleString()}
+                    {custInvoices.length > 0 && (
+                      <span className="text-xs font-normal text-amber-700 ml-2">
+                        ({custInvoices.length} unpaid invoice{custInvoices.length > 1 ? "s" : ""})
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <CustomButton
+                  type="button"
+                  variant="outline"
+                  size="xs"
+                  onClick={() => setRecordForm((p) => ({ ...p, amount: String(totalDue) }))}
+                >
+                  Fill Full Due
+                </CustomButton>
               </div>
-              <CustomButton
-                type="button"
-                variant="outline"
-                size="xs"
-                onClick={() => setRecordForm((p) => ({ ...p, amount: String(selectedCustObj.currentDue) }))}
-              >
-                Fill Full Due
-              </CustomButton>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Payment Amount */}
           <div>
-            <label className="mb-1 block font-bold text-gray-600">Payment Amount (৳) *</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block font-bold text-gray-600">Payment Amount (৳) *</label>
+              {selectedInvObj && selectedInvDue > 0 && (
+                <div className="flex items-center gap-1 text-[11px]">
+                  <span className="text-gray-500">Invoice Due:</span>
+                  <span className="font-bold text-amber-700">৳{selectedInvDue.toLocaleString()}</span>
+                  <button
+                    type="button"
+                    onClick={() => setRecordForm((p) => ({ ...p, amount: String(selectedInvDue) }))}
+                    className="font-bold text-brand-primary hover:underline ml-1 cursor-pointer"
+                  >
+                    (Fill Full Due)
+                  </button>
+                </div>
+              )}
+            </div>
             <input
               type="number"
-              min={1}
-              placeholder="0.00"
+              step="any"
+              min={0.01}
+              placeholder="Enter payment amount (e.g. 187.50)"
               value={recordForm.amount}
               onChange={(e) => setRecordForm((p) => ({ ...p, amount: e.target.value }))}
-              className="w-full rounded-sm border border-brand-border p-3 text-base font-black text-brand-dark focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20"
+              className="w-full rounded-sm border border-brand-border p-3 text-base font-black text-brand-dark focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-border/20 placeholder:text-gray-400 placeholder:font-normal"
             />
           </div>
 
@@ -1637,7 +1827,16 @@ export default function PaymentsPage() {
               <CustomDropdownSelect
                 options={invoiceModalOptions}
                 value={recordForm.invoiceId}
-                onChange={(val) => setRecordForm((p) => ({ ...p, invoiceId: val }))}
+                onChange={(val) => {
+                  const inv = openInvoices.find((i) => i.id === val);
+                  const due = inv ? Math.max(0, Number(inv.total) - Number(inv.paidTotal)) : 0;
+                  setRecordForm((p) => ({
+                    ...p,
+                    invoiceId: val,
+                    amount: due > 0 ? String(due) : p.amount,
+                    customerId: inv?.customerId || p.customerId,
+                  }));
+                }}
                 placeholder="-- Standalone / General Credit --"
               />
             </div>
@@ -1919,63 +2118,92 @@ export default function PaymentsPage() {
         >
           <div className="space-y-4 text-xs text-gray-600">
             {/* Receipt Amount Hero */}
-            <div className="rounded-sm border border-brand-border bg-gradient-to-br from-brand-50 via-white to-brand-50/50 p-5 text-center shadow-2xs">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                Collected Amount
-              </span>
-              <div className="mt-1 text-3xl font-black text-brand-dark">
-                ৳{Number(selectedPaymentForDrawer.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </div>
-              {selectedPaymentForDrawer.tenderedAmount && Number(selectedPaymentForDrawer.tenderedAmount) > Number(selectedPaymentForDrawer.amount) && (
-                <div className="mt-1 text-xs text-gray-500 font-mono">
-                  Tendered: ৳{Number(selectedPaymentForDrawer.tenderedAmount).toLocaleString()} • Change: ৳{Number(selectedPaymentForDrawer.changeAmount || 0).toLocaleString()}
-                </div>
-              )}
-              <div className="mt-2 flex items-center justify-center gap-2">
-                {(() => {
-                  const invTotal = Number(selectedPaymentForDrawer.invoice?.total || 0);
-                  const invPaid = Number(selectedPaymentForDrawer.invoice?.paidTotal || 0);
-                  const invDue = Math.max(0, invTotal - invPaid);
-                  const hasDue = Boolean(selectedPaymentForDrawer.invoice?.invoiceNo && invDue > 0.01);
-                  if (selectedPaymentForDrawer.status === "REFUNDED") {
-                    return (
-                      <span className="inline-flex items-center gap-1 rounded-sm border px-2.5 py-0.5 text-[10px] font-bold bg-rose-50 border-rose-200 text-rose-700">
-                        <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                        Refunded / Void
-                      </span>
-                    );
-                  }
-                  if (hasDue) {
-                    return (
-                      <span className="inline-flex items-center gap-1 rounded-sm border px-2.5 py-0.5 text-[10px] font-bold bg-amber-50 border-amber-300 text-amber-700">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                        Partial Payment (Due: ৳{invDue.toLocaleString()})
-                      </span>
-                    );
-                  }
-                  return (
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-sm border px-2.5 py-0.5 text-[10px] font-bold ${
-                        STATUS_CONFIG[selectedPaymentForDrawer.status]?.bg || ""
-                      } ${STATUS_CONFIG[selectedPaymentForDrawer.status]?.text || ""}`}
-                    >
-                      <span
-                        className={`h-1.5 w-1.5 rounded-full ${
-                          STATUS_CONFIG[selectedPaymentForDrawer.status]?.dot || ""
-                        }`}
-                      />
-                      Settled / Paid
+            {(() => {
+              const isDueCol =
+                selectedPaymentForDrawer.paymentType === "DUE_COLLECTION" ||
+                Boolean(selectedPaymentForDrawer.reference?.startsWith("RCP-")) ||
+                Boolean(
+                  selectedPaymentForDrawer.invoice?.total &&
+                  Number(selectedPaymentForDrawer.invoice.total) > Number(selectedPaymentForDrawer.amount) + 0.01 &&
+                  !selectedPaymentForDrawer.saleId
+                );
+
+              return (
+                <div className="rounded-sm border border-brand-border bg-gradient-to-br from-brand-50 via-white to-brand-50/50 p-5 text-center shadow-2xs">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                      {isDueCol ? "Due Collected Amount" : "Collected Amount"}
                     </span>
-                  );
-                })()}
-                <span className="text-[11px] font-semibold text-gray-500">
-                  • {selectedPaymentForDrawer.method}
-                </span>
-                <span className="text-[11px] font-mono text-gray-500">
-                  • {selectedPaymentForDrawer.reference || `PAY-${selectedPaymentForDrawer.id.slice(0, 8)}`}
-                </span>
-              </div>
-            </div>
+                    {isDueCol && (
+                      <span className="inline-flex items-center gap-1 rounded bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 text-[9px] font-black text-indigo-700 tracking-tight uppercase shadow-2xs">
+                        <Receipt size={10} className="text-indigo-600" />
+                        Due Collection
+                      </span>
+                    )}
+                  </div>
+                  <div className={`mt-1 text-3xl font-black ${isDueCol ? "text-indigo-800" : "text-brand-dark"}`}>
+                    ৳{Number(selectedPaymentForDrawer.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                  {selectedPaymentForDrawer.tenderedAmount && Number(selectedPaymentForDrawer.tenderedAmount) > Number(selectedPaymentForDrawer.amount) && (
+                    <div className="mt-1 text-xs text-gray-500 font-mono">
+                      Tendered: ৳{Number(selectedPaymentForDrawer.tenderedAmount).toLocaleString()} • Change: ৳{Number(selectedPaymentForDrawer.changeAmount || 0).toLocaleString()}
+                    </div>
+                  )}
+                  <div className="mt-2 flex items-center justify-center gap-2 flex-wrap">
+                    {(() => {
+                      const invTotal = Number(selectedPaymentForDrawer.invoice?.total || 0);
+                      const invPaid = Number(selectedPaymentForDrawer.invoice?.paidTotal || 0);
+                      const invDue = Math.max(0, invTotal - invPaid);
+                      const hasDue = Boolean(selectedPaymentForDrawer.invoice?.invoiceNo && invDue > 0.01);
+                      if (selectedPaymentForDrawer.status === "REFUNDED") {
+                        return (
+                          <span className="inline-flex items-center gap-1 rounded-sm border px-2.5 py-0.5 text-[10px] font-bold bg-rose-50 border-rose-200 text-rose-700">
+                            <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                            Refunded / Void
+                          </span>
+                        );
+                      }
+                      if (isDueCol && !hasDue) {
+                        return (
+                          <span className="inline-flex items-center gap-1 rounded-sm border px-2.5 py-0.5 text-[10px] font-bold bg-indigo-50 border-indigo-200 text-indigo-700">
+                            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                            Due Settled
+                          </span>
+                        );
+                      }
+                      if (hasDue) {
+                        return (
+                          <span className="inline-flex items-center gap-1 rounded-sm border px-2.5 py-0.5 text-[10px] font-bold bg-amber-50 border-amber-300 text-amber-700">
+                            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                            Partial Due (Left: ৳{invDue.toLocaleString()})
+                          </span>
+                        );
+                      }
+                      return (
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-sm border px-2.5 py-0.5 text-[10px] font-bold ${
+                            STATUS_CONFIG[selectedPaymentForDrawer.status]?.bg || ""
+                          } ${STATUS_CONFIG[selectedPaymentForDrawer.status]?.text || ""}`}
+                        >
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${
+                              STATUS_CONFIG[selectedPaymentForDrawer.status]?.dot || ""
+                            }`}
+                          />
+                          Settled / Paid
+                        </span>
+                      );
+                    })()}
+                    <span className="text-[11px] font-semibold text-gray-500">
+                      • {selectedPaymentForDrawer.method}
+                    </span>
+                    <span className="text-[11px] font-mono text-gray-500">
+                      • {selectedPaymentForDrawer.reference || `PAY-${selectedPaymentForDrawer.id.slice(0, 8)}`}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Client Details */}
             <div className="rounded-sm bg-white p-4 space-y-2 border border-slate-200 shadow-2xs">
@@ -2000,6 +2228,10 @@ export default function PaymentsPage() {
               const invTotal = Number(selectedPaymentForDrawer.invoice.total || 0);
               const invPaid = Number(selectedPaymentForDrawer.invoice.paidTotal || 0);
               const invDue = Math.max(0, invTotal - invPaid);
+              const isDueCol =
+                selectedPaymentForDrawer.paymentType === "DUE_COLLECTION" ||
+                Boolean(selectedPaymentForDrawer.reference?.startsWith("RCP-")) ||
+                Boolean(invTotal > Number(selectedPaymentForDrawer.amount) + 0.01 && !selectedPaymentForDrawer.saleId);
               return (
                 <div className="rounded-sm bg-white p-4 space-y-2 border border-slate-200 shadow-2xs">
                   <div className="flex justify-between items-center">
@@ -2007,6 +2239,10 @@ export default function PaymentsPage() {
                     {invDue > 0.01 ? (
                       <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
                         Partially Paid (Remaining Due: ৳{invDue.toLocaleString()})
+                      </span>
+                    ) : isDueCol ? (
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        Invoice Due Fully Cleared ✓
                       </span>
                     ) : (
                       <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">

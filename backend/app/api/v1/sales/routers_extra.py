@@ -1229,7 +1229,9 @@ async def get_payment_stats(
             COALESCE(SUM(CASE WHEN method = 'CASH' AND status != 'REFUNDED' THEN amount ELSE 0 END), 0) AS cashAmount,
             COALESCE(SUM(CASE WHEN method IN ('BKASH', 'NAGAD', 'ROCKET', 'UPAY') AND status != 'REFUNDED' THEN amount ELSE 0 END), 0) AS mfsAmount,
             COALESCE(SUM(CASE WHEN method IN ('CARD', 'POS', 'VISA', 'MASTERCARD') AND status != 'REFUNDED' THEN amount ELSE 0 END), 0) AS cardAmount,
-            COALESCE(SUM(CASE WHEN method IN ('BANK_TRANSFER', 'BANK', 'CHEQUE') AND status != 'REFUNDED' THEN amount ELSE 0 END), 0) AS bankAmount
+            COALESCE(SUM(CASE WHEN method IN ('BANK_TRANSFER', 'BANK', 'CHEQUE') AND status != 'REFUNDED' THEN amount ELSE 0 END), 0) AS bankAmount,
+            COALESCE(SUM(CASE WHEN ((saleId IS NULL AND invoiceId IS NOT NULL) OR reference LIKE 'RCP-%') AND status != 'REFUNDED' THEN amount ELSE 0 END), 0) AS dueCollectedAmount,
+            COALESCE(SUM(CASE WHEN ((saleId IS NULL AND invoiceId IS NOT NULL) OR reference LIKE 'RCP-%') AND status != 'REFUNDED' THEN 1 ELSE 0 END), 0) AS dueCollectedCount
         FROM payments
         WHERE tenantId = :t
     """), {"t": tenantId})).first()
@@ -1253,6 +1255,8 @@ async def get_payment_stats(
         "mfsAmount": float(total_row[7] or 0),
         "cardAmount": float(total_row[8] or 0),
         "bankAmount": float(total_row[9] or 0),
+        "dueCollectedAmount": float(total_row[10] or 0),
+        "dueCollectedCount": int(total_row[11] or 0),
         "byMethod": method_rows,
     })
 
@@ -1262,6 +1266,7 @@ async def list_payments(
     search: str = "",
     method: str = "",
     status: str = "",
+    paymentType: str = "",
     customerId: str = "",
     branchId: str = "",
     invoiceId: str = "",
@@ -1285,6 +1290,10 @@ async def list_payments(
     if status:
         where += " AND p.status = :st"
         params["st"] = status
+    if paymentType == "DUE_COLLECTION":
+        where += " AND ((p.saleId IS NULL AND p.invoiceId IS NOT NULL) OR p.reference LIKE 'RCP-%')"
+    elif paymentType == "POS_SALE":
+        where += " AND (p.saleId IS NOT NULL OR p.reference LIKE 'PAY-%')"
     if customerId:
         where += " AND p.customerId = :cid"
         params["cid"] = customerId
@@ -1371,6 +1380,15 @@ async def list_payments(
         r["amount"] = float(r.get("amount") or 0)
         r["tenderedAmount"] = float(r.get("tenderedAmount") or r.get("amount") or 0)
         r["changeAmount"] = float(r.get("changeAmount") or 0)
+
+        # Distinguish Due Collection vs Direct POS Sale
+        is_due_col = bool(
+            (not r.get("saleId") and r.get("invoiceId")) or
+            (r.get("reference") and str(r.get("reference")).startswith("RCP-")) or
+            (inv_tot and float(inv_tot or 0) > float(r.get("amount") or 0) + 0.01 and not r.get("saleId"))
+        )
+        r["paymentType"] = "DUE_COLLECTION" if is_due_col else "POS_SALE"
+
         data.append(r)
 
     return ok(data, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
