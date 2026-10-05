@@ -453,13 +453,13 @@ export function Sidebar() {
         {/* Menu Quick Search */}
         <div className="px-3 pt-3 pb-1">
           <div className="relative flex items-center">
-            <Search size={14} className="pointer-events-none absolute left-3 text-sky-500" />
+            <Search size={14} className="pointer-events-none absolute left-3 text-brand-primary" />
             <input
               type="text"
               placeholder="Search menu..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-sky-100 bg-sky-50/50 pl-9 pr-8 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 outline-none focus:outline-none focus:border-sky-400 focus:bg-white focus:ring-1 focus:ring-sky-200 shadow-2xs transition-colors"
+              className="w-full rounded-full border border-brand-border/70 bg-brand-50/50 pl-9 pr-8 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 outline-none focus:outline-none focus:border-brand-primary focus:bg-white focus:ring-1 focus:ring-brand-border/40 shadow-2xs transition-colors"
             />
             {searchQuery && (
               <button

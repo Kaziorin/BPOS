@@ -22,6 +22,7 @@
   --theme-glow: rgba(2, 132, 199, 0.35);
   --theme-gradient: linear-gradient(to right, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(2, 132, 199, 0.35), 0 2px 6px -2px rgba(8, 47, 73, 0.25);
+  --theme-page-bg: #edf5fd;
 }
 
 /* ========================================================================= */
@@ -46,6 +47,7 @@
   --theme-glow: rgba(2, 132, 199, 0.35);
   --theme-gradient: linear-gradient(to right, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(2, 132, 199, 0.35), 0 2px 6px -2px rgba(8, 47, 73, 0.25);
+  --theme-page-bg: #edf5fd;
 }
 
 /* 2. ROYAL SAPPHIRE (Azure Ocean Blue - #3B9ADF) */
@@ -65,6 +67,7 @@
   --theme-glow: rgba(34, 133, 206, 0.35);
   --theme-gradient: linear-gradient(to right, #1669ac 0%, #2285ce 50%, #3b9adf 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(34, 133, 206, 0.35), 0 2px 6px -2px rgba(20, 84, 140, 0.25);
+  --theme-page-bg: #eef5fc;
 }
 
 /* 3. MIDNIGHT VIOLET (Luxury Deep Purple) */
@@ -84,6 +87,7 @@
   --theme-glow: rgba(124, 58, 237, 0.35);
   --theme-gradient: linear-gradient(to right, #6d28d9 0%, #7c3aed 50%, #8b5cf6 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(124, 58, 237, 0.35), 0 2px 6px -2px rgba(76, 29, 149, 0.25);
+  --theme-page-bg: #f5f3ff;
 }
 
 /* 4. SLATE CHARCOAL (Minimalist Corporate Dark) */
@@ -103,6 +107,7 @@
   --theme-glow: rgba(71, 85, 105, 0.35);
   --theme-gradient: linear-gradient(to right, #334155 0%, #475569 50%, #64748b 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(71, 85, 105, 0.35), 0 2px 6px -2px rgba(15, 23, 42, 0.25);
+  --theme-page-bg: #f1f5f9;
 }
 
 /* ========================================================================= */
@@ -126,6 +131,7 @@
   --theme-glow: rgba(234, 88, 12, 0.35);
   --theme-gradient: linear-gradient(to right, #ea580c 0%, #f97316 50%, #fb923c 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(234, 88, 12, 0.38), 0 2px 6px -2px rgba(124, 45, 18, 0.25);
+  --theme-page-bg: #fff7ed;
 }
 
 /* 2. GROCERY & SUPERMARKET (Fresh Organic Emerald) */
@@ -145,6 +151,7 @@
   --theme-glow: rgba(5, 150, 105, 0.35);
   --theme-gradient: linear-gradient(to right, #059669 0%, #10b981 50%, #34d399 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(5, 150, 105, 0.38), 0 2px 6px -2px rgba(6, 78, 59, 0.25);
+  --theme-page-bg: #f0fdf4;
 }
 
 /* 3. PHARMACY & HEALTH (Clinical Cyan) */
@@ -164,6 +171,7 @@
   --theme-glow: rgba(8, 145, 178, 0.35);
   --theme-gradient: linear-gradient(to right, #0891b2 0%, #06b6d4 50%, #22d3ee 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(8, 145, 178, 0.38), 0 2px 6px -2px rgba(22, 78, 99, 0.25);
+  --theme-page-bg: #ecfeff;
 }
 
 /* 4. RETAIL & APPAREL (Royal Blue) */
@@ -183,6 +191,7 @@
   --theme-glow: rgba(37, 99, 235, 0.35);
   --theme-gradient: linear-gradient(to right, #1d4ed8 0%, #2563eb 50%, #60a5fa 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(37, 99, 235, 0.38), 0 2px 6px -2px rgba(30, 58, 138, 0.25);
+  --theme-page-bg: #eff6ff;
 }
 
 /* 5. WHOLESALE & DISTRIBUTION (Vibrant Action Blue) */
@@ -202,6 +211,7 @@
   --theme-glow: rgba(0, 102, 255, 0.35);
   --theme-gradient: linear-gradient(to right, #0052cc 0%, #0066ff 50%, #38bdf8 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(0, 102, 255, 0.38), 0 2px 6px -2px rgba(0, 38, 96, 0.25);
+  --theme-page-bg: #f0f7ff;
 }
 
 /* 6. SALON & BEAUTY SPA (Glamour Rose) */
@@ -221,6 +231,7 @@
   --theme-glow: rgba(225, 29, 72, 0.35);
   --theme-gradient: linear-gradient(to right, #be123c 0%, #e11d48 50%, #fb7185 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(225, 29, 72, 0.38), 0 2px 6px -2px rgba(136, 19, 55, 0.25);
+  --theme-page-bg: #fff1f2;
 }
 
 /* 7. MANUFACTURING & BAKERY (Amber Gold) */
@@ -240,6 +251,7 @@
   --theme-glow: rgba(217, 119, 6, 0.35);
   --theme-gradient: linear-gradient(to right, #b45309 0%, #d97706 50%, #fbbf24 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(217, 119, 6, 0.38), 0 2px 6px -2px rgba(120, 53, 15, 0.25);
+  --theme-page-bg: #fffbeb;
 }
 
 /* 8. REPAIR & SERVICE (Electric Violet) */
@@ -259,6 +271,7 @@
   --theme-glow: rgba(124, 58, 237, 0.35);
   --theme-gradient: linear-gradient(to right, #6d28d9 0%, #7c3aed 50%, #a78bfa 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(124, 58, 237, 0.38), 0 2px 6px -2px rgba(76, 29, 149, 0.25);
+  --theme-page-bg: #f5f3ff;
 }
 
 /* 9. FRANCHISE & ENTERPRISE (Corporate Slate) */
@@ -278,6 +291,7 @@
   --theme-glow: rgba(51, 65, 85, 0.35);
   --theme-gradient: linear-gradient(to right, #1e293b 0%, #334155 50%, #475569 100%);
   --theme-button-shadow: 0 4px 14px -1px rgba(51, 65, 85, 0.38), 0 2px 6px -2px rgba(15, 23, 42, 0.25);
+  --theme-page-bg: #f1f5f9;
 }
 
 /*
