@@ -811,6 +811,8 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
                 <Link
                   key={`${sub.label}-${sub.href}-${idx}`}
                   href={sub.href}
+                  target={sub.target}
+                  rel={sub.target === "_blank" ? "noopener noreferrer" : undefined}
                   className={cn(
                     "group flex items-center gap-2 rounded-sm px-2 py-1.5 text-[11px] font-semibold transition-all duration-150",
                     subActive
@@ -833,6 +835,8 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
   return (
     <Link
       href={child.href}
+      target={child.target}
+      rel={child.target === "_blank" ? "noopener noreferrer" : undefined}
       className={cn(
         "group flex items-center gap-2 rounded-sm px-2.5 py-1.5 text-xs transition-all duration-150",
         exactActive

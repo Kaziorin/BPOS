@@ -547,6 +547,50 @@ async def update_kot_status(
     return ok({"kotId": kotId, "status": status})
 
 
+@router.patch("/api/v1/restaurant/kot/{kotId}/items/{itemId}/status")
+async def update_kot_item_status(
+    kotId: str,
+    itemId: str,
+    body: dict,
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update status of a specific item within a KOT ticket."""
+    try:
+        await _check_restaurant_enabled(db, tenantId)
+    except Exception as e:
+        return err(str(e), 403)
+
+    status = body.get("status")
+    valid_statuses = ["NEW", "ACCEPTED", "PREPARING", "READY", "SERVED", "DONE"]
+    if status not in valid_statuses:
+        return err(f"Invalid item status. Must be one of: {', '.join(valid_statuses)}", 400)
+
+    async with txn(db):
+        res = await db.execute(
+            text("UPDATE restaurant_kot_items SET status = :st WHERE id = :id AND kotId = :kid AND tenantId = :t"),
+            {"st": status, "id": itemId, "kid": kotId, "t": tenantId},
+        )
+        if res.rowcount == 0:
+            return err("KOT item not found", 404)
+
+        # Check if all items are done/ready
+        all_items = rows_to_dicts((await db.execute(
+            text("SELECT status FROM restaurant_kot_items WHERE kotId = :kid AND tenantId = :t"),
+            {"kid": kotId, "t": tenantId},
+        )).fetchall())
+
+        all_ready = len(all_items) > 0 and all(i["status"] in ("READY", "SERVED", "DONE") for i in all_items)
+        if all_ready:
+            await db.execute(
+                text("UPDATE restaurant_kot SET status = 'READY', updatedAt = NOW() WHERE id = :kid AND tenantId = :t"),
+                {"kid": kotId, "t": tenantId},
+            )
+
+    return ok({"kotId": kotId, "itemId": itemId, "status": status, "allReady": all_ready})
+
+
 @router.get("/api/v1/restaurant/kds")
 async def kds_feed(
     branchId: str = "",

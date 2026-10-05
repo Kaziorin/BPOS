@@ -120,6 +120,8 @@ function RestaurantPageContent() {
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
             <a
               href="/restaurant/kitchen"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-orange-200 bg-orange-50 text-orange-700 text-xs font-bold hover:bg-orange-100 transition shadow-2xs"
             >
               <ChefHat size={14} /> Kitchen Hub

@@ -2375,7 +2375,7 @@ export default function RestaurantPOSPage() {
             </button>
 
             <button
-              onClick={() => router.push("/restaurant/kitchen")}
+              onClick={() => window.open("/restaurant/kitchen", "_blank")}
               className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-sm bg-white border border-slate-200 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer"
             >
               <Flame size={13} className="text-orange-600" /> Kitchen
