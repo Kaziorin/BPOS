@@ -459,7 +459,7 @@ export function Sidebar() {
               placeholder="Search menu..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-brand-border/70 bg-brand-50/50 pl-9 pr-8 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 outline-none focus:outline-none focus:border-brand-primary focus:bg-white focus:ring-1 focus:ring-brand-border/40 shadow-2xs transition-colors"
+              className="theme-search-input w-full rounded-full pl-9 pr-8 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 outline-none shadow-2xs"
             />
             {searchQuery && (
               <button

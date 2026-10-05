@@ -307,7 +307,7 @@ export function Header() {
           <div className="flex-1 max-w-xs xl:max-w-md mx-2">
             <button
               onClick={() => setPaletteOpen(true)}
-              className="w-full flex items-center gap-2.5 rounded-full border border-brand-border/70 bg-white/95 px-4.5 py-2 text-xs text-slate-600 shadow-xs hover:bg-white hover:border-brand-primary hover:ring-2 hover:ring-brand-border/30 transition cursor-pointer group"
+              className="theme-search-pill w-full flex items-center gap-2.5 rounded-full px-4.5 py-2 text-xs text-slate-600 cursor-pointer group"
               title="Quick Search (Ctrl + K)"
             >
               <Search size={14} className="text-brand-primary shrink-0" />
