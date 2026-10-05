@@ -37,7 +37,7 @@ interface PO {
   rebatePercent: string | null;
   warehouseId?: string;
   warehouseName?: string;
-  supplier: { id: string; name: string; contactPerson?: string; phone?: string; email?: string };
+  supplier: { id: string; name: string; contactPerson?: string; phone?: string; email?: string; address?: string };
   items: PoItem[];
   goodsReceipts?: { id: string; grnNo: string; receivedDate: string }[];
   purchaseInvoices?: { id: string; piNo: string; total: string; paidTotal: string; status: string }[];
