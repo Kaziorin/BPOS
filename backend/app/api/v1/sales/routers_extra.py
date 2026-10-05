@@ -1951,6 +1951,59 @@ async def stock_by_warehouse(warehouseId: str, search: str = "", user: AuthUser 
     return ok(rows)
 
 
+@router.post("/api/v1/inventory/stock/adjust")
+async def adjust_stock(body: dict, user: AuthUser = Depends(require_auth),
+                       tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
+    """Directly adjust or correct stock quantity for a product in a warehouse."""
+    productId = body.get("productId")
+    warehouseId = body.get("warehouseId")
+    newQty = body.get("qty")
+    note = body.get("note") or "Manual stock adjustment"
+
+    if not productId:
+        return err("Product ID is required", 400)
+    if newQty is None:
+        return err("Quantity is required", 400)
+
+    try:
+        new_qty_float = float(newQty)
+    except (ValueError, TypeError):
+        return err("Invalid quantity value", 400)
+
+    if not warehouseId:
+        wh_row = (await db.execute(text("SELECT id FROM warehouses WHERE tenantId = :t ORDER BY createdAt ASC LIMIT 1"), {"t": tenantId})).first()
+        warehouseId = wh_row[0] if wh_row else None
+
+    if not warehouseId:
+        return err("No warehouse found to adjust stock", 400)
+
+    async with txn(db):
+        st = (await db.execute(text(
+            "SELECT id, qtyOnHand FROM stock WHERE tenantId=:t AND warehouseId=:w AND productId=:p FOR UPDATE"),
+            {"t": tenantId, "w": warehouseId, "p": productId})).first()
+        
+        before = float(st[1]) if st else 0.0
+        diff = new_qty_float - before
+
+        if st:
+            await db.execute(text("UPDATE stock SET qtyOnHand=:a, updatedAt=NOW() WHERE id=:id"), {"a": new_qty_float, "id": st[0]})
+        else:
+            await db.execute(text(
+                "INSERT INTO stock (id, tenantId, warehouseId, productId, qtyOnHand, qtyReserved, status, createdAt, updatedAt) "
+                "VALUES (UUID(), :t, :w, :p, :q, 0, 'ACTIVE', NOW(), NOW())"),
+                {"t": tenantId, "w": warehouseId, "p": productId, "q": new_qty_float})
+
+        # Log movement audit
+        mv_type = "ADJUSTMENT_IN" if diff >= 0 else "ADJUSTMENT_OUT"
+        await db.execute(text(
+            "INSERT INTO stock_movements (id, tenantId, warehouseId, productId, movementType, qty, qtyBefore, qtyAfter, refType, note, userId, createdBy, createdAt) "
+            "VALUES (UUID(), :t, :w, :p, :mt, :q, :qb, :qa, 'MANUAL_ADJUSTMENT', :note, :u, :u, NOW())"),
+            {"t": tenantId, "w": warehouseId, "p": productId, "mt": mv_type, "q": abs(diff),
+             "qb": before, "qa": new_qty_float, "note": note, "u": user.id})
+
+    return ok({"productId": productId, "warehouseId": warehouseId, "qtyOnHand": new_qty_float, "difference": diff})
+
+
 @router.get("/api/v1/inventory/movements")
 async def stock_movements(productId: str = "", warehouseId: str = "", movementType: str = "", limit: int = Query(50),
                           user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant),
