@@ -41,14 +41,24 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
       ? "Thank you for dining with us! Please visit us again."
       : "Thank you for shopping with us! Please visit us again.");
 
-  const currentDate = new Date().toLocaleString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
+  const saleDate = (result as any).createdAt || (result as any).date;
+  const currentDate = saleDate
+    ? new Date(saleDate).toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+    : new Date().toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
 
   // Financial calculations
   const subtotal = cart && cart.length > 0
@@ -72,7 +82,13 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
 
   // Primary payment method text
   const primaryMethod = payments && payments.length > 0 ? payments[0].method.toUpperCase() : "CASH";
-  const paidTotal = Number(result.paidTotal ?? netPayable);
+
+  const rawTendered = Number(
+    (result as any).tenderedAmount ??
+    (result as any).tendered ??
+    (payments && payments.length > 0 ? payments.reduce((acc, p) => acc + (Number(p.amount) || 0), 0) : 0)
+  );
+
   const changeReturn = Math.max(
     0,
     Number(
@@ -80,16 +96,14 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
       (result as any).changeReturn ??
       (result as any).changeAmount ??
       (result as any).returnAmount ??
-      (paidTotal > netPayable ? paidTotal - netPayable : 0)
+      (rawTendered > 0 && rawTendered > netPayable
+        ? rawTendered - netPayable
+        : (Number(result.paidTotal ?? 0) > netPayable ? Number(result.paidTotal) - netPayable : 0))
     )
   );
 
-  const rawTendered = Number(
-    (result as any).tenderedAmount ??
-    (result as any).tendered ??
-    (payments && payments.length > 0 ? payments.reduce((acc, p) => acc + (Number(p.amount) || 0), 0) : 0)
-  );
-  const tenderedAmount = rawTendered > 0 ? rawTendered : (paidTotal + changeReturn);
+  const tenderedAmount = rawTendered > 0 ? rawTendered : (Number(result.paidTotal ?? netPayable) + changeReturn);
+  const paidTotal = Math.min(Number(result.paidTotal ?? netPayable), netPayable);
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-4 w-full max-w-[400px] mx-auto">

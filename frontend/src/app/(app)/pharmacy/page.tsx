@@ -358,21 +358,35 @@ export default function PharmacyHubPage() {
                 total: Number(selectedSale.grandTotal ?? selectedSale.totalAmount ?? selectedSale.total ?? 0),
                 paidTotal: Number(selectedSale.paidTotal ?? selectedSale.grandTotal ?? selectedSale.total ?? 0),
                 dueTotal: Number(selectedSale.dueTotal || 0),
-                paymentIds: [],
-              }}
+                taxTotal: Number(selectedSale.taxTotal || 0),
+                taxAmount: Number(selectedSale.taxTotal || 0),
+                tendered: Number(selectedSale.tenderedAmount ?? selectedSale.tendered ?? 0),
+                tenderedAmount: Number(selectedSale.tenderedAmount ?? selectedSale.tendered ?? 0),
+                change: Number(selectedSale.changeReturn ?? selectedSale.change ?? 0),
+                changeReturn: Number(selectedSale.changeReturn ?? selectedSale.change ?? 0),
+                createdAt: selectedSale.createdAt,
+                paymentIds: Array.isArray(selectedSale.payments) ? selectedSale.payments.map((p: any) => p.id).filter(Boolean) : [],
+              } as any}
               cart={(selectedSale.items || []).map((it: any) => ({
                 name: it.productName || it.name || it.product?.name || "Item",
                 qty: Number(it.qty || 1),
                 unitPrice: Number(it.unitPrice || 0),
-                lineTotal: Number(it.unitPrice || 0) * Number(it.qty || 1),
+                lineTotal: Number(it.lineTotal ?? (Number(it.unitPrice || 0) * Number(it.qty || 1))),
                 sku: it.sku,
               }))}
-              payments={[{
-                method: selectedSale.paymentMethod || "CASH",
-                amount: Number(selectedSale.paidTotal ?? selectedSale.grandTotal ?? selectedSale.total ?? 0),
-              }]}
-              cashierName={selectedSale.cashier?.name || user?.name || "Cashier"}
-              customerName={selectedSale.customer?.name || selectedSale.customerName || "Walk-in Retail Customer"}
+              payments={
+                Array.isArray(selectedSale.payments) && selectedSale.payments.length > 0
+                  ? selectedSale.payments.map((p: any) => ({
+                      method: (p.method || selectedSale.paymentMethod || "CASH").toUpperCase(),
+                      amount: Number(p.amount ?? selectedSale.tenderedAmount ?? selectedSale.tendered ?? selectedSale.paidTotal ?? selectedSale.total ?? 0),
+                    }))
+                  : [{
+                      method: (selectedSale.paymentMethod || "CASH").toUpperCase(),
+                      amount: Number(selectedSale.tenderedAmount ?? selectedSale.tendered ?? selectedSale.paidTotal ?? selectedSale.grandTotal ?? selectedSale.total ?? 0),
+                    }]
+              }
+              cashierName={selectedSale.cashierName || selectedSale.cashier?.name || user?.name || "Cashier"}
+              customerName={selectedSale.customerName || selectedSale.customer?.name || "Walk-in Retail Customer"}
               onNewSale={() => setSelectedSale(null)}
             />
           </div>
