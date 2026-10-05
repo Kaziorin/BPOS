@@ -533,10 +533,32 @@ export default function RestaurantPOSPage() {
 
       // 1. Fetch products for this tenant
       try {
-        const resProd: any = await api.get("/products", { params: { limit: 150 } });
+        const [resProd, resRecipes]: [any, any] = await Promise.all([
+          api.get("/products", { params: { limit: 150 } }),
+          api.get("/v1/restaurant/recipes").catch(() => ({ data: [] })),
+        ]);
         const pData = (resProd?.data as any)?.data ?? resProd?.data ?? resProd ?? [];
+        const recipeList = (resRecipes?.data as any)?.data ?? resRecipes?.data ?? resRecipes ?? [];
+        
+        // Collect product IDs that are raw ingredients in recipes
+        const rawIngredientIds = new Set<string>();
+        if (Array.isArray(recipeList)) {
+          recipeList.forEach((r: any) => {
+            if (r.ingredientProductId) rawIngredientIds.add(String(r.ingredientProductId));
+          });
+        }
+
         if (Array.isArray(pData) && pData.length > 0) {
-          loadedProducts = pData.map((p: any) => mapApiProductToMenuItem(p));
+          // Filter out raw materials / ingredients so only sellable finished dishes appear on POS
+          const sellableProducts = pData.filter((p: any) => {
+            const pid = String(p.id || p._id);
+            if (rawIngredientIds.has(pid)) return false;
+            const pType = String(p.productType || "").toLowerCase().replace(/[\s_-]/g, "");
+            if (pType.includes("rawmaterial") || pType.includes("ingredient")) return false;
+            return true;
+          });
+
+          loadedProducts = sellableProducts.map((p: any) => mapApiProductToMenuItem(p));
           setProducts(loadedProducts);
           setCart((prev) =>
             prev.map((cItem) => {
