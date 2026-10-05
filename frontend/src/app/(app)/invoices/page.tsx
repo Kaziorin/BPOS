@@ -261,13 +261,15 @@ export default function InvoicesPage() {
     async function loadAux() {
       try {
         const [cRes, pRes, bRes]: any = await Promise.all([
-          api.get("/v1/customers?limit=250").catch(() => ({ data: { data: [] } })),
-          api.get("/v1/products?limit=250").catch(() => ({ data: { data: [] } })),
-          api.get("/v1/branches?limit=50").catch(() => ({ data: { data: [] } })),
+          api.get("/v1/customers?limit=500").catch(() => ({ data: [] })),
+          api.get("/v1/products?limit=500").catch(() => ({ data: [] })),
+          api.get("/v1/branches?limit=50").catch(() => ({ data: [] })),
         ]);
-        setCustomers(cRes.data?.data ?? []);
-        setProducts(pRes.data?.data ?? []);
-        const brList = bRes.data?.data ?? [];
+        const cList = Array.isArray(cRes?.data) ? cRes.data : (Array.isArray(cRes) ? cRes : (cRes?.data?.data ?? []));
+        setCustomers(cList);
+        const pList = Array.isArray(pRes?.data) ? pRes.data : (Array.isArray(pRes) ? pRes : (pRes?.data?.data ?? []));
+        setProducts(pList);
+        const brList = Array.isArray(bRes?.data) ? bRes.data : (Array.isArray(bRes) ? bRes : (bRes?.data?.data ?? []));
         setBranches(brList);
         if (brList.length > 0 && !form.branchId) {
           setForm((prev) => ({ ...prev, branchId: brList[0].id }));
@@ -284,7 +286,8 @@ export default function InvoicesPage() {
     setStatsLoading(true);
     try {
       const res: any = await api.get("/v1/invoices/stats");
-      setStats(res.data?.data ?? null);
+      const statsData = res?.data ?? res ?? null;
+      setStats(statsData);
     } catch (err) {
       console.error("Failed to load stats", err);
     } finally {
@@ -338,10 +341,14 @@ export default function InvoicesPage() {
       }
 
       const res: any = await api.get(`/v1/invoices?${params.toString()}`);
-      const dataList = res.data?.data ?? [];
+      const dataList = Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res)
+        ? res
+        : (res?.data?.data ?? []);
       setInvoices(dataList);
 
-      const pagination = res.data?.pagination || res.data?.extra?.pagination;
+      const pagination = res?.pagination || res?.extra?.pagination || res?.data?.pagination || res?.data?.extra?.pagination;
       if (pagination) {
         setTotalPages(pagination.totalPages || 1);
         setTotalRecords(pagination.total || dataList.length);
@@ -371,7 +378,7 @@ export default function InvoicesPage() {
     setSelectedInvoiceForDrawer(null);
     try {
       const res: any = await api.get(`/v1/invoices/${id}`);
-      setSelectedInvoiceForDrawer(res.data?.data ?? null);
+      setSelectedInvoiceForDrawer(res?.data ?? res ?? null);
     } catch (err: any) {
       showToast(err.response?.data?.error ?? "Failed to fetch invoice details", "error");
     } finally {
@@ -385,7 +392,7 @@ export default function InvoicesPage() {
       let fullInv = inv;
       if (!inv.items || inv.items.length === 0) {
         const r: any = await api.get(`/v1/invoices/${inv.id}`);
-        fullInv = r.data?.data ?? inv;
+        fullInv = r?.data ?? r ?? inv;
       }
 
       const mappedItems: InvoiceItem[] = (fullInv.items && fullInv.items.length > 0)
@@ -510,22 +517,29 @@ export default function InvoicesPage() {
     setAllocCustId(cid);
     if (!cid) {
       setAllocRows([]);
+      setAllocAmount(0);
       return;
     }
     try {
       const res: any = await api.get(`/v1/invoices?customerId=${cid}&status=UNPAID&limit=50`);
-      const unpaids: Invoice[] = res.data?.data ?? [];
-      setAllocRows(
-        unpaids.map((inv) => ({
+      const unpaids: Invoice[] = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : (res?.data?.data ?? []));
+      const rows = unpaids.map((inv) => {
+        const total = Number(inv.total) || 0;
+        const paidTotal = Number(inv.paidTotal) || 0;
+        const due = Math.max(0, total - paidTotal);
+        return {
           invoiceId: inv.id,
           invoiceNo: inv.invoiceNo,
           date: inv.issueDate ? new Date(inv.issueDate).toLocaleDateString() : "-",
-          total: Number(inv.total),
-          paidTotal: Number(inv.paidTotal),
-          due: Math.max(0, Number(inv.total) - Number(inv.paidTotal)),
-          allocated: 0,
-        }))
-      );
+          total,
+          paidTotal,
+          due,
+          allocated: due,
+        };
+      });
+      const totalDue = rows.reduce((s, r) => s + r.due, 0);
+      setAllocRows(rows);
+      setAllocAmount(totalDue);
     } catch (err) {
       console.error("Failed to load customer unpaid invoices", err);
     }
@@ -534,6 +548,10 @@ export default function InvoicesPage() {
   // Auto-distribute (FIFO) payment across invoices in Allocate Modal
   const handleAutoDistributeAlloc = () => {
     let remaining = Number(allocAmount) || 0;
+    if (remaining <= 0) {
+      remaining = allocRows.reduce((s, r) => s + r.due, 0);
+      setAllocAmount(remaining);
+    }
     const updated = allocRows.map((r) => {
       const allocateForThis = Math.min(remaining, r.due);
       remaining -= allocateForThis;
@@ -544,19 +562,30 @@ export default function InvoicesPage() {
 
   // Submit Multi-Allocation Payment
   const handleSubmitAllocation = async () => {
-    const totalAllocated = allocRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0);
-    if (Math.abs(totalAllocated - Number(allocAmount)) > 0.01) {
-      showToast(`Total allocated (৳${totalAllocated.toLocaleString()}) must match payment amount (৳${Number(allocAmount).toLocaleString()})`, "error");
+    if (allocRows.length === 0) {
+      showToast("No unpaid invoices available to allocate", "error");
       return;
     }
-    const activeAllocations = allocRows
-      .filter((r) => (Number(r.allocated) || 0) > 0)
-      .map((r) => ({ invoiceId: r.invoiceId, amount: Number(r.allocated) }));
+    let totalAllocated = allocRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0);
+    if (totalAllocated === 0 && Number(allocAmount) > 0) {
+      let rem = Number(allocAmount);
+      const autoRows = allocRows.map((r) => {
+        const amt = Math.min(rem, r.due);
+        rem -= amt;
+        return { ...r, allocated: amt };
+      });
+      setAllocRows(autoRows);
+      totalAllocated = autoRows.reduce((s, r) => s + (Number(r.allocated) || 0), 0);
+    }
 
-    if (activeAllocations.length === 0) {
+    if (totalAllocated <= 0) {
       showToast("Please allocate amounts to at least one invoice", "error");
       return;
     }
+
+    const activeAllocations = allocRows
+      .filter((r) => (Number(r.allocated) || 0) > 0)
+      .map((r) => ({ invoiceId: r.invoiceId, amount: Number(r.allocated) }));
 
     setAllocSubmitting(true);
     try {
@@ -564,12 +593,12 @@ export default function InvoicesPage() {
         customerId: allocCustId || undefined,
         branchId: form.branchId || undefined,
         method: allocMethod,
-        amount: Number(allocAmount),
-        totalAmount: Number(allocAmount),
+        amount: totalAllocated,
+        totalAmount: totalAllocated,
         reference: allocRef || "Multi-invoice allocation settlement",
         allocations: activeAllocations,
       });
-      showToast(`Settled payment of ৳${Number(allocAmount).toLocaleString()} across ${activeAllocations.length} invoices!`, "success");
+      showToast(`Settled payment of ৳${totalAllocated.toLocaleString()} across ${activeAllocations.length} invoices!`, "success");
       setShowAllocateModal(false);
       loadInvoices();
       loadStats();
@@ -594,8 +623,8 @@ export default function InvoicesPage() {
         address: quickCustAddress.trim() || undefined,
         binVatNo: quickCustBin.trim() || undefined,
       });
-      const newCust = res.data?.data;
-      if (newCust) {
+      const newCust = res?.data ?? res;
+      if (newCust && newCust.id) {
         setCustomers((prev) => [newCust, ...prev]);
         setForm((prev) => ({ ...prev, customerId: newCust.id }));
         showToast(`Customer "${newCust.name}" added successfully!`);
@@ -694,7 +723,8 @@ export default function InvoicesPage() {
         })),
       });
 
-      showToast(`Invoice ${res.data?.data?.invoiceNo || "created"} issued successfully!`);
+      const invNo = res?.data?.invoiceNo || res?.invoiceNo || "created";
+      showToast(`Invoice ${invNo} issued successfully!`);
       setShowCreateModal(false);
       // Reset form
       setForm({
@@ -925,7 +955,7 @@ export default function InvoicesPage() {
   const modalProductOptions = useMemo(() => [
     { label: "-- Custom item --", value: "" },
     ...products.map((p) => ({
-      label: `${p.name}${p.retailPrice ? ` (৳${Number(p.retailPrice).toLocaleString()})` : ""}`,
+      label: `${p.name}${p.sku ? ` [${p.sku}]` : ""}${p.retailPrice ? ` (৳${Number(p.retailPrice).toLocaleString()})` : ""}`,
       value: p.id,
     })),
   ], [products]);
@@ -1969,6 +1999,8 @@ export default function InvoicesPage() {
                     onChange={(val) => setForm((p) => ({ ...p, customerId: val }))}
                     placeholder="Walk-in Customer (General Public)"
                     className="w-full text-xs font-semibold text-gray-600"
+                    searchable
+                    searchPlaceholder="Search customer by name or phone..."
                   />
                 )}
               </div>
@@ -2006,6 +2038,8 @@ export default function InvoicesPage() {
                               onChange={(val) => handleProductSelect(idx, val)}
                               placeholder="-- Custom item --"
                               className="w-full text-xs font-semibold text-gray-600"
+                              searchable
+                              searchPlaceholder="Search product by name or SKU..."
                             />
                           </td>
 
@@ -2112,6 +2146,8 @@ export default function InvoicesPage() {
                           onChange={(val) => handleProductSelect(idx, val)}
                           placeholder="-- Choose from inventory --"
                           className="w-full text-xs font-semibold text-gray-600"
+                          searchable
+                          searchPlaceholder="Search product by name or SKU..."
                         />
                         <input
                           type="text"
@@ -2459,6 +2495,8 @@ export default function InvoicesPage() {
                     onChange={(val) => handleCustomerSelectForAlloc(val)}
                     placeholder="-- Choose Customer --"
                     className="w-full text-xs font-semibold text-gray-600"
+                    searchable
+                    searchPlaceholder="Search customer by name or phone..."
                   />
                 </div>
 

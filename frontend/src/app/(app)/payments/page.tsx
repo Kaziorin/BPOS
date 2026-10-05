@@ -216,9 +216,9 @@ export default function PaymentsPage() {
     async function loadAux() {
       try {
         const [cRes, bRes, iRes]: any = await Promise.all([
-          api.get("/v1/customers?limit=250").catch(() => ({ data: [] })),
+          api.get("/v1/customers?limit=500").catch(() => ({ data: [] })),
           api.get("/v1/branches?limit=50").catch(() => ({ data: [] })),
-          api.get("/v1/invoices?status=UNPAID&limit=100").catch(() => ({ data: [] })),
+          api.get("/v1/invoices?status=UNPAID&limit=250").catch(() => ({ data: [] })),
         ]);
         const cList = Array.isArray(cRes?.data) ? cRes.data : (Array.isArray(cRes) ? cRes : (cRes?.data?.data ?? []));
         setCustomers(Array.isArray(cList) ? cList : []);
@@ -1761,6 +1761,8 @@ export default function PaymentsPage() {
                   });
                 }}
                 placeholder="Walk-in Customer (General Public)"
+                searchable
+                searchPlaceholder="Search customer by name or phone..."
               />
             </div>
           </div>
@@ -2024,6 +2026,8 @@ export default function PaymentsPage() {
                 value={allocCustId}
                 onChange={(val) => handleCustomerSelectForAlloc(val)}
                 placeholder="-- Choose Customer --"
+                searchable
+                searchPlaceholder="Search customer by name or phone..."
               />
             </div>
 
