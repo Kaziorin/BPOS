@@ -27,6 +27,7 @@ interface PO {
   id: string;
   poNo: string;
   orderDate: string;
+  createdAt?: string;
   expectedDate: string | null;
   status: string;
   subtotal: string;
@@ -65,6 +66,208 @@ const STATUS: Record<string, { label: string; cls: string; dot: string }> = {
   RECEIVED: { label: "Received", cls: "bg-emerald-50 text-emerald-700 border-emerald-200", dot: "bg-emerald-500" },
   CANCELLED: { label: "Cancelled", cls: "bg-rose-50 text-rose-700 border-rose-200", dot: "bg-rose-500" },
 };
+
+function PurchaseOrderSlipDocument({ po, warehouses }: { po: PO; warehouses: WarehouseOption[] }) {
+  const fmt = (n: number) => `৳${n.toLocaleString("en-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return (
+    <div className="p-8 sm:p-10 space-y-6 flex-1 text-slate-800 print:p-0 print:space-y-4">
+      {/* 1. Official Corporate Invoice / PO Header */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 border-b-2 border-slate-800 pb-6">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded bg-primary-600 text-white flex items-center justify-center font-black text-lg">
+              BP
+            </div>
+            <div>
+              <h1 className="text-xl font-black text-slate-900 leading-none">Blue Ocean POS</h1>
+              <p className="text-[11px] text-slate-500 font-medium mt-0.5">Enterprise Retail & Inventory Management</p>
+            </div>
+          </div>
+          <div className="mt-3.5 text-xs text-slate-600 space-y-0.5 leading-relaxed">
+            <p>Warehouse / Delivery: <strong>{warehouses.find(w => w.id === po.warehouseId)?.name || "Main Warehouse"}</strong></p>
+            <p className="text-slate-500">Official Purchase Order Slip</p>
+          </div>
+        </div>
+
+        <div className="sm:text-right">
+          <h2 className="text-2xl font-black text-slate-900">Purchase Order</h2>
+          <div className="mt-2 space-y-1 text-xs">
+            <p><span className="text-slate-500">PO Number:</span> <span className="font-mono font-black text-slate-900 text-sm ml-1.5">{po.poNo}</span></p>
+            <p>
+              <span className="text-slate-500">Order Date:</span>{" "}
+              <strong className="ml-1.5 text-slate-800">
+                {new Date(po.orderDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                {po.createdAt && ` · ${new Date(po.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}`}
+              </strong>
+            </p>
+            {po.expectedDate && (
+              <p><span className="text-slate-500">Expected Delivery:</span> <strong className="ml-1.5 text-slate-800">{new Date(po.expectedDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</strong></p>
+            )}
+            <div className="pt-1 flex sm:justify-end gap-1.5 items-center">
+              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${STATUS[po.status]?.cls}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${STATUS[po.status]?.dot}`} />
+                {STATUS[po.status]?.label || po.status}
+              </span>
+              {Number(po.rebatePercent || 0) > 0 ? (
+                <span className="rounded-full bg-emerald-50 border border-emerald-300 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">
+                  {Number(po.rebatePercent)}% Rebate
+                </span>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Vendor & Shipping Information Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="rounded border border-slate-200 bg-slate-50/60 p-4">
+          <p className="text-[11px] font-bold text-slate-500">Vendor / Supplier Information</p>
+          <p className="mt-1.5 text-sm font-bold text-slate-900">{po.supplier?.name || "Supplier"}</p>
+          <div className="mt-1.5 text-xs text-slate-600 space-y-0.5">
+            {po.supplier?.phone && <p>Phone: <strong>{po.supplier.phone}</strong></p>}
+            {po.supplier?.email && <p>Email: {po.supplier.email}</p>}
+            {po.supplier?.address && <p>Address: {po.supplier.address}</p>}
+          </div>
+        </div>
+
+        <div className="rounded border border-slate-200 bg-slate-50/60 p-4">
+          <p className="text-[11px] font-bold text-slate-500">Delivery & Receiving Details</p>
+          <p className="mt-1.5 text-sm font-bold text-slate-900">{warehouses.find(w => w.id === po.warehouseId)?.name || "Main Warehouse"}</p>
+          <div className="mt-1.5 text-xs text-slate-600 space-y-0.5">
+            <p>Status: <strong className="text-slate-800">{(po.goodsReceipts || []).length > 0 ? "Goods Received (GRN Filed)" : "Awaiting Physical Delivery"}</strong></p>
+            <p>GRN Reference: <strong>{(po.goodsReceipts || []).length > 0 ? (po.goodsReceipts || []).map((g) => g.grnNo).join(", ") : "Pending GRN"}</strong></p>
+          </div>
+        </div>
+      </div>
+
+      {/* Lifecycle Progress Bar (Screen only, clean on print) */}
+      <div className="rounded border border-slate-200 bg-slate-50/50 p-3.5 no-print">
+        <p className="text-[11px] font-bold text-slate-500 mb-2">Order Lifecycle</p>
+        <div className="grid grid-cols-4 gap-2 text-center text-xs">
+          {[
+            { label: "1. Placed", done: true, current: po.status === "DRAFT" || po.status === "SUBMITTED" },
+            { label: "2. Approved", done: ["APPROVED", "PARTIALLY_RECEIVED", "RECEIVED"].includes(po.status), current: po.status === "APPROVED" },
+            { label: "3. Received (GRN)", done: ["PARTIALLY_RECEIVED", "RECEIVED"].includes(po.status), current: po.status === "PARTIALLY_RECEIVED" || po.status === "RECEIVED" },
+            { label: "4. Settled (Paid)", done: (po.purchaseInvoices || []).some((i) => i.status === "PAID"), current: (po.purchaseInvoices || []).some((i) => i.status === "PAID") },
+          ].map((st, i) => (
+            <div
+              key={i}
+              className={`rounded px-2 py-1.5 border text-[11px] font-bold ${
+                st.current
+                  ? "bg-primary-600 text-white border-primary-600 shadow-xs"
+                  : st.done
+                  ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                  : "bg-white text-slate-400 border-slate-200 font-medium"
+              }`}
+            >
+              {st.label}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Items Line Table (Clean Proportional Columns - Zero Overlap) */}
+      <div className="border border-slate-300 rounded overflow-hidden">
+        <table className="w-full text-left text-xs">
+          <thead className="bg-slate-100 text-xs font-semibold text-slate-700 border-b border-slate-300">
+            <tr>
+              <th className="py-2.5 px-3 w-10 text-center whitespace-nowrap">#</th>
+              <th className="py-2.5 px-3 whitespace-nowrap">Item & SKU</th>
+              <th className="py-2.5 px-3 text-center whitespace-nowrap w-24">Ordered</th>
+              <th className="py-2.5 px-3 text-center whitespace-nowrap w-24">Received</th>
+              <th className="py-2.5 px-3 text-right whitespace-nowrap w-28">Unit Cost</th>
+              <th className="py-2.5 px-3 text-right whitespace-nowrap w-28">Total</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200">
+            {(po.items || []).map((it, idx) => {
+              const lineTot = Number(it.lineTotal || (Number(it.qty) * Number(it.unitPrice)));
+              return (
+                <tr key={idx} className="hover:bg-slate-50/50">
+                  <td className="py-2.5 px-3 text-center font-bold text-slate-400 whitespace-nowrap">{idx + 1}</td>
+                  <td className="py-2.5 px-3">
+                    <p className="font-bold text-slate-900 leading-tight">
+                      {it.productName || it.product?.name || "Product Item"}
+                    </p>
+                    <p className="text-[10.5px] font-mono text-slate-500 mt-0.5">
+                      SKU: {it.product?.sku || "—"}
+                    </p>
+                  </td>
+                  <td className="py-2.5 px-3 text-center font-bold text-slate-800 whitespace-nowrap">
+                    {Number(it.qty)} Units
+                  </td>
+                  <td className="py-2.5 px-3 text-center whitespace-nowrap">
+                    <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold ${
+                      Number(it.qtyReceived || 0) === Number(it.qty)
+                        ? "bg-emerald-100 text-emerald-800 font-black"
+                        : "text-slate-700 bg-slate-100"
+                    }`}>
+                      {Number(it.qtyReceived || 0)} Units
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-3 text-right font-medium text-slate-700 whitespace-nowrap">
+                    {fmt(Number(it.unitPrice))}
+                  </td>
+                  <td className="py-2.5 px-3 text-right font-black text-slate-900 tabular-nums whitespace-nowrap">
+                    {fmt(lineTot)}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 4. Financial Summary Calculation Box */}
+      <div className="flex justify-end pt-2">
+        <div className="w-full sm:w-80 rounded border border-slate-200 bg-slate-50/80 p-4 space-y-2 text-xs">
+          <div className="flex justify-between text-slate-600">
+            <span className="whitespace-nowrap">Total Ordered Units:</span>
+            <strong className="text-slate-800 font-bold">{(po.items || []).reduce((s, i) => s + Number(i.qty), 0)} Units</strong>
+          </div>
+          <div className="flex justify-between text-slate-600">
+            <span className="whitespace-nowrap">Items Subtotal:</span>
+            <strong className="text-slate-800 font-bold">{fmt(Number(po.total))}</strong>
+          </div>
+          {Number(po.rebatePercent || 0) > 0 ? (
+            <div className="flex justify-between text-emerald-700">
+              <span className="whitespace-nowrap">Supplier Rebate ({Number(po.rebatePercent)}%):</span>
+              <strong className="font-bold">Applied</strong>
+            </div>
+          ) : null}
+          <div className="border-t-2 border-slate-800 pt-2 flex justify-between text-sm font-black text-slate-900">
+            <span className="whitespace-nowrap">Total Order Amount:</span>
+            <span className="text-primary-700 text-base tabular-nums font-black">{fmt(Number(po.total))}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. Formal Signatures & Verification (Perfect for A4 Print) */}
+      <div className="grid grid-cols-3 gap-6 pt-10 text-center text-xs text-slate-600 border-t border-slate-200 mt-10">
+        <div>
+          <div className="border-b border-slate-400 pb-1 mb-2"></div>
+          <p className="font-bold text-slate-700">Prepared By</p>
+          <p className="text-[10px] text-slate-400">Procurement Staff</p>
+        </div>
+        <div>
+          <div className="border-b border-slate-400 pb-1 mb-2"></div>
+          <p className="font-bold text-slate-700">Verified & Approved</p>
+          <p className="text-[10px] text-slate-400">Branch / Purchase Manager</p>
+        </div>
+        <div>
+          <div className="border-b border-slate-400 pb-1 mb-2"></div>
+          <p className="font-bold text-slate-700">Supplier Acknowledgement</p>
+          <p className="text-[10px] text-slate-400">Signature & Date</p>
+        </div>
+      </div>
+
+      {/* Print Footer Note */}
+      <div className="pt-4 text-center text-[10px] text-slate-400 border-t border-slate-100">
+        This is a computer-generated Purchase Order slip from Blue Ocean POS. Generated on {new Date().toLocaleDateString("en-GB")} {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.
+      </div>
+    </div>
+  );
+}
 
 export default function PurchaseOrdersPage() {
   const [pos, setPos] = useState<PO[]>([]);
@@ -118,6 +321,8 @@ export default function PurchaseOrdersPage() {
 
   // View PO Details modal state
   const [viewPo, setViewPo] = useState<PO | null>(null);
+  // Dedicated background print PO state (prints without opening the on-screen preview modal)
+  const [printPo, setPrintPo] = useState<PO | null>(null);
 
   const notify = (ok: boolean, text: string) => {
     setToast({ ok, text });
@@ -238,6 +443,13 @@ export default function PurchaseOrdersPage() {
       }
       return copy;
     });
+  }
+
+  function handleDirectPrint(po: PO) {
+    setPrintPo(po);
+    setTimeout(() => {
+      window.print();
+    }, 120);
   }
 
   async function approvePo(id: string) {
@@ -497,7 +709,7 @@ export default function PurchaseOrdersPage() {
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <div className="rounded-sm border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Total Orders</span>
+            <span className="text-xs font-semibold text-gray-500">Total Orders</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-blue-50 text-blue-600">
               <ShoppingCart size={18} />
             </div>
@@ -511,7 +723,7 @@ export default function PurchaseOrdersPage() {
 
         <div className="rounded-sm border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Awaiting Approval</span>
+            <span className="text-xs font-semibold text-gray-500">Awaiting Approval</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-amber-50 text-amber-600">
               <Clock size={18} />
             </div>
@@ -525,7 +737,7 @@ export default function PurchaseOrdersPage() {
 
         <div className="rounded-sm border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Awaiting Receipt</span>
+            <span className="text-xs font-semibold text-gray-500">Awaiting Receipt</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-violet-50 text-violet-600">
               <PackageCheck size={18} />
             </div>
@@ -539,7 +751,7 @@ export default function PurchaseOrdersPage() {
 
         <div className="rounded-sm border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Fulfilled (Received)</span>
+            <span className="text-xs font-semibold text-gray-500">Fulfilled (Received)</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-emerald-50 text-emerald-600">
               <CheckCircle size={18} />
             </div>
@@ -650,16 +862,18 @@ export default function PurchaseOrdersPage() {
         <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-2xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="border-b border-slate-200 bg-gray-50/80 text-[11px] font-bold uppercase tracking-wider text-gray-500">
+              <thead className="border-b border-slate-200 bg-gray-50/80 text-xs font-semibold text-gray-600">
                 <tr>
-                  <th className="py-3.5 px-4 w-12 text-center">#</th>
-                  <th className="py-3.5 px-4">PO Number & Date</th>
-                  <th className="py-3.5 px-4">Supplier</th>
-                  <th className="py-3.5 px-4">Warehouse</th>
-                  <th className="py-3.5 px-4 min-w-[200px]">Items & Progress</th>
-                  <th className="py-3.5 px-4 text-right">Amount (৳)</th>
-                  <th className="py-3.5 px-4 text-center">Status</th>
-                  <th className="py-3.5 px-4 text-right">Actions</th>
+                  <th className="py-3.5 px-4 w-12 text-center whitespace-nowrap">#</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">PO Number</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Order Date & Time</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Supplier</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Warehouse</th>
+                  <th className="py-3.5 px-4 min-w-[200px] whitespace-nowrap">Items & Progress</th>
+                  <th className="py-3.5 px-4 text-right whitespace-nowrap">Amount (৳)</th>
+                  <th className="py-3.5 px-4 text-center whitespace-nowrap">PO Status</th>
+                  <th className="py-3.5 px-4 text-center whitespace-nowrap">Payment Status</th>
+                  <th className="py-3.5 px-4 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -674,32 +888,43 @@ export default function PurchaseOrdersPage() {
                   const canReceive = ["APPROVED", "PARTIALLY_RECEIVED"].includes(po.status);
                   const hasInvoices = purchaseInvoices.length > 0;
                   const hasUnpaidInvoice = purchaseInvoices.some((i) => i.status !== "PAID");
+                  const isFullyPaid = hasInvoices && purchaseInvoices.every((i) => i.status === "PAID");
                   const wh = warehouses.find((w) => w.id === po.warehouseId);
+
+                  const exactDt = po.createdAt ? new Date(po.createdAt) : new Date(po.orderDate);
+                  const dateStr = exactDt.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+                  const timeStr = po.createdAt
+                    ? exactDt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })
+                    : "—";
 
                   return (
                     <tr key={po.id} className="hover:bg-gray-50/80 transition group">
-                      <td className="py-3.5 px-4 text-center font-bold text-gray-400">{index + 1}</td>
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 text-center font-bold text-gray-400 whitespace-nowrap">{index + 1}</td>
+                      
+                      {/* 1. PO Number Column */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-black text-gray-600 group-hover:text-sky-600 transition">{po.poNo}</span>
-                          {po.rebatePercent && Number(po.rebatePercent) > 0 && (
+                          <span className="font-mono font-black text-gray-700 group-hover:text-primary-600 transition">{po.poNo}</span>
+                          {Number(po.rebatePercent || 0) > 0 ? (
                             <span className="rounded-sm bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 text-[10px] font-bold text-emerald-700">
                               {Number(po.rebatePercent)}% Rebate
                             </span>
-                          )}
+                          ) : null}
                         </div>
-                        <p className="text-[11px] text-gray-400">
-                          {new Date(po.orderDate).toLocaleDateString()}
-                          {po.expectedDate && ` · Exp: ${new Date(po.expectedDate).toLocaleDateString()}`}
-                        </p>
                       </td>
 
-                      <td className="py-3.5 px-4">
-                        <p className="font-bold text-gray-600">{po.supplier?.name || "Supplier"}</p>
+                      {/* 2. Order Date & Time Column */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <p className="font-semibold text-gray-700">{dateStr}</p>
+                        <p className="text-[11px] text-gray-400">{timeStr}</p>
+                      </td>
+
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <p className="font-bold text-gray-700">{po.supplier?.name || "Supplier"}</p>
                         {po.supplier?.phone && <p className="text-[11px] text-gray-400">{po.supplier.phone}</p>}
                       </td>
 
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <span className="inline-flex items-center gap-1 rounded-sm bg-gray-100 border border-slate-200 px-2 py-1 text-[11px] font-semibold text-gray-600">
                           📍 {wh ? wh.name : "Warehouse"}
                         </span>
@@ -707,7 +932,7 @@ export default function PurchaseOrdersPage() {
 
                       <td className="py-3.5 px-4">
                         <div className="flex items-center justify-between text-[11px] font-bold text-gray-600 mb-1">
-                          <span>{received} / {ordered} units</span>
+                          <span className="whitespace-nowrap">{received} / {ordered} units</span>
                           <span className={pct === 100 ? "text-emerald-600" : pct > 0 ? "text-amber-600" : "text-gray-400"}>{pct}%</span>
                         </div>
                         <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
@@ -730,37 +955,60 @@ export default function PurchaseOrdersPage() {
                         </div>
                       </td>
 
-                      <td className="py-3.5 px-4 text-right">
-                        <p className="font-black text-gray-600 tabular-nums text-sm">{fmt(Number(po.total))}</p>
-                        {purchaseInvoices.length > 0 && (
-                          <span className={`text-[10px] font-bold ${hasUnpaidInvoice ? "text-amber-600" : "text-emerald-600"}`}>
-                            {hasUnpaidInvoice ? "AP Pending" : "Paid"}
-                          </span>
-                        )}
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <p className="font-black text-gray-700 tabular-nums text-sm">{fmt(Number(po.total))}</p>
                       </td>
 
-                      <td className="py-3.5 px-4 text-center">
+                      {/* PO Status Badge */}
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold ${meta.cls}`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
                           {meta.label}
                         </span>
                       </td>
 
-                      <td className="py-3.5 px-4 text-right">
+                      {/* Payment Status Dedicated Column */}
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        {isFullyPaid ? (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            Paid
+                          </span>
+                        ) : hasUnpaidInvoice ? (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-700">
+                            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                            Unpaid / Due
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-500">
+                            No Invoice
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => setViewPo(po)}
-                            className="rounded-sm border border-slate-200 bg-white p-1.5 text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600"
+                            className="rounded-sm border border-slate-200 bg-white p-1.5 text-gray-600 shadow-2xs transition hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200"
                             title="View Full PO Slip"
                           >
                             <Eye size={14} />
+                          </button>
+
+                          <button
+                            onClick={() => handleDirectPrint(po)}
+                            className="rounded-sm border border-slate-200 bg-white p-1.5 text-gray-600 shadow-2xs transition hover:bg-slate-100 hover:text-slate-900 hover:border-slate-300"
+                            title="Quick Print PO"
+                          >
+                            <Printer size={14} />
                           </button>
 
                           {canApprove && (
                             <button
                               onClick={() => approvePo(po.id)}
                               disabled={busy === po.id + "approve"}
-                              className="flex items-center gap-1 rounded-sm bg-indigo-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:bg-indigo-700 disabled:opacity-50"
+                              className="flex items-center gap-1 rounded-sm bg-primary-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:bg-primary-700 disabled:opacity-50 transition"
                             >
                               {busy === po.id + "approve" ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />} Approve
                             </button>
@@ -769,7 +1017,7 @@ export default function PurchaseOrdersPage() {
                           {canReceive && (
                             <button
                               onClick={() => openReceive(po)}
-                              className="flex items-center gap-1 rounded-sm bg-violet-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:bg-violet-700"
+                              className="flex items-center gap-1 rounded-sm bg-brand-primary px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:opacity-90 transition"
                               title="Receive Goods (GRN)"
                             >
                               <PackageCheck size={12} /> Receive GRN
@@ -867,12 +1115,21 @@ export default function PurchaseOrdersPage() {
 
                 {/* Actions Bottom Bar */}
                 <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                  <button
-                    onClick={() => setViewPo(po)}
-                    className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-sky-600"
-                  >
-                    <Eye size={14} /> View Slip
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setViewPo(po)}
+                      className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-sky-600"
+                    >
+                      <Eye size={14} /> View
+                    </button>
+                    <button
+                      onClick={() => handleDirectPrint(po)}
+                      className="flex items-center gap-1 text-xs font-bold text-gray-600 hover:text-slate-900 border border-slate-200 rounded px-1.5 py-0.5"
+                      title="Quick Print"
+                    >
+                      <Printer size={13} /> Print
+                    </button>
+                  </div>
 
                   <div className="flex items-center gap-1.5">
                     {canApprove && (
@@ -938,7 +1195,7 @@ export default function PurchaseOrdersPage() {
             <form onSubmit={handleCreatePo} className="flex flex-1 flex-col overflow-y-auto p-7 space-y-6">
               <div className="grid grid-cols-1 gap-4 rounded-sm border border-slate-200 bg-gray-50/50 p-5 sm:grid-cols-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Supplier *</label>
+                  <label className="text-xs font-semibold text-gray-700">Supplier *</label>
                   <select
                     value={poForm.supplierId}
                     onChange={(e) => setPoForm({ ...poForm, supplierId: e.target.value })}
@@ -950,7 +1207,7 @@ export default function PurchaseOrdersPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Target Warehouse *</label>
+                  <label className="text-xs font-semibold text-gray-700">Target Warehouse *</label>
                   <select
                     value={poForm.warehouseId}
                     onChange={(e) => setPoForm({ ...poForm, warehouseId: e.target.value })}
@@ -966,7 +1223,7 @@ export default function PurchaseOrdersPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Expected Delivery</label>
+                  <label className="text-xs font-semibold text-gray-700">Expected Delivery</label>
                   <input
                     type="date"
                     value={poForm.expectedDate}
@@ -975,7 +1232,7 @@ export default function PurchaseOrdersPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Rebate Discount (%)</label>
+                  <label className="text-xs font-semibold text-gray-700">Rebate Discount (%)</label>
                   <input
                     type="number"
                     min="0"
@@ -1028,7 +1285,7 @@ export default function PurchaseOrdersPage() {
               {/* Tabular PO Line Items */}
               <div className="rounded-sm border border-slate-200 bg-white overflow-hidden shadow-2xs">
                 <div className="bg-gray-50/80 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600">Purchase Order Line Items ({poLines.length})</h4>
+                  <h4 className="text-xs font-semibold text-gray-700">Purchase Order Line Items ({poLines.length})</h4>
                   <button
                     type="button"
                     onClick={() => setPoLines([...poLines, { productId: products[0]?.id || "", qty: "1", unitPrice: String(products[0]?.costPrice || 0) }])}
@@ -1039,7 +1296,7 @@ export default function PurchaseOrdersPage() {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-gray-50/40 text-[11px] font-bold uppercase tracking-wider text-gray-400 border-b border-slate-100">
+                    <thead className="bg-gray-50/40 text-xs font-semibold text-gray-500 border-b border-slate-100">
                       <tr>
                         <th className="py-2.5 px-4 w-12 text-center">#</th>
                         <th className="py-2.5 px-4">Product Item *</th>
@@ -1115,21 +1372,21 @@ export default function PurchaseOrdersPage() {
               <div className="flex flex-wrap items-center justify-between gap-4 rounded-sm border border-slate-200 bg-gray-50/80 p-5">
                 <div className="flex items-center gap-6">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Total Lines</span>
+                    <span className="text-xs font-semibold text-gray-500">Total Lines</span>
                     <p className="text-lg font-black text-gray-600">{totalLinesCount}</p>
                   </div>
                   <div className="border-l border-slate-200 pl-6">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Total Units</span>
+                    <span className="text-xs font-semibold text-gray-500">Total Units</span>
                     <p className="text-lg font-black text-gray-600">{totalUnitsCount}</p>
                   </div>
                   {rebatePercentNum > 0 && (
                     <div className="border-l border-slate-200 pl-6">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Rebate Discount ({rebatePercentNum}%)</span>
+                      <span className="text-xs font-semibold text-emerald-600">Rebate Discount ({rebatePercentNum}%)</span>
                       <p className="text-lg font-black text-emerald-600">-{fmt(rebateAmount)}</p>
                     </div>
                   )}
                   <div className="border-l border-slate-200 pl-6">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Grand Total</span>
+                    <span className="text-xs font-semibold text-gray-500">Grand Total</span>
                     <p className="text-2xl font-black text-sky-700">{fmt(grandTotal)}</p>
                   </div>
                 </div>
@@ -1190,7 +1447,7 @@ export default function PurchaseOrdersPage() {
             <form onSubmit={handleReceive} className="flex flex-1 flex-col overflow-y-auto p-7 space-y-6">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 rounded-sm border border-slate-200 bg-gray-50/50 p-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Receiving Destination Warehouse *</label>
+                  <label className="text-xs font-semibold text-gray-700">Receiving Destination Warehouse *</label>
                   <select
                     value={receiveWarehouseId}
                     onChange={(e) => setReceiveWarehouseId(e.target.value)}
@@ -1206,7 +1463,7 @@ export default function PurchaseOrdersPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Receiving Delivery Note / Remarks</label>
+                  <label className="text-xs font-semibold text-gray-700">Receiving Delivery Note / Remarks</label>
                   <input
                     type="text"
                     value={receiveNote}
@@ -1220,7 +1477,7 @@ export default function PurchaseOrdersPage() {
               {/* Items receiving grid */}
               <div className="rounded-sm border border-slate-200 bg-white overflow-hidden shadow-2xs">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-gray-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                  <thead className="bg-gray-50/80 border-b border-slate-200 text-xs font-semibold text-gray-600">
                     <tr>
                       <th className="py-3 px-4">Product Item</th>
                       <th className="py-3 px-4 text-center w-24">Ordered</th>
@@ -1315,7 +1572,7 @@ export default function PurchaseOrdersPage() {
 
             <form onSubmit={handlePay} className="mt-5 space-y-4">
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Select Purchase Invoice *</label>
+                <label className="text-xs font-semibold text-gray-700">Select Purchase Invoice *</label>
                 <select
                   value={payInvoiceId}
                   onChange={(e) => {
@@ -1334,11 +1591,21 @@ export default function PurchaseOrdersPage() {
                     </option>
                   ))}
                 </select>
+                {(() => {
+                  const inv = (payPo.purchaseInvoices || []).find((i) => i.id === payInvoiceId);
+                  if (!inv) return null;
+                  return (
+                    <div className="mt-2.5 rounded-sm border border-slate-200 bg-slate-50 p-2.5 text-xs flex items-center justify-between">
+                      <span className="text-gray-500 font-medium">Total Payable Amount:</span>
+                      <span className="font-black text-primary-700 text-sm">{fmt(Number(inv.total))}</span>
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Payment Amount (৳) *</label>
+                  <label className="text-xs font-semibold text-gray-700">Payment Amount (৳) *</label>
                   <input
                     type="number"
                     min="1"
@@ -1350,7 +1617,7 @@ export default function PurchaseOrdersPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Payment Method *</label>
+                  <label className="text-xs font-semibold text-gray-700">Payment Method *</label>
                   <select value={payMethod} onChange={(e) => setPayMethod(e.target.value)} className={inputCls}>
                     <option value="CASH">Cash</option>
                     <option value="BANK">Bank Transfer</option>
@@ -1362,12 +1629,12 @@ export default function PurchaseOrdersPage() {
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Transaction / Cheque Reference</label>
+                <label className="text-xs font-semibold text-gray-700">Transaction / Cheque Reference</label>
                 <input value={payRef} onChange={(e) => setPayRef(e.target.value)} className={inputCls} placeholder="Txn ID, Cheque #, etc." />
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Payment Note</label>
+                <label className="text-xs font-semibold text-gray-700">Payment Note</label>
                 <input value={payNote} onChange={(e) => setPayNote(e.target.value)} className={inputCls} placeholder="Optional payment note" />
               </div>
 
@@ -1387,187 +1654,40 @@ export default function PurchaseOrdersPage() {
       {/* ========================================================================= */}
       {viewPo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-md" onClick={() => setViewPo(null)}>
-          <div id="printable-slip" className="printable-document max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-sm bg-white shadow-2xs border border-slate-100 flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <div id="printable-slip" className="printable-document max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-sm bg-white shadow-2xl border border-slate-200 flex flex-col font-sans" onClick={(e) => e.stopPropagation()}>
             
-            {/* Header */}
-            <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-r from-indigo-50/50 via-white to-gray-50/50 p-6 sm:p-7">
-              <div>
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <span className={`rounded-full border px-3 py-1 text-xs font-black uppercase tracking-wider ${STATUS[viewPo.status]?.cls}`}>
-                    {STATUS[viewPo.status]?.label || viewPo.status}
-                  </span>
-                  <span className="font-mono text-xl sm:text-2xl font-black text-gray-600">{viewPo.poNo}</span>
-                  {viewPo.rebatePercent && Number(viewPo.rebatePercent) > 0 && (
-                    <span className="rounded-sm bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
-                      {Number(viewPo.rebatePercent)}% Rebate
-                    </span>
-                  )}
-                </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  Ordered on <strong>{new Date(viewPo.orderDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</strong>
-                  {viewPo.expectedDate && ` · Expected by ${new Date(viewPo.expectedDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}`}
-                </p>
+            {/* Modal On-Screen Action Bar (Hidden on Print) */}
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-6 py-3 no-print">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-slate-500">Document Preview</span>
+                <span className="font-mono text-xs font-black text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200">{viewPo.poNo}</span>
               </div>
-
-              <div className="flex items-center gap-2 no-print">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => window.print()}
-                  className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-600 shadow-2xs transition hover:bg-gray-50 hover:text-gray-600"
+                  className="flex items-center gap-1.5 rounded-sm bg-primary-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-primary-700 transition"
                 >
-                  <Printer size={15} /> Print Slip
+                  <Printer size={14} /> Print Purchase Order (A4)
                 </button>
                 <button
                   onClick={() => setViewPo(null)}
-                  className="rounded-sm p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                  className="rounded-sm p-1.5 text-slate-400 transition hover:bg-slate-200 hover:text-slate-700"
                 >
-                  <X size={19} />
+                  <X size={18} />
                 </button>
               </div>
             </div>
 
-            <div className="p-6 sm:p-7 space-y-6 flex-1">
-              {/* Procurement Workflow Step Tracker */}
-              <div className="rounded-sm border border-slate-200 bg-gray-50/70 p-4">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Order Fulfillment Lifecycle</p>
-                <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                  {[
-                    { label: "1. Order Placed", done: true, current: viewPo.status === "DRAFT" || viewPo.status === "SUBMITTED" },
-                    { label: "2. PO Approved", done: ["APPROVED", "PARTIALLY_RECEIVED", "RECEIVED"].includes(viewPo.status), current: viewPo.status === "APPROVED" },
-                    { label: "3. GRN Received", done: ["PARTIALLY_RECEIVED", "RECEIVED"].includes(viewPo.status), current: viewPo.status === "PARTIALLY_RECEIVED" || viewPo.status === "RECEIVED" },
-                    { label: "4. Invoiced & Paid", done: (viewPo.purchaseInvoices || []).some((i) => i.status === "PAID"), current: (viewPo.purchaseInvoices || []).some((i) => i.status === "PAID") },
-                  ].map((st, i) => (
-                    <div
-                      key={i}
-                      className={`rounded-sm p-2.5 border transition ${
-                        st.current
-                          ? "bg-brand-gradient text-white font-bold border-brand-primary shadow-2xs"
-                          : st.done
-                          ? "bg-emerald-50 text-emerald-800 font-bold border-emerald-200"
-                          : "bg-white text-gray-400 border-slate-200/60 font-medium"
-                      }`}
-                    >
-                      <span className="block text-[10px] opacity-75">{st.done && !st.current ? "✓ Done" : st.current ? "● Active" : "○ Pending"}</span>
-                      {st.label}
-                    </div>
-                  ))}
-                </div>
-              </div>
+            {/* Document Body (Optimized for Screen & Print) */}
+            <PurchaseOrderSlipDocument po={viewPo} warehouses={warehouses} />
 
-              {/* 2-Column Info Summary */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Supplier & Vendor Details</p>
-                  <div className="mt-2.5 space-y-2 text-xs text-gray-600">
-                    <div className="flex justify-between py-1 border-b border-slate-100">
-                      <span className="text-gray-500">Supplier Name:</span>
-                      <strong className="text-gray-600">{viewPo.supplier?.name || "Supplier"}</strong>
-                    </div>
-                    {viewPo.supplier?.phone && (
-                      <div className="flex justify-between py-1 border-b border-slate-100">
-                        <span className="text-gray-500">Phone:</span>
-                        <strong className="text-gray-600">{viewPo.supplier.phone}</strong>
-                      </div>
-                    )}
-                    <div className="flex justify-between py-1">
-                      <span className="text-gray-500">Destination:</span>
-                      <strong className="text-gray-600">{warehouses.find(w => w.id === viewPo.warehouseId)?.name || "Main Warehouse"}</strong>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Receiving & Invoice Status</p>
-                  <div className="mt-2.5 space-y-2 text-xs text-gray-600">
-                    <div className="flex justify-between py-1 border-b border-slate-100">
-                      <span className="text-gray-500">Goods Receipt (GRN):</span>
-                      <strong className="text-gray-600">
-                        {(viewPo.goodsReceipts || []).length > 0 ? (viewPo.goodsReceipts || []).map((g) => g.grnNo).join(", ") : "Not Yet Received"}
-                      </strong>
-                    </div>
-                    <div className="flex justify-between py-1">
-                      <span className="text-gray-500">Linked Invoices:</span>
-                      <strong className="text-gray-600">
-                        {(viewPo.purchaseInvoices || []).length > 0
-                          ? (viewPo.purchaseInvoices || []).map((i) => `${i.piNo} (${i.status})`).join(", ")
-                          : "Pending GRN"}
-                      </strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Purchased Items Table */}
-              <div className="rounded-sm border border-slate-200 bg-white overflow-hidden shadow-2xs">
-                <div className="bg-gray-50/80 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600">Ordered Product Items ({(viewPo.items || []).length})</h4>
-                  <span className="text-xs font-semibold text-gray-500">
-                    Total Units: {(viewPo.items || []).reduce((s, i) => s + Number(i.qty), 0)}
-                  </span>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-gray-50/40 text-[11px] font-bold uppercase tracking-wider text-gray-400 border-b border-slate-100">
-                      <tr>
-                        <th className="py-2.5 px-4 w-12 text-center">#</th>
-                        <th className="py-2.5 px-4">Product Name & SKU</th>
-                        <th className="py-2.5 px-4 text-center w-24">Ordered</th>
-                        <th className="py-2.5 px-4 text-center w-24">Received</th>
-                        <th className="py-2.5 px-4 text-right w-32">Unit Price</th>
-                        <th className="py-2.5 px-4 text-right w-36">Line Total</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {(viewPo.items || []).map((it, idx) => {
-                        const lineTot = Number(it.lineTotal || (Number(it.qty) * Number(it.unitPrice)));
-                        return (
-                          <tr key={idx} className="hover:bg-gray-50/60 transition">
-                            <td className="py-3 px-4 text-center font-bold text-gray-400">{idx + 1}</td>
-                            <td className="py-3 px-4">
-                              <p className="font-bold text-gray-600">{it.productName || it.product?.name || "Product Item"}</p>
-                              <p className="text-[11px] font-mono text-gray-400">{it.product?.sku || "—"}</p>
-                            </td>
-                            <td className="py-3 px-4 text-center font-bold text-gray-600">
-                              {Number(it.qty)} Units
-                            </td>
-                            <td className="py-3 px-4 text-center">
-                              <span className={`inline-block rounded-sm px-2 py-0.5 font-bold ${
-                                Number(it.qtyReceived || 0) === Number(it.qty) ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-gray-100 text-gray-600"
-                              }`}>
-                                {Number(it.qtyReceived || 0)} Units
-                              </span>
-                            </td>
-                            <td className="py-3 px-4 text-right font-medium text-gray-600">
-                              {fmt(Number(it.unitPrice))}
-                            </td>
-                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-600">
-                              {fmt(lineTot)}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                    <tfoot className="bg-gray-50/80 border-t-2 border-slate-200">
-                      <tr>
-                        <td colSpan={5} className="py-3.5 px-4 text-right font-bold text-gray-600 uppercase tracking-wider">
-                          Purchase Order Total
-                        </td>
-                        <td className="py-3.5 px-4 text-right font-black text-base text-sky-700 tabular-nums">
-                          {fmt(Number(viewPo.total))}
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer Actions */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-gray-50/80 p-5 sm:px-7 rounded-b-sm no-print">
+            {/* Modal Bottom Actions (Hidden on Print) */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 p-4 sm:px-8 no-print">
               <div className="flex items-center gap-2">
                 {viewPo.status === "SUBMITTED" && (
                   <button
                     onClick={() => { approvePo(viewPo.id); setViewPo(null); }}
-                    className="flex items-center gap-2 rounded-sm bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-indigo-700"
+                    className="flex items-center gap-2 rounded-sm bg-primary-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-primary-700 transition"
                   >
                     <CheckCircle size={14} /> Approve Purchase Order
                   </button>
@@ -1575,7 +1695,7 @@ export default function PurchaseOrdersPage() {
                 {["APPROVED", "PARTIALLY_RECEIVED"].includes(viewPo.status) && (
                   <button
                     onClick={() => { openReceive(viewPo); setViewPo(null); }}
-                    className="flex items-center gap-2 rounded-sm bg-violet-600 px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-violet-700"
+                    className="flex items-center gap-2 rounded-sm bg-brand-primary px-4 py-2 text-xs font-bold text-white shadow-sm hover:opacity-90 transition"
                   >
                     <PackageCheck size={14} /> Receive Goods (GRN)
                   </button>
@@ -1583,22 +1703,27 @@ export default function PurchaseOrdersPage() {
                 {(viewPo.purchaseInvoices || []).some((i) => i.status !== "PAID") && (
                   <button
                     onClick={() => { openPay(viewPo); setViewPo(null); }}
-                    className="flex items-center gap-2 rounded-sm bg-amber-600 px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-amber-700"
+                    className="flex items-center gap-2 rounded-sm bg-amber-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-amber-700 transition"
                   >
                     <CreditCard size={14} /> Record Supplier Payment
                   </button>
                 )}
               </div>
-
-              <CustomButton
-                variant="outline"
-                size="sm"
+              <button
                 onClick={() => setViewPo(null)}
+                className="rounded-sm border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition"
               >
-                Close Slip
-              </CustomButton>
+                Close Preview
+              </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* DEDICATED DIRECT PRINT CONTAINER (Renders only on print, zero screen modal popup) */}
+      {printPo && (
+        <div id="printable-slip" className="printable-document hidden print:block">
+          <PurchaseOrderSlipDocument po={printPo} warehouses={warehouses} />
         </div>
       )}
     </div>
