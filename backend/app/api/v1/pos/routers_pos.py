@@ -233,9 +233,14 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     discountTotal = float(body.get("discountTotal", 0) or 0)
 
     # §10.21 — Server-side VAT calculation (replace client-submitted taxTotal)
+    client_tax = float(body.get("taxTotal") or body.get("taxAmount") or 0.0) if ("taxTotal" in body or "taxAmount" in body) else None
     tax_rule = await tax_engine.resolve_tax_rate(db, tenant, appliesTo="SALE")
     exclusive_tax_total = 0.0
-    if tax_rule and tax_rule["rate"] > 0:
+    if client_tax is not None and str(body.get("source", "")).upper() == "RESTAURANT":
+        # Respect restaurant POS cart calculations (with service charge, item tax rules & portions)
+        taxTotal = tax_engine.round_half_up(client_tax, 2)
+        exclusive_tax_total = taxTotal
+    elif tax_rule and tax_rule["rate"] > 0:
         tax_calc = tax_engine.calculate_tax(
             subtotal - discountTotal,
             tax_rule["rate"],
@@ -260,11 +265,9 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
         exclusive_tax_total = tax_engine.round_half_up(exclusive_tax_total, 2)
 
     # Fallback to client-submitted tax if DB had no explicit tax rules configured
-    if exclusive_tax_total == 0.0:
-        client_tax = float(body.get("taxTotal") or body.get("taxAmount") or 0.0)
-        if client_tax > 0:
-            taxTotal = tax_engine.round_half_up(client_tax, 2)
-            exclusive_tax_total = tax_engine.round_half_up(client_tax, 2)
+    if exclusive_tax_total == 0.0 and client_tax is not None and client_tax > 0:
+        taxTotal = tax_engine.round_half_up(client_tax, 2)
+        exclusive_tax_total = tax_engine.round_half_up(client_tax, 2)
 
     service = float(body.get("serviceCharge", 0) or 0)
     delivery = float(body.get("deliveryFee") or body.get("shipping") or body.get("shippingTotal") or 0)
@@ -703,7 +706,7 @@ async def pos_sales(
     sort_direction = "ASC" if sortDir.lower() == "asc" else "DESC"
 
     rows = rows_to_dicts((await db.execute(text(
-        f"SELECT s.id, s.invoiceNo, s.subtotal, s.discountTotal, s.taxTotal, s.serviceCharge, s.total, s.paidTotal, s.dueTotal, s.status, s.createdAt, "
+        f"SELECT s.id, s.invoiceNo, s.source, s.note, s.subtotal, s.discountTotal, s.taxTotal, s.serviceCharge, s.total, s.paidTotal, s.dueTotal, s.status, s.createdAt, "
         f"s.tenderedAmount AS saleTenderedAmount, s.changeAmount AS saleChangeAmount, "
         f"s.userId AS cashierId, u.name AS cashierName, "
         f"c.id AS customerId, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail, c.loyaltyPoints AS customerPoints, "
@@ -791,6 +794,20 @@ async def pos_sales(
             }
             r["items"] = items_by_sale.get(r["id"], [])
             r["itemsCount"] = len(r["items"])
+
+            # Detect vertical & metadata (e.g. Table, Waiter) from note or source
+            note_str = str(r.get("note") or "")
+            src_str = str(r.get("source") or "")
+            if src_str.upper() == "RESTAURANT" or "Table:" in note_str:
+                r["vertical"] = "restaurant"
+                # Parse Table: T-XX
+                import re
+                t_match = re.search(r"Table:\s*([^|,\n]+)", note_str)
+                if t_match:
+                    r["tableNo"] = t_match.group(1).strip()
+                w_match = re.search(r"Waiter:\s*([^|,\n]+)", note_str)
+                if w_match:
+                    r["serverName"] = w_match.group(1).strip()
 
     return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": (total + lim - 1) // lim if lim else 1}})
 

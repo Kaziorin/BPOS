@@ -168,7 +168,7 @@ export function UniversalInvoiceModal({
     if (vert) return vert;
     if (!data) return "retail";
     if (data.vertical) return data.vertical;
-    if (data.tableNo || data.serverName) return "restaurant";
+    if (data.tableNo || data.serverName || (data.serviceCharge && data.serviceCharge > 0)) return "restaurant";
     if (data.doctorName || data.prescriptionNo) return "pharmacy";
     if (data.deviceModel || data.imeiSerial) return "repair";
     if (data.challanNo || data.vehicleNo || data.paymentTerms) return "wholesale";
@@ -429,9 +429,15 @@ function RetailInvoiceTemplate({ data, fmt, invoiceDate, invoiceSettings }: { da
             <span>-{fmt(data.discountTotal)}</span>
           </div>
         )}
+        {Boolean(data.serviceCharge !== undefined && data.serviceCharge > 0) && (
+          <div className="flex justify-between text-slate-500 text-[11px]">
+            <span>Service Charge:</span>
+            <span>+{fmt(data.serviceCharge || 0)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-slate-500 text-[11px]">
           <span>VAT (Mushak 6.3 - {data.vatRate || ((data.subTotal || data.grandTotal) > 0 && data.taxTotal ? Math.round((data.taxTotal / (data.subTotal || data.grandTotal)) * 100) : 15)}%):</span>
-          <span>{fmt(data.taxTotal || (data.grandTotal > 0 ? (data.grandTotal * 15 / 115) : 0))}</span>
+          <span>+{fmt(data.taxTotal || (data.grandTotal > 0 ? (data.grandTotal * 15 / 115) : 0))}</span>
         </div>
         <div className="flex justify-between font-black text-sm text-gray-600 border-t border-b border-slate-300 py-1.5 my-1">
           <span>Net Payable:</span>
@@ -757,19 +763,23 @@ function RestaurantInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDa
       <div className="border-t border-dashed border-slate-300 pt-3 space-y-1 text-xs">
         <div className="flex justify-between text-slate-600">
           <span>Food & Beverage Subtotal:</span>
-          <span>{fmt(data.subTotal || data.grandTotal)}</span>
+          <span>{fmt(data.subTotal || (data.grandTotal - (data.taxTotal || 0) - (data.serviceCharge || 0)))}</span>
         </div>
+        {!!data.discountTotal && (
+          <div className="flex justify-between text-emerald-700">
+            <span>Special Discount:</span>
+            <span>-{fmt(data.discountTotal)}</span>
+          </div>
+        )}
+        {Boolean(data.serviceCharge !== undefined && data.serviceCharge > 0) && (
+          <div className="flex justify-between text-slate-500 text-[11px]">
+            <span>Service Charge:</span>
+            <span>+{fmt(data.serviceCharge || 0)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-slate-500 text-[11px]">
-          <span>Service Charge (10%):</span>
-          <span>{fmt((data.subTotal || data.grandTotal) * 0.1)}</span>
-        </div>
-        <div className="flex justify-between text-slate-500 text-[11px]">
-          <span>NBR Supplementary Duty (SD 10%):</span>
-          <span>{fmt((data.subTotal || data.grandTotal) * 0.1)}</span>
-        </div>
-        <div className="flex justify-between text-slate-500 text-[11px]">
-          <span>VAT (Mushak 6.3 - 15%):</span>
-          <span>{fmt(data.taxTotal || (data.grandTotal > 0 ? (data.grandTotal * 15 / 115) : 0))}</span>
+          <span>VAT (Mushak 6.3):</span>
+          <span>+{fmt(data.taxTotal || (data.grandTotal > 0 ? (data.grandTotal * 15 / 115) : 0))}</span>
         </div>
         <div className="flex justify-between font-black text-sm text-gray-600 border-t border-b border-amber-300 bg-amber-50/50 p-2 my-1 rounded-sm">
           <span>Total Guest Bill:</span>
