@@ -788,7 +788,8 @@ async def list_sales_orders(
             "page": page,
             "limit": lim,
             "total": total,
-            "totalPages": max(1, math.ceil(total / lim)) if lim else 1
+            "totalPages": max(1, math.ceil(total / lim)) if lim else 1,
+            "totalVolume": round(total_vol, 2)
         }
     })
 

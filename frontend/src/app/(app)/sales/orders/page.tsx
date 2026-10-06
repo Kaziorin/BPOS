@@ -160,7 +160,7 @@ export default function SalesOrdersPage() {
         ? res
         : [];
       
-      const pagination = res?.pagination || res?.extra?.pagination || res?.data?.pagination;
+      const pagination = res?.pagination || res?.extra?.pagination || res?.data?.pagination || res?.data?.extra?.pagination;
 
       const totalRecords = typeof pagination?.total === "number"
         ? pagination.total
@@ -170,7 +170,9 @@ export default function SalesOrdersPage() {
         ? pagination.totalPages
         : Math.max(1, Math.ceil(totalRecords / limit));
 
-      const vol = typeof pagination?.totalVolume === "number" ? pagination.totalVolume : 0;
+      const vol = typeof pagination?.totalVolume === "number"
+        ? pagination.totalVolume
+        : (res?.extra?.pagination?.totalVolume ?? res?.data?.extra?.pagination?.totalVolume ?? 0);
 
       setOrders(list);
       setTotal(totalRecords);
