@@ -124,9 +124,13 @@ export default function StockPage() {
   // 1. Fetch Warehouses List
   useEffect(() => {
     api
-      .get<{ data: Warehouse[] }>("/api/v1/warehouses")
+      .get<any>("/api/v1/warehouses")
       .then((res) => {
-        const list = res.data || [];
+        const list = Array.isArray(res)
+          ? res
+          : Array.isArray(res?.data)
+          ? res.data
+          : [];
         setWarehouses(list);
         if (list.length > 0) {
           setWarehouseId(list[0].id);
@@ -146,12 +150,17 @@ export default function StockPage() {
     if (search.trim()) params.set("search", search.trim());
 
     api
-      .get<{ data: StockRow[]; total: number }>(
+      .get<any>(
         `/api/v1/inventory/stock/${warehouseId}?${params.toString()}`
       )
       .then((res) => {
-        setRows(res.data || []);
-        setTotal(res.total || 0);
+        const items = Array.isArray(res)
+          ? res
+          : Array.isArray(res?.data)
+          ? res.data
+          : [];
+        setRows(items);
+        setTotal(res?.total ?? items.length);
       })
       .catch(() => {
         setRows([]);
