@@ -894,16 +894,16 @@ async def get_invoice_stats(user: AuthUser = Depends(require_auth), tenantId: st
     row = (await db.execute(text("""
         SELECT 
             COUNT(*) AS totalInvoices,
-            COALESCE(SUM(total), 0) AS totalAmount,
-            COALESCE(SUM(paidTotal), 0) AS paidAmount,
-            COALESCE(SUM(CASE WHEN status != 'VOID' THEN (total - paidTotal) ELSE 0 END), 0) AS outstandingAmount,
+            COALESCE(SUM(CASE WHEN status != 'VOID' THEN total ELSE 0 END), 0) AS totalAmount,
+            COALESCE(SUM(CASE WHEN status != 'VOID' THEN LEAST(total, paidTotal) ELSE 0 END), 0) AS paidAmount,
+            COALESCE(SUM(CASE WHEN status NOT IN ('PAID', 'VOID') THEN GREATEST(0, total - paidTotal) ELSE 0 END), 0) AS outstandingAmount,
             COUNT(CASE WHEN status = 'PAID' THEN 1 END) AS paidCount,
             COUNT(CASE WHEN status = 'PARTIALLY_PAID' THEN 1 END) AS partiallyPaidCount,
             COUNT(CASE WHEN status = 'ISSUED' THEN 1 END) AS issuedCount,
             COUNT(CASE WHEN status = 'VOID' THEN 1 END) AS voidCount,
             COUNT(CASE WHEN invoiceType = 'TAX' THEN 1 END) AS taxCount,
             COUNT(CASE WHEN status NOT IN ('PAID', 'VOID') AND dueDate IS NOT NULL AND dueDate < CURDATE() THEN 1 END) AS overdueCount,
-            COALESCE(SUM(CASE WHEN status NOT IN ('PAID', 'VOID') AND dueDate IS NOT NULL AND dueDate < CURDATE() THEN (total - paidTotal) ELSE 0 END), 0) AS overdueAmount
+            COALESCE(SUM(CASE WHEN status NOT IN ('PAID', 'VOID') AND dueDate IS NOT NULL AND dueDate < CURDATE() THEN GREATEST(0, total - paidTotal) ELSE 0 END), 0) AS overdueAmount
         FROM invoices WHERE tenantId = :t
     """), {"t": tenantId})).first()
     return ok(dict(row._mapping) if row else {})
@@ -1530,7 +1530,7 @@ async def list_collection_entries(
             )
             SELECT 
                 p.id, p.tenantId, COALESCE(p.branchId, 'default'),
-                COALESCE(p.reference, CONCAT('COL-', UPPER(SUBSTRING(p.id, 1, 8)))),
+                CONCAT('COL-', UPPER(SUBSTRING(REPLACE(p.id, '-', ''), 1, 12))),
                 COALESCE(p.createdBy, :uid),
                 p.customerId, p.invoiceId,
                 COALESCE(p.method, 'CASH'),
@@ -1542,8 +1542,7 @@ async def list_collection_entries(
                 COALESCE(p.paidAt, p.createdAt),
                 p.createdAt
             FROM payments p
-            WHERE p.tenantId = :t
-            AND (p.invoiceId IS NOT NULL OR p.reference LIKE 'RCP-%')
+            WHERE p.tenantId = :t AND p.status != 'REFUNDED'
             AND p.id NOT IN (SELECT id FROM collection_entries WHERE tenantId = :t)
         """), {"t": tenantId, "uid": user.id})
         await db.commit()
@@ -1564,6 +1563,11 @@ async def list_collection_entries(
         LEFT JOIN users u ON u.id = ce.collectorId
         WHERE {where}
     """), params)).first()[0]
+
+    sum_total = (await db.execute(text("""
+        SELECT COALESCE(SUM(amount), 0) FROM payments
+        WHERE tenantId = :t AND status != 'REFUNDED'
+    """), {"t": tenantId})).first()[0]
 
     rows = rows_to_dicts((await db.execute(text(f"""
         SELECT ce.*, c.name AS customerName, c.phone AS customerPhone, i.invoiceNo, i.total AS invoiceTotal, u.name AS collectorName
@@ -1586,7 +1590,10 @@ async def list_collection_entries(
         else:
             r["invoice"] = None
         r["collectorName"] = r.get("collectorName") or user.name or "Agent"
-    return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1}})
+    return ok(rows, extra={
+        "pagination": {"page": page, "limit": lim, "total": total, "totalPages": math.ceil(total / lim) if lim else 1},
+        "summary": {"totalCollected": float(sum_total or 0)}
+    })
 
 @router.post("/api/v1/invoices/collection/entries")
 async def create_collection_entry(body: dict, user: AuthUser = Depends(require_auth), tenantId: str = Depends(resolve_tenant), db: AsyncSession = Depends(get_db)):
@@ -1598,7 +1605,18 @@ async def create_collection_entry(body: dict, user: AuthUser = Depends(require_a
     customer_name = body.get("customerName") or None
     invoice_id = body.get("invoiceId") or None
     branch_id = body.get("branchId") or user.branchId or "default"
-    method = str(body.get("method") or "CASH").upper()
+    method_raw = str(body.get("method") or "CASH").upper().strip()
+    clean_method = VALID_PAYMENT_METHODS.get(method_raw, "CASH")
+
+    # Resolve safe user_id
+    user_id = getattr(user, "id", None)
+    if user_id:
+        u_exist = (await db.execute(text("SELECT id FROM users WHERE id=:u"), {"u": user_id})).first()
+        if not u_exist:
+            user_id = None
+    if not user_id:
+        u_fall = (await db.execute(text("SELECT id FROM users WHERE tenantId=:t LIMIT 1"), {"t": tenantId})).first()
+        user_id = u_fall[0] if u_fall else "system"
 
     if not customer_id and customer_name:
         c_row = (await db.execute(text("SELECT id FROM customers WHERE tenantId = :t AND name = :name LIMIT 1"), {"t": tenantId, "name": customer_name})).first()
@@ -1610,8 +1628,8 @@ async def create_collection_entry(body: dict, user: AuthUser = Depends(require_a
             "INSERT INTO collection_entries (id, tenantId, branchId, collectionNo, collectorId, customerId, invoiceId, method, amount, receiptNo, note, isOffline, status, collectedAt, createdAt) "
             "VALUES (:id, :t, :b, :no, :col, :c, :inv, :m, :amt, :rec, :note, :off, 'COMPLETED', NOW(), NOW())"
         ), {
-            "id": cid, "t": tenantId, "b": branch_id, "no": no, "col": body.get("collectorId") or user.id,
-            "c": customer_id, "inv": invoice_id, "m": method,
+            "id": cid, "t": tenantId, "b": branch_id, "no": no, "col": body.get("collectorId") or user_id,
+            "c": customer_id, "inv": invoice_id, "m": clean_method,
             "amt": amt, "rec": no, "note": body.get("note"), "off": 1 if body.get("isOffline") else 0
         })
 
@@ -1621,7 +1639,7 @@ async def create_collection_entry(body: dict, user: AuthUser = Depends(require_a
             VALUES (:id, :t, :b, :inv, :c, :m, :amt, :ref, 'COMPLETED', :u, NOW(), NOW(), NOW())
         """), {
             "id": cid, "t": tenantId, "b": branch_id, "inv": invoice_id, "c": customer_id,
-            "m": method, "amt": amt, "ref": no, "u": user.id
+            "m": clean_method, "amt": amt, "ref": no, "u": user_id
         })
 
         if invoice_id and amt > 0:

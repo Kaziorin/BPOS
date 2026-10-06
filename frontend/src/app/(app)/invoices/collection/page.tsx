@@ -133,11 +133,14 @@ export default function CollectionPage() {
     branchId: "default",
   });
 
+  const [serverTotalCollected, setServerTotalCollected] = useState<number | null>(null);
+  const [totalRecords, setTotalRecords] = useState<number>(0);
+
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
       const [e, s, p, cRes, iRes, uRes] = await Promise.allSettled([
-        api.get<any>("/v1/invoices/collection/entries"),
+        api.get<any>("/v1/invoices/collection/entries?limit=500"),
         api.get<any>("/v1/invoices/collection/schedules"),
         api.get<any>("/v1/invoices/collection/performance"),
         api.get<any>("/v1/customers?limit=500"),
@@ -145,7 +148,18 @@ export default function CollectionPage() {
         api.get<any>("/api/v1/rbac/users?limit=100"),
       ]);
 
-      const entryList = e.status === "fulfilled" ? (Array.isArray(e.value?.data) ? e.value.data : Array.isArray(e.value) ? e.value : (e.value?.data?.data ?? [])) : [];
+      const entryRes = e.status === "fulfilled" ? e.value : null;
+      const entryList = entryRes?.data?.data ?? entryRes?.data ?? (Array.isArray(entryRes) ? entryRes : []);
+      const dbTotalColl = entryRes?.summary?.totalCollected ?? entryRes?.extra?.summary?.totalCollected ?? entryRes?.data?.summary?.totalCollected ?? entryRes?.data?.extra?.summary?.totalCollected;
+      if (typeof dbTotalColl === "number" && dbTotalColl > 0) {
+        setServerTotalCollected(dbTotalColl);
+      }
+
+      const totalCount = entryRes?.pagination?.total ?? entryRes?.extra?.pagination?.total ?? entryRes?.data?.pagination?.total ?? (Array.isArray(entryList) ? entryList.length : 0);
+      if (typeof totalCount === "number" && totalCount > 0) {
+        setTotalRecords(totalCount);
+      }
+
       const schedList = s.status === "fulfilled" ? (Array.isArray(s.value?.data) ? s.value.data : Array.isArray(s.value) ? s.value : (s.value?.data?.data ?? [])) : [];
       const perfList = p.status === "fulfilled" ? (Array.isArray(p.value?.data) ? p.value.data : Array.isArray(p.value) ? p.value : (p.value?.data?.data ?? [])) : [];
       const custList = cRes.status === "fulfilled" ? (Array.isArray(cRes.value?.data) ? cRes.value.data : Array.isArray(cRes.value) ? cRes.value : (cRes.value?.data?.data ?? [])) : [];
@@ -278,7 +292,7 @@ export default function CollectionPage() {
   }
 
   // KPI Calculations
-  const totalCollected = entries.reduce((s, e) => s + Number(e.amount || 0), 0);
+  const totalCollected = serverTotalCollected !== null ? serverTotalCollected : entries.reduce((s, e) => s + Number(e.amount || 0), 0);
   const pendingSchedules = schedules.filter((s) => s.status === "PENDING" || !s.status).length;
   const uniqueCollectors = new Set(entries.map((e) => e.collectorId || "Collector")).size || 1;
   const totalTargetAmount = performance.reduce((s, p) => s + Number(p.targetAmount || 0), 0);
@@ -389,7 +403,7 @@ export default function CollectionPage() {
   }, [invoices, schedForm.customerId]);
 
   const collectionTabs = [
-    { id: "entries", label: `Collection Receipts (${entries.length})` },
+    { id: "entries", label: `Collection Receipts (${totalRecords || entries.length})` },
     { id: "schedules", label: `Visit Schedules (${schedules.length})` },
     { id: "performance", label: "Targets & Performance" },
   ];
