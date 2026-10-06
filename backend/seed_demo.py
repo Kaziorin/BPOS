@@ -379,6 +379,36 @@ def main() -> None:
                 "VALUES (:id, :t, 'Default Supplier', 'Default Supplier', '01800000000', 'ACTIVE', NOW(3), NOW(3))"
             ), {"id": _uuid(), "t": tenant_id})
 
+        # ── Restaurant Staff / HRM Employees Seeder ──
+        dept_row = conn.execute(text("SELECT id FROM hrm_departments WHERE tenantId = :t AND name = 'Service & Dining'"), {"t": tenant_id}).first()
+        dept_id = dept_row[0] if dept_row else _uuid()
+        if not dept_row:
+            conn.execute(text("INSERT INTO hrm_departments (id, tenantId, name, status, createdAt, updatedAt) VALUES (:id, :t, 'Service & Dining', 'ACTIVE', NOW(3), NOW(3))"), {"id": dept_id, "t": tenant_id})
+
+        staff_roles = [
+            ("Captain / Lead Waiter", "Kabir", "Hossain", "01711122201", "EMP-W01"),
+            ("Table Server / Waiter", "Sumon", "Mia", "01711122202", "EMP-W02"),
+            ("Head Waiter", "Anisur", "Rahman", "01711122203", "EMP-W03"),
+            ("Server / Runner", "Tanvir", "Ahmed", "01711122204", "EMP-W04"),
+            ("Cashier / Front Desk", "Farhana", "Akter", "01711122205", "EMP-W05"),
+            ("Beverage Barista", "Shafiqul", "Islam", "01711122206", "EMP-W07"),
+            ("Floor Manager", "Mahmud", "Hasan", "01711122207", "EMP-W08"),
+        ]
+
+        for desig_name, first, last, phone, emp_code in staff_roles:
+            desig_row = conn.execute(text("SELECT id FROM hrm_designations WHERE tenantId = :t AND name = :name"), {"t": tenant_id, "name": desig_name}).first()
+            desig_id = desig_row[0] if desig_row else _uuid()
+            if not desig_row:
+                conn.execute(text("INSERT INTO hrm_designations (id, tenantId, name, departmentId, status, createdAt, updatedAt) VALUES (:id, :t, :name, :dept, 'ACTIVE', NOW(3), NOW(3))"), {"id": desig_id, "t": tenant_id, "name": desig_name, "dept": dept_id})
+
+            emp_row = conn.execute(text("SELECT id FROM hrm_employees WHERE tenantId = :t AND (phone = :phone OR employeeNo = :code)"), {"t": tenant_id, "phone": phone, "code": emp_code}).first()
+            if not emp_row:
+                conn.execute(text(
+                    "INSERT INTO hrm_employees (id, tenantId, employeeNo, firstName, lastName, phone, departmentId, designationId, status, createdAt, updatedAt) "
+                    "VALUES (:id, :t, :code, :first, :last, :phone, :dept, :desig, 'ACTIVE', NOW(3), NOW(3))"
+                ), {"id": _uuid(), "t": tenant_id, "code": emp_code, "first": first, "last": last, "phone": phone, "dept": dept_id, "desig": desig_id})
+
+
         # ── Modules + menu items + tenant_modules ──
         # Prompt 42: the seed is the single source of truth for the sidebar nav.
         # Each module carries a real route (its landing page); modules with real

@@ -114,73 +114,156 @@ export default function KitchenManagementPage() {
     }
   };
 
-  // Fetch Tickets from Real API Endpoint
-  const fetchTickets = useCallback(async () => {
-    setLoading(true);
+  // Fetch Tickets from Real API Endpoint (isPolling=true avoids setting loading spinner / page flash)
+  const fetchTickets = useCallback(async (isPolling = false) => {
+    if (!isPolling) setLoading(true);
     try {
       const res: any = await api.get("/v1/restaurant/kds").catch(() => null);
       const serverData = res?.data?.data || res?.data;
+        const parseDate = (d: any): Date => {
+          if (!d) return new Date();
+          if (typeof d === "string") {
+            const normalized = d.includes(" ") && !d.includes("T") ? d.replace(" ", "T") : d;
+            const parsed = new Date(normalized);
+            return isNaN(parsed.getTime()) ? new Date() : parsed;
+          }
+          const parsed = new Date(d);
+          return isNaN(parsed.getTime()) ? new Date() : parsed;
+        };
+
       if (Array.isArray(serverData)) {
-        const mapped: KOTTicket[] = serverData.map((t: any) => ({
-          id: t.id,
-          orderNo: t.orderNo || t.kotNo || `KOT-${t.id.slice(0, 4)}`,
-          tokenNo: t.tokenNo,
-          tableNo: t.tableNo,
-          orderType: t.orderType === "TAKEAWAY" ? "Takeaway" : t.orderType === "DELIVERY" ? "Delivery" : "Dine-in",
-          timePlaced: t.timePlaced || new Date(t.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          station: t.station || "KITCHEN",
-          status: t.status === "SERVED" ? "SERVED" : t.status === "READY" || t.status === "READY_TO_SERVE" ? "READY" : t.status === "PREPARING" || t.status === "COOKING" || t.status === "PLATING" || t.status === "ACCEPTED" ? "PREPARING" : "QUEUED",
-          chefRole: t.chefRole || "Head chef",
-          customerName: t.customerName,
-          notes: t.notes || "",
-          createdAt: t.createdAt || new Date().toISOString(),
-          readyAt: t.readyAt,
-          items: Array.isArray(t.items)
-            ? t.items.map((i: any) => {
-                let parsedModifiers: any[] = [];
-                if (typeof i.modifiersJson === "string") {
-                  try { parsedModifiers = JSON.parse(i.modifiersJson); } catch {}
-                } else if (Array.isArray(i.modifiersJson)) {
-                  parsedModifiers = i.modifiersJson;
-                } else if (Array.isArray(i.modifiers)) {
-                  parsedModifiers = i.modifiers;
-                } else if (Array.isArray(i.addons)) {
-                  parsedModifiers = i.addons;
-                }
-                return {
-                  id: i.id || crypto.randomUUID(),
-                  name: i.name,
-                  qty: i.qty || 1,
-                  notes: i.notes || "",
-                  modifiers: parsedModifiers,
-                  completed: i.completed ?? (t.status === "READY" || t.status === "READY_TO_SERVE" || t.status === "SERVED"),
-                };
-              })
-            : [],
-        }));
+        const mapped: KOTTicket[] = serverData.map((t: any) => {
+          let resolvedTableNo = t.tableNo || "";
+          if (!resolvedTableNo && t.notes) {
+            const match = t.notes.match(/Table:\s*([^|]+)/i);
+            if (match && match[1]) {
+              resolvedTableNo = match[1].trim();
+            }
+          }
+
+          const ticketDate = parseDate(t.createdAt);
+          const formattedTimePlaced = t.timePlaced || ticketDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+          return {
+            id: t.id,
+            orderNo: t.orderNo || t.kotNo || `KOT-${t.id.slice(0, 4)}`,
+            tokenNo: t.tokenNo,
+            tableNo: resolvedTableNo,
+            orderType: t.orderType === "TAKEAWAY" ? "Takeaway" : t.orderType === "DELIVERY" ? "Delivery" : "Dine-in",
+            timePlaced: formattedTimePlaced,
+            station: t.station || "KITCHEN",
+            status: t.status === "SERVED" ? "SERVED" : t.status === "READY" || t.status === "READY_TO_SERVE" ? "READY" : t.status === "PREPARING" || t.status === "COOKING" || t.status === "PLATING" || t.status === "ACCEPTED" ? "PREPARING" : "QUEUED",
+            chefRole: t.chefRole || "Head chef",
+            customerName: t.customerName,
+            notes: t.notes || "",
+            createdAt: t.createdAt || new Date().toISOString(),
+            readyAt: t.readyAt,
+            items: Array.isArray(t.items)
+              ? t.items.map((i: any) => {
+                  let parsedModifiers: any[] = [];
+                  if (typeof i.modifiersJson === "string") {
+                    try { parsedModifiers = JSON.parse(i.modifiersJson); } catch {}
+                  } else if (Array.isArray(i.modifiersJson)) {
+                    parsedModifiers = i.modifiersJson;
+                  } else if (Array.isArray(i.modifiers)) {
+                    parsedModifiers = i.modifiers;
+                  } else if (Array.isArray(i.addons)) {
+                    parsedModifiers = i.addons;
+                  }
+                  const isItemDone = i.status === "DONE" || i.status === "READY" || i.status === "SERVED" || Boolean(i.completed);
+                  return {
+                    id: i.id || crypto.randomUUID(),
+                    name: i.name,
+                    qty: i.qty || 1,
+                    notes: i.notes || "",
+                    modifiers: parsedModifiers,
+                    completed: isItemDone || (t.status === "READY" || t.status === "READY_TO_SERVE" || t.status === "SERVED"),
+                  };
+                })
+              : [],
+          };
+        });
         mapped.sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
-        setTickets(mapped);
+
+        setTickets((prev) => {
+          if (!prev || prev.length === 0) return mapped;
+          const serverMap = new Map(mapped.map((m) => [m.id, m]));
+          const prevMap = new Map(prev.map((p) => [p.id, p]));
+
+          if (isPolling) {
+            // Background polling: ONLY update/add QUEUED tickets. Keep PREPARING, READY, SERVED 100% untouched.
+            const keptNonQueued = prev.filter((t) => t.status !== "QUEUED");
+            
+            // Fresh queued tickets from server
+            const freshQueued = mapped.filter((m) => m.status === "QUEUED" && !keptNonQueued.some((k) => k.id === m.id));
+            
+            const combined = [...keptNonQueued, ...freshQueued];
+            combined.sort(
+              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+            return combined;
+          }
+
+          // Full initial load or manual refresh
+          const updatedList: KOTTicket[] = [];
+          for (const current of prev) {
+            const fresh = serverMap.get(current.id);
+            if (!fresh) continue;
+
+            if (current.status === "QUEUED" && fresh.status === "QUEUED") {
+              updatedList.push(fresh);
+            } else {
+              const currentItemDone = new Map(current.items.map((oi) => [oi.id, oi.completed]));
+              const mergedItems = fresh.items.map((fi) => ({
+                ...fi,
+                completed: fi.completed || Boolean(currentItemDone.get(fi.id)),
+              }));
+              const allMergedDone = mergedItems.length > 0 && mergedItems.every((x) => x.completed);
+
+              updatedList.push({
+                ...fresh,
+                status: allMergedDone ? "READY" : current.status,
+                chefRole: current.chefRole || fresh.chefRole,
+                items: mergedItems,
+              });
+            }
+          }
+
+          for (const fresh of mapped) {
+            if (!prevMap.has(fresh.id)) {
+              updatedList.unshift(fresh);
+            }
+          }
+
+          updatedList.sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          return updatedList;
+        });
+
         broadcastSync(mapped);
       } else {
-        setTickets([]);
+        if (!isPolling) setTickets([]);
       }
     } catch (err) {
       console.warn("KDS API fetch error:", err);
-      setTickets([]);
+      if (!isPolling) setTickets([]);
     } finally {
-      setLoading(false);
+      if (!isPolling) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchTickets();
+    fetchTickets(false);
   }, [fetchTickets]);
 
   useEffect(() => {
     if (!autoRefresh) return;
-    const interval = setInterval(fetchTickets, 8000);
+    const interval = setInterval(() => {
+      fetchTickets(true);
+    }, 8000);
     return () => clearInterval(interval);
   }, [autoRefresh, fetchTickets]);
 
@@ -269,6 +352,14 @@ export default function KitchenManagementPage() {
     setTickets(updated);
     broadcastSync(updated);
 
+    // Save individual item status to server
+    const toggledItem = nextItems.find((i) => i.id === itemId);
+    if (toggledItem) {
+      api.patch(`/v1/restaurant/kot/${ticketId}/items/${itemId}/status`, {
+        status: toggledItem.completed ? "READY" : "PREPARING",
+      }).catch((e) => console.warn("Failed to persist item status:", e));
+    }
+
     if (nextStatus !== targetTicket.status) {
       try {
         const backendSt = nextStatus === "SERVED" ? "SERVED" : nextStatus === "READY" ? "READY" : nextStatus === "PREPARING" ? "PREPARING" : "ACCEPTED";
@@ -324,7 +415,13 @@ export default function KitchenManagementPage() {
 
   // Elapsed mins
   const getElapsedMins = (createdAtStr: string) => {
-    return Math.max(0, Math.floor((nowTime.getTime() - new Date(createdAtStr).getTime()) / 60000));
+    if (!createdAtStr) return 0;
+    const normalized = typeof createdAtStr === "string" && createdAtStr.includes(" ") && !createdAtStr.includes("T")
+      ? createdAtStr.replace(" ", "T")
+      : createdAtStr;
+    const parsed = new Date(normalized);
+    if (isNaN(parsed.getTime())) return 0;
+    return Math.max(0, Math.floor((nowTime.getTime() - parsed.getTime()) / 60000));
   };
 
   // Filtered Tickets
@@ -363,12 +460,10 @@ export default function KitchenManagementPage() {
   return (
     <div
       ref={containerRef}
-      className={`w-full bg-[#f4f5f8] text-gray-600 font-sans select-none pb-12 overflow-y-auto ${
-        isFullscreen ? "h-screen max-h-screen overflow-y-auto" : "min-h-screen"
-      }`}
+      className="h-screen w-screen flex flex-col bg-[#f4f5f8] text-gray-600 font-sans select-none overflow-hidden"
     >
       {/* ── 1. TOP NAVBAR (MATCHING SCREENSHOT HEADER) ────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 py-3 shadow-xs">
+      <header className="shrink-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 py-3 shadow-xs">
         <div className="mx-auto flex flex-wrap items-center justify-between gap-4">
           {/* Left Title & Search */}
           <div className="flex items-center gap-4 flex-1 min-w-[280px]">
@@ -440,7 +535,7 @@ export default function KitchenManagementPage() {
 
             {/* Manual Sync */}
             <button
-              onClick={fetchTickets}
+              onClick={() => fetchTickets(false)}
               className="rounded-sm border border-slate-200 bg-white p-2 text-gray-600 hover:bg-slate-50 transition"
               title="Refresh KDS"
             >
@@ -479,130 +574,132 @@ export default function KitchenManagementPage() {
       </header>
 
       {/* ── 2. MAIN CONTENT AREA ───────────────────────── */}
-      <div className="max-w-[1800px] mx-auto p-4 sm:p-6 space-y-6">
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden p-3 sm:p-4">
+        <div className="w-full h-full min-h-0 flex-1 flex flex-col overflow-hidden">
         {viewMode === "OPERATOR" && (
-          <div className="space-y-6">
+          <div className="w-full h-full min-h-0 flex-1 flex flex-col overflow-hidden gap-3">
             {/* KPI SCORECARDS ROW (MATCHING SCREENSHOT) */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Card 1: New Orders */}
-          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-slate-200 bg-white px-4 py-2.5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
-              <p className="text-xs font-bold text-slate-500">New Orders</p>
-              <h3 className="text-3xl font-black text-gray-600 mt-1">{newOrdersCount.toString().padStart(2, "0")}</h3>
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">New Orders</p>
+              <h3 className="text-2xl font-black text-gray-700 mt-0.5">{newOrdersCount.toString().padStart(2, "0")}</h3>
             </div>
-            <div className="rounded-sm bg-orange-50 p-3 text-orange-500 border border-orange-100">
-              <FileText size={22} />
+            <div className="rounded-sm bg-orange-50 p-2 text-orange-500 border border-orange-100">
+              <FileText size={18} />
             </div>
           </div>
 
           {/* Card 2: Preparing */}
-          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-slate-200 bg-white px-4 py-2.5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
-              <p className="text-xs font-bold text-slate-500">Preparing</p>
-              <h3 className="text-3xl font-black text-gray-600 mt-1">{preparingCount.toString().padStart(2, "0")}</h3>
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Preparing</p>
+              <h3 className="text-2xl font-black text-gray-700 mt-0.5">{preparingCount.toString().padStart(2, "0")}</h3>
             </div>
-            <div className="rounded-sm bg-amber-50 p-3 text-amber-500 border border-amber-100">
-              <Flame size={22} />
+            <div className="rounded-sm bg-amber-50 p-2 text-amber-500 border border-amber-100">
+              <Flame size={18} />
             </div>
           </div>
 
           {/* Card 3: Completed Orders */}
-          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-slate-200 bg-white px-4 py-2.5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
-              <p className="text-xs font-bold text-slate-500">Completed Orders</p>
-              <h3 className="text-3xl font-black text-gray-600 mt-1">{completedCount.toString().padStart(2, "0")}</h3>
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Completed Orders</p>
+              <h3 className="text-2xl font-black text-gray-700 mt-0.5">{completedCount.toString().padStart(2, "0")}</h3>
             </div>
-            <div className="rounded-sm bg-emerald-50 p-3 text-emerald-500 border border-emerald-100">
-              <CheckCircle2 size={22} />
+            <div className="rounded-sm bg-emerald-50 p-2 text-emerald-500 border border-emerald-100">
+              <CheckCircle2 size={18} />
             </div>
           </div>
 
           {/* Card 4: Cancelled Orders */}
-          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-slate-200 bg-white px-4 py-2.5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
-              <p className="text-xs font-bold text-slate-500">Cancelled Orders</p>
-              <h3 className="text-3xl font-black text-gray-600 mt-1">{cancelledCount.toString().padStart(2, "0")}</h3>
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cancelled Orders</p>
+              <h3 className="text-2xl font-black text-gray-700 mt-0.5">{cancelledCount.toString().padStart(2, "0")}</h3>
             </div>
-            <div className="rounded-sm bg-rose-50 p-3 text-rose-500 border border-rose-100">
-              <Ban size={22} />
+            <div className="rounded-sm bg-rose-50 p-2 text-rose-500 border border-rose-100">
+              <Ban size={18} />
             </div>
           </div>
         </div>
 
         {/* ── 3. FILTER PILLS BAR (MATCHING SCREENSHOT) ────────────────────────── */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <div className="shrink-0 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
             <button
               onClick={() => setActiveFilterPill("ALL")}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "ALL"
-                  ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white border-orange-500 shadow-md shadow-orange-500/20"
+                  ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white border-orange-500 shadow-sm"
                   : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              <UtensilsCrossed size={14} />
+              <UtensilsCrossed size={13} />
               <span>All Orders</span>
             </button>
 
             <button
               onClick={() => setActiveFilterPill("QUEUED")}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "QUEUED"
-                  ? "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-600/20"
+                  ? "bg-purple-600 text-white border-purple-600 shadow-sm"
                   : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              <FileText size={14} className="text-purple-600" />
+              <FileText size={13} className="text-purple-600" />
               <span>Queued ({queuedColumnTickets.length})</span>
             </button>
 
             <button
               onClick={() => setActiveFilterPill("PREPARING")}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "PREPARING"
-                  ? "bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/20"
+                  ? "bg-amber-500 text-white border-amber-500 shadow-sm"
                   : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              <Flame size={14} className="text-amber-600" />
+              <Flame size={13} className="text-amber-600" />
               <span>Preparing ({preparingColumnTickets.length})</span>
             </button>
 
             <button
               onClick={() => setActiveFilterPill("READY")}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "READY"
-                  ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20"
+                  ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
                   : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              <Bell size={14} className="text-emerald-600" />
+              <Bell size={13} className="text-emerald-600" />
               <span>Ready ({readyColumnTickets.length})</span>
             </button>
 
             <button
               onClick={() => setActiveFilterPill("SERVED")}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "SERVED"
-                  ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
+                  ? "bg-blue-600 text-white border-blue-600 shadow-sm"
                   : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              <BadgeCheck size={14} className="text-blue-600" />
+              <BadgeCheck size={13} className="text-blue-600" />
               <span>Served ({servedColumnTickets.length})</span>
             </button>
           </div>
         </div>
 
             {/* ── 4. OPERATOR VIEW: 4-COLUMN KANBAN BOARD ─────────────────────────── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+            <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden custom-scrollbar">
+              <div className="w-full h-full min-h-0 min-w-[1020px] grid grid-cols-4 gap-3.5 items-stretch">
             
             {/* 🟣 COLUMN 1: QUEUED */}
-            <div className="flex flex-col rounded-sm bg-[#efedf8] border border-purple-200/80 overflow-hidden shadow-xs">
+            <div className="h-full min-h-0 flex flex-col rounded-sm bg-[#efedf8] border border-purple-200/80 overflow-hidden shadow-xs">
               {/* Header */}
-              <div className="bg-[#701a75] px-5 py-3.5 text-white flex items-center justify-between">
+              <div className="shrink-0 bg-[#701a75] px-4 py-2.5 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-sm">
-                  <FileText size={18} />
+                  <FileText size={17} />
                   <span>Queued</span>
                 </div>
                 <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-black">
@@ -611,7 +708,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 min-h-[60vh] max-h-[calc(100vh-250px)] overflow-y-auto">
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 space-y-3 pb-28">
                 {queuedColumnTickets.map((t) => {
                   const elapsedMins = getElapsedMins(t.createdAt);
                   return (
@@ -641,7 +738,7 @@ export default function KitchenManagementPage() {
 
                         <div className="text-right shrink-0">
                           <span className="font-bold text-xs text-gray-600 bg-slate-100 px-2 py-0.5 rounded-sm inline-block">
-                            {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "01"}`}
+                            {t.tokenNo ? `Token #${t.tokenNo}` : (t.tableNo ? (t.tableNo.toLowerCase().startsWith("table") ? t.tableNo : `Table ${t.tableNo}`) : "Table N/A")}
                           </span>
                           <div className="flex items-center justify-end gap-1 text-[11px] text-slate-400 font-semibold mt-0.5">
                             <Clock size={11} />
@@ -719,7 +816,7 @@ export default function KitchenManagementPage() {
                 })}
 
                 {queuedColumnTickets.length === 0 && (
-                  <div className="py-16 text-center text-slate-400 text-xs font-semibold">
+                  <div className="py-12 text-center text-slate-400 text-xs font-semibold">
                     No queued orders in line
                   </div>
                 )}
@@ -727,11 +824,11 @@ export default function KitchenManagementPage() {
             </div>
 
             {/* 🟠 COLUMN 2: PREPARING */}
-            <div className="flex flex-col rounded-sm bg-[#fff5ea] border border-orange-200/80 overflow-hidden shadow-xs">
+            <div className="h-full min-h-0 flex flex-col rounded-sm bg-[#fff5ea] border border-orange-200/80 overflow-hidden shadow-xs">
               {/* Header */}
-              <div className="bg-[#ea580c] px-5 py-3.5 text-white flex items-center justify-between">
+              <div className="shrink-0 bg-[#ea580c] px-4 py-2.5 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-sm">
-                  <Flame size={18} />
+                  <Flame size={17} />
                   <span>Preparing</span>
                 </div>
                 <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-black">
@@ -740,7 +837,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 min-h-[60vh] max-h-[calc(100vh-250px)] overflow-y-auto">
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 space-y-3 pb-28">
                 {preparingColumnTickets.map((t) => {
                   const elapsedMins = getElapsedMins(t.createdAt);
                   const completedItems = t.items.filter((i) => i.completed).length;
@@ -773,7 +870,7 @@ export default function KitchenManagementPage() {
 
                         <div className="text-right shrink-0">
                           <span className="font-bold text-xs text-gray-600 bg-slate-100 px-2 py-0.5 rounded-sm inline-block">
-                            {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "12"}`}
+                            {t.tokenNo ? `Token #${t.tokenNo}` : (t.tableNo ? (t.tableNo.toLowerCase().startsWith("table") ? t.tableNo : `Table ${t.tableNo}`) : "Table N/A")}
                           </span>
                           <div className="flex items-center justify-end gap-1 text-[11px] text-orange-600 font-bold mt-0.5 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">
                             <Clock size={11} />
@@ -867,19 +964,35 @@ export default function KitchenManagementPage() {
                         ))}
                       </div>
 
-                      {/* Action Button: Move to Ready */}
-                      <button
-                        onClick={() => moveTicketStatus(t.id, "READY")}
-                        className="w-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white py-2.5 text-xs font-black tracking-wide shadow-md transition flex items-center justify-center gap-1.5"
-                      >
-                        <CheckCircle2 size={15} /> Mark Ready to Serve
-                      </button>
+                      {/* Action Button: Move to Ready (Disabled until all items are checked) */}
+                      {(() => {
+                        const allItemsDone = t.items.length === 0 || t.items.every((i) => i.completed);
+                        return (
+                          <button
+                            disabled={!allItemsDone}
+                            onClick={() => moveTicketStatus(t.id, "READY")}
+                            className={`w-full rounded-full py-2.5 text-xs font-black tracking-wide shadow-md transition flex items-center justify-center gap-1.5 ${
+                              allItemsDone
+                                ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white cursor-pointer active:scale-[0.98]"
+                                : "bg-slate-200 text-slate-400 border border-slate-300/80 cursor-not-allowed opacity-75 shadow-none"
+                            }`}
+                            title={
+                              allItemsDone
+                                ? "All items ready — click to move to Ready to Serve"
+                                : `Check off all ${t.items.length} items (${completedItems}/${t.items.length}) to enable`
+                            }
+                          >
+                            <CheckCircle2 size={15} className={allItemsDone ? "text-white" : "text-slate-400"} />
+                            {allItemsDone ? "Mark Ready to Serve" : `Check All Items (${completedItems}/${t.items.length})`}
+                          </button>
+                        );
+                      })()}
                     </div>
                   );
                 })}
 
                 {preparingColumnTickets.length === 0 && (
-                  <div className="py-16 text-center text-slate-400 text-xs font-semibold">
+                  <div className="py-12 text-center text-slate-400 text-xs font-semibold">
                     No orders currently preparing
                   </div>
                 )}
@@ -887,11 +1000,11 @@ export default function KitchenManagementPage() {
             </div>
 
             {/* 🟢 COLUMN 3: READY */}
-            <div className="flex flex-col rounded-sm bg-[#ecfdf5] border border-emerald-200/80 overflow-hidden shadow-xs">
+            <div className="h-full min-h-0 flex flex-col rounded-sm bg-[#ecfdf5] border border-emerald-200/80 overflow-hidden shadow-xs">
               {/* Header */}
-              <div className="bg-[#16a34a] px-5 py-3.5 text-white flex items-center justify-between">
+              <div className="shrink-0 bg-[#16a34a] px-4 py-2.5 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-sm">
-                  <Bell size={18} />
+                  <Bell size={17} />
                   <span>Ready</span>
                 </div>
                 <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-black">
@@ -900,7 +1013,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 min-h-[60vh] max-h-[calc(100vh-250px)] overflow-y-auto">
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 space-y-3 pb-28">
                 {readyColumnTickets.map((t) => (
                   <div
                     key={t.id}
@@ -927,7 +1040,7 @@ export default function KitchenManagementPage() {
 
                       <div className="text-right shrink-0">
                         <span className="font-bold text-xs text-gray-600 bg-slate-100 px-2 py-0.5 rounded-sm inline-block">
-                          {t.tokenNo ? `Token #${t.tokenNo}` : `Table ${t.tableNo || "07"}`}
+                          {t.tokenNo ? `Token #${t.tokenNo}` : (t.tableNo ? (t.tableNo.toLowerCase().startsWith("table") ? t.tableNo : `Table ${t.tableNo}`) : "Table N/A")}
                         </span>
                         <div className="mt-0.5">
                           <span className="rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 px-2 py-0.5 text-[10px] font-bold">
@@ -986,7 +1099,7 @@ export default function KitchenManagementPage() {
 
                     {/* Footer Ready Time & Checked Icon */}
                     <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-emerald-700 font-bold">
-                      <span>Ready at {t.readyAt || "11:45 AM"}</span>
+                      <span>Ready at {t.readyAt || t.timePlaced || "Just now"}</span>
                       <CheckCircle2 size={18} className="text-emerald-600" />
                     </div>
 
@@ -1001,7 +1114,7 @@ export default function KitchenManagementPage() {
                 ))}
 
                 {readyColumnTickets.length === 0 && (
-                  <div className="py-16 text-center text-slate-400 text-xs font-semibold">
+                  <div className="py-12 text-center text-slate-400 text-xs font-semibold">
                     No orders ready to serve yet
                   </div>
                 )}
@@ -1009,11 +1122,11 @@ export default function KitchenManagementPage() {
             </div>
 
             {/* 🔵 COLUMN 4: SERVED */}
-            <div className="flex flex-col rounded-sm bg-[#edf4ff] border border-blue-200/80 overflow-hidden shadow-xs">
+            <div className="h-full min-h-0 flex flex-col rounded-sm bg-[#edf4ff] border border-blue-200/80 overflow-hidden shadow-xs">
               {/* Header */}
-              <div className="bg-[#1d4ed8] px-5 py-3.5 text-white flex items-center justify-between">
+              <div className="shrink-0 bg-[#1d4ed8] px-4 py-2.5 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-sm">
-                  <BadgeCheck size={18} />
+                  <BadgeCheck size={17} />
                   <span>Served</span>
                 </div>
                 <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-black">
@@ -1022,7 +1135,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 min-h-[60vh] max-h-[calc(100vh-250px)] overflow-y-auto">
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 space-y-3 pb-28">
                 {servedColumnTickets.map((t) => (
                   <div
                     key={t.id}
@@ -1115,61 +1228,63 @@ export default function KitchenManagementPage() {
                 ))}
 
                 {servedColumnTickets.length === 0 && (
-                  <div className="py-16 text-center text-slate-400 text-xs font-semibold">
+                  <div className="py-12 text-center text-slate-400 text-xs font-semibold">
                     No served orders yet
                   </div>
                 )}
               </div>
             </div>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
         {/* ── 5. FACING MODE: KITCHEN FACING DISPLAY ─────────────────────── */}
         {viewMode === "FACING" && (
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-sm border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="w-full h-full min-h-0 flex-1 flex flex-col overflow-hidden gap-3">
+            <div className="shrink-0 bg-white px-5 py-3 rounded-sm border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-black text-gray-600 tracking-tight flex items-center gap-2">
-                  <Tv className="text-indigo-600" size={24} />
+                <h2 className="text-xl font-black text-gray-600 tracking-tight flex items-center gap-2">
+                  <Tv className="text-indigo-600" size={22} />
                   KITCHEN FACING DISPLAY
                 </h2>
-                <p className="text-xs text-slate-500 font-semibold mt-1">
+                <p className="text-[11px] text-slate-500 font-semibold mt-0.5">
                   Live Facing Screen — Track order progress from In Kitchen to Ready to Serve
                 </p>
               </div>
-              <div className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-sm text-right">
-                <span className="font-mono text-2xl font-black text-indigo-600">
+              <div className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-sm text-right">
+                <span className="font-mono text-xl font-black text-indigo-600">
                   {nowTime.toLocaleTimeString()}
                 </span>
-                <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                <span className="block text-[9px] text-slate-500 font-bold uppercase tracking-widest">
                   Live Sync Clock
                 </span>
               </div>
             </div>
 
             {/* 3-COLUMN OVERHEAD FACING DISPLAY */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[65vh]">
-              {/* Left: Preparing Orders */}
-              <div className="rounded-sm border border-amber-200 bg-white p-5 shadow-md space-y-4">
-                <div className="flex flex-wrap items-center justify-between border-b border-amber-100 pb-3 gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-sm bg-amber-500 text-white flex items-center justify-center shadow-sm shrink-0">
-                      <Flame size={20} />
+            <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden custom-scrollbar">
+              <div className="w-full h-full min-h-0 min-w-[900px] grid grid-cols-3 gap-4 items-stretch">
+                {/* Left: Preparing Orders */}
+                <div className="h-full min-h-0 flex flex-col rounded-sm border border-amber-200 bg-white shadow-md overflow-hidden">
+                  <div className="shrink-0 flex flex-wrap items-center justify-between border-b border-amber-100 p-3.5 bg-amber-50/50 gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-sm bg-amber-500 text-white flex items-center justify-center shadow-sm shrink-0">
+                        <Flame size={18} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-black tracking-wider uppercase text-amber-600">
+                          PREPARING & COOKING ({preparingColumnTickets.length})
+                        </h3>
+                        <p className="text-[10px] text-slate-500 font-medium">In Kitchen Cooking</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-base font-black tracking-wider uppercase text-amber-600">
-                        PREPARING & COOKING ({preparingColumnTickets.length})
-                      </h3>
-                      <p className="text-[11px] text-slate-500 font-medium">In Kitchen Cooking</p>
-                    </div>
+                    <span className="rounded-full bg-amber-100 text-amber-800 border border-amber-300 px-2.5 py-0.5 text-xs font-bold shrink-0">
+                      IN KITCHEN
+                    </span>
                   </div>
-                  <span className="rounded-full bg-amber-100 text-amber-800 border border-amber-300 px-3 py-0.5 text-xs font-bold shrink-0">
-                    IN KITCHEN
-                  </span>
-                </div>
 
-                <div className="space-y-3">
+                  <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3.5 space-y-3 pb-28">
                   {preparingColumnTickets.map((t) => {
                     const elapsedMins = getElapsedMins(t.createdAt);
                     const completedItems = t.items.filter((i) => i.completed).length;
@@ -1240,25 +1355,25 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Middle: Ready to Serve Orders */}
-              <div className="rounded-sm border border-emerald-300 bg-white p-5 shadow-md space-y-4">
-                <div className="flex flex-wrap items-center justify-between border-b border-emerald-100 pb-3 gap-2">
+              <div className="h-full min-h-0 flex flex-col rounded-sm border border-emerald-300 bg-white shadow-md overflow-hidden">
+                <div className="shrink-0 flex flex-wrap items-center justify-between border-b border-emerald-100 p-3.5 bg-emerald-50/50 gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-sm bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
-                      <CheckCircle2 size={20} />
+                    <div className="h-8 w-8 rounded-sm bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                      <CheckCircle2 size={18} />
                     </div>
                     <div>
-                      <h3 className="text-base font-black tracking-wider uppercase text-emerald-600">
+                      <h3 className="text-sm font-black tracking-wider uppercase text-emerald-600">
                         READY TO SERVE ({readyColumnTickets.length})
                       </h3>
-                      <p className="text-[11px] text-slate-500 font-medium">Ready at Serving Counter</p>
+                      <p className="text-[10px] text-slate-500 font-medium">Ready at Serving Counter</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-emerald-600 text-white px-3 py-0.5 text-xs font-bold shadow-xs animate-pulse shrink-0">
+                  <span className="rounded-full bg-emerald-600 text-white px-2.5 py-0.5 text-xs font-bold shadow-xs animate-pulse shrink-0">
                     READY
                   </span>
                 </div>
 
-                <div className="space-y-3">
+                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3.5 space-y-3 pb-28">
                   {readyColumnTickets.map((t) => (
                     <div
                       key={t.id}
@@ -1322,25 +1437,25 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Right: Served Orders */}
-              <div className="rounded-sm border border-blue-300 bg-white p-5 shadow-md space-y-4">
-                <div className="flex flex-wrap items-center justify-between border-b border-blue-100 pb-3 gap-2">
+              <div className="h-full min-h-0 flex flex-col rounded-sm border border-blue-300 bg-white shadow-md overflow-hidden">
+                <div className="shrink-0 flex flex-wrap items-center justify-between border-b border-blue-100 p-3.5 bg-blue-50/50 gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-sm bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
-                      <BadgeCheck size={20} />
+                    <div className="h-8 w-8 rounded-sm bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                      <BadgeCheck size={18} />
                     </div>
                     <div>
-                      <h3 className="text-base font-black tracking-wider uppercase text-blue-600">
+                      <h3 className="text-sm font-black tracking-wider uppercase text-blue-600">
                         SERVED ORDERS ({servedColumnTickets.length})
                       </h3>
-                      <p className="text-[11px] text-slate-500 font-medium">Delivered to Tables</p>
+                      <p className="text-[10px] text-slate-500 font-medium">Delivered to Tables</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-blue-600 text-white px-3 py-0.5 text-xs font-bold shrink-0">
+                  <span className="rounded-full bg-blue-600 text-white px-2.5 py-0.5 text-xs font-bold shrink-0">
                     SERVED
                   </span>
                 </div>
 
-                <div className="space-y-3">
+                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3.5 space-y-3 pb-28">
                   {servedColumnTickets.map((t) => (
                     <div
                       key={t.id}
@@ -1399,9 +1514,11 @@ export default function KitchenManagementPage() {
                   )}
                 </div>
               </div>
+              </div>
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

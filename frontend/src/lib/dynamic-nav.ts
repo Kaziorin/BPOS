@@ -210,6 +210,7 @@ export interface NavSubChild {
   label: string;
   href: string;
   icon: LucideIcon;
+  target?: string;
 }
 
 /** 2nd level: direct child of a module (may have its own sub-children) */
@@ -217,6 +218,7 @@ export interface NavChild {
   label: string;
   href: string;
   icon: LucideIcon;
+  target?: string;
   children?: NavSubChild[];
 }
 
@@ -533,7 +535,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         children: [
           { label: "Restaurant Management",      href: "/restaurant",                    icon: LayoutDashboard },
           { label: "Floor & Table Map POS",      href: "/restaurant/pos",               icon: UtensilsCrossed },
-          { label: "Kitchen Management",         href: "/restaurant/kitchen",            icon: Flame           },
+          { label: "Kitchen Management",         href: "/restaurant/kitchen",            icon: Flame, target: "_blank" },
           { label: "Customer Display Screen",    href: "/restaurant/customer-display",  icon: Monitor         },
           { label: "Slots & Reservation Matrix", href: "/restaurant/slots-matrix",      icon: Calendar        },
         ],
