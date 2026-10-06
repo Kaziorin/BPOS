@@ -1277,8 +1277,17 @@ export default function RestaurantPOSPage() {
     },
   });
 
-  const handleHoldOrder = () => {
+  const handleHoldOrder = async () => {
     if (cart.length === 0) return;
+    
+    // Auto-fire KOT to kitchen for any pending kitchen items so the kitchen starts cooking
+    const unsentKitchenItems = cart.filter(
+      (item) => item.isKitchenProduct !== false && item.kotStatus !== "SENT_TO_KITCHEN"
+    );
+    if (unsentKitchenItems.length > 0) {
+      await sendKotToKitchen();
+    }
+
     setHeldOrders((prev) => [
       ...prev,
       {
@@ -1286,12 +1295,14 @@ export default function RestaurantPOSPage() {
         table: selectedTable,
         guestCount,
         waiterName,
-        cart,
+        cart: cart.map((item) =>
+          item.isKitchenProduct !== false ? { ...item, kotStatus: "SENT_TO_KITCHEN" } : item
+        ),
         time: new Date().toLocaleTimeString(),
       },
     ]);
     setCart([]);
-    toast.info(`Order for Table ${selectedTable?.tableNo || "N/A"} put on Hold!`);
+    toast.info(`Order for Table ${selectedTable?.tableNo || "N/A"} saved & sent to kitchen!`);
   };
 
   const handleRecallOrder = (heldOrder: any) => {
@@ -2617,23 +2628,15 @@ export default function RestaurantPOSPage() {
 
             <div className="space-y-2 pt-1">
               <button
-                onClick={sendKotToKitchen}
-                disabled={cart.length === 0}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-sm border-2 border-amber-300 bg-amber-50 text-amber-800 font-bold text-xs hover:bg-amber-100 hover:border-amber-400 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Flame size={14} className="text-amber-600" /> KOT to Kitchen
-              </button>
-
-              <button
                 onClick={handleOpenCheckoutModal}
                 disabled={cart.length === 0}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-sm bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white font-bold text-xs hover:from-orange-600 hover:via-amber-600 hover:to-orange-600 transition cursor-pointer shadow-md shadow-orange-500/25 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-between px-4 py-3.5 rounded-sm bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white font-bold text-xs hover:from-orange-600 hover:via-amber-600 hover:to-orange-600 transition cursor-pointer shadow-md shadow-orange-500/25 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <span className="flex items-center gap-2">
-                  <ShoppingBag size={15} /> Place Order
+                  <ShoppingBag size={16} /> Place Order & Checkout
                 </span>
-                <div className="flex items-center gap-1.5 bg-white/20 rounded-sm px-2 py-0.5">
-                  <span className="tabular-nums font-black">{fmt(estimateGrandTotal)}</span>
+                <div className="flex items-center gap-1.5 bg-white/20 rounded-sm px-2.5 py-1">
+                  <span className="tabular-nums font-black text-sm">{fmt(estimateGrandTotal)}</span>
                   <ChevronLeft size={14} className="rotate-180" />
                 </div>
               </button>
