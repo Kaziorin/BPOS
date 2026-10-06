@@ -301,27 +301,8 @@ export default function RestaurantPOSPage() {
   const [tables, setTables] = useState<TableOption[]>([]);
   const [floors, setFloors] = useState<FloorOption[]>([]);
   const [selectedTable, setSelectedTable] = useState<TableOption | null>(null);
-  const [guestCount, setGuestCount] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const c = localStorage.getItem("bpos_restaurant_guest_count");
-        if (c !== null) {
-          const n = parseInt(c, 10);
-          if (n >= 1 && n <= 20) return n;
-        }
-      } catch (_) { }
-    }
-    return 2;
-  });
-  const [waiterName, setWaiterName] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const u = JSON.parse(localStorage.getItem("modernpos_user") || "{}");
-        if (u?.name) return u.name;
-      } catch (_) { }
-    }
-    return "";
-  });
+  const [guestCount, setGuestCount] = useState<number>(1);
+  const [waiterName, setWaiterName] = useState<string>("");
   const [orderType, setOrderType] = useState<"DINE_IN" | "TAKEAWAY" | "DELIVERY">("DINE_IN");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -645,15 +626,11 @@ export default function RestaurantPOSPage() {
             };
           });
           setStaffList(mappedStaff);
-          if (mappedStaff.length > 0 && !waiterName) {
-            setWaiterName(mappedStaff[0].name);
-          }
         } else {
-          // Use current logged-in user identity if available
+          // Use current logged-in user identity as an option in staffList (without auto-assigning)
           const curUser = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("modernpos_user") || "{}") : {};
           if (curUser?.name) {
             setStaffList([{ id: curUser.id || "current-user", name: curUser.name, role: curUser.role || "Cashier", shift: "Active", avatarColor: "bg-orange-100 text-orange-700" }]);
-            setWaiterName(curUser.name);
           }
         }
       } catch (_) { }
@@ -832,14 +809,7 @@ export default function RestaurantPOSPage() {
           }));
           setTables(mappedTables);
           setSelectedTable((prev) => {
-            try {
-              const savedId = typeof window !== "undefined" ? localStorage.getItem("bpos_restaurant_selected_table_id") : null;
-              if (savedId) {
-                const match = mappedTables.find((t) => t.id === savedId);
-                if (match) return match;
-              }
-            } catch (_) { }
-            return prev && mappedTables.some((t) => t.id === prev.id) ? prev : mappedTables[0] || null;
+            return prev && mappedTables.some((t) => t.id === prev.id) ? prev : null;
           });
         } else {
           setTables([]);
@@ -2109,7 +2079,7 @@ export default function RestaurantPOSPage() {
             onClick={() => setShowHoldModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition cursor-pointer"
           >
-            <RotateCcw size={14} /> Recall Draft ({heldOrders.length})
+            <RotateCcw size={14} /> Recall ({heldOrders.length})
           </button>
           <button
             onClick={() => {
@@ -2561,15 +2531,6 @@ export default function RestaurantPOSPage() {
                 <span className="rounded-full bg-white text-orange-600 px-2.5 py-0.5 text-[10px] font-black shadow-sm">
                   {cart.length} {cart.length === 1 ? "Item" : "Items"}
                 </span>
-                {cart.length > 0 && (
-                  <button
-                    onClick={() => setShowClearConfirm(true)}
-                    title="Clear all items"
-                    className="p-1.5 rounded-sm text-white/80 hover:bg-white/20 hover:text-white transition cursor-pointer"
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                )}
               </div>
             </div>
           </div>
@@ -2820,10 +2781,10 @@ export default function RestaurantPOSPage() {
                   type="button"
                   onClick={sendKotToKitchen}
                   disabled={placingOrder}
-                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-sm bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 text-white font-bold text-xs hover:from-emerald-700 hover:via-teal-700 hover:to-emerald-700 transition cursor-pointer shadow-md shadow-emerald-600/25 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-sm bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white font-bold text-xs hover:from-orange-600 hover:via-amber-600 hover:to-orange-600 transition cursor-pointer shadow-md shadow-orange-500/25 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <span className="flex items-center gap-2">
-                    <Flame size={16} className="text-amber-300" />
+                    <Flame size={16} />
                     {placingOrder ? "Placing Order..." : "Place Order"}
                   </span>
                   <div className="flex items-center gap-1.5 bg-white/20 rounded-sm px-2.5 py-1">
@@ -4250,9 +4211,22 @@ export default function RestaurantPOSPage() {
               <p className="text-xs text-gray-400">Choose the staff member responsible for serving this table / order</p>
             </div>
             {waiterName && (
-              <span className="text-xs font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-200">
-                Assigned: {waiterName}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-200">
+                  Assigned: {waiterName}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWaiterName("");
+                    setShowSelectStaffModal(false);
+                    toast.info("Staff unassigned");
+                  }}
+                  className="text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1 rounded-sm cursor-pointer"
+                >
+                  Clear Staff
+                </button>
+              </div>
             )}
           </div>
 
