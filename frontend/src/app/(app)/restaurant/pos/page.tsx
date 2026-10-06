@@ -343,6 +343,8 @@ export default function RestaurantPOSPage() {
   const [targetTransferTableId, setTargetTransferTableId] = useState<string>("");
   const [transferringTable, setTransferringTable] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showSplitModal, setShowSplitModal] = useState(false);
+  const [splitCount, setSplitCount] = useState<number>(2);
   const [showCustomItemModal, setShowCustomItemModal] = useState(false);
   const [customName, setCustomName] = useState("");
   const [customPrice, setCustomPrice] = useState(250);
@@ -2091,7 +2093,13 @@ export default function RestaurantPOSPage() {
             <UtensilsCrossed size={14} className="text-amber-600" /> Active Orders
           </button>
           <button
-            onClick={() => toast.info("Split Bill feature active")}
+            onClick={() => {
+              if (cart.length === 0) {
+                toast.warning("Cart is empty. Add items to split bill!");
+                return;
+              }
+              setShowSplitModal(true);
+            }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-blue-200 bg-blue-50 text-blue-700 text-xs font-bold hover:bg-blue-100 transition cursor-pointer"
           >
             <Split size={14} /> Split
@@ -2110,11 +2118,17 @@ export default function RestaurantPOSPage() {
           </button>
           <button
             onClick={() => {
-              if (cart.length > 0) setShowClearConfirm(true);
+              if (cart.length === 0) {
+                toast.info("Cart is already empty");
+                return;
+              }
+              setCart([]);
+              toast.info("Cart items cleared");
             }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 transition cursor-pointer"
+            title="Clear all items from cart"
           >
-            <Trash2 size={14} /> Clear Order
+            <Trash2 size={14} /> Clear Cart
           </button>
         </div>
       </div>
@@ -2865,64 +2879,154 @@ export default function RestaurantPOSPage() {
         open={showHoldModal}
         onClose={() => setShowHoldModal(false)}
         title="Recall Held Orders"
-        size="md"
+        subtitle="View and recall drafted/held orders back to POS cart with full item breakdown"
+        size="3xl"
+        maxWidth="max-w-4xl"
       >
-        <div className="space-y-3 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
+        <div className="space-y-4 max-h-[580px] overflow-y-auto pr-1 custom-scrollbar">
           {heldOrders.length === 0 ? (
-            <div className="py-12 text-center text-gray-400">
-              <RotateCcw size={48} className="mx-auto mb-3 opacity-20" />
-              <p className="text-sm font-bold capitalize tracking-widest">No held orders found</p>
+            <div className="py-16 text-center text-gray-400">
+              <RotateCcw size={48} className="mx-auto mb-3 opacity-25 text-orange-400" />
+              <p className="text-base font-bold text-gray-700">No Held Orders Found</p>
+              <p className="text-xs text-gray-400 mt-1">Orders placed on hold will appear here with full product details.</p>
             </div>
           ) : (
-            heldOrders.map((h) => (
-              <div
-                key={h.id}
-                className="p-4 rounded-sm border border-slate-100 bg-slate-50/50 flex items-center justify-between group hover:bg-white hover:border-orange-200 transition-all"
-              >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-black text-gray-600 capitalize font-mono tracking-tighter">#{h.id}</span>
-                    <span className="text-[9px] font-black px-2 py-0.5 rounded-sm bg-orange-50 text-orange-700 border border-orange-100 capitalize tracking-widest">Table {h.table?.tableNo || "N/A"}</span>
+            heldOrders.map((h) => {
+              const holdTotal = Array.isArray(h.cart)
+                ? h.cart.reduce((sum: number, it: any) => sum + (Number(it.unitPrice) || 0) * (Number(it.qty) || 1), 0)
+                : 0;
+
+              return (
+                <div
+                  key={h.id}
+                  className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md hover:border-orange-200 transition-all space-y-3"
+                >
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xs font-black text-gray-800 font-mono bg-slate-100 px-2.5 py-1 rounded-md">
+                        #{h.id}
+                      </span>
+                      <span className="text-xs font-black px-2.5 py-1 rounded-md bg-orange-100 text-orange-800 border border-orange-200">
+                        {h.table?.tableNo ? `Table ${h.table.tableNo}` : "Takeaway / Quick Order"}
+                      </span>
+                      {h.guestCount && (
+                        <span className="text-[11px] font-semibold text-slate-500">
+                          Guests: <span className="text-slate-700 font-bold">{h.guestCount}</span>
+                        </span>
+                      )}
+                      {h.waiterName && (
+                        <span className="text-[11px] font-semibold text-slate-500">
+                          Staff: <span className="text-slate-700 font-bold">{h.waiterName}</span>
+                        </span>
+                      )}
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {h.time}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (h.kotId) {
+                            try {
+                              await api.patch(`/v1/restaurant/kot/${h.kotId}/status`, { status: "CANCELLED" });
+                            } catch (e) {
+                              console.warn("Failed to cancel KOT:", e);
+                            }
+                          }
+                          if (h.table) {
+                            setTables((prev) =>
+                              prev.map((x) => (x.id === h.table.id ? { ...x, status: "AVAILABLE" as const } : x))
+                            );
+                            api.patch(`/v1/restaurant/tables/${h.table.id}/status`, { status: "AVAILABLE" }).catch(() => { });
+                          }
+                          setHeldOrders((prev) => prev.filter((o) => o.id !== h.id));
+                          toast.info(`Held order #${h.id} discarded`);
+                        }}
+                        className="px-3 py-1.5 rounded-md border border-rose-200 bg-rose-50 text-rose-600 text-xs font-bold hover:bg-rose-100 hover:text-rose-700 transition cursor-pointer flex items-center gap-1.5"
+                        title="Discard this held order"
+                      >
+                        <Trash2 size={13} /> Discard
+                      </button>
+
+                      <CustomButton
+                        size="sm"
+                        themeColor="orange"
+                        onClick={() => handleRecallOrder(h)}
+                      >
+                        <RotateCcw size={14} className="mr-1" /> Recall to Cart
+                      </CustomButton>
+                    </div>
                   </div>
-                  <p className="text-[10px] font-bold text-slate-400 mt-1 capitalize tracking-tight">
-                    {h.cart.length} items • Waiter: {h.waiterName} • {h.time}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (h.kotId) {
-                        try {
-                          await api.patch(`/v1/restaurant/kot/${h.kotId}/status`, { status: "CANCELLED" });
-                        } catch (e) {
-                          console.warn("Failed to cancel KOT:", e);
-                        }
-                      }
-                      if (h.table) {
-                        setTables((prev) =>
-                          prev.map((x) => (x.id === h.table.id ? { ...x, status: "AVAILABLE" as const } : x))
+
+                  {/* Product Cards with Images & Details */}
+                  {Array.isArray(h.cart) && h.cart.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1">
+                      {h.cart.map((it: any, idx: number) => {
+                        const prod = products.find((p) => p.id === (it.productId || it.id));
+                        const imgSrc = it.image || prod?.image || "";
+                        const itemPrice = Number(it.unitPrice) || prod?.sellingPrice || 0;
+
+                        return (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2.5 p-2 rounded-md bg-slate-50 border border-slate-100"
+                          >
+                            {imgSrc ? (
+                              <img
+                                src={imgSrc}
+                                alt={it.name || "Item"}
+                                className="h-10 w-10 rounded-md object-cover border border-slate-200 shrink-0"
+                              />
+                            ) : (
+                              <div className="h-10 w-10 rounded-md bg-orange-100 border border-orange-200 flex items-center justify-center text-orange-600 shrink-0">
+                                <Utensils size={16} />
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-bold text-gray-800 truncate">
+                                {it.name || "Item"}
+                              </p>
+                              <div className="flex items-center justify-between text-[11px] text-gray-500 mt-0.5">
+                                <span className="font-semibold text-orange-600">
+                                  Qty: {it.qty}
+                                </span>
+                                {itemPrice > 0 && (
+                                  <span className="font-mono text-gray-700">
+                                    {fmt(itemPrice * (Number(it.qty) || 1))}
+                                  </span>
+                                )}
+                              </div>
+                              {it.notes && (
+                                <p className="text-[10px] text-amber-600 italic truncate mt-0.5">
+                                  &quot;{it.notes}&quot;
+                                </p>
+                              )}
+                            </div>
+                          </div>
                         );
-                        api.patch(`/v1/restaurant/tables/${h.table.id}/status`, { status: "AVAILABLE" }).catch(() => { });
-                      }
-                      setHeldOrders((prev) => prev.filter((o) => o.id !== h.id));
-                      toast.info(`Held order #${h.id} discarded & Kitchen Ticket cancelled`);
-                    }}
-                    className="p-1.5 rounded-sm border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 transition cursor-pointer"
-                    title="Discard Order & Cancel KOT"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                  <CustomButton
-                    size="sm"
-                    themeColor="orange"
-                    onClick={() => handleRecallOrder(h)}
-                  >
-                    Recall
-                  </CustomButton>
+                      })}
+                    </div>
+                  )}
+
+                  {/* Footer note & ticket total */}
+                  <div className="flex items-center justify-between pt-2 border-t border-dashed border-slate-200 text-xs text-gray-500">
+                    <div>
+                      <span className="text-slate-500 text-[11px] font-medium">
+                        {h.cart.length} item{h.cart.length === 1 ? "" : "s"} in draft
+                      </span>
+                    </div>
+                    {holdTotal > 0 && (
+                      <div className="flex items-center gap-1.5 font-bold text-gray-800">
+                        <span>Total Est:</span>
+                        <span className="text-orange-600 font-black font-mono text-sm">{fmt(holdTotal)}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </CustomModal>
@@ -4101,6 +4205,101 @@ export default function RestaurantPOSPage() {
                 Done
               </button>
             </div>
+          </div>
+        </div>
+      </CustomModal>
+
+      {/* ══════════════ SPLIT BILL MODAL ══════════════ */}
+      <CustomModal
+        open={showSplitModal}
+        onClose={() => setShowSplitModal(false)}
+        title="Split Bill"
+        subtitle="Divide bill equally among guests or customers"
+        size="lg"
+      >
+        <div className="space-y-4">
+          <div className="p-3 bg-blue-50 rounded-sm border border-blue-200 text-blue-900 text-xs">
+            <div className="flex items-center justify-between font-bold">
+              <span className="flex items-center gap-1.5">
+                <Split size={14} className="text-blue-600" />
+                Total Bill to Split:
+              </span>
+              <span className="text-base text-blue-700 font-black font-mono">
+                {fmt(estimateGrandTotal)}
+              </span>
+            </div>
+            <p className="text-[11px] text-blue-600 mt-1">
+              Select how many ways to split the bill. Each portion can be settled independently.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-2">Number of Ways to Split:</label>
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              {[2, 3, 4, 5, 6].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => setSplitCount(num)}
+                  className={`flex-1 min-w-[70px] py-1.5 rounded-sm border text-xs font-black transition cursor-pointer ${
+                    splitCount === num
+                      ? "bg-blue-600 border-blue-600 text-white shadow-xs"
+                      : "bg-white border-slate-200 text-slate-700 hover:border-blue-300 hover:bg-blue-50"
+                  }`}
+                >
+                  {num} Ways
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-sm p-2">
+              <span className="text-xs font-bold text-slate-600">Custom Ways:</span>
+              <input
+                type="number"
+                min={2}
+                max={50}
+                value={splitCount}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  if (!isNaN(val) && val >= 1) {
+                    setSplitCount(Math.min(50, Math.max(1, val)));
+                  }
+                }}
+                className="w-24 rounded-sm border border-slate-300 bg-white px-2 py-1 text-xs font-black text-gray-800 text-center focus:border-blue-500 focus:outline-none"
+              />
+              <span className="text-xs text-slate-500">(Type any number of ways, e.g. 7, 8, 10, 20)</span>
+            </div>
+          </div>
+
+          {/* Single clean Per-Person summary display */}
+          <div className="p-4 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 text-center space-y-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Per Person Payable</p>
+            <p className="text-3xl font-black text-blue-900 font-mono tracking-tight">
+              {fmt(estimateGrandTotal / Math.max(1, splitCount))}
+            </p>
+            <p className="text-xs text-blue-600 font-medium">
+              Total {fmt(estimateGrandTotal)} ÷ {splitCount} {splitCount === 1 ? "Person" : "Persons"}
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+            <CustomButton
+              type="button"
+              variant="outline"
+              onClick={() => setShowSplitModal(false)}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              themeColor="blue"
+              onClick={() => {
+                setShowSplitModal(false);
+                setShowCheckoutModal(true);
+                toast.success(`Bill split for ${splitCount} persons: ${fmt(estimateGrandTotal / Math.max(1, splitCount))} per person`);
+              }}
+            >
+              Proceed to Pay ({fmt(estimateGrandTotal / Math.max(1, splitCount))} / Person)
+            </CustomButton>
           </div>
         </div>
       </CustomModal>
