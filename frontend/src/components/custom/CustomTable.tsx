@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode, useState, useMemo, isValidElement } from "react";
+import React, { ReactNode, useState, useMemo, useRef, isValidElement } from "react";
 import { type LucideIcon, Inbox, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -25,6 +25,8 @@ export interface CustomTableProps<T> {
   onRowClick?: (row: T) => void;
   pageSize?: number;
   showPagination?: boolean;
+  pageSizeOptions?: number[];
+  dragToScroll?: boolean;
   // Server-side API pagination props
   totalItems?: number;
   currentPage?: number;
@@ -48,6 +50,8 @@ export function CustomTable<T>({
   onRowClick,
   pageSize: initialPageSize = 10,
   showPagination = true,
+  pageSizeOptions,
+  dragToScroll = true,
   totalItems: serverTotalItems,
   currentPage: serverCurrentPage,
   onPageChange,
@@ -79,7 +83,76 @@ export function CustomTable<T>({
 
   const isServerPaginated = typeof serverTotalItems === "number" && !!onPageChange;
   const activePage = isServerPaginated ? (serverCurrentPage ?? 1) : localPage;
-  const activePageSize = isServerPaginated ? initialPageSize : localPageSize;
+  const activePageSize = isServerPaginated ? (initialPageSize || 10) : localPageSize;
+
+  // Compute page size dropdown options dynamically
+  const availablePageSizes = useMemo(() => {
+    const base = pageSizeOptions && pageSizeOptions.length > 0 
+      ? [...pageSizeOptions] 
+      : [5, 10, 20, 25, 50, 100];
+    if (activePageSize && !base.includes(activePageSize)) {
+      base.push(activePageSize);
+      base.sort((a, b) => a - b);
+    }
+    return Array.from(new Set(base));
+  }, [pageSizeOptions, activePageSize]);
+
+  // Drag to scroll state & handlers
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const dragDistanceRef = useRef(0);
+  const [isDraggingState, setIsDraggingState] = useState(false);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!dragToScroll || !scrollContainerRef.current) return;
+    // Don't drag if user clicked directly on interactive elements like inputs, selects, or buttons with specific actions
+    const target = e.target as HTMLElement | null;
+    if (target?.closest("button, a, input, select, textarea, [data-prevent-drag]")) {
+      return;
+    }
+    // Only primary mouse button (left-click)
+    if (e.button !== 0) return;
+
+    isDraggingRef.current = true;
+    startXRef.current = e.pageX - scrollContainerRef.current.offsetLeft;
+    scrollLeftRef.current = scrollContainerRef.current.scrollLeft;
+    dragDistanceRef.current = 0;
+    setIsDraggingState(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || !scrollContainerRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startXRef.current) * 1.25; // 1.25x scroll speed multiplier
+    dragDistanceRef.current += Math.abs(x - startXRef.current);
+    scrollContainerRef.current.scrollLeft = scrollLeftRef.current - walk;
+  };
+
+  const handleMouseUp = () => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      setIsDraggingState(false);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      setIsDraggingState(false);
+    }
+  };
+
+  const handleClickCapture = (e: React.MouseEvent) => {
+    // If the mouse dragged more than 6 pixels, cancel accidental click triggers on children
+    if (dragDistanceRef.current > 6) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    dragDistanceRef.current = 0;
+  };
 
   const rawRows: T[] = Array.isArray(data)
     ? data
@@ -239,7 +312,7 @@ export function CustomTable<T>({
           onChange={(e) => handleSizeChange(Number(e.target.value))}
           className="rounded-sm border border-brand-border bg-white px-2 py-1 text-xs font-semibold text-slate-600 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 focus:outline-none shadow-2xs cursor-pointer"
         >
-          {[5, 10, 25, 50].map((s) => (
+          {availablePageSizes.map((s) => (
             <option key={s} value={s}>
               {s} per page
             </option>
@@ -290,6 +363,20 @@ export function CustomTable<T>({
       </div>
     </div>
   ) : null;
+
+  const scrollWrapperClasses = cn(
+    "overflow-x-auto select-none",
+    dragToScroll && (isDraggingState ? "cursor-grabbing" : "cursor-grab")
+  );
+
+  const scrollWrapperProps = {
+    ref: scrollContainerRef,
+    onMouseDown: handleMouseDown,
+    onMouseMove: handleMouseMove,
+    onMouseUp: handleMouseUp,
+    onMouseLeave: handleMouseLeave,
+    onClickCapture: handleClickCapture,
+  };
 
   const tableNode = (
     <table className="w-full text-sm border-collapse">
@@ -414,7 +501,9 @@ export function CustomTable<T>({
             <p className="text-xs font-medium text-slate-500">{emptyMessage}</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">{tableNode}</div>
+          <div className={scrollWrapperClasses} {...scrollWrapperProps}>
+            {tableNode}
+          </div>
         )}
         {paginationNode}
       </div>
@@ -423,7 +512,7 @@ export function CustomTable<T>({
 
   return (
     <div className="w-full flex flex-col rounded-sm overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className={scrollWrapperClasses} {...scrollWrapperProps}>
         {tableNode}
       </div>
       {paginationNode}
