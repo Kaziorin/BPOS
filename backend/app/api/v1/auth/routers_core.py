@@ -468,9 +468,9 @@ async def dashboard_summary(
         ).fetchall()
     )
 
-    today_total = float(today_sales[1] or 0) if (today_sales and today_sales[0] > 0) else float(all_sales[1] or 0)
-    today_count = int(today_sales[0] or 0) if (today_sales and today_sales[0] > 0) else int(all_sales[0] or 0)
-    total_due = float(dues[0] or 0)
+    today_total = float(today_sales[1] or 0) if today_sales else 0.0
+    today_count = int(today_sales[0] or 0) if today_sales else 0
+    total_due = float(dues[0] or 0) if dues else 0.0
 
     return ok(
         {
