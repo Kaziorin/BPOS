@@ -609,7 +609,7 @@ async def kds_feed(
     except Exception as e:
         return err(str(e), 403)
 
-    where = "k.tenantId = :t AND k.status IN ('NEW','ACCEPTED','PREPARING','READY','SERVED')"
+    where = "k.tenantId = :t AND k.status IN ('NEW','ACCEPTED','PREPARING','READY','SERVED','CANCELLED')"
     params: dict = {"t": tenantId}
     if branchId:
         where += " AND k.branchId = :b"

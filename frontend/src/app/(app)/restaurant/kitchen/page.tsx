@@ -152,7 +152,7 @@ export default function KitchenManagementPage() {
             orderType: t.orderType === "TAKEAWAY" ? "Takeaway" : t.orderType === "DELIVERY" ? "Delivery" : "Dine-in",
             timePlaced: formattedTimePlaced,
             station: t.station || "KITCHEN",
-            status: t.status === "SERVED" ? "SERVED" : t.status === "READY" || t.status === "READY_TO_SERVE" ? "READY" : t.status === "PREPARING" || t.status === "COOKING" || t.status === "PLATING" || t.status === "ACCEPTED" ? "PREPARING" : "QUEUED",
+            status: t.status === "CANCELLED" ? "CANCELLED" : t.status === "SERVED" ? "SERVED" : t.status === "READY" || t.status === "READY_TO_SERVE" ? "READY" : t.status === "PREPARING" || t.status === "COOKING" || t.status === "PLATING" || t.status === "ACCEPTED" ? "PREPARING" : "QUEUED",
             chefRole: t.chefRole || "Head chef",
             customerName: t.customerName,
             notes: t.notes || "",
@@ -817,22 +817,19 @@ export default function KitchenManagementPage() {
                         ))}
                       </div>
 
-                      {/* Action Buttons: Start Preparing & Cancel Order */}
-                      <div className="flex items-center gap-2 pt-1">
-                        <button
-                          onClick={() => moveTicketStatus(t.id, "CANCELLED" as any)}
-                          className="flex-1 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 py-2.5 text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer"
-                          title="Cancel this KOT order"
-                        >
-                          <Ban size={13} /> Cancel
-                        </button>
+                      {/* Action Button: Start Preparing */}
+                      {(t.status as any) === "CANCELLED" ? (
+                        <div className="w-full rounded-full bg-rose-100 border border-rose-300 text-rose-700 py-2 text-xs font-bold flex items-center justify-center gap-1.5">
+                          <Ban size={14} /> Order Cancelled by Cashier
+                        </div>
+                      ) : (
                         <button
                           onClick={() => moveTicketStatus(t.id, "PREPARING")}
-                          className="flex-[2] rounded-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 text-xs font-black tracking-wide shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
+                          className="w-full rounded-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 text-xs font-black tracking-wide shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           Start Preparing
                         </button>
-                      </div>
+                      )}
                     </div>
                   );
                 })}

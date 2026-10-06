@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Utensils,
+  UtensilsCrossed,
   ChefHat,
   Search,
   Plus,
@@ -364,7 +365,29 @@ export default function RestaurantPOSPage() {
   const [showCustomItemModal, setShowCustomItemModal] = useState(false);
   const [customName, setCustomName] = useState("");
   const [customPrice, setCustomPrice] = useState(250);
-  const [heldOrders, setHeldOrders] = useState<any[]>([]);
+  const [heldOrders, setHeldOrders] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("bpos_restaurant_held_orders");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (_) { }
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("bpos_restaurant_held_orders", JSON.stringify(heldOrders));
+      } catch (_) { }
+    }
+  }, [heldOrders]);
+  const [showActiveOrdersModal, setShowActiveOrdersModal] = useState(false);
+  const [activeKots, setActiveKots] = useState<any[]>([]);
+  const [loadingActiveKots, setLoadingActiveKots] = useState(false);
   const [completedBill, setCompletedBill] = useState<any | null>(null);
   const [showShiftDetailsModal, setShowShiftDetailsModal] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -1328,18 +1351,8 @@ export default function RestaurantPOSPage() {
     },
   });
 
-  const handleHoldOrder = async () => {
+  const handleHoldOrder = () => {
     if (cart.length === 0) return;
-    
-    // Auto-fire KOT to kitchen for any pending kitchen items so the kitchen starts cooking
-    let currentKotId = activeKotId;
-    const unsentKitchenItems = cart.filter(
-      (item) => item.isKitchenProduct !== false && item.kotStatus !== "SENT_TO_KITCHEN"
-    );
-    if (unsentKitchenItems.length > 0) {
-      const newKid = await sendKotToKitchen();
-      if (newKid) currentKotId = newKid;
-    }
 
     setHeldOrders((prev) => [
       ...prev,
@@ -1348,16 +1361,14 @@ export default function RestaurantPOSPage() {
         table: selectedTable,
         guestCount,
         waiterName,
-        kotId: currentKotId,
-        cart: cart.map((item) =>
-          item.isKitchenProduct !== false ? { ...item, kotStatus: "SENT_TO_KITCHEN" } : item
-        ),
+        kotId: activeKotId || null,
+        cart: [...cart],
         time: new Date().toLocaleTimeString(),
       },
     ]);
     setCart([]);
     setActiveKotId(null);
-    toast.info(`Order for Table ${selectedTable?.tableNo || "N/A"} saved & sent to kitchen!`);
+    toast.info(`Order for Table ${selectedTable?.tableNo || "N/A"} held as draft!`);
   };
 
   const handleRecallOrder = (heldOrder: any) => {
@@ -1371,15 +1382,22 @@ export default function RestaurantPOSPage() {
     toast.success(`Recalled order ${heldOrder.id}!`);
   };
 
+  const [placingOrder, setPlacingOrder] = useState(false);
+
   const sendKotToKitchen = async () => {
-    if (cart.length === 0) return;
+    if (cart.length === 0) return null;
     const kitchenItems = cart.filter((item) => item.isKitchenProduct !== false);
     if (kitchenItems.length === 0) {
       toast.info("All items in cart are ready-to-serve (No kitchen KOT needed)");
-      return;
+      // Mark all items as sent so checkout can proceed
+      setCart((prev) =>
+        prev.map((item) => ({ ...item, kotStatus: "SENT_TO_KITCHEN" }))
+      );
+      return "NO_KITCHEN_NEEDED";
     }
 
     try {
+      setPlacingOrder(true);
       const payload = {
         tableId: selectedTable?.id || null,
         orderType: orderType ? orderType.toUpperCase().replace("-", "_") : "DINE_IN",
@@ -1404,22 +1422,93 @@ export default function RestaurantPOSPage() {
       }
 
       setCart((prev) =>
-        prev.map((item) =>
-          item.isKitchenProduct !== false
-            ? { ...item, kotStatus: "SENT_TO_KITCHEN" }
-            : item
-        )
+        prev.map((item) => ({ ...item, kotStatus: "SENT_TO_KITCHEN" }))
       );
       setOrderNote("");
       toast.success(
-        `KOT Ticket sent (${kitchenItems.length} kitchen items) to Kitchen for Table ${selectedTable?.tableNo || "N/A"}!`
+        `Order placed & KOT sent (${kitchenItems.length} items) to Kitchen for Table ${selectedTable?.tableNo || "N/A"}!`
       );
       return createdKotId;
     } catch (err: any) {
       console.error("Failed to send KOT:", err);
       toast.error(err?.response?.data?.message || err?.message || "Failed to send KOT to kitchen");
       return null;
+    } finally {
+      setPlacingOrder(false);
     }
+  };
+
+  const fetchActiveKots = async () => {
+    try {
+      setLoadingActiveKots(true);
+      const res: any = await api.get("/api/v1/restaurant/kot");
+      const list = res?.data?.data || res?.data || (Array.isArray(res) ? res : []);
+      // Filter active non-served, non-cancelled KOTs
+      const running = Array.isArray(list)
+        ? list.filter((k: any) => k.status !== "SERVED" && k.status !== "CANCELLED")
+        : [];
+      setActiveKots(running);
+    } catch (err: any) {
+      console.warn("Failed to fetch active KOTs:", err);
+    } finally {
+      setLoadingActiveKots(false);
+    }
+  };
+
+  const handleCancelActiveKot = async (kot: any) => {
+    // Validation: queued / new orders can be cancelled, preparing or ready orders CANNOT be cancelled!
+    const st = (kot.status || "").toUpperCase();
+    if (st === "PREPARING" || st === "READY") {
+      toast.error("Cannot cancel! Chef has already started preparing / cooking this order.");
+      return;
+    }
+
+    try {
+      await api.patch(`/api/v1/restaurant/kot/${kot.id}/status`, { status: "CANCELLED" });
+      toast.success(`KOT #${kot.kotNo || kot.id.slice(-4)} cancelled successfully`);
+      setActiveKots((prev) => prev.filter((k) => k.id !== kot.id));
+      if (activeKotId === kot.id) {
+        setActiveKotId(null);
+      }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err?.message || "Failed to cancel KOT");
+    }
+  };
+
+  const handleRecallActiveKotToCart = (kot: any) => {
+    // If table matches, select it
+    if (kot.tableId) {
+      const tbl = tables.find((t) => t.id === kot.tableId);
+      if (tbl) setSelectedTable(tbl);
+    }
+    if (kot.waiterName) {
+      setWaiterName(kot.waiterName);
+    }
+    setActiveKotId(kot.id);
+
+    // Reconstruct cart items from KOT items
+    if (Array.isArray(kot.items) && kot.items.length > 0) {
+      const recalledItems: RestaurantCartItem[] = kot.items.map((it: any) => {
+        const prod = products.find((p) => p.id === it.productId);
+        const unitPrice = prod?.sellingPrice || 100;
+        return {
+          id: it.productId || `item-${Date.now()}-${Math.random()}`,
+          name: it.name || prod?.name || "Ordered Item",
+          unitPrice: unitPrice,
+          qty: it.qty || 1,
+          isKitchenProduct: true,
+          kotStatus: "SENT_TO_KITCHEN",
+          notes: it.notes || "",
+          modifiers: it.modifiers || [],
+          image: prod?.image || "",
+          taxRate: prod?.taxRate || 0,
+          taxMethod: prod?.taxMethod || "Exclusive",
+        };
+      });
+      setCart(recalledItems);
+    }
+    setShowActiveOrdersModal(false);
+    toast.success(`Active KOT #${kot.kotNo || kot.id.slice(-4)} loaded into Cart for Checkout!`);
   };
 
   const rawSubtotal = cart.reduce((acc, i) => acc + i.qty * i.unitPrice, 0);
@@ -2020,7 +2109,16 @@ export default function RestaurantPOSPage() {
             onClick={() => setShowHoldModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition cursor-pointer"
           >
-            <RotateCcw size={14} /> Recall ({heldOrders.length})
+            <RotateCcw size={14} /> Recall Draft ({heldOrders.length})
+          </button>
+          <button
+            onClick={() => {
+              fetchActiveKots();
+              setShowActiveOrdersModal(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition cursor-pointer shadow-2xs"
+          >
+            <UtensilsCrossed size={14} className="text-amber-600" /> Active Orders
           </button>
           <button
             onClick={() => toast.info("Split Bill feature active")}
@@ -2717,19 +2815,38 @@ export default function RestaurantPOSPage() {
             </div>
 
             <div className="space-y-2 pt-1">
-              <button
-                onClick={handleOpenCheckoutModal}
-                disabled={cart.length === 0}
-                className="w-full flex items-center justify-between px-4 py-3.5 rounded-sm bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white font-bold text-xs hover:from-orange-600 hover:via-amber-600 hover:to-orange-600 transition cursor-pointer shadow-md shadow-orange-500/25 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <span className="flex items-center gap-2">
-                  <ShoppingBag size={16} /> Checkout
-                </span>
-                <div className="flex items-center gap-1.5 bg-white/20 rounded-sm px-2.5 py-1">
-                  <span className="tabular-nums font-black text-sm">{fmt(estimateGrandTotal)}</span>
-                  <ChevronLeft size={14} className="rotate-180" />
-                </div>
-              </button>
+              {cart.length > 0 && cart.some((i) => i.isKitchenProduct !== false && i.kotStatus !== "SENT_TO_KITCHEN") ? (
+                <button
+                  type="button"
+                  onClick={sendKotToKitchen}
+                  disabled={placingOrder}
+                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-sm bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 text-white font-bold text-xs hover:from-emerald-700 hover:via-teal-700 hover:to-emerald-700 transition cursor-pointer shadow-md shadow-emerald-600/25 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <span className="flex items-center gap-2">
+                    <Flame size={16} className="text-amber-300" />
+                    {placingOrder ? "Placing Order..." : "Place Order"}
+                  </span>
+                  <div className="flex items-center gap-1.5 bg-white/20 rounded-sm px-2.5 py-1">
+                    <span className="tabular-nums font-black text-sm">{fmt(estimateGrandTotal)}</span>
+                    <ChevronLeft size={14} className="rotate-180" />
+                  </div>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleOpenCheckoutModal}
+                  disabled={cart.length === 0}
+                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-sm bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white font-bold text-xs hover:from-orange-600 hover:via-amber-600 hover:to-orange-600 transition cursor-pointer shadow-md shadow-orange-500/25 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <span className="flex items-center gap-2">
+                    <ShoppingBag size={16} /> Checkout
+                  </span>
+                  <div className="flex items-center gap-1.5 bg-white/20 rounded-sm px-2.5 py-1">
+                    <span className="tabular-nums font-black text-sm">{fmt(estimateGrandTotal)}</span>
+                    <ChevronLeft size={14} className="rotate-180" />
+                  </div>
+                </button>
+              )}
             </div>
           </div>
         </aside>
@@ -2845,6 +2962,177 @@ export default function RestaurantPOSPage() {
                 </div>
               </div>
             ))
+          )}
+        </div>
+      </CustomModal>
+
+      {/* ── Active Running KOT Orders Modal ── */}
+      {/* ── Active Running Orders Modal ── */}
+      <CustomModal
+        open={showActiveOrdersModal}
+        onClose={() => setShowActiveOrdersModal(false)}
+        title="Active Orders"
+        subtitle="View and manage running kitchen orders, recall them to cart for payment or cancel queued tickets."
+        size="3xl"
+        maxWidth="max-w-4xl"
+      >
+        <div className="space-y-4 max-h-[580px] overflow-y-auto pr-1 custom-scrollbar">
+          {loadingActiveKots ? (
+            <div className="py-16 text-center text-gray-400">
+              <RotateCcw className="animate-spin mx-auto mb-3 text-orange-500" size={28} />
+              <p className="text-sm font-bold text-gray-600">Loading active orders...</p>
+            </div>
+          ) : activeKots.length === 0 ? (
+            <div className="py-16 text-center text-gray-400">
+              <UtensilsCrossed size={48} className="mx-auto mb-3 opacity-25 text-orange-400" />
+              <p className="text-base font-bold text-gray-700">No Active Orders</p>
+              <p className="text-xs text-gray-400 mt-1">Orders sent to kitchen will appear here until checkout.</p>
+            </div>
+          ) : (
+            activeKots.map((k) => {
+              const status = (k.status || "NEW").toUpperCase();
+              const isQueued = status === "NEW" || status === "QUEUED" || status === "ACCEPTED";
+              const isPreparing = status === "PREPARING";
+              const isReady = status === "READY";
+
+              // Calculate total amount for this ticket
+              const ticketTotal = Array.isArray(k.items)
+                ? k.items.reduce((sum: number, it: any) => {
+                    const prod = products.find((p) => p.id === it.productId);
+                    const price = prod?.sellingPrice || 0;
+                    return sum + price * (Number(it.qty) || 1);
+                  }, 0)
+                : 0;
+
+              return (
+                <div
+                  key={k.id}
+                  className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md hover:border-orange-200 transition-all space-y-3"
+                >
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xs font-black text-gray-800 font-mono bg-slate-100 px-2.5 py-1 rounded-md">
+                        #{k.kotNo || k.id.slice(-5)}
+                      </span>
+                      <span className="text-xs font-black px-2.5 py-1 rounded-md bg-orange-100 text-orange-800 border border-orange-200">
+                        {k.tableNo ? `Table ${k.tableNo}` : "Takeaway / Quick Order"}
+                      </span>
+                      {k.waiterName && (
+                        <span className="text-[11px] font-semibold text-slate-500">
+                          Waiter: <span className="text-slate-700 font-bold">{k.waiterName}</span>
+                        </span>
+                      )}
+                      <span
+                        className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                          isQueued
+                            ? "bg-amber-100 text-amber-800 border border-amber-200"
+                            : isPreparing
+                            ? "bg-blue-100 text-blue-800 border border-blue-200 animate-pulse"
+                            : isReady
+                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                            : "bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        {status === "NEW" || status === "ACCEPTED" ? "QUEUED" : status}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {isQueued ? (
+                        <button
+                          type="button"
+                          onClick={() => handleCancelActiveKot(k)}
+                          className="px-3 py-1.5 rounded-md border border-rose-200 bg-rose-50 text-rose-600 text-xs font-bold hover:bg-rose-100 hover:text-rose-700 transition cursor-pointer flex items-center gap-1.5"
+                          title="Cancel Order (Allowed in Queued state)"
+                        >
+                          <Trash2 size={13} /> Cancel Order
+                        </button>
+                      ) : (
+                        <span
+                          className="px-2.5 py-1.5 rounded-md bg-slate-100 text-slate-400 text-[11px] font-bold border border-slate-200 cursor-not-allowed"
+                          title="Cannot cancel: Chef already started cooking!"
+                        >
+                          Cannot Cancel ({status})
+                        </span>
+                      )}
+
+                      <CustomButton
+                        size="sm"
+                        themeColor="orange"
+                        onClick={() => handleRecallActiveKotToCart(k)}
+                      >
+                        <ShoppingBag size={14} className="mr-1" /> Recall to Cart
+                      </CustomButton>
+                    </div>
+                  </div>
+
+                  {/* Items with product thumbnail photos */}
+                  {Array.isArray(k.items) && k.items.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1">
+                      {k.items.map((it: any, idx: number) => {
+                        const prod = products.find((p) => p.id === it.productId);
+                        const imgSrc = prod?.image || "";
+                        const itemPrice = prod?.sellingPrice || 0;
+
+                        return (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2.5 p-2 rounded-md bg-slate-50 border border-slate-100"
+                          >
+                            {imgSrc ? (
+                              <img
+                                src={imgSrc}
+                                alt={it.name || "Item"}
+                                className="h-10 w-10 rounded-md object-cover border border-slate-200 shrink-0"
+                              />
+                            ) : (
+                              <div className="h-10 w-10 rounded-md bg-orange-100 border border-orange-200 flex items-center justify-center text-orange-600 shrink-0">
+                                <Utensils size={16} />
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-bold text-gray-800 truncate">
+                                {it.name || prod?.name || "Item"}
+                              </p>
+                              <div className="flex items-center justify-between text-[11px] text-gray-500 mt-0.5">
+                                <span className="font-semibold text-orange-600">
+                                  Qty: {it.qty}
+                                </span>
+                                {itemPrice > 0 && (
+                                  <span className="font-mono text-gray-700">
+                                    {fmt(itemPrice * (Number(it.qty) || 1))}
+                                  </span>
+                                )}
+                              </div>
+                              {it.notes && (
+                                <p className="text-[10px] text-amber-600 italic truncate mt-0.5">
+                                  &quot;{it.notes}&quot;
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Footer note & ticket total */}
+                  <div className="flex items-center justify-between pt-2 border-t border-dashed border-slate-200 text-xs text-gray-500">
+                    <div>
+                      {k.notes && (
+                        <span className="italic text-slate-500 text-[11px]">Note: {k.notes}</span>
+                      )}
+                    </div>
+                    {ticketTotal > 0 && (
+                      <div className="flex items-center gap-1.5 font-bold text-gray-800">
+                        <span>Total Est:</span>
+                        <span className="text-orange-600 font-black font-mono text-sm">{fmt(ticketTotal)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
           )}
         </div>
       </CustomModal>
