@@ -583,15 +583,21 @@ export default function RestaurantPOSPage() {
             "bg-purple-100 text-purple-700",
             "bg-rose-100 text-rose-700",
           ];
-          setStaffList(
-            empData.map((e: any, idx: number) => ({
+          const mappedStaff = empData.map((e: any, idx: number) => {
+            const desName = typeof e.designation === "object" ? e.designation?.name : (e.designation || e.designationName || e.role || "Waiter");
+            const fullName = e.name || e.fullName || `${e.firstName || ""} ${e.lastName || ""}`.trim() || `Staff ${idx + 1}`;
+            return {
               id: String(e.id || idx),
-              name: e.name || e.fullName || `${e.firstName || ""} ${e.lastName || ""}`.trim() || `Staff ${idx + 1}`,
-              role: e.designation || e.role || "Waiter",
+              name: fullName,
+              role: desName,
               shift: e.shift || "Active",
               avatarColor: COLORS[idx % COLORS.length],
-            }))
-          );
+            };
+          });
+          setStaffList(mappedStaff);
+          if (mappedStaff.length > 0 && !waiterName) {
+            setWaiterName(mappedStaff[0].name);
+          }
         } else {
           // Use current logged-in user identity if available
           const curUser = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("modernpos_user") || "{}") : {};

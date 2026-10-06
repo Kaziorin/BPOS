@@ -574,131 +574,132 @@ export default function KitchenManagementPage() {
       </header>
 
       {/* ── 2. MAIN CONTENT AREA ───────────────────────── */}
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-4 sm:p-6 pb-32">
-        <div className="max-w-[1800px] mx-auto space-y-6 pb-16">
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden p-3 sm:p-4">
+        <div className="w-full h-full min-h-0 flex-1 flex flex-col overflow-hidden">
         {viewMode === "OPERATOR" && (
-          <div className="space-y-6">
+          <div className="w-full h-full min-h-0 flex-1 flex flex-col overflow-hidden gap-3">
             {/* KPI SCORECARDS ROW (MATCHING SCREENSHOT) */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Card 1: New Orders */}
-          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-slate-200 bg-white px-4 py-2.5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
-              <p className="text-xs font-bold text-slate-500">New Orders</p>
-              <h3 className="text-3xl font-black text-gray-600 mt-1">{newOrdersCount.toString().padStart(2, "0")}</h3>
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">New Orders</p>
+              <h3 className="text-2xl font-black text-gray-700 mt-0.5">{newOrdersCount.toString().padStart(2, "0")}</h3>
             </div>
-            <div className="rounded-sm bg-orange-50 p-3 text-orange-500 border border-orange-100">
-              <FileText size={22} />
+            <div className="rounded-sm bg-orange-50 p-2 text-orange-500 border border-orange-100">
+              <FileText size={18} />
             </div>
           </div>
 
           {/* Card 2: Preparing */}
-          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-slate-200 bg-white px-4 py-2.5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
-              <p className="text-xs font-bold text-slate-500">Preparing</p>
-              <h3 className="text-3xl font-black text-gray-600 mt-1">{preparingCount.toString().padStart(2, "0")}</h3>
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Preparing</p>
+              <h3 className="text-2xl font-black text-gray-700 mt-0.5">{preparingCount.toString().padStart(2, "0")}</h3>
             </div>
-            <div className="rounded-sm bg-amber-50 p-3 text-amber-500 border border-amber-100">
-              <Flame size={22} />
+            <div className="rounded-sm bg-amber-50 p-2 text-amber-500 border border-amber-100">
+              <Flame size={18} />
             </div>
           </div>
 
           {/* Card 3: Completed Orders */}
-          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-slate-200 bg-white px-4 py-2.5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
-              <p className="text-xs font-bold text-slate-500">Completed Orders</p>
-              <h3 className="text-3xl font-black text-gray-600 mt-1">{completedCount.toString().padStart(2, "0")}</h3>
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Completed Orders</p>
+              <h3 className="text-2xl font-black text-gray-700 mt-0.5">{completedCount.toString().padStart(2, "0")}</h3>
             </div>
-            <div className="rounded-sm bg-emerald-50 p-3 text-emerald-500 border border-emerald-100">
-              <CheckCircle2 size={22} />
+            <div className="rounded-sm bg-emerald-50 p-2 text-emerald-500 border border-emerald-100">
+              <CheckCircle2 size={18} />
             </div>
           </div>
 
           {/* Card 4: Cancelled Orders */}
-          <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between transition hover:shadow-md">
+          <div className="rounded-sm border border-slate-200 bg-white px-4 py-2.5 shadow-xs flex items-center justify-between transition hover:shadow-md">
             <div>
-              <p className="text-xs font-bold text-slate-500">Cancelled Orders</p>
-              <h3 className="text-3xl font-black text-gray-600 mt-1">{cancelledCount.toString().padStart(2, "0")}</h3>
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cancelled Orders</p>
+              <h3 className="text-2xl font-black text-gray-700 mt-0.5">{cancelledCount.toString().padStart(2, "0")}</h3>
             </div>
-            <div className="rounded-sm bg-rose-50 p-3 text-rose-500 border border-rose-100">
-              <Ban size={22} />
+            <div className="rounded-sm bg-rose-50 p-2 text-rose-500 border border-rose-100">
+              <Ban size={18} />
             </div>
           </div>
         </div>
 
         {/* ── 3. FILTER PILLS BAR (MATCHING SCREENSHOT) ────────────────────────── */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <div className="shrink-0 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
             <button
               onClick={() => setActiveFilterPill("ALL")}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "ALL"
-                  ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white border-orange-500 shadow-md shadow-orange-500/20"
+                  ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white border-orange-500 shadow-sm"
                   : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              <UtensilsCrossed size={14} />
+              <UtensilsCrossed size={13} />
               <span>All Orders</span>
             </button>
 
             <button
               onClick={() => setActiveFilterPill("QUEUED")}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "QUEUED"
-                  ? "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-600/20"
+                  ? "bg-purple-600 text-white border-purple-600 shadow-sm"
                   : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              <FileText size={14} className="text-purple-600" />
+              <FileText size={13} className="text-purple-600" />
               <span>Queued ({queuedColumnTickets.length})</span>
             </button>
 
             <button
               onClick={() => setActiveFilterPill("PREPARING")}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "PREPARING"
-                  ? "bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/20"
+                  ? "bg-amber-500 text-white border-amber-500 shadow-sm"
                   : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              <Flame size={14} className="text-amber-600" />
+              <Flame size={13} className="text-amber-600" />
               <span>Preparing ({preparingColumnTickets.length})</span>
             </button>
 
             <button
               onClick={() => setActiveFilterPill("READY")}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "READY"
-                  ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20"
+                  ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
                   : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              <Bell size={14} className="text-emerald-600" />
+              <Bell size={13} className="text-emerald-600" />
               <span>Ready ({readyColumnTickets.length})</span>
             </button>
 
             <button
               onClick={() => setActiveFilterPill("SERVED")}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition border ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition border ${
                 activeFilterPill === "SERVED"
-                  ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
+                  ? "bg-blue-600 text-white border-blue-600 shadow-sm"
                   : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              <BadgeCheck size={14} className="text-blue-600" />
+              <BadgeCheck size={13} className="text-blue-600" />
               <span>Served ({servedColumnTickets.length})</span>
             </button>
           </div>
         </div>
 
             {/* ── 4. OPERATOR VIEW: 4-COLUMN KANBAN BOARD ─────────────────────────── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+            <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden custom-scrollbar">
+              <div className="w-full h-full min-h-0 min-w-[1020px] grid grid-cols-4 gap-3.5 items-stretch">
             
             {/* 🟣 COLUMN 1: QUEUED */}
-            <div className="flex flex-col rounded-sm bg-[#efedf8] border border-purple-200/80 overflow-hidden shadow-xs">
+            <div className="h-full min-h-0 flex flex-col rounded-sm bg-[#efedf8] border border-purple-200/80 overflow-hidden shadow-xs">
               {/* Header */}
-              <div className="bg-[#701a75] px-5 py-3.5 text-white flex items-center justify-between">
+              <div className="shrink-0 bg-[#701a75] px-4 py-2.5 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-sm">
-                  <FileText size={18} />
+                  <FileText size={17} />
                   <span>Queued</span>
                 </div>
                 <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-black">
@@ -707,7 +708,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 pb-8">
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 space-y-3 pb-28">
                 {queuedColumnTickets.map((t) => {
                   const elapsedMins = getElapsedMins(t.createdAt);
                   return (
@@ -815,7 +816,7 @@ export default function KitchenManagementPage() {
                 })}
 
                 {queuedColumnTickets.length === 0 && (
-                  <div className="py-16 text-center text-slate-400 text-xs font-semibold">
+                  <div className="py-12 text-center text-slate-400 text-xs font-semibold">
                     No queued orders in line
                   </div>
                 )}
@@ -823,11 +824,11 @@ export default function KitchenManagementPage() {
             </div>
 
             {/* 🟠 COLUMN 2: PREPARING */}
-            <div className="flex flex-col rounded-sm bg-[#fff5ea] border border-orange-200/80 overflow-hidden shadow-xs">
+            <div className="h-full min-h-0 flex flex-col rounded-sm bg-[#fff5ea] border border-orange-200/80 overflow-hidden shadow-xs">
               {/* Header */}
-              <div className="bg-[#ea580c] px-5 py-3.5 text-white flex items-center justify-between">
+              <div className="shrink-0 bg-[#ea580c] px-4 py-2.5 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-sm">
-                  <Flame size={18} />
+                  <Flame size={17} />
                   <span>Preparing</span>
                 </div>
                 <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-black">
@@ -836,7 +837,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 pb-8">
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 space-y-3 pb-28">
                 {preparingColumnTickets.map((t) => {
                   const elapsedMins = getElapsedMins(t.createdAt);
                   const completedItems = t.items.filter((i) => i.completed).length;
@@ -991,7 +992,7 @@ export default function KitchenManagementPage() {
                 })}
 
                 {preparingColumnTickets.length === 0 && (
-                  <div className="py-16 text-center text-slate-400 text-xs font-semibold">
+                  <div className="py-12 text-center text-slate-400 text-xs font-semibold">
                     No orders currently preparing
                   </div>
                 )}
@@ -999,11 +1000,11 @@ export default function KitchenManagementPage() {
             </div>
 
             {/* 🟢 COLUMN 3: READY */}
-            <div className="flex flex-col rounded-sm bg-[#ecfdf5] border border-emerald-200/80 overflow-hidden shadow-xs">
+            <div className="h-full min-h-0 flex flex-col rounded-sm bg-[#ecfdf5] border border-emerald-200/80 overflow-hidden shadow-xs">
               {/* Header */}
-              <div className="bg-[#16a34a] px-5 py-3.5 text-white flex items-center justify-between">
+              <div className="shrink-0 bg-[#16a34a] px-4 py-2.5 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-sm">
-                  <Bell size={18} />
+                  <Bell size={17} />
                   <span>Ready</span>
                 </div>
                 <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-black">
@@ -1012,7 +1013,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 pb-8">
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 space-y-3 pb-28">
                 {readyColumnTickets.map((t) => (
                   <div
                     key={t.id}
@@ -1113,7 +1114,7 @@ export default function KitchenManagementPage() {
                 ))}
 
                 {readyColumnTickets.length === 0 && (
-                  <div className="py-16 text-center text-slate-400 text-xs font-semibold">
+                  <div className="py-12 text-center text-slate-400 text-xs font-semibold">
                     No orders ready to serve yet
                   </div>
                 )}
@@ -1121,11 +1122,11 @@ export default function KitchenManagementPage() {
             </div>
 
             {/* 🔵 COLUMN 4: SERVED */}
-            <div className="flex flex-col rounded-sm bg-[#edf4ff] border border-blue-200/80 overflow-hidden shadow-xs">
+            <div className="h-full min-h-0 flex flex-col rounded-sm bg-[#edf4ff] border border-blue-200/80 overflow-hidden shadow-xs">
               {/* Header */}
-              <div className="bg-[#1d4ed8] px-5 py-3.5 text-white flex items-center justify-between">
+              <div className="shrink-0 bg-[#1d4ed8] px-4 py-2.5 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-sm">
-                  <BadgeCheck size={18} />
+                  <BadgeCheck size={17} />
                   <span>Served</span>
                 </div>
                 <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-black">
@@ -1134,7 +1135,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 pb-8">
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 space-y-3 pb-28">
                 {servedColumnTickets.map((t) => (
                   <div
                     key={t.id}
@@ -1227,61 +1228,63 @@ export default function KitchenManagementPage() {
                 ))}
 
                 {servedColumnTickets.length === 0 && (
-                  <div className="py-16 text-center text-slate-400 text-xs font-semibold">
+                  <div className="py-12 text-center text-slate-400 text-xs font-semibold">
                     No served orders yet
                   </div>
                 )}
               </div>
             </div>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
         {/* ── 5. FACING MODE: KITCHEN FACING DISPLAY ─────────────────────── */}
         {viewMode === "FACING" && (
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-sm border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="w-full h-full min-h-0 flex-1 flex flex-col overflow-hidden gap-3">
+            <div className="shrink-0 bg-white px-5 py-3 rounded-sm border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-black text-gray-600 tracking-tight flex items-center gap-2">
-                  <Tv className="text-indigo-600" size={24} />
+                <h2 className="text-xl font-black text-gray-600 tracking-tight flex items-center gap-2">
+                  <Tv className="text-indigo-600" size={22} />
                   KITCHEN FACING DISPLAY
                 </h2>
-                <p className="text-xs text-slate-500 font-semibold mt-1">
+                <p className="text-[11px] text-slate-500 font-semibold mt-0.5">
                   Live Facing Screen — Track order progress from In Kitchen to Ready to Serve
                 </p>
               </div>
-              <div className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-sm text-right">
-                <span className="font-mono text-2xl font-black text-indigo-600">
+              <div className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-sm text-right">
+                <span className="font-mono text-xl font-black text-indigo-600">
                   {nowTime.toLocaleTimeString()}
                 </span>
-                <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                <span className="block text-[9px] text-slate-500 font-bold uppercase tracking-widest">
                   Live Sync Clock
                 </span>
               </div>
             </div>
 
             {/* 3-COLUMN OVERHEAD FACING DISPLAY */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[65vh]">
-              {/* Left: Preparing Orders */}
-              <div className="rounded-sm border border-amber-200 bg-white p-5 shadow-md space-y-4">
-                <div className="flex flex-wrap items-center justify-between border-b border-amber-100 pb-3 gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-sm bg-amber-500 text-white flex items-center justify-center shadow-sm shrink-0">
-                      <Flame size={20} />
+            <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden custom-scrollbar">
+              <div className="w-full h-full min-h-0 min-w-[900px] grid grid-cols-3 gap-4 items-stretch">
+                {/* Left: Preparing Orders */}
+                <div className="h-full min-h-0 flex flex-col rounded-sm border border-amber-200 bg-white shadow-md overflow-hidden">
+                  <div className="shrink-0 flex flex-wrap items-center justify-between border-b border-amber-100 p-3.5 bg-amber-50/50 gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-sm bg-amber-500 text-white flex items-center justify-center shadow-sm shrink-0">
+                        <Flame size={18} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-black tracking-wider uppercase text-amber-600">
+                          PREPARING & COOKING ({preparingColumnTickets.length})
+                        </h3>
+                        <p className="text-[10px] text-slate-500 font-medium">In Kitchen Cooking</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-base font-black tracking-wider uppercase text-amber-600">
-                        PREPARING & COOKING ({preparingColumnTickets.length})
-                      </h3>
-                      <p className="text-[11px] text-slate-500 font-medium">In Kitchen Cooking</p>
-                    </div>
+                    <span className="rounded-full bg-amber-100 text-amber-800 border border-amber-300 px-2.5 py-0.5 text-xs font-bold shrink-0">
+                      IN KITCHEN
+                    </span>
                   </div>
-                  <span className="rounded-full bg-amber-100 text-amber-800 border border-amber-300 px-3 py-0.5 text-xs font-bold shrink-0">
-                    IN KITCHEN
-                  </span>
-                </div>
 
-                <div className="space-y-3">
+                  <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3.5 space-y-3 pb-28">
                   {preparingColumnTickets.map((t) => {
                     const elapsedMins = getElapsedMins(t.createdAt);
                     const completedItems = t.items.filter((i) => i.completed).length;
@@ -1352,25 +1355,25 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Middle: Ready to Serve Orders */}
-              <div className="rounded-sm border border-emerald-300 bg-white p-5 shadow-md space-y-4">
-                <div className="flex flex-wrap items-center justify-between border-b border-emerald-100 pb-3 gap-2">
+              <div className="h-full min-h-0 flex flex-col rounded-sm border border-emerald-300 bg-white shadow-md overflow-hidden">
+                <div className="shrink-0 flex flex-wrap items-center justify-between border-b border-emerald-100 p-3.5 bg-emerald-50/50 gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-sm bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
-                      <CheckCircle2 size={20} />
+                    <div className="h-8 w-8 rounded-sm bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                      <CheckCircle2 size={18} />
                     </div>
                     <div>
-                      <h3 className="text-base font-black tracking-wider uppercase text-emerald-600">
+                      <h3 className="text-sm font-black tracking-wider uppercase text-emerald-600">
                         READY TO SERVE ({readyColumnTickets.length})
                       </h3>
-                      <p className="text-[11px] text-slate-500 font-medium">Ready at Serving Counter</p>
+                      <p className="text-[10px] text-slate-500 font-medium">Ready at Serving Counter</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-emerald-600 text-white px-3 py-0.5 text-xs font-bold shadow-xs animate-pulse shrink-0">
+                  <span className="rounded-full bg-emerald-600 text-white px-2.5 py-0.5 text-xs font-bold shadow-xs animate-pulse shrink-0">
                     READY
                   </span>
                 </div>
 
-                <div className="space-y-3">
+                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3.5 space-y-3 pb-28">
                   {readyColumnTickets.map((t) => (
                     <div
                       key={t.id}
@@ -1434,25 +1437,25 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Right: Served Orders */}
-              <div className="rounded-sm border border-blue-300 bg-white p-5 shadow-md space-y-4">
-                <div className="flex flex-wrap items-center justify-between border-b border-blue-100 pb-3 gap-2">
+              <div className="h-full min-h-0 flex flex-col rounded-sm border border-blue-300 bg-white shadow-md overflow-hidden">
+                <div className="shrink-0 flex flex-wrap items-center justify-between border-b border-blue-100 p-3.5 bg-blue-50/50 gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-sm bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
-                      <BadgeCheck size={20} />
+                    <div className="h-8 w-8 rounded-sm bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                      <BadgeCheck size={18} />
                     </div>
                     <div>
-                      <h3 className="text-base font-black tracking-wider uppercase text-blue-600">
+                      <h3 className="text-sm font-black tracking-wider uppercase text-blue-600">
                         SERVED ORDERS ({servedColumnTickets.length})
                       </h3>
-                      <p className="text-[11px] text-slate-500 font-medium">Delivered to Tables</p>
+                      <p className="text-[10px] text-slate-500 font-medium">Delivered to Tables</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-blue-600 text-white px-3 py-0.5 text-xs font-bold shrink-0">
+                  <span className="rounded-full bg-blue-600 text-white px-2.5 py-0.5 text-xs font-bold shrink-0">
                     SERVED
                   </span>
                 </div>
 
-                <div className="space-y-3">
+                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3.5 space-y-3 pb-28">
                   {servedColumnTickets.map((t) => (
                     <div
                       key={t.id}
@@ -1510,6 +1513,7 @@ export default function KitchenManagementPage() {
                     </div>
                   )}
                 </div>
+              </div>
               </div>
             </div>
           </div>
