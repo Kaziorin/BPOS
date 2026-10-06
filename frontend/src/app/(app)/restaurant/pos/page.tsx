@@ -63,7 +63,6 @@ import { api, TENANT_STORAGE_KEY } from "@/lib/api";
 import { toast } from "react-toastify";
 import { ConfirmModal, CustomModal, CustomPromptModal, CustomInput, CustomButton, CustomTabs, type TabItem } from "@/components/custom";
 import { getCategoryIcon } from "@/lib/categoryIcons";
-import { DEFAULT_FLOORS } from "@/components/restaurant/FloorPlanView";
 import { publishRestaurantCart } from "@/lib/customer-display";
 import { useBarcodeScanner, playScanErrorBeep } from "@/lib/useBarcodeScanner";
 
@@ -145,24 +144,6 @@ interface StaffOption {
   shift?: string;
   avatarColor?: string;
 }
-
-const DEFAULT_STAFF: StaffOption[] = [
-  { id: "staff-1", name: "Staff 1", role: "Captain / Waiter", shift: "Morning", avatarColor: "bg-orange-100 text-orange-700" },
-  { id: "staff-2", name: "Staff 2", role: "Table Server", shift: "Morning", avatarColor: "bg-amber-100 text-amber-700" },
-  { id: "staff-3", name: "Sumon", role: "Head Waiter", shift: "Evening", avatarColor: "bg-blue-100 text-blue-700" },
-  { id: "staff-4", name: "Kabir", role: "Server / Runner", shift: "Evening", avatarColor: "bg-emerald-100 text-emerald-700" },
-  { id: "staff-5", name: "Anis", role: "Beverage Barista", shift: "Full Day", avatarColor: "bg-purple-100 text-purple-700" },
-  { id: "staff-6", name: "Manager", role: "Floor Manager", shift: "General", avatarColor: "bg-rose-100 text-rose-700" },
-];
-
-const DEMO_TABLES: TableOption[] = [
-  { id: "tbl-01", tableNo: "Table 01", capacity: 4, status: "AVAILABLE" },
-  { id: "tbl-02", tableNo: "Table 02", capacity: 2, status: "AVAILABLE" },
-  { id: "tbl-03", tableNo: "Table 03", capacity: 4, status: "OCCUPIED", currentBill: 1250, guestCount: 3 },
-  { id: "tbl-04", tableNo: "Table 04", capacity: 6, status: "AVAILABLE" },
-  { id: "tbl-05", tableNo: "VIP Booth 01", capacity: 8, status: "RESERVED" },
-  { id: "tbl-06", tableNo: "Terrace T-1", capacity: 4, status: "AVAILABLE" },
-];
 
 function mapApiProductToMenuItem(p: any): MenuItem {
   let catName = "Main Course";
@@ -316,20 +297,9 @@ export default function RestaurantPOSPage() {
   const [storeName, setStoreName] = useState<string>("BPOS Restaurant");
   const [branchName, setBranchName] = useState<string>("Main Branch");
   const [branchAddress, setBranchAddress] = useState<string>("Dhaka, Bangladesh");
-  const [tables, setTables] = useState<TableOption[]>(DEMO_TABLES);
+  const [tables, setTables] = useState<TableOption[]>([]);
   const [floors, setFloors] = useState<FloorOption[]>([]);
-  const [selectedTable, setSelectedTable] = useState<TableOption | null>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const savedId = localStorage.getItem("bpos_restaurant_selected_table_id");
-        if (savedId) {
-          const match = DEMO_TABLES.find((t) => t.id === savedId);
-          if (match) return match;
-        }
-      } catch (_) { }
-    }
-    return DEMO_TABLES[0];
-  });
+  const [selectedTable, setSelectedTable] = useState<TableOption | null>(null);
   const [guestCount, setGuestCount] = useState(() => {
     if (typeof window !== "undefined") {
       try {
@@ -342,7 +312,15 @@ export default function RestaurantPOSPage() {
     }
     return 2;
   });
-  const [waiterName, setWaiterName] = useState("Staff 1");
+  const [waiterName, setWaiterName] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const u = JSON.parse(localStorage.getItem("modernpos_user") || "{}");
+        if (u?.name) return u.name;
+      } catch (_) { }
+    }
+    return "";
+  });
   const [orderType, setOrderType] = useState<"DINE_IN" | "TAKEAWAY" | "DELIVERY">("DINE_IN");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -376,7 +354,7 @@ export default function RestaurantPOSPage() {
   const [showSelectStaffModal, setShowSelectStaffModal] = useState(false);
   const [activeSectionTab, setActiveSectionTab] = useState<string>("ALL");
   const [activeStatusFilter, setActiveStatusFilter] = useState<"ALL" | "AVAILABLE" | "OCCUPIED" | "RESERVED">("ALL");
-  const [staffList, setStaffList] = useState<StaffOption[]>(DEFAULT_STAFF);
+  const [staffList, setStaffList] = useState<StaffOption[]>([]);
   const [customStaffName, setCustomStaffName] = useState("");
   const [showHoldModal, setShowHoldModal] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -549,12 +527,13 @@ export default function RestaurantPOSPage() {
         }
 
         if (Array.isArray(pData) && pData.length > 0) {
-          // Filter out raw materials / ingredients so only sellable finished dishes appear on POS
+          // Keep active sellable products; only exclude explicitly inactive or raw materials without selling price
           const sellableProducts = pData.filter((p: any) => {
-            const pid = String(p.id || p._id);
-            if (rawIngredientIds.has(pid)) return false;
+            if (p.status && String(p.status).toUpperCase() === "INACTIVE") return false;
             const pType = String(p.productType || "").toLowerCase().replace(/[\s_-]/g, "");
-            if (pType.includes("rawmaterial") || pType.includes("ingredient")) return false;
+            if (pType.includes("rawmaterial") && (!p.sellingPrice || Number(p.sellingPrice) <= 0)) {
+              return false;
+            }
             return true;
           });
 
@@ -613,6 +592,13 @@ export default function RestaurantPOSPage() {
               avatarColor: COLORS[idx % COLORS.length],
             }))
           );
+        } else {
+          // Use current logged-in user identity if available
+          const curUser = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("modernpos_user") || "{}") : {};
+          if (curUser?.name) {
+            setStaffList([{ id: curUser.id || "current-user", name: curUser.name, role: curUser.role || "Cashier", shift: "Active", avatarColor: "bg-orange-100 text-orange-700" }]);
+            setWaiterName(curUser.name);
+          }
         }
       } catch (_) { }
 
@@ -759,25 +745,21 @@ export default function RestaurantPOSPage() {
         console.error("Failed to load time slots in POS:", e);
       }
 
-      // 4. Load Sections \Load Floors & Tables (floors power the Floor → Table picker Tables (sections power the Section → Table picker in the Select Table modal)
-      let loadedFloors: FloorOption[] = [];
+      // 4. Load Floors & Tables
       try {
         const [resFloors, resTables]: any[] = await Promise.all([
           api.get("/v1/restaurant/floors").catch(() => null),
           api.get("/v1/restaurant/tables").catch(() => null),
         ]);
 
-        // Sections — when the API has none yet, fall back to the same defaults the
-        // Sections page shows, so the modal can always ask "pick a section" first.
         const fData = resFloors?.data?.data ?? resFloors?.data ?? resFloors ?? [];
-        loadedFloors =
-          Array.isArray(fData) && fData.length > 0
-            ? fData.map((f: any, i: number) => ({
+        const loadedFloors: FloorOption[] = Array.isArray(fData)
+          ? fData.map((f: any, i: number) => ({
               id: String(f.id),
               name: f.name || `Section ${i + 1}`,
               sortOrder: f.sortOrder !== undefined && f.sortOrder !== null ? Number(f.sortOrder) : i,
             }))
-            : DEFAULT_FLOORS.map((f) => ({ id: f.id, name: f.name, sortOrder: f.sortOrder }));
+          : [];
         setFloors(loadedFloors);
 
         const tData = resTables?.data?.data ?? resTables?.data ?? resTables ?? [];
@@ -789,76 +771,33 @@ export default function RestaurantPOSPage() {
             status: t.status || "AVAILABLE",
             currentBill: t.currentBill ? Number(t.currentBill) : undefined,
             guestCount: t.guestCount ? Number(t.guestCount) : undefined,
-            floorId: t.floorId ? String(t.floorId) : undefined,
-            floorName: t.floorName || undefined,
+            floorId: t.floorId ? String(t.floorId) : (t.floor?.id ? String(t.floor.id) : undefined),
+            floorName: t.floorName || t.floor?.name || undefined,
           }));
-          // Display-only fallback: if none of the tables is assigned to a section yet,
-          // spread them across floors (round-robin) so every floor shows tables.
-          const anyAssigned = mappedTables.some((t) => t.floorId);
-          const withFloors: TableOption[] = anyAssigned
-            ? mappedTables
-            : mappedTables.map((t, i) => ({
-              ...t,
-              floorId: loadedFloors[i % loadedFloors.length].id,
-              floorName: loadedFloors[i % loadedFloors.length].name,
-            }));
-          setTables(withFloors);
-          setSelectedTable(() => {
+          setTables(mappedTables);
+          setSelectedTable((prev) => {
             try {
               const savedId = typeof window !== "undefined" ? localStorage.getItem("bpos_restaurant_selected_table_id") : null;
               if (savedId) {
-                const match = withFloors.find((t) => t.id === savedId);
+                const match = mappedTables.find((t) => t.id === savedId);
                 if (match) return match;
               }
             } catch (_) { }
-            return withFloors[0];
+            return prev && mappedTables.some((t) => t.id === prev.id) ? prev : mappedTables[0] || null;
           });
         } else {
-          // Demo fallback: spread demo tables across sections (round-robin) so the
-          // Section → Table picker stays fully usable without seeded tables.
-          const demoTables: TableOption[] = DEMO_TABLES.map((t, i) => ({
-            ...t,
-            floorId: loadedFloors[i % loadedFloors.length].id,
-            floorName: loadedFloors[i % loadedFloors.length].name,
-          }));
-          setTables(demoTables);
-          setSelectedTable(() => {
-            try {
-              const savedId = typeof window !== "undefined" ? localStorage.getItem("bpos_restaurant_selected_table_id") : null;
-              if (savedId) {
-                const match = demoTables.find((t) => t.id === savedId);
-                if (match) return match;
-              }
-            } catch (_) { }
-            return demoTables[0];
-          });
+          setTables([]);
+          setSelectedTable(null);
         }
       } catch (errTables) {
-        if (loadedFloors.length === 0) {
-          loadedFloors = DEFAULT_FLOORS.map((f) => ({ id: f.id, name: f.name, sortOrder: f.sortOrder }));
-        }
-        setFloors(loadedFloors);
-        const demoTables: TableOption[] = DEMO_TABLES.map((t, i) => ({
-          ...t,
-          floorId: loadedFloors[i % loadedFloors.length].id,
-          floorName: loadedFloors[i % loadedFloors.length].name,
-        }));
-        setTables(demoTables);
-        setSelectedTable(() => {
-          try {
-            const savedId = typeof window !== "undefined" ? localStorage.getItem("bpos_restaurant_selected_table_id") : null;
-            if (savedId) {
-              const match = demoTables.find((t) => t.id === savedId);
-              if (match) return match;
-            }
-          } catch (_) { }
-          return demoTables[0];
-        });
+        setTables([]);
+        setSelectedTable(null);
       }
     } catch (err) {
       console.error("Failed to load restaurant POS data:", err);
       setCategories(DEFAULT_CATEGORIES);
-      setTables(DEMO_TABLES);
+      setTables([]);
+      setSelectedTable(null);
       setProducts([]);
     } finally {
       setLoading(false);
@@ -2166,8 +2105,8 @@ export default function RestaurantPOSPage() {
               <div
                 className={
                   viewMode === "grid"
-                    ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5"
-                    : "space-y-2.5"
+                    ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5 pb-16"
+                    : "space-y-2.5 pb-16"
                 }
               >
                 {filteredProducts.map((item) => (
@@ -2431,7 +2370,7 @@ export default function RestaurantPOSPage() {
           </div>
 
           {/* ── Cart Items ── */}
-          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2.5 bg-gradient-to-b from-slate-50/80 to-white custom-scrollbar">
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 pb-8 space-y-2.5 bg-gradient-to-b from-slate-50/80 to-white custom-scrollbar">
             {cart.length === 0 ? (
               <div className="rounded-sm border border-dashed border-orange-200 bg-orange-50/30 py-16 text-center text-gray-400 space-y-3">
                 <div className="mx-auto h-14 w-14 rounded-full bg-orange-100 flex items-center justify-center">

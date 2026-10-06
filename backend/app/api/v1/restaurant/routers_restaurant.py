@@ -204,8 +204,12 @@ async def list_tables(
     )).fetchall())
 
     for r in rows:
-        r["floor"] = {"id": r.pop("floorId"), "name": r.pop("floorName")} if r.get("floorName") else None
-        r["waiter"] = {"id": r.pop("waiterUserId"), "name": r.pop("waiterName")} if r.get("waiterName") else None
+        fid = r.get("floorId")
+        fname = r.get("floorName")
+        r["floor"] = {"id": fid, "name": fname} if fid else None
+        wuid = r.get("waiterUserId")
+        wname = r.get("waiterName")
+        r["waiter"] = {"id": wuid, "name": wname} if wuid else None
 
     return ok(rows)
 

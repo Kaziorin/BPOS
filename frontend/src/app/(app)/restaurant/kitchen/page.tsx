@@ -460,12 +460,10 @@ export default function KitchenManagementPage() {
   return (
     <div
       ref={containerRef}
-      className={`w-full bg-[#f4f5f8] text-gray-600 font-sans select-none pb-12 overflow-y-auto ${
-        isFullscreen ? "h-screen max-h-screen overflow-y-auto" : "min-h-screen"
-      }`}
+      className="h-screen w-screen flex flex-col bg-[#f4f5f8] text-gray-600 font-sans select-none overflow-hidden"
     >
       {/* ── 1. TOP NAVBAR (MATCHING SCREENSHOT HEADER) ────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 py-3 shadow-xs">
+      <header className="shrink-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 py-3 shadow-xs">
         <div className="mx-auto flex flex-wrap items-center justify-between gap-4">
           {/* Left Title & Search */}
           <div className="flex items-center gap-4 flex-1 min-w-[280px]">
@@ -576,7 +574,8 @@ export default function KitchenManagementPage() {
       </header>
 
       {/* ── 2. MAIN CONTENT AREA ───────────────────────── */}
-      <div className="max-w-[1800px] mx-auto p-4 sm:p-6 space-y-6">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-4 sm:p-6 pb-32">
+        <div className="max-w-[1800px] mx-auto space-y-6 pb-16">
         {viewMode === "OPERATOR" && (
           <div className="space-y-6">
             {/* KPI SCORECARDS ROW (MATCHING SCREENSHOT) */}
@@ -708,7 +707,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 min-h-[60vh] max-h-[calc(100vh-250px)] overflow-y-auto">
+              <div className="p-3.5 space-y-3.5 pb-8">
                 {queuedColumnTickets.map((t) => {
                   const elapsedMins = getElapsedMins(t.createdAt);
                   return (
@@ -837,7 +836,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 min-h-[60vh] max-h-[calc(100vh-250px)] overflow-y-auto">
+              <div className="p-3.5 space-y-3.5 pb-8">
                 {preparingColumnTickets.map((t) => {
                   const elapsedMins = getElapsedMins(t.createdAt);
                   const completedItems = t.items.filter((i) => i.completed).length;
@@ -1013,7 +1012,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 min-h-[60vh] max-h-[calc(100vh-250px)] overflow-y-auto">
+              <div className="p-3.5 space-y-3.5 pb-8">
                 {readyColumnTickets.map((t) => (
                   <div
                     key={t.id}
@@ -1135,7 +1134,7 @@ export default function KitchenManagementPage() {
               </div>
 
               {/* Column Cards List */}
-              <div className="p-3.5 space-y-3.5 min-h-[60vh] max-h-[calc(100vh-250px)] overflow-y-auto">
+              <div className="p-3.5 space-y-3.5 pb-8">
                 {servedColumnTickets.map((t) => (
                   <div
                     key={t.id}
@@ -1515,6 +1514,7 @@ export default function KitchenManagementPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
