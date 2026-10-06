@@ -280,6 +280,7 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     paid = min(tendered, total)
     credit_amt = sum(float(p.get("amount", 0)) for p in payments if p.get("method") == "CREDIT")
     due = max(tax_engine.round_half_up(total - (paid if credit_amt == 0 else (tendered - credit_amt)), 2), 0)
+    change_return = tax_engine.round_half_up(max(tendered - total, 0.0), 2) if credit_amt == 0 else 0.0
 
     # Ensure valid userId for foreign key constraints across tables
     user_id = getattr(user, "id", None)
