@@ -41,7 +41,7 @@ import {
 import { api } from "@/lib/api";
 
 // ── Types & Interfaces ────────────────────────────────────────────────
-export type KDSColumnStatus = "QUEUED" | "PREPARING" | "READY" | "SERVED";
+export type KDSColumnStatus = "QUEUED" | "PREPARING" | "READY" | "SERVED" | "CANCELLED";
 
 export interface KOTItem {
   id: string;
@@ -321,7 +321,7 @@ export default function KitchenManagementPage() {
     playChime();
 
     try {
-      const backendSt = nextStatus === "SERVED" ? "SERVED" : nextStatus === "READY" ? "READY" : nextStatus === "PREPARING" ? "PREPARING" : "ACCEPTED";
+      const backendSt = nextStatus === "CANCELLED" as any ? "CANCELLED" : nextStatus === "SERVED" ? "SERVED" : nextStatus === "READY" ? "READY" : nextStatus === "PREPARING" ? "PREPARING" : "ACCEPTED";
       await api.patch(`/v1/restaurant/kot/${ticketId}/status`, { status: backendSt });
     } catch (err) {
       console.error("KDS status update error:", err);
@@ -432,7 +432,8 @@ export default function KitchenManagementPage() {
       (activeFilterPill === "QUEUED" && t.status === "QUEUED") ||
       (activeFilterPill === "PREPARING" && t.status === "PREPARING") ||
       (activeFilterPill === "READY" && t.status === "READY") ||
-      (activeFilterPill === "SERVED" && t.status === "SERVED");
+      (activeFilterPill === "SERVED" && t.status === "SERVED") ||
+      (activeFilterPill === "CANCELLED" && (t.status === "CANCELLED" || (t as any).status === "CANCELLED"));
     const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
       !q ||
@@ -687,6 +688,18 @@ export default function KitchenManagementPage() {
               <BadgeCheck size={13} className="text-blue-600" />
               <span>Served ({servedColumnTickets.length})</span>
             </button>
+
+            <button
+              onClick={() => setActiveFilterPill("CANCELLED")}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition border ${
+                activeFilterPill === "CANCELLED"
+                  ? "bg-rose-600 text-white border-rose-600 shadow-sm"
+                  : "bg-white text-gray-600 border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <Ban size={13} className="text-rose-600" />
+              <span>Cancelled ({cancelledCount})</span>
+            </button>
           </div>
         </div>
 
@@ -804,13 +817,22 @@ export default function KitchenManagementPage() {
                         ))}
                       </div>
 
-                      {/* Action Button: Start Preparing */}
-                      <button
-                        onClick={() => moveTicketStatus(t.id, "PREPARING")}
-                        className="w-full rounded-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 text-xs font-black tracking-wide shadow-md transition flex items-center justify-center gap-1.5"
-                      >
-                        Start Preparing
-                      </button>
+                      {/* Action Buttons: Start Preparing & Cancel Order */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <button
+                          onClick={() => moveTicketStatus(t.id, "CANCELLED" as any)}
+                          className="flex-1 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 py-2.5 text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer"
+                          title="Cancel this KOT order"
+                        >
+                          <Ban size={13} /> Cancel
+                        </button>
+                        <button
+                          onClick={() => moveTicketStatus(t.id, "PREPARING")}
+                          className="flex-[2] rounded-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 text-xs font-black tracking-wide shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          Start Preparing
+                        </button>
+                      </div>
                     </div>
                   );
                 })}

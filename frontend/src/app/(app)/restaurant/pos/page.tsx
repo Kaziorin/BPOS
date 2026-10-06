@@ -355,8 +355,11 @@ export default function RestaurantPOSPage() {
   const [activeSectionTab, setActiveSectionTab] = useState<string>("ALL");
   const [activeStatusFilter, setActiveStatusFilter] = useState<"ALL" | "AVAILABLE" | "OCCUPIED" | "RESERVED">("ALL");
   const [staffList, setStaffList] = useState<StaffOption[]>([]);
-  const [customStaffName, setCustomStaffName] = useState("");
+  const [activeKotId, setActiveKotId] = useState<string | null>(null);
   const [showHoldModal, setShowHoldModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [targetTransferTableId, setTargetTransferTableId] = useState<string>("");
+  const [transferringTable, setTransferringTable] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showCustomItemModal, setShowCustomItemModal] = useState(false);
   const [customName, setCustomName] = useState("");
@@ -527,13 +530,37 @@ export default function RestaurantPOSPage() {
         }
 
         if (Array.isArray(pData) && pData.length > 0) {
-          // Keep active sellable products; only exclude explicitly inactive or raw materials without selling price
+          // Strictly exclude inactive items, raw materials, ingredients, or items used in recipes
           const sellableProducts = pData.filter((p: any) => {
             if (p.status && String(p.status).toUpperCase() === "INACTIVE") return false;
-            const pType = String(p.productType || "").toLowerCase().replace(/[\s_-]/g, "");
-            if (pType.includes("rawmaterial") && (!p.sellingPrice || Number(p.sellingPrice) <= 0)) {
+            
+            // Check product type
+            const pType = String(p.productType || "").toLowerCase().trim();
+            if (
+              pType.includes("raw") ||
+              pType.includes("material") ||
+              pType.includes("ingredient") ||
+              pType.includes("raw_material") ||
+              pType.includes("rawmaterial")
+            ) {
               return false;
             }
+
+            // Check category name for raw materials / ingredients
+            const catName = String(p.categoryName || p.category || "").toLowerCase();
+            if (
+              catName.includes("raw material") ||
+              catName.includes("ingredient") ||
+              catName.includes("raw_material")
+            ) {
+              return false;
+            }
+
+            // Exclude if explicitly marked as ingredient in recipes
+            if (p.id && rawIngredientIds.has(String(p.id))) {
+              return false;
+            }
+
             return true;
           });
 
@@ -951,7 +978,31 @@ export default function RestaurantPOSPage() {
       try {
         const res: any = await api.get("/products", { params: { search: q, limit: 60 } });
         const pData = (res?.data as any)?.data ?? res?.data ?? res ?? [];
-        setSearchResults(Array.isArray(pData) ? pData.map((p: any) => mapApiProductToMenuItem(p)) : []);
+        const sellable = Array.isArray(pData)
+          ? pData.filter((p: any) => {
+              if (p.status && String(p.status).toUpperCase() === "INACTIVE") return false;
+              const pType = String(p.productType || "").toLowerCase().trim();
+              if (
+                pType.includes("raw") ||
+                pType.includes("material") ||
+                pType.includes("ingredient") ||
+                pType.includes("raw_material") ||
+                pType.includes("rawmaterial")
+              ) {
+                return false;
+              }
+              const catName = String(p.categoryName || p.category || "").toLowerCase();
+              if (
+                catName.includes("raw material") ||
+                catName.includes("ingredient") ||
+                catName.includes("raw_material")
+              ) {
+                return false;
+              }
+              return true;
+            })
+          : [];
+        setSearchResults(sellable.map((p: any) => mapApiProductToMenuItem(p)));
       } catch {
         setSearchResults([]);
       } finally {
@@ -1281,11 +1332,13 @@ export default function RestaurantPOSPage() {
     if (cart.length === 0) return;
     
     // Auto-fire KOT to kitchen for any pending kitchen items so the kitchen starts cooking
+    let currentKotId = activeKotId;
     const unsentKitchenItems = cart.filter(
       (item) => item.isKitchenProduct !== false && item.kotStatus !== "SENT_TO_KITCHEN"
     );
     if (unsentKitchenItems.length > 0) {
-      await sendKotToKitchen();
+      const newKid = await sendKotToKitchen();
+      if (newKid) currentKotId = newKid;
     }
 
     setHeldOrders((prev) => [
@@ -1295,6 +1348,7 @@ export default function RestaurantPOSPage() {
         table: selectedTable,
         guestCount,
         waiterName,
+        kotId: currentKotId,
         cart: cart.map((item) =>
           item.isKitchenProduct !== false ? { ...item, kotStatus: "SENT_TO_KITCHEN" } : item
         ),
@@ -1302,6 +1356,7 @@ export default function RestaurantPOSPage() {
       },
     ]);
     setCart([]);
+    setActiveKotId(null);
     toast.info(`Order for Table ${selectedTable?.tableNo || "N/A"} saved & sent to kitchen!`);
   };
 
@@ -1310,6 +1365,7 @@ export default function RestaurantPOSPage() {
     setGuestCount(heldOrder.guestCount);
     setWaiterName(heldOrder.waiterName);
     setCart(heldOrder.cart);
+    if (heldOrder.kotId) setActiveKotId(heldOrder.kotId);
     setHeldOrders((prev) => prev.filter((o) => o.id !== heldOrder.id));
     setShowHoldModal(false);
     toast.success(`Recalled order ${heldOrder.id}!`);
@@ -1340,7 +1396,12 @@ export default function RestaurantPOSPage() {
         })),
       };
 
-      await api.post("/api/v1/restaurant/kot", payload);
+      const res: any = await api.post("/api/v1/restaurant/kot", payload);
+      const resData = res?.data?.data || res?.data || res;
+      const createdKotId = resData?.kotId || null;
+      if (createdKotId) {
+        setActiveKotId(createdKotId);
+      }
 
       setCart((prev) =>
         prev.map((item) =>
@@ -1353,9 +1414,11 @@ export default function RestaurantPOSPage() {
       toast.success(
         `KOT Ticket sent (${kitchenItems.length} kitchen items) to Kitchen for Table ${selectedTable?.tableNo || "N/A"}!`
       );
+      return createdKotId;
     } catch (err: any) {
       console.error("Failed to send KOT:", err);
       toast.error(err?.response?.data?.message || err?.message || "Failed to send KOT to kitchen");
+      return null;
     }
   };
 
@@ -1542,7 +1605,9 @@ export default function RestaurantPOSPage() {
         try {
           await api.patch(`/v1/restaurant/tables/${finishedTableId}/status`, { status: "AVAILABLE" });
         } catch { }
+        setSelectedTable(null);
       }
+      setActiveKotId(null);
 
       // Reload product list to reflect updated stock
       loadData();
@@ -1826,22 +1891,41 @@ export default function RestaurantPOSPage() {
       {/* ══════════════ 2. SUB-HEADER CONTROLS BAR ══════════════ */}
       <div className="flex-none flex flex-wrap items-center justify-between gap-2 px-4 py-2 bg-white border-b border-slate-200 shadow-2xs z-10">
         <div className="flex flex-wrap items-center gap-3 text-gray-600">
-          <button
-            onClick={() => setShowSelectTableModal(true)}
-            className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-sm px-3 py-1.5 hover:bg-orange-50 hover:border-orange-300 transition cursor-pointer"
-            title="Select Section and Table"
-          >
-            <LayoutGrid size={15} className="text-orange-600" />
-            <span className="text-xs font-medium text-gray-500">Section:</span>
-            <span className="text-xs font-bold text-gray-600">
-              {selectedTable ? `${selectedTable.floorName || "Main Dining"} • ${selectedTable.tableNo}` : "Select Section & Table"}
-            </span>
-            {selectedTable && (
-              <span className="text-[10px] bg-orange-100 text-orange-700 font-semibold px-1.5 py-0.5 rounded-sm">
-                {selectedTable.capacity} Seats
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setShowSelectTableModal(true)}
+              className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-sm px-3 py-1.5 hover:bg-orange-50 hover:border-orange-300 transition cursor-pointer"
+              title="Select Section and Table"
+            >
+              <LayoutGrid size={15} className="text-orange-600" />
+              <span className="text-xs font-medium text-gray-500">Section:</span>
+              <span className="text-xs font-bold text-gray-600">
+                {selectedTable ? `${selectedTable.floorName || "Main Dining"} • ${selectedTable.tableNo}` : "Select Table (Optional)"}
               </span>
+              {selectedTable && (
+                <span className="text-[10px] bg-orange-100 text-orange-700 font-semibold px-1.5 py-0.5 rounded-sm">
+                  {selectedTable.capacity} Seats
+                </span>
+              )}
+            </button>
+            {selectedTable && (
+              <button
+                onClick={() => {
+                  const previous = selectedTable;
+                  setTables((prev) =>
+                    prev.map((x) => (x.id === previous.id ? { ...x, status: "AVAILABLE" as const } : x))
+                  );
+                  api.patch(`/v1/restaurant/tables/${previous.id}/status`, { status: "AVAILABLE" }).catch(() => { });
+                  setSelectedTable(null);
+                  toast.info("Table deselected (Order without table)");
+                }}
+                className="flex items-center justify-center h-[31px] px-2 rounded-sm border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 transition cursor-pointer"
+                title="Remove table selection (Counter / Takeaway)"
+              >
+                <X size={15} />
+              </button>
             )}
-          </button>
+          </div>
 
           <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-sm px-3 py-1.5">
             <Users size={15} className="text-gray-500" />
@@ -1945,7 +2029,13 @@ export default function RestaurantPOSPage() {
             <Split size={14} /> Split
           </button>
           <button
-            onClick={() => toast.info("Transfer Table feature active")}
+            onClick={() => {
+              if (!selectedTable) {
+                toast.warning("Please select a source table first to transfer!");
+                return;
+              }
+              setShowTransferModal(true);
+            }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition cursor-pointer"
           >
             <ArrowRightLeft size={14} /> Transfer
@@ -2633,7 +2723,7 @@ export default function RestaurantPOSPage() {
                 className="w-full flex items-center justify-between px-4 py-3.5 rounded-sm bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white font-bold text-xs hover:from-orange-600 hover:via-amber-600 hover:to-orange-600 transition cursor-pointer shadow-md shadow-orange-500/25 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <span className="flex items-center gap-2">
-                  <ShoppingBag size={16} /> Place Order & Checkout
+                  <ShoppingBag size={16} /> Checkout
                 </span>
                 <div className="flex items-center gap-1.5 bg-white/20 rounded-sm px-2.5 py-1">
                   <span className="tabular-nums font-black text-sm">{fmt(estimateGrandTotal)}</span>
@@ -2720,13 +2810,39 @@ export default function RestaurantPOSPage() {
                     {h.cart.length} items • Waiter: {h.waiterName} • {h.time}
                   </p>
                 </div>
-                <CustomButton
-                  size="sm"
-                  themeColor="orange"
-                  onClick={() => handleRecallOrder(h)}
-                >
-                  Recall
-                </CustomButton>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (h.kotId) {
+                        try {
+                          await api.patch(`/v1/restaurant/kot/${h.kotId}/status`, { status: "CANCELLED" });
+                        } catch (e) {
+                          console.warn("Failed to cancel KOT:", e);
+                        }
+                      }
+                      if (h.table) {
+                        setTables((prev) =>
+                          prev.map((x) => (x.id === h.table.id ? { ...x, status: "AVAILABLE" as const } : x))
+                        );
+                        api.patch(`/v1/restaurant/tables/${h.table.id}/status`, { status: "AVAILABLE" }).catch(() => { });
+                      }
+                      setHeldOrders((prev) => prev.filter((o) => o.id !== h.id));
+                      toast.info(`Held order #${h.id} discarded & Kitchen Ticket cancelled`);
+                    }}
+                    className="p-1.5 rounded-sm border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 transition cursor-pointer"
+                    title="Discard Order & Cancel KOT"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                  <CustomButton
+                    size="sm"
+                    themeColor="orange"
+                    onClick={() => handleRecallOrder(h)}
+                  >
+                    Recall
+                  </CustomButton>
+                </div>
               </div>
             ))
           )}
@@ -3462,8 +3578,17 @@ export default function RestaurantPOSPage() {
       <ConfirmModal
         isOpen={showClearConfirm}
         onClose={() => setShowClearConfirm(false)}
-        onConfirm={() => {
+        onConfirm={async () => {
           setCart([]);
+          // Cancel active KOT ticket so the kitchen doesn't waste food
+          if (activeKotId) {
+            try {
+              await api.patch(`/v1/restaurant/kot/${activeKotId}/status`, { status: "CANCELLED" });
+            } catch (e) {
+              console.warn("Failed to cancel KOT:", e);
+            }
+            setActiveKotId(null);
+          }
           // ── Booking flow: clearing the order frees the table too ──
           if (selectedTable) {
             const clearedTableId = selectedTable.id;
@@ -3473,13 +3598,13 @@ export default function RestaurantPOSPage() {
             api.patch(`/v1/restaurant/tables/${clearedTableId}/status`, { status: "AVAILABLE" }).catch(() => { });
           }
           setShowClearConfirm(false);
-          toast.info("Cart cleared successfully");
+          toast.info("Order cleared & Kitchen Ticket cancelled successfully");
         }}
         type="DANGER"
-        title="Clear Current Order?"
-        message="Are you sure you want to remove all items from this table's order?"
-        confirmText="Clear Order"
-        cancelText="Cancel"
+        title="Clear / Cancel Current Order?"
+        message="Are you sure you want to cancel this order? If sent to the kitchen, the KOT ticket will also be cancelled."
+        confirmText="Cancel Order"
+        cancelText="Keep Order"
       />
 
       {/* ══════════════ SECTION & TABLE SELECTION MODAL ══════════════ */}
@@ -3673,21 +3798,152 @@ export default function RestaurantPOSPage() {
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-gray-400">Selected:</span>
               {selectedTable ? (
-                <span className="px-2.5 py-1 rounded-sm bg-orange-50 text-orange-700 border border-orange-200 text-xs font-bold flex items-center gap-1.5">
-                  <Armchair size={13} className="text-orange-600" />
-                  {selectedTable.tableNo} ({selectedTable.floorName || "Section"})
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-1 rounded-sm bg-orange-50 text-orange-700 border border-orange-200 text-xs font-bold flex items-center gap-1.5">
+                    <Armchair size={13} className="text-orange-600" />
+                    {selectedTable.tableNo} ({selectedTable.floorName || "Section"})
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedTable) {
+                        const previous = selectedTable;
+                        setTables((prev) =>
+                          prev.map((x) => (x.id === previous.id ? { ...x, status: "AVAILABLE" as const } : x))
+                        );
+                        api.patch(`/v1/restaurant/tables/${previous.id}/status`, { status: "AVAILABLE" }).catch(() => { });
+                      }
+                      setSelectedTable(null);
+                      toast.info("Table deselected (Order without table)");
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-sm border border-rose-200 bg-rose-50 text-xs font-bold text-rose-600 hover:bg-rose-100 hover:border-rose-300 transition cursor-pointer"
+                  >
+                    <X size={13} /> Clear Table
+                  </button>
+                </div>
               ) : (
-                <span className="text-xs text-slate-400 italic">None selected</span>
+                <span className="text-xs text-slate-400 italic">None selected (Direct counter/takeaway order)</span>
               )}
             </div>
-            <button
-              type="button"
-              onClick={() => setShowSelectTableModal(false)}
-              className="px-4 py-1.5 rounded-sm bg-slate-100 hover:bg-slate-200 text-gray-600 text-xs font-bold transition cursor-pointer"
+            <div className="flex items-center gap-2">
+              {selectedTable && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const previous = selectedTable;
+                    setTables((prev) =>
+                      prev.map((x) => (x.id === previous.id ? { ...x, status: "AVAILABLE" as const } : x))
+                    );
+                    api.patch(`/v1/restaurant/tables/${previous.id}/status`, { status: "AVAILABLE" }).catch(() => { });
+                    setSelectedTable(null);
+                    setShowSelectTableModal(false);
+                    toast.info("Continuing without table");
+                  }}
+                  className="px-3 py-1.5 rounded-sm border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition cursor-pointer"
+                >
+                  Order Without Table
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowSelectTableModal(false)}
+                className="px-4 py-1.5 rounded-sm bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      </CustomModal>
+
+      {/* ══════════════ TRANSFER TABLE MODAL ══════════════ */}
+      <CustomModal
+        open={showTransferModal}
+        onClose={() => {
+          setShowTransferModal(false);
+          setTargetTransferTableId("");
+        }}
+        title="Transfer Table Order"
+        size="md"
+      >
+        <div className="space-y-4">
+          <div className="p-3 bg-amber-50 rounded-sm border border-amber-200 text-amber-900 text-xs">
+            <p className="font-bold flex items-center gap-1.5">
+              <ArrowRightLeft size={14} className="text-amber-600" />
+              Transfer Order from Table: <span className="underline font-black">{selectedTable?.tableNo || "N/A"}</span>
+            </p>
+            <p className="text-[11px] text-amber-700 mt-1">
+              Select an available destination table. All active KOT tickets and items will be transferred automatically.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-600 mb-1.5">Select Destination Table *</label>
+            <select
+              value={targetTransferTableId}
+              onChange={(e) => setTargetTransferTableId(e.target.value)}
+              className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 focus:border-orange-500 focus:outline-none"
             >
-              Close
-            </button>
+              <option value="">-- Choose destination table --</option>
+              {tables
+                .filter((t) => t.id !== selectedTable?.id && t.status === "AVAILABLE")
+                .map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.tableNo} ({t.floorName || "Section"}) — {t.capacity} Seats
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+            <CustomButton
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowTransferModal(false);
+                setTargetTransferTableId("");
+              }}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              themeColor="orange"
+              disabled={!targetTransferTableId || transferringTable}
+              onClick={async () => {
+                if (!selectedTable || !targetTransferTableId) return;
+                setTransferringTable(true);
+                try {
+                  const targetTbl = tables.find((t) => t.id === targetTransferTableId);
+                  await api.post("/api/v1/restaurant/tables/transfer", {
+                    fromTableId: selectedTable.id,
+                    toTableId: targetTransferTableId,
+                  });
+
+                  // Update frontend table states
+                  setTables((prev) =>
+                    prev.map((t) => {
+                      if (t.id === selectedTable.id) return { ...t, status: "AVAILABLE" as const };
+                      if (t.id === targetTransferTableId) return { ...t, status: "OCCUPIED" as const };
+                      return t;
+                    })
+                  );
+
+                  if (targetTbl) {
+                    setSelectedTable({ ...targetTbl, status: "OCCUPIED" as const });
+                  }
+                  setShowTransferModal(false);
+                  setTargetTransferTableId("");
+                  toast.success(`Successfully transferred order to Table ${targetTbl?.tableNo || targetTransferTableId}!`);
+                } catch (err: any) {
+                  console.error("Failed to transfer table:", err);
+                  toast.error(err?.response?.data?.message || err?.message || "Failed to transfer table");
+                } finally {
+                  setTransferringTable(false);
+                }
+              }}
+            >
+              {transferringTable ? "Transferring..." : "Confirm Transfer"}
+            </CustomButton>
           </div>
         </div>
       </CustomModal>
