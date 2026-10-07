@@ -1142,7 +1142,8 @@ async def shift_detail(shiftId: str, tenantId: str = Depends(resolve_tenant), db
     txns = rows_to_dicts((await db.execute(text(
         "SELECT * FROM shift_txns WHERE shiftId=:id ORDER BY createdAt"), {"id": shiftId})).fetchall())
     summary = await _shift_summary(tenantId, shiftId, db)
-    return ok({"shift": sh, "txns": txns, "summary": summary})
+    sh_dict = dict(sh._mapping) if hasattr(sh, "_mapping") else sh
+    return ok({"shift": sh_dict, "txns": txns, "summary": summary})
 
 
 @router.get("/api/v1/pos/stats/today")
