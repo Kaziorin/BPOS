@@ -230,7 +230,7 @@ export default function CreateProductPage() {
 
   // Pricing Mode: PERCENTAGE or FLAT
   const [marginType, setMarginType] = useState<string>("PERCENTAGE");
-  const [marginValue, setMarginValue] = useState<string>("25.00");
+  const [marginValue, setMarginValue] = useState<string>("");
 
   // Barcode type
   const [barcodeSymbology, setBarcodeSymbology] = useState<string>("CODE128");
@@ -251,7 +251,7 @@ export default function CreateProductPage() {
     costPrice: "",
     sellingPrice: "",
     wholesalePrice: "",
-    taxRate: "0",
+    taxRate: "",
     taxMethod: "Inclusive",
     warrantyValue: "",
     warrantyUnit: "Months",
@@ -353,13 +353,6 @@ export default function CreateProductPage() {
         const rateVal = defaultRateObj.rate !== undefined && defaultRateObj.rate !== null ? String(Number(defaultRateObj.rate)) : "0";
         const methodVal = defaultRateObj.taxInclusive ? "Inclusive" : "Exclusive";
         setDefaultTaxRateConfig({ rate: rateVal, method: methodVal });
-        if (!editId) {
-          setForm((prev) => ({
-            ...prev,
-            taxRate: prev.taxRate === "0" || prev.taxRate === "" ? rateVal : prev.taxRate,
-            taxMethod: prev.taxMethod || methodVal,
-          }));
-        }
       }
 
       generateSku();
@@ -712,8 +705,8 @@ export default function CreateProductPage() {
           costPrice: "",
           sellingPrice: "",
           wholesalePrice: "",
-          taxRate: defaultTaxRateConfig.rate,
-          taxMethod: defaultTaxRateConfig.method,
+          taxRate: "",
+          taxMethod: defaultTaxRateConfig.method || "Inclusive",
           warrantyValue: "",
           warrantyUnit: "Months",
           guaranteeValue: "",
@@ -1152,11 +1145,6 @@ export default function CreateProductPage() {
                   value={form.taxRate}
                   onChange={(e) => updateForm("taxRate", e.target.value)}
                   placeholder="0"
-                  helperText={
-                    defaultTaxRateConfig.rate !== "0"
-                      ? `Default: ${defaultTaxRateConfig.rate}% (from Tax Settings)`
-                      : undefined
-                  }
                 />
                 {configuredTaxRates.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5 mt-1.5">

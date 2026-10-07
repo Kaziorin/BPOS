@@ -233,6 +233,7 @@ export function SearchableSelect({
                 e.stopPropagation();
                 return;
               }
+              setIsOpen(false);
               onAddClick();
             }}
             className={cn(
