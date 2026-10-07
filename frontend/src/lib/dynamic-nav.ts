@@ -268,7 +268,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "All POS Terminals",
         href: "/retail-pos",
         icon: Monitor,
-        badge: "9 Businesses",
+        badge: "10 Businesses",
         children: [
           { label: "Retail POS Terminal",        href: "/retail-pos",      icon: ShoppingCart },
           { label: "Wholesale POS Counter",      href: "/wholesale/pos",   icon: Package      },
@@ -279,6 +279,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
           { label: "Repair & Service POS",       href: "/repair/pos",      icon: Wrench       },
           { label: "Salon & Spa POS",            href: "/salon/pos",       icon: Scissors     },
           { label: "Franchise & Outlet POS",     href: "/franchise/pos",   icon: Building2    },
+          { label: "Batch & Factory POS",        href: "/manufacturing/pos", icon: Factory    },
         ],
       },
       { label: "Cash Register & Shifts",     href: "/cash-register", icon: DollarSign },
@@ -534,7 +535,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         icon: UtensilsCrossed,
         children: [
           { label: "Restaurant Management",      href: "/restaurant",                    icon: LayoutDashboard },
-          { label: "Floor & Table Map POS",      href: "/restaurant/pos",               icon: UtensilsCrossed },
           { label: "Kitchen Management",         href: "/restaurant/kitchen",            icon: Flame, target: "_blank" },
           { label: "Customer Display Screen",    href: "/restaurant/customer-display",  icon: Monitor         },
           { label: "Slots & Reservation Matrix", href: "/restaurant/slots-matrix",      icon: Calendar        },
@@ -546,7 +546,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         icon: Pill,
         children: [
           { label: "Pharmacy Operations",      href: "/pharmacy",                 icon: FlaskConical },
-          { label: "FEFO Batch & Expiry POS",  href: "/pharmacy/pos",             icon: Pill         },
           { label: "Patient Display Screen",   href: "/pharmacy/patient-display", icon: Monitor      },
         ],
       },
@@ -556,7 +555,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         icon: ShoppingBag,
         children: [
           { label: "Retail Operations Hub",   href: "/retail",                   icon: ShoppingBag  },
-          { label: "Retail POS Terminal",     href: "/retail-pos",               icon: ShoppingCart },
           { label: "Held Carts / Orders",     href: "/retail-pos/holds",         icon: PauseCircle  },
           { label: "Price & Barcode Checker", href: "/retail-pos/price-checker", icon: Search       },
           { label: "Self-Checkout Kiosk",     href: "/retail-pos/self-checkout", icon: Monitor      },
@@ -568,7 +566,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         icon: Scale,
         children: [
           { label: "Grocery Hub", href: "/grocery",     icon: Scale       },
-          { label: "Grocery POS", href: "/grocery/pos", icon: ShoppingCart},
         ],
       },
       {
@@ -577,7 +574,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         icon: Truck,
         children: [
           { label: "Wholesale Commercial Hub", href: "/wholesale",     icon: Building2 },
-          { label: "B2B Credit & Tier POS",    href: "/wholesale/pos", icon: FileText  },
         ],
       },
       {
@@ -587,7 +583,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         badge: "Bakery",
         children: [
           { label: "Bakery Operations Hub",  href: "/bakery",            icon: Croissant },
-          { label: "Bakery & Sweets POS",    href: "/bakery/pos",        icon: Croissant },
           { label: "Recipe & Production BOM", href: "/manufacturing",    icon: Layers    },
         ],
       },
@@ -597,7 +592,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         icon: Factory,
         children: [
           { label: "Production & BOM Hub",  href: "/manufacturing",     icon: Layers  },
-          { label: "Batch & Factory POS",    href: "/manufacturing/pos", icon: Factory },
         ],
       },
       {
@@ -606,7 +600,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         icon: Scissors,
         children: [
           { label: "Salon & Booking Hub",    href: "/salon",     icon: Calendar },
-          { label: "Stylist & Service POS",  href: "/salon/pos", icon: Scissors },
         ],
       },
       {
@@ -615,7 +608,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         icon: Wrench,
         children: [
           { label: "Repair Service Center",    href: "/repair",     icon: CheckSquare },
-          { label: "Device Intake & Job POS",  href: "/repair/pos", icon: Wrench      },
           { label: "Devices & Inventory",      href: "/devices",    icon: Cpu         },
         ],
       },
@@ -625,7 +617,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         icon: Store,
         children: [
           { label: "Franchise HQ Hub",        href: "/franchise",     icon: Building2 },
-          { label: "Multi-Outlet Store POS",  href: "/franchise/pos", icon: Store     },
         ],
       },
     ],
