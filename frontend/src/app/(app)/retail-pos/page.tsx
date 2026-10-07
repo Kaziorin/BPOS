@@ -1384,15 +1384,18 @@ export default function PosPage() {
             )}
           </button>
 
-          {/* Quick Actions Button with VFX Shimmer & 3D Tactile Press */}
-          <button
+          {/* Quick Actions CustomButton */}
+          <CustomButton
+            type="button"
+            variant="primary"
+            size="sm"
             onClick={() => { loadHolds(); setShowHolds(true); }}
-            className="h-9 px-3.5 rounded-full bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-400 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-violet-300/50 hover:shadow-md hover:shadow-violet-400/50 transition-all cursor-pointer btn-3d vfx-shimmer-btn"
+            leftIcon={<Zap size={14} className="text-amber-300 fill-amber-300 animate-pulse" />}
+            rightIcon={<ChevronDown size={13} />}
+            className="rounded-full !px-3.5"
           >
-            <Zap size={14} className="text-amber-300 fill-amber-300 animate-pulse shrink-0" />
-            <span>Quick Actions</span>
-            <ChevronDown size={13} />
-          </button>
+            Quick Actions
+          </CustomButton>
 
           {/* Date & Time */}
           <div className="hidden lg:flex items-center gap-1.5 h-9 px-3 rounded-full border border-slate-200 bg-slate-50 text-slate-600 shrink-0 text-xs font-medium shadow-2xs">
@@ -1517,13 +1520,15 @@ export default function PosPage() {
         </div>
 
         {/* 7. Add Customer */}
-        <button
+        <CustomButton
+          type="button"
+          variant="primary"
           onClick={() => setShowCustomerModal(true)}
-          className="flex items-center justify-center gap-2 h-12 px-3.5 rounded-sm border border-slate-200/90 bg-white hover:bg-violet-50/70 hover:border-violet-300 text-gray-600 hover:text-violet-700 font-semibold text-xs shadow-2xs hover:shadow-md transition-all flex-1 min-w-[130px] group cursor-pointer btn-3d"
+          leftIcon={<User size={15} />}
+          className="h-12 !rounded-sm flex-1 min-w-[130px] !text-xs font-bold shadow-2xs"
         >
-          <User size={15} className="text-violet-500 shrink-0 group-hover:scale-110 transition-transform" />
-          <span className="truncate">Add Customer</span>
-        </button>
+          Add Customer
+        </CustomButton>
       </div>
 
       {/* ── 3. MAIN CONTENT BODY ──────────────────────────────────── */}
@@ -1621,7 +1626,7 @@ export default function PosPage() {
                           "absolute top-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-sm z-10 shadow-2xs",
                           outOfStock ? "bg-rose-500 text-white" : "bg-slate-800/80 text-white backdrop-blur-xs"
                         )}>
-                          {outOfStock ? "Out" : `${stock}`}
+                          {outOfStock ? "Out of Stock" : `${stock}`}
                         </span>
                         {inCart && (
                           <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-gradient-to-r from-violet-500 to-indigo-400 text-white flex items-center justify-center text-[10px] font-bold z-10 shadow-md shadow-violet-500/40 ring-2 ring-white">
@@ -1644,18 +1649,20 @@ export default function PosPage() {
                           {p.name}
                         </p>
                         <p className="text-[10px] text-slate-400 font-mono">SKU: {p.sku}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-extrabold text-gray-600">{fmt(price)}</span>
-                          <button type="button" onClick={(e) => { e.stopPropagation(); if (!outOfStock) addProduct(p); }}
-                            className="w-6 h-6 rounded-sm bg-gradient-to-r from-violet-500 to-indigo-400 text-white hover:from-violet-600 hover:to-indigo-500 flex items-center justify-center transition-all shadow-xs hover:shadow-sm hover:shadow-violet-400/40 active:scale-85 cursor-pointer shrink-0">
-                            <Plus size={13} />
-                          </button>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", outOfStock ? "bg-rose-500" : "bg-emerald-500")} />
-                          <span className={cn("text-[10px] font-medium", outOfStock ? "text-rose-500" : "text-emerald-600")}>
-                            {outOfStock ? "Out of Stock" : "In Stock"}
-                          </span>
+                        <div className="flex items-center justify-between mt-0.5 min-h-[28px]">
+                          <span className="text-xs font-black text-slate-800">{fmt(price)}</span>
+                          {!outOfStock && (
+                            <CustomButton
+                              type="button"
+                              variant="primary"
+                              size="xs"
+                              onClick={(e) => { e.stopPropagation(); addProduct(p); }}
+                              className="!w-7 !h-7 !p-0 !min-w-0 !rounded-md flex items-center justify-center shrink-0 cursor-pointer shadow-brand-button"
+                              title="Add to Order"
+                            >
+                              <Plus size={14} className="stroke-[2.5]" />
+                            </CustomButton>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1665,74 +1672,104 @@ export default function PosPage() {
             ) : (
               /* List View */
               <div className="space-y-2">
-                {paginatedProducts.map((p) => (
-                  <div
-                    key={p.id}
-                    onClick={() => addProduct(p)}
-                    className="flex items-center justify-between p-2.5 rounded-sm border border-slate-200/80 bg-white hover:border-violet-300 hover:shadow-xs transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-sm bg-slate-50 flex items-center justify-center overflow-hidden border border-slate-100 shrink-0">
-                        {(p as any).imageUrl ? (
-                          <img src={(p as any).imageUrl} alt={p.name} className="w-full h-full object-contain p-1" />
-                        ) : (
-                          <Package size={18} className="text-slate-300" />
+                {paginatedProducts.map((p) => {
+                  const stock = p.stockQty !== undefined ? Number(p.stockQty) : 0;
+                  const outOfStock = stock <= 0;
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => !outOfStock && addProduct(p)}
+                      className={cn(
+                        "flex items-center justify-between p-2.5 rounded-sm border border-slate-200/80 bg-white transition",
+                        outOfStock ? "opacity-60 cursor-not-allowed" : "hover:border-violet-300 hover:shadow-xs cursor-pointer"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-sm bg-slate-50 flex items-center justify-center overflow-hidden border border-slate-100 shrink-0 relative">
+                          {(p as any).imageUrl ? (
+                            <img src={(p as any).imageUrl} alt={p.name} className="w-full h-full object-contain p-1" />
+                          ) : (
+                            <Package size={18} className="text-slate-300" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-gray-700">{p.name}</p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] text-gray-500 font-mono">SKU: {p.sku}</span>
+                            {outOfStock ? (
+                              <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">
+                                Out of Stock
+                              </span>
+                            ) : (
+                              <span className="text-[11px] text-gray-500 font-mono">Stock: {stock}</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-black text-slate-800">{fmt(Number(p.sellingPrice))}</span>
+                        {!outOfStock && (
+                          <CustomButton
+                            type="button"
+                            variant="primary"
+                            size="xs"
+                            onClick={(e) => { e.stopPropagation(); addProduct(p); }}
+                            leftIcon={<Plus size={12} className="stroke-[2.5]" />}
+                            className="!h-7 !px-3 !rounded-sm text-xs font-bold"
+                          >
+                            Add
+                          </CustomButton>
                         )}
                       </div>
-                      <div>
-                        <p className="text-xs font-bold text-gray-600">{p.name}</p>
-                        <p className="text-[11px] text-gray-500 font-mono">Stock: {p.stockQty !== undefined ? p.stockQty : 0}</p>
-                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-extrabold text-gray-600">{fmt(Number(p.sellingPrice))}</span>
-                      <CustomButton variant="primary" size="sm" className="px-2.5 py-1 text-xs font-bold rounded-sm bg-gradient-to-r from-violet-500 to-indigo-400 hover:from-violet-600 hover:to-indigo-500 text-white">
-                        + Add
-                      </CustomButton>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
 
           {/* Dynamic API Pagination Bar */}
           <div className="flex items-center justify-between px-4 py-2 border-t border-slate-200/80 bg-white shrink-0">
-            <span className="text-xs font-bold text-gray-600">
+            <span className="text-xs font-semibold text-slate-600">
               Showing {paginatedProducts.length} of {filteredProducts.length} products (Page {currentPage} of {totalPages})
             </span>
             <div className="flex items-center gap-1.5">
               <CustomButton
+                type="button"
                 variant="outline"
-                size="sm"
+                size="xs"
                 disabled={currentPage <= 1}
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                className="px-2 py-1 text-xs font-bold rounded-sm border-slate-200 text-gray-600 disabled:opacity-40"
+                leftIcon={<ChevronLeft size={13} />}
+                className="!h-7 !px-2.5 !rounded-sm text-xs font-bold"
               >
-                <ChevronLeft size={14} className="mr-0.5" /> Prev
+                Prev
               </CustomButton>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
+                  type="button"
                   onClick={() => setCurrentPage(page)}
                   className={cn(
-                    "w-7 h-7 rounded-sm text-xs font-bold transition cursor-pointer",
+                    "w-7 h-7 rounded-sm text-xs font-bold transition-all cursor-pointer flex items-center justify-center",
                     currentPage === page
-                      ? "bg-gradient-to-r from-violet-500 to-indigo-400 text-white shadow-xs"
-                      : "bg-white border border-slate-200 text-gray-600 hover:bg-violet-50"
+                      ? "bg-brand-gradient text-white shadow-brand-button"
+                      : "bg-white border border-brand-border text-slate-700 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-primary shadow-2xs"
                   )}
                 >
                   {page}
                 </button>
               ))}
               <CustomButton
+                type="button"
                 variant="outline"
-                size="sm"
+                size="xs"
                 disabled={currentPage >= totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                className="px-2 py-1 text-xs font-bold rounded-sm border-slate-200 text-gray-600 disabled:opacity-40"
+                rightIcon={<ChevronRight size={13} />}
+                className="!h-7 !px-2.5 !rounded-sm text-xs font-bold"
               >
-                Next <ChevronRight size={14} className="ml-0.5" />
+                Next
               </CustomButton>
             </div>
           </div>
@@ -1750,21 +1787,27 @@ export default function PosPage() {
               </span>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
-              <button
+              <CustomButton
+                type="button"
+                variant="outline"
+                size="xs"
                 onClick={() => setShowCustomerModal(true)}
-                className="flex items-center gap-1.5 h-7 px-3 rounded-full border border-slate-200 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 text-slate-600 font-semibold text-xs whitespace-nowrap transition shadow-2xs cursor-pointer"
+                leftIcon={<User size={12} className="text-violet-500" />}
+                className="!h-7 !px-3 rounded-full text-xs font-semibold"
               >
-                <User size={12} className="text-violet-500 shrink-0" />
-                <span>Add Customer</span>
-              </button>
-              <button
+                Add Customer
+              </CustomButton>
+              <CustomButton
+                type="button"
+                variant="danger"
+                size="xs"
                 onClick={resetSale}
                 disabled={cart.length === 0}
-                className="flex items-center gap-1.5 h-7 px-3 rounded-full border border-rose-200 bg-rose-50/60 hover:bg-rose-100 text-rose-600 font-semibold text-xs whitespace-nowrap transition shadow-2xs cursor-pointer disabled:opacity-40"
+                leftIcon={<Trash2 size={12} />}
+                className="!h-7 !px-3 rounded-full text-xs font-semibold !bg-rose-50 !text-rose-600 border border-rose-200 hover:!bg-rose-100 disabled:opacity-40"
               >
-                <Trash2 size={12} className="text-rose-500 shrink-0" />
-                <span>Clear Cart</span>
-              </button>
+                Clear Cart
+              </CustomButton>
             </div>
           </div>
 
@@ -1813,26 +1856,30 @@ export default function PosPage() {
                   <div className="col-span-2 text-right text-xs font-bold text-gray-600">
                     {fmt(item.unitPrice)}
                   </div>
-                  <div className="col-span-3 flex items-center justify-center gap-1">
+                  <div className="col-span-3 flex items-center justify-center gap-1.5">
                     <button
+                      type="button"
                       onClick={() => handleQtyChange(idx, item.qty - 1)}
-                      className="w-5 h-5 rounded-sm border border-slate-200/80 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-300 text-slate-600 flex items-center justify-center transition-all active:scale-80 cursor-pointer shadow-2xs"
+                      className="w-6 h-6 rounded-sm border border-slate-200 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-300 text-slate-700 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-2xs"
                     >
-                      <Minus size={11} />
+                      <Minus size={12} className="stroke-[2.5]" />
                     </button>
-                    <span className="text-xs font-bold text-gray-600 w-4 text-center">{item.qty}</span>
+                    <span className="text-xs font-black text-slate-800 w-5 text-center">{item.qty}</span>
                     <button
+                      type="button"
                       onClick={() => handleQtyChange(idx, item.qty + 1)}
-                      className="w-5 h-5 rounded-sm border border-slate-200/80 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-300 text-slate-600 flex items-center justify-center transition-all active:scale-80 cursor-pointer shadow-2xs"
+                      className="w-6 h-6 rounded-sm border border-slate-200 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-300 text-slate-700 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-2xs"
                     >
-                      <Plus size={11} />
+                      <Plus size={12} className="stroke-[2.5]" />
                     </button>
                   </div>
                   <div className="col-span-2 text-right flex items-center justify-end gap-1.5">
-                    <span className="text-xs font-extrabold text-gray-600">{fmt(item.lineTotal)}</span>
+                    <span className="text-xs font-black text-slate-800">{fmt(item.lineTotal)}</span>
                     <button
+                      type="button"
                       onClick={() => removeItem(idx)}
-                      className="text-slate-300 hover:text-rose-500 transition-colors cursor-pointer p-0.5 active:scale-80"
+                      className="text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-sm p-1 transition-all cursor-pointer active:scale-85"
+                      title="Remove item"
                     >
                       <Trash2 size={13} />
                     </button>
@@ -1890,15 +1937,16 @@ export default function PosPage() {
               {PAYMENT_METHODS.map((pm) => (
                 <button
                   key={pm.method}
+                  type="button"
                   onClick={() => { setActivePaymentMethod(pm.method); setPayments([{ method: pm.method, amount: total }]); }}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-0.5 p-1 rounded-sm border text-center transition-all duration-150 cursor-pointer h-13 relative pay-method-tile",
+                    "flex flex-col items-center justify-center gap-1 p-1.5 rounded-sm border text-center transition-all duration-150 cursor-pointer h-14 relative",
                     activePaymentMethod === pm.method
-                      ? "bg-gradient-to-r from-violet-500 to-indigo-400 text-white border-violet-400 shadow-md shadow-violet-300/60 ring-2 ring-violet-400/40"
-                      : "bg-white text-slate-600 border-slate-200 hover:bg-violet-50/70 hover:border-violet-300 hover:text-violet-600 shadow-2xs hover:shadow-xs"
+                      ? "bg-brand-gradient text-white border-brand-primary shadow-brand-button ring-2 ring-violet-400/40"
+                      : "bg-white text-slate-700 border-slate-200 hover:bg-brand-50 hover:border-brand-primary hover:text-brand-primary shadow-2xs hover:shadow-xs"
                   )}
                 >
-                  <pm.icon size={15} />
+                  <pm.icon size={16} />
                   <span className="text-[10px] font-bold leading-none">{pm.label}</span>
                 </button>
               ))}
@@ -1906,30 +1954,34 @@ export default function PosPage() {
 
             {/* Action Buttons: Save & Hold, Pay Now */}
             <div className="flex items-center gap-2">
-              <button
+              <CustomButton
+                type="button"
+                variant="outline"
                 onClick={holdSale}
                 disabled={cart.length === 0}
-                className="flex-1 h-12 rounded-sm border border-slate-200 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 text-gray-600 font-semibold text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 shadow-xs hover:shadow-md cursor-pointer btn-3d"
+                leftIcon={<PauseCircle size={16} className="text-violet-500" />}
+                className="flex-1 !h-12 !rounded-sm !text-xs font-bold"
               >
-                <PauseCircle size={15} className="text-violet-500" />
-                <span className="text-xs font-bold">Save &amp; Hold</span>
-              </button>
+                Save &amp; Hold
+              </CustomButton>
 
-              {/* Flagship CTA: Pay Now Button with VFX Glossy Shimmer Beam & 3D Tactile Elevation */}
-              <button
+              {/* Flagship CTA: Pay Now Button with matching brand gradient */}
+              <CustomButton
+                type="button"
+                variant="primary"
                 disabled={cart.length === 0 || submitting}
                 onClick={openCheckoutModal}
-                className="vfx-shimmer-btn btn-3d flex-[2] h-12 flex items-center justify-between px-4 rounded-sm font-bold text-sm shadow-lg shadow-violet-400/40 hover:shadow-xl hover:shadow-violet-500/50 cursor-pointer bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-400 hover:from-violet-600 hover:to-indigo-500 text-white transition-all disabled:opacity-40"
+                className="flex-[2] !h-12 !rounded-sm !text-sm font-bold flex !items-center !justify-between !px-4"
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <CheckCircle2 size={17} className="shrink-0 animate-pulse" />
+                  <CheckCircle2 size={18} className="shrink-0" />
                   <span className="text-sm font-extrabold whitespace-nowrap">Pay Now</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-base font-black whitespace-nowrap">{fmt(total)}</span>
-                  <ArrowRight size={15} />
+                  <ArrowRight size={16} />
                 </div>
-              </button>
+              </CustomButton>
             </div>
           </div>
         </div>
@@ -2101,11 +2153,17 @@ export default function PosPage() {
               { label: "Note", fkey: "", icon: FileText, action: () => setShowExtras(true) },
               { label: "Calculator", fkey: "", icon: Calculator, action: () => setShowCalculator(true) },
             ].map((btn, i) => (
-              <button key={i} onClick={btn.action}
-                className="h-8 px-2 rounded-sm border border-slate-200/80 bg-white hover:bg-violet-50 hover:border-violet-300 text-gray-600 hover:text-violet-600 text-[11px] font-semibold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs hover:-translate-y-0.5 active:scale-95 cursor-pointer transition-all truncate">
-                <btn.icon size={13} className="text-violet-500 shrink-0" />
+              <CustomButton
+                key={i}
+                type="button"
+                variant="outline"
+                size="xs"
+                onClick={btn.action}
+                leftIcon={<btn.icon size={13} className="text-violet-600 shrink-0" />}
+                className="!h-8 !px-1.5 !rounded-sm !text-[11px] font-bold !justify-center truncate hover:!text-violet-700"
+              >
                 <span className="truncate">{btn.label}</span>
-              </button>
+              </CustomButton>
             ))}
           </div>
         </div>
@@ -2612,8 +2670,12 @@ export default function PosPage() {
 
           {/* ── ACTION BUTTON ── */}
           <div className="pt-2">
-            <button
+            <CustomButton
               type="button"
+              variant="primary"
+              size="lg"
+              fullWidth
+              loading={submitting}
               disabled={
                 submitting ||
                 (checkoutPayMethod === "CASH" &&
@@ -2624,22 +2686,15 @@ export default function PosPage() {
                 const payLineMethod = checkoutPayMethod === "MFS" ? "MOBILE_PAY" : checkoutPayMethod;
                 confirmSale(payLineMethod, tendered);
               }}
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-sm bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-400 text-white font-black text-sm shadow-md shadow-violet-300/40 hover:from-violet-600 hover:to-indigo-500 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              leftIcon={<CheckCircle2 size={18} />}
+              className="!h-12 !rounded-sm !text-sm font-black"
             >
-              {submitting ? (
-                <>
-                  <RefreshCw size={18} className="animate-spin" /> Processing Sale...
-                </>
-              ) : checkoutPayMethod === "CASH" && (parseFloat(cashTenderedInput) || 0) < total ? (
-                <>
-                  <CheckCircle2 size={18} /> Enter Tendered Cash ({fmt(total)})
-                </>
+              {checkoutPayMethod === "CASH" && (parseFloat(cashTenderedInput) || 0) < total ? (
+                `Enter Tendered Cash (${fmt(total)})`
               ) : (
-                <>
-                  <CheckCircle2 size={18} /> Complete Sale ({fmt(total)})
-                </>
+                `Complete Sale (${fmt(total)})`
               )}
-            </button>
+            </CustomButton>
           </div>
         </div>
       </CustomModal>
