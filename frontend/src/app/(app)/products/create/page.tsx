@@ -265,9 +265,6 @@ export default function CreateProductPage() {
     isEmbeddedBarcode: false,
     hasPromoPrice: false,
     hasVariants: false,
-    hasInitialStock: false,
-    openingStock: "",
-    warehouseId: "",
     hasDiffPriceWarehouse: false,
     hasBatchExpiry: false,
     hasSerial: false,
@@ -636,8 +633,6 @@ export default function CreateProductPage() {
         sellingPrice: form.sellingPrice ? parseFloat(form.sellingPrice) : 0,
         wholesalePrice: form.wholesalePrice ? parseFloat(form.wholesalePrice) : undefined,
         taxRate: form.taxRate ? parseFloat(form.taxRate) : undefined,
-        openingStock: form.hasInitialStock && form.openingStock !== "" ? parseFloat(form.openingStock) : undefined,
-        warehouseId: form.hasInitialStock && form.warehouseId ? form.warehouseId : undefined,
         warrantyDays: form.warrantyValue ? parseInt(form.warrantyValue) * 30 : undefined,
         reorderPoint: form.alertQuantity ? parseFloat(form.alertQuantity) : undefined,
         description: form.description || undefined,
@@ -658,7 +653,6 @@ export default function CreateProductPage() {
           isEmbeddedBarcode: form.isEmbeddedBarcode,
           hasPromoPrice: form.hasPromoPrice,
           hasVariants: form.hasVariants,
-          hasInitialStock: form.hasInitialStock,
           hasDiffPriceWarehouse: form.hasDiffPriceWarehouse,
           hasBatchExpiry: form.hasBatchExpiry,
           hasSerial: form.hasSerial,
@@ -719,9 +713,6 @@ export default function CreateProductPage() {
           isEmbeddedBarcode: false,
           hasPromoPrice: false,
           hasVariants: false,
-          hasInitialStock: false,
-          openingStock: "",
-          warehouseId: warehouses[0]?.id || "",
           hasDiffPriceWarehouse: false,
           hasBatchExpiry: false,
           hasSerial: false,
@@ -1190,11 +1181,18 @@ export default function CreateProductPage() {
               </div>
 
               {/* Promo Discount Checkbox */}
-              <div className="sm:col-span-12 flex items-center mt-0.5">
+              <div className="sm:col-span-12 flex flex-col gap-2 mt-0.5">
                 <CustomCheckbox
                   label="Add Promotional / Special Discount Price"
                   checked={form.hasPromoPrice}
                   onChange={(e) => updateForm("hasPromoPrice", e.target.checked)}
+                />
+
+                <CustomCheckbox
+                  label="Warehouse / Branch Specific Pricing"
+                  description="Set custom prices for different warehouse or outlet locations"
+                  checked={form.hasDiffPriceWarehouse}
+                  onChange={(e) => updateForm("hasDiffPriceWarehouse", e.target.checked)}
                 />
               </div>
             </div>
@@ -1344,144 +1342,7 @@ export default function CreateProductPage() {
             </div>
           )}
 
-          {/* BOX 6: Inventory Controls */}
-          {!isServiceOnly && (
-            <div className="rounded-md border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs space-y-3.5">
-              <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
-                <Package className="h-4 w-4 text-brand-primary" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">Inventory & Stock Controls</h2>
-              </div>
 
-              <div className="space-y-3">
-                {isEditMode ? (
-                  <div className="rounded-sm border border-brand-border bg-brand-50/50 p-4 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-brand-border/60 pb-3">
-                      <div>
-                        <div className="text-[11px] font-bold uppercase tracking-wider text-brand-dark">
-                          Current Stock on Hand (Real-time Inventory)
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          Live available inventory balance after all POS sales and purchases.
-                        </div>
-                      </div>
-                      <div className="flex items-baseline gap-1.5 bg-white border border-brand-border px-3.5 py-1.5 rounded-sm shadow-2xs">
-                        <span className="text-xl font-extrabold text-brand-primary">
-                          {currentStock !== null ? currentStock : "—"}
-                        </span>
-                        <span className="text-xs font-bold text-slate-600">
-                          {units.find((u) => u.id === form.unitId)?.code || units.find((u) => u.id === form.unitId)?.name || "pcs"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {currentStockRows.length > 0 && (
-                      <div className="space-y-1.5 pt-1">
-                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                          Stock by Warehouse / Outlet:
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {currentStockRows.map((row: any) => (
-                            <div
-                              key={row.id || row.warehouseId}
-                              className="flex items-center justify-between bg-white border border-slate-200 p-2 rounded-sm text-xs"
-                            >
-                              <span className="font-semibold text-slate-700 truncate">
-                                🏬 {row.warehouseName || row.wh_code || "Main Warehouse"}
-                              </span>
-                              <span className="font-bold text-brand-primary shrink-0">
-                                {parseFloat(row.qtyOnHand) || 0}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex items-center justify-between pt-2 border-t border-brand-border/60 text-xs">
-                      <span className="text-[11px] text-slate-500">
-                        Need to check inventory ledger or count?
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => router.push("/inventory/stock")}
-                        className="text-[11px] font-bold text-brand-primary hover:text-brand-dark hover:underline cursor-pointer flex items-center gap-1"
-                      >
-                        View Stock Levels & Reconciliation →
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <CustomCheckbox
-                      label="Initial Stock / Opening Quantity"
-                      description="Add opening inventory quantity for this product upon creation"
-                      checked={form.hasInitialStock}
-                      onChange={(e) => updateForm("hasInitialStock", e.target.checked)}
-                    />
-
-                    {form.hasInitialStock && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 p-3.5 bg-slate-50 border border-slate-200 rounded-sm">
-                        <CustomInput
-                          label="Opening Quantity (Stock)"
-                          type="number"
-                          min="0"
-                          step="any"
-                          placeholder="e.g. 100"
-                          value={form.openingStock}
-                          onChange={(e) => updateForm("openingStock", e.target.value)}
-                          helperText="Initial inventory quantity added to stock"
-                        />
-
-                        {warehouses.length > 0 ? (
-                          <CustomDropdownSelect
-                            label="Warehouse / Storage Outlet"
-                            value={form.warehouseId || warehouses[0]?.id || ""}
-                            onChange={(val) => updateForm("warehouseId", val)}
-                            options={warehouses.map((w: any) => ({
-                              label: `${w.name} (${w.code || "WH"})`,
-                              value: w.id,
-                            }))}
-                          />
-                        ) : (
-                          <CustomInput
-                            label="Warehouse / Storage Outlet"
-                            disabled
-                            value="Main Warehouse (Default)"
-                            helperText="Allocated to primary warehouse"
-                          />
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
-
-                <CustomCheckbox
-                  label="Warehouse / Branch Specific Pricing"
-                  description="Set custom prices for different warehouse or outlet locations"
-                  checked={form.hasDiffPriceWarehouse}
-                  onChange={(e) => updateForm("hasDiffPriceWarehouse", e.target.checked)}
-                />
-
-                {showBatchExpiry && (
-                  <CustomCheckbox
-                    label="Batch & Expiry Date Tracking"
-                    description="Track lot numbers, manufacturing and expiry dates"
-                    checked={form.hasBatchExpiry}
-                    onChange={(e) => updateForm("hasBatchExpiry", e.target.checked)}
-                  />
-                )}
-
-                {showSerialTracking && (
-                  <CustomCheckbox
-                    label="IMEI / Serial Number Tracking"
-                    description="Track unique serial or IMEI numbers per item"
-                    checked={form.hasSerial}
-                    onChange={(e) => updateForm("hasSerial", e.target.checked)}
-                  />
-                )}
-              </div>
-            </div>
-          )}
 
           {/* DYNAMIC BUSINESS VERTICAL FORM FIELDS FOR NON-RESTAURANT */}
           {!isRestaurant && (
