@@ -70,7 +70,23 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
     ? passedTax
     : (result.total > subtotal ? result.total - subtotal : subtotal * 0.15);
   const vatAmount = Math.max(0, rawVat);
-  const vatRatePct = subtotal > 0 && vatAmount > 0 ? Math.round((vatAmount / subtotal) * 100) : 15;
+  const { vatLabel, isItemizedVat } = (() => {
+    if (!cart || cart.length === 0) {
+      const pct = subtotal > 0 && vatAmount > 0 ? Math.round((vatAmount / subtotal) * 100) : 15;
+      return { vatLabel: `VAT (Mushak 6.3 - ${pct}%)`, isItemizedVat: false };
+    }
+    const rates = cart
+      .map((i: any) => i.taxRate !== undefined && i.taxRate !== null && !isNaN(Number(i.taxRate)) ? Number(i.taxRate) : null)
+      .filter((r): r is number => r !== null);
+    
+    if (rates.length === cart.length && rates.length > 0) {
+      const allSame = rates.every((r) => r === rates[0]);
+      if (allSame) {
+        return { vatLabel: `VAT (Mushak 6.3 - ${rates[0]}%)`, isItemizedVat: false };
+      }
+    }
+    return { vatLabel: `VAT (Mushak 6.3 - Itemized)`, isItemizedVat: true };
+  })();
   const shippingAmount = Number(
     shipping ??
     (result as any).shipping ??
@@ -191,7 +207,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
             <span className="font-mono text-gray-600">৳{subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-gray-500">
-            <span>VAT (Mushak 6.3 - {vatRatePct}%):</span>
+            <span>{vatLabel}:</span>
             <span className="font-mono">৳{vatAmount.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-gray-500">

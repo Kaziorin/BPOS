@@ -579,14 +579,41 @@ export default function PosPage() {
     }, 0);
   }, [cart, systemTaxRate]);
 
-  const effectiveTaxPct = useMemo(() => {
-    if (cart.length === 0) return systemTaxRate;
-    const rates = cart.map((i) => (i.taxRate !== undefined && i.taxRate !== null && !isNaN(Number(i.taxRate))) ? Number(i.taxRate) : systemTaxRate);
-    const allSame = rates.every((r) => r === rates[0]);
-    if (allSame) return rates[0];
-    const taxableAmount = Math.max(subtotal - discountTotal, 0);
-    return taxableAmount > 0 ? Number(((taxTotal / taxableAmount) * 100).toFixed(1)) : systemTaxRate;
-  }, [cart, subtotal, discountTotal, taxTotal, systemTaxRate]);
+  const { taxLabel, isMixedTax, taxBreakdown } = useMemo(() => {
+    if (cart.length === 0) return { taxLabel: `Tax (${systemTaxRate}%)`, isMixedTax: false, taxBreakdown: [] };
+    const rateMap = new Map<number, { count: number; taxableBase: number; taxAmount: number }>();
+    cart.forEach((i) => {
+      const r = i.taxRate !== undefined && i.taxRate !== null && !isNaN(Number(i.taxRate))
+        ? Number(i.taxRate)
+        : systemTaxRate;
+      const prev = rateMap.get(r) || { count: 0, taxableBase: 0, taxAmount: 0 };
+      const lineNet = Math.max(i.lineTotal, 0);
+      rateMap.set(r, {
+        count: prev.count + 1,
+        taxableBase: prev.taxableBase + lineNet,
+        taxAmount: prev.taxAmount + (lineNet * (r / 100)),
+      });
+    });
+
+    const uniqueRates = Array.from(rateMap.keys());
+    const breakdown = Array.from(rateMap.entries()).map(([rate, data]) => ({
+      rate,
+      ...data,
+    })).sort((a, b) => a.rate - b.rate);
+
+    if (uniqueRates.length === 1) {
+      return {
+        taxLabel: `Tax (${uniqueRates[0]}%)`,
+        isMixedTax: false,
+        taxBreakdown: breakdown,
+      };
+    }
+    return {
+      taxLabel: "Tax / VAT (Itemized)",
+      isMixedTax: true,
+      taxBreakdown: breakdown,
+    };
+  }, [cart, systemTaxRate]);
 
   const taxable = Math.max(subtotal - discountTotal, 0);
   const total = Math.max(taxable + taxTotal + serviceCharge, 0);
@@ -1774,7 +1801,14 @@ export default function PosPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-bold text-gray-600 truncate leading-tight">{item.name}</p>
-                      <p className="text-[10px] text-slate-400 font-mono truncate">SKU: {(item as any).sku || item.productId?.slice(0, 9)}</p>
+                      <div className="flex items-center gap-1.5 truncate mt-0.5">
+                        <span className="text-[10px] text-slate-400 font-mono truncate">SKU: {(item as any).sku || item.productId?.slice(0, 9)}</span>
+                        {((item as any).taxRate !== undefined && (item as any).taxRate !== null && !isNaN(Number((item as any).taxRate))) ? (
+                          <span className="text-[9px] font-semibold text-slate-500 bg-slate-100 px-1 py-0.2 rounded border border-slate-200">
+                            VAT {Number((item as any).taxRate)}%
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                   <div className="col-span-2 text-right text-xs font-bold text-gray-600">
@@ -1823,8 +1857,18 @@ export default function PosPage() {
                   <span>Discount</span>
                   <span className="font-bold">-{fmt(discountTotal)}</span>
                 </div>
-                <div className="flex justify-between text-slate-600 font-medium">
-                  <span>Tax ({effectiveTaxPct}%)</span>
+                <div className="flex justify-between items-center text-slate-600 font-medium">
+                  <div className="flex items-center gap-1">
+                    <span>{taxLabel}</span>
+                    {isMixedTax && (
+                      <span
+                        title={taxBreakdown.map(b => `${b.rate}% on ৳${b.taxableBase.toFixed(2)} = ৳${b.taxAmount.toFixed(2)}`).join(" | ")}
+                        className="cursor-help text-[10px] text-violet-600 bg-violet-50 px-1 py-0.2 rounded font-bold border border-violet-200"
+                      >
+                        ℹ
+                      </span>
+                    )}
+                  </div>
                   <span className="font-bold text-gray-600">{fmt(taxTotal)}</span>
                 </div>
               </div>
@@ -2393,7 +2437,7 @@ export default function PosPage() {
                 </div>
               )}
               <div className="flex justify-between gap-4">
-                <span className="text-slate-400">Tax ({effectiveTaxPct}%):</span>
+                <span className="text-slate-400">{taxLabel}:</span>
                 <span>{fmt(taxTotal)}</span>
               </div>
             </div>
