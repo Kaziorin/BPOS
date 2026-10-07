@@ -1203,7 +1203,7 @@ export default function PosPage() {
 
   // ── MAIN RENDER ────────────────────────────────────────────────     
   return (
-    <div className="h-screen w-screen flex flex-col bg-[#f4f5fa] text-gray-600 select-none overflow-hidden" style={{ fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
+    <div data-theme="retail" className="theme-retail h-screen w-screen flex flex-col bg-[#f4f5fa] text-gray-600 select-none overflow-hidden" style={{ fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
       <style>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -1374,7 +1374,7 @@ export default function PosPage() {
           {/* Fullscreen Button */}
           <button
             onClick={toggleFullscreen}
-            title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen (F)"}
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
             className="w-9 h-9 rounded-sm border border-slate-200 bg-white hover:bg-violet-50/60 text-gray-600 flex items-center justify-center shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
           >
             {isFullscreen ? (
@@ -1764,7 +1764,6 @@ export default function PosPage() {
               >
                 <Trash2 size={12} className="text-rose-500 shrink-0" />
                 <span>Clear Cart</span>
-                <span className="text-[9px] text-rose-400 font-medium">F9</span>
               </button>
             </div>
           </div>
@@ -1901,9 +1900,6 @@ export default function PosPage() {
                 >
                   <pm.icon size={15} />
                   <span className="text-[10px] font-bold leading-none">{pm.label}</span>
-                  <span className={cn("text-[9px] font-medium leading-none",
-                    activePaymentMethod === pm.method ? "text-violet-100" : "text-slate-400"
-                  )}>{(pm as any).shortcut}</span>
                 </button>
               ))}
             </div>
@@ -1913,13 +1909,10 @@ export default function PosPage() {
               <button
                 onClick={holdSale}
                 disabled={cart.length === 0}
-                className="flex-1 h-12 rounded-sm border border-slate-200 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 text-gray-600 font-semibold text-xs flex flex-col items-center justify-center leading-tight transition-all disabled:opacity-40 shadow-xs hover:shadow-md cursor-pointer btn-3d"
+                className="flex-1 h-12 rounded-sm border border-slate-200 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 text-gray-600 font-semibold text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 shadow-xs hover:shadow-md cursor-pointer btn-3d"
               >
-                <div className="flex items-center gap-1.5">
-                  <PauseCircle size={14} className="text-violet-500" />
-                  <span className="text-xs font-bold">Save &amp; Hold</span>
-                </div>
-                <span className="text-[10px] text-slate-400 font-medium mt-0.5">F8</span>
+                <PauseCircle size={15} className="text-violet-500" />
+                <span className="text-xs font-bold">Save &amp; Hold</span>
               </button>
 
               {/* Flagship CTA: Pay Now Button with VFX Glossy Shimmer Beam & 3D Tactile Elevation */}
@@ -1930,10 +1923,7 @@ export default function PosPage() {
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <CheckCircle2 size={17} className="shrink-0 animate-pulse" />
-                  <div className="flex flex-col items-start leading-tight">
-                    <span className="text-xs font-extrabold whitespace-nowrap">Pay Now</span>
-                    <span className="text-[10px] text-violet-100 font-medium leading-none">F12</span>
-                  </div>
+                  <span className="text-sm font-extrabold whitespace-nowrap">Pay Now</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-base font-black whitespace-nowrap">{fmt(total)}</span>
@@ -2102,8 +2092,8 @@ export default function PosPage() {
           {/* Bottom Toolbar (8 Buttons spanning 100% of left column) */}
           <div className="grid grid-cols-8 gap-1.5">
             {[
-              { label: "Hold Orders", fkey: "F10", icon: PauseCircle, action: () => { loadHolds(); setShowHolds(true); } },
-              { label: "Recent Orders", fkey: "F11", icon: Clock, action: () => { fetchRecentOrders(); setShowRecentOrders(true); } },
+              { label: "Hold Orders", fkey: "", icon: PauseCircle, action: () => { loadHolds(); setShowHolds(true); } },
+              { label: "Recent Orders", fkey: "", icon: Clock, action: () => { fetchRecentOrders(); setShowRecentOrders(true); } },
               { label: "Price Check", fkey: "", icon: Search, action: () => { setPriceCheckSearch(""); setShowPriceCheck(true); } },
               { label: "Stock Lookup", fkey: "", icon: Package, action: () => { setPriceCheckSearch(""); setShowPriceCheck(true); } },
               { label: "Return", fkey: "", icon: RotateCcw, action: () => setShowReturn(true) },
@@ -2115,7 +2105,6 @@ export default function PosPage() {
                 className="h-8 px-2 rounded-sm border border-slate-200/80 bg-white hover:bg-violet-50 hover:border-violet-300 text-gray-600 hover:text-violet-600 text-[11px] font-semibold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs hover:-translate-y-0.5 active:scale-95 cursor-pointer transition-all truncate">
                 <btn.icon size={13} className="text-violet-500 shrink-0" />
                 <span className="truncate">{btn.label}</span>
-                {btn.fkey && <span className="text-[9px] text-slate-400 font-medium shrink-0">{btn.fkey}</span>}
               </button>
             ))}
           </div>

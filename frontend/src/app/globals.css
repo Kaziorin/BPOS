@@ -174,24 +174,24 @@
   --theme-page-bg: #ecfeff;
 }
 
-/* 4. RETAIL & APPAREL (Royal Blue) */
+/* 4. RETAIL & APPAREL (Violet / Purple) */
 [data-theme="retail"], .theme-retail {
-  --theme-primary-50: #eff6ff;
-  --theme-primary-100: #dbeafe;
-  --theme-primary-200: #bfdbfe;
-  --theme-primary-300: #93c5fd;
-  --theme-primary-400: #60a5fa;
-  --theme-primary-500: #3b82f6;
-  --theme-primary-600: #2563eb;
-  --theme-primary-700: #1d4ed8;
-  --theme-primary-800: #1e40af;
-  --theme-primary-900: #1e3a8a;
-  --theme-secondary: #2563eb;
-  --theme-accent: #8b5cf6;
-  --theme-glow: rgba(37, 99, 235, 0.35);
-  --theme-gradient: linear-gradient(to right, #1d4ed8 0%, #2563eb 50%, #60a5fa 100%);
-  --theme-button-shadow: 0 4px 14px -1px rgba(37, 99, 235, 0.38), 0 2px 6px -2px rgba(30, 58, 138, 0.25);
-  --theme-page-bg: #eff6ff;
+  --theme-primary-50: #f5f3ff;
+  --theme-primary-100: #ede9fe;
+  --theme-primary-200: #ddd6fe;
+  --theme-primary-300: #c4b5fd;
+  --theme-primary-400: #a78bfa;
+  --theme-primary-500: #8b5cf6;
+  --theme-primary-600: #7c3aed;
+  --theme-primary-700: #6d28d9;
+  --theme-primary-800: #5b21b6;
+  --theme-primary-900: #4c1d95;
+  --theme-secondary: #7c3aed;
+  --theme-accent: #6366f1;
+  --theme-glow: rgba(124, 58, 237, 0.35);
+  --theme-gradient: linear-gradient(to right, #6d28d9 0%, #7c3aed 50%, #a78bfa 100%);
+  --theme-button-shadow: 0 4px 14px -1px rgba(124, 58, 237, 0.38), 0 2px 6px -2px rgba(76, 29, 149, 0.25);
+  --theme-page-bg: #f5f3ff;
 }
 
 /* 5. WHOLESALE & DISTRIBUTION (Vibrant Action Blue) */
