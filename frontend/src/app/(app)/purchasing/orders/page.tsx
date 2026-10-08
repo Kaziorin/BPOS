@@ -9,7 +9,7 @@ import {
   ListFilter, RefreshCw, ChevronRight, TrendingUp, Clock, Sparkles, Check, Send
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomButton, CustomBreadcrumb } from "@/components/custom";
+import { CustomButton, CustomBreadcrumb, CustomTable, type CustomTableColumn } from "@/components/custom";
 
 interface PoItem {
   id: string;
@@ -619,6 +619,228 @@ export default function PurchaseOrdersPage() {
     return matchesStatus && matchesSupplier && matchesWarehouse && matchesSearch;
   });
 
+  const columns: CustomTableColumn<PO>[] = [
+    {
+      key: "poNo",
+      header: "PO Number",
+      sortable: true,
+      render: (po) => (
+        <div className="flex items-center gap-2">
+          <span className="font-mono font-black text-gray-700 group-hover:text-primary-600 transition">
+            {po.poNo}
+          </span>
+          {Number(po.rebatePercent || 0) > 0 ? (
+            <span className="rounded-sm bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+              {Number(po.rebatePercent)}% Rebate
+            </span>
+          ) : null}
+        </div>
+      ),
+    },
+    {
+      key: "orderDate",
+      header: "Order Date & Time",
+      sortable: true,
+      render: (po) => {
+        const exactDt = po.createdAt ? new Date(po.createdAt) : new Date(po.orderDate);
+        const dateStr = exactDt.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+        const timeStr = po.createdAt
+          ? exactDt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })
+          : "—";
+        return (
+          <div>
+            <p className="font-semibold text-gray-700">{dateStr}</p>
+            <p className="text-[11px] text-gray-400">{timeStr}</p>
+          </div>
+        );
+      },
+    },
+    {
+      key: "supplier",
+      header: "Supplier",
+      sortable: true,
+      getSortValue: (po) => po.supplier?.name || "",
+      render: (po) => (
+        <div>
+          <p className="font-bold text-gray-700">{po.supplier?.name || "Supplier"}</p>
+          {po.supplier?.phone && <p className="text-[11px] text-gray-400">{po.supplier.phone}</p>}
+        </div>
+      ),
+    },
+    {
+      key: "warehouse",
+      header: "Warehouse",
+      render: (po) => {
+        const wh = warehouses.find((w) => w.id === po.warehouseId);
+        return (
+          <span className="inline-flex items-center gap-1 rounded-sm bg-gray-100 border border-slate-200 px-2 py-1 text-[11px] font-semibold text-gray-600">
+            📍 {wh ? wh.name : "Warehouse"}
+          </span>
+        );
+      },
+    },
+    {
+      key: "progress",
+      header: "Items & Progress",
+      className: "min-w-[220px]",
+      render: (po) => {
+        const items = Array.isArray(po.items) ? po.items : [];
+        const ordered = items.reduce((s, i) => s + Number(i.qty || 0), 0);
+        const received = items.reduce((s, i) => s + Number(i.qtyReceived || 0), 0);
+        const pct = ordered > 0 ? Math.min(Math.round((received / ordered) * 100), 100) : 0;
+        return (
+          <div>
+            <div className="flex items-center justify-between text-[11px] font-bold text-gray-600 mb-1">
+              <span className="whitespace-nowrap">{received} / {ordered} units</span>
+              <span className={pct === 100 ? "text-emerald-600" : pct > 0 ? "text-amber-600" : "text-gray-400"}>{pct}%</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+              <div
+                className={`h-full rounded-full transition-all duration-300 ${
+                  pct === 100 ? "bg-emerald-500" : pct > 0 ? "bg-amber-500" : "bg-gray-200"
+                }`}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <div className="mt-1 flex flex-wrap gap-1">
+              {items.slice(0, 2).map((it, i) => (
+                <span key={i} className="text-[10px] text-gray-500 truncate max-w-[120px]">
+                  {it.productName || it.product?.name || "Item"} ({it.qty})
+                </span>
+              ))}
+              {items.length > 2 && (
+                <span className="text-[10px] text-gray-400">+{items.length - 2} more</span>
+              )}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: "total",
+      header: "Amount (৳)",
+      align: "right",
+      sortable: true,
+      getSortValue: (po) => Number(po.total || 0),
+      render: (po) => (
+        <p className="font-black text-gray-700 tabular-nums text-sm">{fmt(Number(po.total))}</p>
+      ),
+    },
+    {
+      key: "status",
+      header: "PO Status",
+      align: "center",
+      render: (po) => {
+        const meta = STATUS[po.status] ?? STATUS.DRAFT;
+        return (
+          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold ${meta.cls}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
+            {meta.label}
+          </span>
+        );
+      },
+    },
+    {
+      key: "paymentStatus",
+      header: "Payment Status",
+      align: "center",
+      render: (po) => {
+        const purchaseInvoices = Array.isArray(po.purchaseInvoices) ? po.purchaseInvoices : [];
+        const hasInvoices = purchaseInvoices.length > 0;
+        const hasUnpaidInvoice = purchaseInvoices.some((i) => i.status !== "PAID");
+        const isFullyPaid = hasInvoices && purchaseInvoices.every((i) => i.status === "PAID");
+        if (isFullyPaid) {
+          return (
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Paid
+            </span>
+          );
+        }
+        if (hasUnpaidInvoice) {
+          return (
+            <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              Unpaid / Due
+            </span>
+          );
+        }
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-500">
+            No Invoice
+          </span>
+        );
+      },
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      align: "right",
+      render: (po) => {
+        const canApprove = po.status === "SUBMITTED";
+        const canReceive = ["APPROVED", "PARTIALLY_RECEIVED"].includes(po.status);
+        const purchaseInvoices = Array.isArray(po.purchaseInvoices) ? po.purchaseInvoices : [];
+        const hasInvoices = purchaseInvoices.length > 0;
+        const hasUnpaidInvoice = purchaseInvoices.some((i) => i.status !== "PAID");
+
+        return (
+          <div className="flex items-center justify-end gap-1.5">
+            <button
+              type="button"
+              onClick={() => setViewPo(po)}
+              className="rounded-sm border border-slate-200 bg-white p-1.5 text-gray-600 shadow-2xs transition hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 cursor-pointer"
+              title="View Full PO Slip"
+            >
+              <Eye size={14} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleDirectPrint(po)}
+              className="rounded-sm border border-slate-200 bg-white p-1.5 text-gray-600 shadow-2xs transition hover:bg-slate-100 hover:text-slate-900 hover:border-slate-300 cursor-pointer"
+              title="Quick Print PO"
+            >
+              <Printer size={14} />
+            </button>
+
+            {canApprove && (
+              <button
+                type="button"
+                onClick={() => approvePo(po.id)}
+                disabled={busy === po.id + "approve"}
+                className="flex items-center gap-1 rounded-sm bg-primary-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:bg-primary-700 disabled:opacity-50 transition cursor-pointer"
+              >
+                {busy === po.id + "approve" ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />} Approve
+              </button>
+            )}
+
+            {canReceive && (
+              <button
+                type="button"
+                onClick={() => openReceive(po)}
+                className="flex items-center gap-1 rounded-sm bg-brand-primary px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:opacity-90 transition cursor-pointer"
+                title="Receive Goods (GRN)"
+              >
+                <PackageCheck size={12} /> Receive GRN
+              </button>
+            )}
+
+            {hasInvoices && hasUnpaidInvoice && (
+              <button
+                type="button"
+                onClick={() => openPay(po)}
+                className="flex items-center gap-1 rounded-sm bg-amber-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:bg-amber-700 cursor-pointer"
+                title="Pay Supplier Invoice"
+              >
+                <CreditCard size={12} /> Pay
+              </button>
+            )}
+          </div>
+        );
+      },
+    },
+  ];
+
   const totalLinesCount = poLines.length;
   const totalUnitsCount = poLines.reduce((acc, l) => acc + (Number(l.qty) || 0), 0);
   const subtotalAmount = poLines.reduce((acc, l) => acc + (Number(l.qty) || 0) * (Number(l.unitPrice) || 0), 0);
@@ -853,189 +1075,15 @@ export default function PurchaseOrdersPage() {
         /* ========================================================================= */
         /* HIGH DENSITY ENTERPRISE ERP TABLE VIEW                                    */
         /* ========================================================================= */
-        <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-2xs">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="border-b border-slate-200 bg-gray-50/80 text-xs font-semibold text-gray-600">
-                <tr>
-                  <th className="py-3.5 px-4 w-12 text-center whitespace-nowrap">#</th>
-                  <th className="py-3.5 px-4 whitespace-nowrap">PO Number</th>
-                  <th className="py-3.5 px-4 whitespace-nowrap">Order Date & Time</th>
-                  <th className="py-3.5 px-4 whitespace-nowrap">Supplier</th>
-                  <th className="py-3.5 px-4 whitespace-nowrap">Warehouse</th>
-                  <th className="py-3.5 px-4 min-w-[200px] whitespace-nowrap">Items & Progress</th>
-                  <th className="py-3.5 px-4 text-right whitespace-nowrap">Amount (৳)</th>
-                  <th className="py-3.5 px-4 text-center whitespace-nowrap">PO Status</th>
-                  <th className="py-3.5 px-4 text-center whitespace-nowrap">Payment Status</th>
-                  <th className="py-3.5 px-4 text-right whitespace-nowrap">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredPos.map((po, index) => {
-                  const meta = STATUS[po.status] ?? STATUS.DRAFT;
-                  const items = Array.isArray(po.items) ? po.items : [];
-                  const purchaseInvoices = Array.isArray(po.purchaseInvoices) ? po.purchaseInvoices : [];
-                  const ordered = items.reduce((s, i) => s + Number(i.qty || 0), 0);
-                  const received = items.reduce((s, i) => s + Number(i.qtyReceived || 0), 0);
-                  const pct = ordered > 0 ? Math.min(Math.round((received / ordered) * 100), 100) : 0;
-                  const canApprove = po.status === "SUBMITTED";
-                  const canReceive = ["APPROVED", "PARTIALLY_RECEIVED"].includes(po.status);
-                  const hasInvoices = purchaseInvoices.length > 0;
-                  const hasUnpaidInvoice = purchaseInvoices.some((i) => i.status !== "PAID");
-                  const isFullyPaid = hasInvoices && purchaseInvoices.every((i) => i.status === "PAID");
-                  const wh = warehouses.find((w) => w.id === po.warehouseId);
-
-                  const exactDt = po.createdAt ? new Date(po.createdAt) : new Date(po.orderDate);
-                  const dateStr = exactDt.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-                  const timeStr = po.createdAt
-                    ? exactDt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })
-                    : "—";
-
-                  return (
-                    <tr key={po.id} className="hover:bg-gray-50/80 transition group">
-                      <td className="py-3.5 px-4 text-center font-bold text-gray-400 whitespace-nowrap">{index + 1}</td>
-                      
-                      {/* 1. PO Number Column */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-black text-gray-700 group-hover:text-primary-600 transition">{po.poNo}</span>
-                          {Number(po.rebatePercent || 0) > 0 ? (
-                            <span className="rounded-sm bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 text-[10px] font-bold text-emerald-700">
-                              {Number(po.rebatePercent)}% Rebate
-                            </span>
-                          ) : null}
-                        </div>
-                      </td>
-
-                      {/* 2. Order Date & Time Column */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <p className="font-semibold text-gray-700">{dateStr}</p>
-                        <p className="text-[11px] text-gray-400">{timeStr}</p>
-                      </td>
-
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <p className="font-bold text-gray-700">{po.supplier?.name || "Supplier"}</p>
-                        {po.supplier?.phone && <p className="text-[11px] text-gray-400">{po.supplier.phone}</p>}
-                      </td>
-
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1 rounded-sm bg-gray-100 border border-slate-200 px-2 py-1 text-[11px] font-semibold text-gray-600">
-                          📍 {wh ? wh.name : "Warehouse"}
-                        </span>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center justify-between text-[11px] font-bold text-gray-600 mb-1">
-                          <span className="whitespace-nowrap">{received} / {ordered} units</span>
-                          <span className={pct === 100 ? "text-emerald-600" : pct > 0 ? "text-amber-600" : "text-gray-400"}>{pct}%</span>
-                        </div>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-                          <div
-                            className={`h-full rounded-full transition-all duration-300 ${
-                              pct === 100 ? "bg-emerald-500" : pct > 0 ? "bg-amber-500" : "bg-gray-200"
-                            }`}
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          {items.slice(0, 2).map((it, i) => (
-                            <span key={i} className="text-[10px] text-gray-500 truncate max-w-[120px]">
-                              {it.productName || it.product?.name || "Item"} ({it.qty})
-                            </span>
-                          ))}
-                          {items.length > 2 && (
-                            <span className="text-[10px] text-gray-400">+{items.length - 2} more</span>
-                          )}
-                        </div>
-                      </td>
-
-                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                        <p className="font-black text-gray-700 tabular-nums text-sm">{fmt(Number(po.total))}</p>
-                      </td>
-
-                      {/* PO Status Badge */}
-                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold ${meta.cls}`}>
-                          <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
-                          {meta.label}
-                        </span>
-                      </td>
-
-                      {/* Payment Status Dedicated Column */}
-                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                        {isFullyPaid ? (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                            Paid
-                          </span>
-                        ) : hasUnpaidInvoice ? (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-700">
-                            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                            Unpaid / Due
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-500">
-                            No Invoice
-                          </span>
-                        )}
-                      </td>
-
-                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => setViewPo(po)}
-                            className="rounded-sm border border-slate-200 bg-white p-1.5 text-gray-600 shadow-2xs transition hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200"
-                            title="View Full PO Slip"
-                          >
-                            <Eye size={14} />
-                          </button>
-
-                          <button
-                            onClick={() => handleDirectPrint(po)}
-                            className="rounded-sm border border-slate-200 bg-white p-1.5 text-gray-600 shadow-2xs transition hover:bg-slate-100 hover:text-slate-900 hover:border-slate-300"
-                            title="Quick Print PO"
-                          >
-                            <Printer size={14} />
-                          </button>
-
-                          {canApprove && (
-                            <button
-                              onClick={() => approvePo(po.id)}
-                              disabled={busy === po.id + "approve"}
-                              className="flex items-center gap-1 rounded-sm bg-primary-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:bg-primary-700 disabled:opacity-50 transition"
-                            >
-                              {busy === po.id + "approve" ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />} Approve
-                            </button>
-                          )}
-
-                          {canReceive && (
-                            <button
-                              onClick={() => openReceive(po)}
-                              className="flex items-center gap-1 rounded-sm bg-brand-primary px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:opacity-90 transition"
-                              title="Receive Goods (GRN)"
-                            >
-                              <PackageCheck size={12} /> Receive GRN
-                            </button>
-                          )}
-
-                          {hasInvoices && hasUnpaidInvoice && (
-                            <button
-                              onClick={() => openPay(po)}
-                              className="flex items-center gap-1 rounded-sm bg-amber-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs hover:bg-amber-700"
-                              title="Pay Supplier Invoice"
-                            >
-                              <CreditCard size={12} /> Pay
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <CustomTable<PO>
+          columns={columns}
+          data={filteredPos}
+          loading={loading}
+          dragToScroll={true}
+          pageSize={10}
+          showPagination={true}
+          emptyMessage="No purchase orders match your criteria"
+        />
       ) : (
         /* ========================================================================= */
         /* MODERN STRUCTURED GRID CARDS VIEW                                         */
