@@ -370,13 +370,7 @@ export default function PurchaseOrdersPage() {
       rebatePercent: "0",
       note: "",
     });
-    setPoLines(
-      products.slice(0, 2).map((p) => ({
-        productId: p.id,
-        qty: "1",
-        unitPrice: String(p.costPrice || 0),
-      }))
-    );
+    setPoLines([]);
     setScanInput("");
     setPoError(null);
     setShowPoModal(true);
@@ -1307,62 +1301,70 @@ export default function PurchaseOrdersPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {poLines.map((line, idx) => {
-                        const lineTotal = (Number(line.qty) || 0) * (Number(line.unitPrice) || 0);
-                        return (
-                          <tr key={idx} className="hover:bg-gray-50/60 transition">
-                            <td className="py-3 px-4 text-center font-bold text-gray-400">{idx + 1}</td>
-                            <td className="py-3 px-4">
-                              <select
-                                value={line.productId}
-                                onChange={(e) => updatePoLine(idx, "productId", e.target.value)}
-                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:border-primary-500 focus:outline-none"
-                                required
-                              >
-                                <option value="">Select Product…</option>
-                                {products.map((p) => (
-                                  <option key={p.id} value={p.id}>
-                                    {p.name} {p.sku ? `(${p.sku})` : ""}
-                                  </option>
-                                ))}
-                              </select>
-                            </td>
-                            <td className="py-3 px-4 text-center">
-                              <input
-                                type="number"
-                                min="1"
-                                value={line.qty}
-                                onChange={(e) => updatePoLine(idx, "qty", e.target.value)}
-                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-center text-xs font-black text-gray-600 focus:border-primary-500 focus:outline-none"
-                                required
-                              />
-                            </td>
-                            <td className="py-3 px-4 text-right">
-                              <input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={line.unitPrice}
-                                onChange={(e) => updatePoLine(idx, "unitPrice", e.target.value)}
-                                className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-right text-xs font-semibold text-gray-600 focus:border-primary-500 focus:outline-none"
-                                required
-                              />
-                            </td>
-                            <td className="py-3 px-4 text-right font-black tabular-nums text-gray-600 text-sm">
-                              {fmt(lineTotal)}
-                            </td>
-                            <td className="py-3 px-4 text-center">
-                              <button
-                                type="button"
-                                onClick={() => removePoLine(idx)}
-                                className="rounded-sm p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition"
-                              >
-                                <Trash2 size={15} />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                      {poLines.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="py-8 text-center text-slate-400 text-xs">
+                            No items added yet. Scan barcode, quick pick, or click &quot;+ Add Blank Line&quot;.
+                          </td>
+                        </tr>
+                      ) : (
+                        poLines.map((line, idx) => {
+                          const lineTotal = (Number(line.qty) || 0) * (Number(line.unitPrice) || 0);
+                          return (
+                            <tr key={idx} className="hover:bg-gray-50/60 transition">
+                              <td className="py-3 px-4 text-center font-bold text-gray-400">{idx + 1}</td>
+                              <td className="py-3 px-4">
+                                <select
+                                  value={line.productId}
+                                  onChange={(e) => updatePoLine(idx, "productId", e.target.value)}
+                                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 focus:border-primary-500 focus:outline-none"
+                                  required
+                                >
+                                  <option value="">Select Product…</option>
+                                  {products.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                      {p.name} {p.sku ? `(${p.sku})` : ""}
+                                    </option>
+                                  ))}
+                                </select>
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={line.qty}
+                                  onChange={(e) => updatePoLine(idx, "qty", e.target.value)}
+                                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-center text-xs font-black text-gray-600 focus:border-primary-500 focus:outline-none"
+                                  required
+                                />
+                              </td>
+                              <td className="py-3 px-4 text-right">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={line.unitPrice}
+                                  onChange={(e) => updatePoLine(idx, "unitPrice", e.target.value)}
+                                  className="w-full rounded-sm border border-slate-200 bg-white px-3 py-2 text-right text-xs font-semibold text-gray-600 focus:border-primary-500 focus:outline-none"
+                                  required
+                                />
+                              </td>
+                              <td className="py-3 px-4 text-right font-black tabular-nums text-gray-600 text-sm">
+                                {fmt(lineTotal)}
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => removePoLine(idx)}
+                                  className="rounded-sm p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition"
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
                     </tbody>
                   </table>
                 </div>
