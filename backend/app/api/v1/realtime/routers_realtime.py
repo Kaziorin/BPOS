@@ -89,7 +89,6 @@ def _uid() -> str:
 async def sse_stream(
     channel: str = "DASHBOARD",
     request: Request = None,
-    db: AsyncSession = Depends(get_db),
 ):
     """SSE stream for real-time updates. Client connects here for live events.
 
@@ -102,7 +101,9 @@ async def sse_stream(
     # Extract tenant from query or header
     tenant_id = request.query_params.get("tenantId", "")
     if not tenant_id:
-        tenant_id = request.headers.get("X-Tenant-Id", "default")
+        tenant_id = request.headers.get("X-Tenant-Id", "")
+    if not tenant_id or tenant_id == "default":
+        tenant_id = "19f2452c-78dc-4309-9a41-6463c93ccaf7"
 
     queue = manager.subscribe(tenant_id, channel)
 

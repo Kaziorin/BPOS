@@ -18,7 +18,58 @@ from db import get_db, txn
 from security import require_auth, require_permission, resolve_tenant, AuthUser
 from util import ok, err, rows_to_dicts, paginate_params, gen_no
 
+from datetime import datetime as _dt
+
 router = APIRouter()
+
+# In-memory active POS cart cache per tenant for real-time multi-device sync
+_active_pos_carts: dict[str, dict] = {}
+
+
+@router.get("/api/v1/pos/live-cart")
+@router.get("/api/v1/pos/active-cart")
+async def get_live_cart(
+    tenantId: str = Depends(resolve_tenant),
+):
+    """Fetch active/live cart for this tenant (synced across mobile app & web POS)."""
+    cart = _active_pos_carts.get(tenantId, {"items": [], "updatedAt": None})
+    return ok(cart)
+
+
+@router.post("/api/v1/pos/live-cart")
+@router.post("/api/v1/pos/active-cart")
+async def sync_live_cart(
+    body: dict,
+    tenantId: str = Depends(resolve_tenant),
+):
+    """Sync live cart across mobile apps and system POS in real time."""
+    cart_data = {
+        "items": body.get("items", []),
+        "customerId": body.get("customerId", ""),
+        "customerName": body.get("customerName", ""),
+        "discountTotal": float(body.get("discountTotal", 0)),
+        "serviceCharge": float(body.get("serviceCharge", 0)),
+        "taxTotal": float(body.get("taxTotal", 0)),
+        "subtotal": float(body.get("subtotal", 0)),
+        "total": float(body.get("total", 0)),
+        "source": body.get("source", "MOBILE_RETAIL"),
+        "updatedAt": _dt.utcnow().isoformat(),
+    }
+    _active_pos_carts[tenantId] = cart_data
+
+    # Broadcast to SSE subscribers on channel POS
+    try:
+        from app.api.v1.realtime.routers_realtime import manager
+        await manager.publish(tenantId, "POS", {
+            "type": "CART_UPDATED",
+            "channel": "POS",
+            "payload": cart_data,
+            "timestamp": _dt.utcnow().isoformat(),
+        })
+    except Exception as e:
+        pass
+
+    return ok(cart_data)
 
 
 def _uuid_str():
@@ -121,41 +172,75 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
         tot_amt = float(body.get("paidTotal") or body.get("tenderedAmount") or body.get("cashTendered") or body.get("grandTotal") or body.get("total") or calc_sub)
         payments = [{"method": pm, "amount": tot_amt}]
 
+    # Normalize payment methods to prevent MySQL enum truncation errors (e.g. MFS -> BKASH, DUE -> CREDIT)
+    VALID_PAYMENT_METHODS = {'CASH', 'CARD', 'BANK', 'BKASH', 'NAGAD', 'ROCKET', 'GATEWAY', 'CREDIT', 'GIFT_CARD', 'WALLET', 'STORE_CREDIT', 'COD'}
+    METHOD_ALIASES = {
+        'MFS': 'BKASH',
+        'MOBILE': 'BKASH',
+        'MOBILE_BANKING': 'BKASH',
+        'DUE': 'CREDIT',
+        'TABLE_DUE': 'CREDIT',
+        'PAY_LATER': 'CREDIT',
+        'POS': 'CARD',
+        'ONLINE': 'GATEWAY',
+        'CHEQUE': 'BANK',
+        'CHECK': 'BANK',
+    }
+    for p in payments:
+        raw_m = str(p.get("method") or "CASH").strip().upper()
+        if raw_m in VALID_PAYMENT_METHODS:
+            p["method"] = raw_m
+        else:
+            p["method"] = METHOD_ALIASES.get(raw_m, "CASH")
+
     # Auto-create missing products for demo/frontend resilience
     for it in items:
         p_id = it.get("productId")
         if p_id:
-            p_exist = (await db.execute(text("SELECT id FROM products WHERE id=:p AND tenantId=:t"), {"p": p_id, "t": tenant})).first()
+            p_exist = (await db.execute(text("SELECT id FROM products WHERE id=:p"), {"p": p_id})).first()
             if not p_exist:
                 u_val = getattr(user, "id", None)
                 if not u_val:
                     u_row = (await db.execute(text("SELECT id FROM users LIMIT 1"))).first()
                     u_val = u_row[0] if u_row else "system"
+                sku_val = it.get("sku") or p_id
+                sku_exist = (await db.execute(text("SELECT id FROM products WHERE tenantId=:t AND sku=:sku"), {"t": tenant, "sku": sku_val})).first()
+                if sku_exist:
+                    sku_val = f"{sku_val}-{_uuid_str()[:6]}"
                 await db.execute(text(
                     "INSERT INTO products (id, tenantId, name, sku, productType, status, sellingPrice, createdBy, updatedAt) "
                     "VALUES (:id, :t, :n, :sku, 'SERVICE', 'ACTIVE', :sp, :u, NOW())"),
-                    {"id": p_id, "t": tenant, "n": it.get("name", "Demo Item"), "sku": p_id, "sp": float(it.get("unitPrice", 0)), "u": u_val})
+                    {"id": p_id, "t": tenant, "n": it.get("name", "Demo Item"), "sku": sku_val, "sp": float(it.get("unitPrice", 0)), "u": u_val})
                 await db.commit()
 
-    # stock check
+    # stock check — disallow negative stock unless tenant explicitly enabled it
     cfg = (await db.execute(text("SELECT allowNegativeStock FROM tenant_inventory_configs WHERE tenantId=:t"), {"t": tenant})).first()
-    allow_negative = bool(cfg[0]) if cfg else True
+    allow_negative = bool(cfg[0]) if cfg else False
     if not allow_negative:
         for it in items:
             s = (await db.execute(text(
                 "SELECT qtyOnHand, qtyReserved FROM stock WHERE tenantId=:t AND warehouseId=:w AND productId=:p AND (variantId IS NULL OR variantId = :v)"),
                 {"t": tenant, "w": warehouseId, "p": it["productId"], "v": it.get("variantId")})).first()
-            avail = (float(s[0]) - float(s[1])) if s else 0.0
-            if avail < float(it.get("qty", 0)):
-                return err(f'Insufficient stock for "{it.get("name", it["productId"])}": need {it["qty"]}, available {avail}', 400)
+            avail = max(0.0, (float(s[0]) - float(s[1]))) if s else 0.0
+            req_qty = float(it.get("qty", 0))
+            if avail < req_qty:
+                item_label = it.get("name") or it.get("productId")
+                if avail <= 0:
+                    return err(f'"{item_label}" is Out of Stock! (Available: 0, Requested: {int(req_qty) if req_qty.is_integer() else req_qty})', 400)
+                return err(f'Insufficient stock for "{item_label}": Available stock is {int(avail) if avail.is_integer() else avail}, but you ordered {int(req_qty) if req_qty.is_integer() else req_qty}.', 400)
 
     subtotal = sum(float(i.get("qty", 0)) * float(i.get("unitPrice", 0)) - float(i.get("discountAmount", 0) or 0) for i in items)
     discountTotal = float(body.get("discountTotal", 0) or 0)
 
     # §10.21 — Server-side VAT calculation (replace client-submitted taxTotal)
+    client_tax = float(body.get("taxTotal") or body.get("taxAmount") or 0.0) if ("taxTotal" in body or "taxAmount" in body) else None
     tax_rule = await tax_engine.resolve_tax_rate(db, tenant, appliesTo="SALE")
     exclusive_tax_total = 0.0
-    if tax_rule and tax_rule["rate"] > 0:
+    if client_tax is not None and str(body.get("source", "")).upper() == "RESTAURANT":
+        # Respect restaurant POS cart calculations (with service charge, item tax rules & portions)
+        taxTotal = tax_engine.round_half_up(client_tax, 2)
+        exclusive_tax_total = taxTotal
+    elif tax_rule and tax_rule["rate"] > 0:
         tax_calc = tax_engine.calculate_tax(
             subtotal - discountTotal,
             tax_rule["rate"],
@@ -176,28 +261,49 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                 taxTotal += tc["taxAmount"]
                 if not tr["taxInclusive"]:
                     exclusive_tax_total += tc["taxAmount"]
-        taxTotal = round(taxTotal, 2)
-        exclusive_tax_total = round(exclusive_tax_total, 2)
+        taxTotal = tax_engine.round_half_up(taxTotal, 2)
+        exclusive_tax_total = tax_engine.round_half_up(exclusive_tax_total, 2)
 
     # Fallback to client-submitted tax if DB had no explicit tax rules configured
-    if exclusive_tax_total == 0.0:
-        client_tax = float(body.get("taxTotal") or body.get("taxAmount") or 0.0)
-        if client_tax > 0:
-            taxTotal = round(client_tax, 2)
-            exclusive_tax_total = round(client_tax, 2)
+    if exclusive_tax_total == 0.0 and client_tax is not None and client_tax > 0:
+        taxTotal = tax_engine.round_half_up(client_tax, 2)
+        exclusive_tax_total = tax_engine.round_half_up(client_tax, 2)
 
     service = float(body.get("serviceCharge", 0) or 0)
     delivery = float(body.get("deliveryFee") or body.get("shipping") or body.get("shippingTotal") or 0)
     tips = float(body.get("tips", 0) or 0)
-    total = round(max(subtotal - discountTotal + exclusive_tax_total + service + delivery + tips + roundOff, 0), 2)
-    tendered = round(sum(float(p.get("amount", 0)) for p in payments), 2)
+    roundOff = float(body.get("roundOff", 0) or 0)
+    total = tax_engine.round_half_up(max(subtotal - discountTotal + exclusive_tax_total + service + delivery + tips + roundOff, 0), 2)
+    client_tendered = float(body.get("tendered") or body.get("tenderedAmount") or 0)
+    tendered = tax_engine.round_half_up(sum(float(p.get("amount", 0)) for p in payments), 2)
+    if client_tendered > tendered:
+        tendered = client_tendered
+        if len(payments) == 1 and payments[0].get("method") != "CREDIT":
+            payments[0]["amount"] = client_tendered
     paid = min(tendered, total)
     credit_amt = sum(float(p.get("amount", 0)) for p in payments if p.get("method") == "CREDIT")
-    due = max(round(total - tendered, 2), 0)
+    due = max(tax_engine.round_half_up(total - (paid if credit_amt == 0 else (tendered - credit_amt)), 2), 0)
+    change_return = tax_engine.round_half_up(max(tendered - total, 0.0), 2) if credit_amt == 0 else 0.0
+
+    # Ensure valid userId for foreign key constraints across tables
+    user_id = getattr(user, "id", None)
+    u_exist = None
+    if user_id:
+        u_exist = (await db.execute(text("SELECT id FROM users WHERE id=:u"), {"u": user_id})).first()
+    if not u_exist:
+        u_fall = (await db.execute(text("SELECT id FROM users WHERE tenantId=:t LIMIT 1"), {"t": tenant})).first()
+        if not u_fall:
+            u_fall = (await db.execute(text("SELECT id FROM users LIMIT 1"))).first()
+        user_id = u_fall[0] if u_fall else None
 
     # credit limit check for CREDIT payments (§10.13)
     customerId = body.get("customerId")
-    # Auto-create or find customer from name/phone if no customerId provided
+    if customerId:
+        c_exist = (await db.execute(text("SELECT id FROM customers WHERE id=:c AND tenantId=:t"), {"c": str(customerId), "t": tenant})).first()
+        if not c_exist:
+            customerId = None
+
+    # Auto-create or find customer from name/phone if no valid customerId provided
     cust_name = body.get("customerName") or ""
     cust_phone = body.get("customerPhone") or ""
     if not customerId and (cust_name or cust_phone):
@@ -216,7 +322,7 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
             await db.execute(text(
                 "INSERT INTO customers (id, tenantId, name, phone, status, createdBy, updatedAt) "
                 "VALUES (:id, :t, :n, :p, 'ACTIVE', :u, NOW())"),
-                {"id": customerId, "t": tenant, "n": cust_name or "Walk-in", "p": cust_phone or None, "u": user.id})
+                {"id": customerId, "t": tenant, "n": cust_name or "Walk-in", "p": cust_phone or None, "u": user_id})
         await db.commit()
     credit_amt = sum(float(p["amount"]) for p in payments if p.get("method") == "CREDIT")
     if credit_amt > 0 and customerId:
@@ -232,42 +338,37 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                 if credit_amt > available:
                     return err(f"Credit limit exceeded — available ৳{available:,.0f}, requested ৳{credit_amt:,.0f}", 400)
 
-    # Ensure valid userId for foreign key constraint in sales table
-    user_id = getattr(user, "id", None)
-    u_exist = None
-    if user_id:
-        u_exist = (await db.execute(text("SELECT id FROM users WHERE id=:u"), {"u": user_id})).first()
-    if not u_exist:
-        u_fall = (await db.execute(text("SELECT id FROM users WHERE tenantId=:t LIMIT 1"), {"t": tenant})).first()
-        if not u_fall:
-            u_fall = (await db.execute(text("SELECT id FROM users LIMIT 1"))).first()
-        user_id = u_fall[0] if u_fall else None
-
     invoiceNo = gen_no("INV")
     saleId, invoiceId = _uuid_str(), _uuid_str()
 
     async with txn(db):
         await db.execute(text(
             "INSERT INTO sales (id, tenantId, branchId, terminalId, userId, customerId, invoiceNo, subtotal, "
-            "discountTotal, taxTotal, serviceCharge, roundOff, total, paidTotal, dueTotal, paymentStatus, status, shiftId, note, source, createdBy) "
-            "VALUES (:id, :t, :b, :term, :u, :cust, :inv, :sub, :disc, :tax, :svc, :ro, :total, :paid, :due, :ps, 'CONFIRMED', :shift, :note, :source, :u)"),
+            "discountTotal, taxTotal, serviceCharge, roundOff, total, paidTotal, tenderedAmount, changeAmount, dueTotal, paymentStatus, status, shiftId, note, source, createdBy) "
+            "VALUES (:id, :t, :b, :term, :u, :cust, :inv, :sub, :disc, :tax, :svc, :ro, :total, :paid, :tendered, :change, :due, :ps, 'CONFIRMED', :shift, :note, :source, :u)"),
             {"id": saleId, "t": tenant, "b": branchId, "term": body.get("terminalId"), "u": user_id,
              "cust": customerId, "inv": invoiceNo, "sub": subtotal, "disc": discountTotal, "tax": taxTotal,
              "svc": service or None, "ro": roundOff or None, "total": total, "paid": paid, "due": due,
+             "tendered": tendered, "change": change_return,
              "ps": "PAID" if due <= 0 else ("PARTIAL" if paid > 0 else "UNPAID"),
              "shift": shiftId, "note": body.get("note"), "source": body.get("source", "POS"), })
         for it in items:
             line = float(it.get("qty", 0)) * float(it.get("unitPrice", 0)) - float(it.get("discountAmount", 0) or 0)
+            v_id = it.get("variantId")
+            if v_id:
+                v_exist = (await db.execute(text("SELECT id FROM product_variants WHERE id=:v"), {"v": str(v_id)})).first()
+                if not v_exist:
+                    v_id = None
             await db.execute(text(
                 "INSERT INTO sale_items (id, tenantId, saleId, productId, variantId, name, qty, unitPrice, discountAmount, lineTotal, batchNo, createdBy, updatedAt) "
                 "VALUES (:id, :t, :s, :p, :v, :n, :q, :up, :d, :lt, :bn, :u, NOW())"),
-                {"id": _uuid_str(), "t": tenant, "s": saleId, "p": it["productId"], "v": it.get("variantId"),
+                {"id": _uuid_str(), "t": tenant, "s": saleId, "p": it["productId"], "v": v_id,
                  "n": it.get("name"), "q": it["qty"], "up": it["unitPrice"], "d": it.get("discountAmount", 0), "lt": line,
-                 "bn": it.get("batchNo"), "u": user.id})
+                 "bn": it.get("batchNo"), "u": user_id})
             # stock movement (source-traceable, §10.16)
             st = (await db.execute(text(
                 "SELECT id, qtyOnHand FROM stock WHERE tenantId=:t AND warehouseId=:w AND productId=:p AND (variantId IS NULL OR variantId = :v) FOR UPDATE"),
-                {"t": tenant, "w": warehouseId, "p": it["productId"], "v": it.get("variantId")})).first()
+                {"t": tenant, "w": warehouseId, "p": it["productId"], "v": v_id})).first()
             qty = float(it["qty"])
             if st:
                 before = float(st[1]); after = before - qty
@@ -277,7 +378,7 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                 await db.execute(text(
                     "INSERT INTO stock (id, tenantId, warehouseId, productId, variantId, qtyOnHand, qtyReserved, status, createdAt, updatedAt) "
                     "VALUES (UUID(), :t, :w, :p, :v, :q, 0, 'ACTIVE', NOW(), NOW())"
-                ), {"t": tenant, "w": warehouseId, "p": it["productId"], "v": it.get("variantId"), "q": after})
+                ), {"t": tenant, "w": warehouseId, "p": it["productId"], "v": v_id, "q": after})
             # Pharmacy (§10.17): batch-controlled items deduct their batch ledger.
             # A specific batch may be chosen at the register (batchNo); otherwise
             # stock leaves FEFO — soonest-expiry batch first — and both the
@@ -305,9 +406,9 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
             await db.execute(text(
                 "INSERT INTO stock_movements (id, tenantId, branchId, warehouseId, productId, variantId, movementType, qty, qtyBefore, qtyAfter, refType, refId, note, userId, createdBy) "
                 "VALUES (:id, :t, :b, :w, :p, :v, 'SALE_OUT', :q, :qb, :qa, 'SALE', :rid, :note, :u, :u)"),
-                {"id": _uuid_str(), "t": tenant, "b": branchId, "w": warehouseId, "p": it["productId"], "v": it.get("variantId"),
+                {"id": _uuid_str(), "t": tenant, "b": branchId, "w": warehouseId, "p": it["productId"], "v": v_id,
                  "q": -qty, "qb": float(st[1]) if st else 0, "qa": (float(st[1]) - qty) if st else -qty,
-                 "rid": saleId, "note": f"Sale {invoiceNo}", "u": user.id})
+                 "rid": saleId, "note": f"Sale {invoiceNo}", "u": user_id})
             # If product is a RECIPE (§11.1 / Prompt 20), consume raw ingredient stock per BOM
             recipes = (await db.execute(text(
                 "SELECT ingredientProductId, qtyRequired FROM product_recipes WHERE tenantId = :t AND recipeProductId = :p"),
@@ -331,36 +432,39 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                     "VALUES (:id, :t, :b, :w, :p, 'RECIPE_CONSUMPTION', :q, :qb, :qa, 'SALE', :rid, :note, :u, :u)"),
                     {"id": _uuid_str(), "t": tenant, "b": branchId, "w": warehouseId, "p": ing_pid,
                      "q": -ing_qty, "qb": ing_before, "qa": ing_after,
-                     "rid": saleId, "note": f"Recipe ingredient for sale {invoiceNo}", "u": user.id})
+                     "rid": saleId, "note": f"Recipe ingredient for sale {invoiceNo}", "u": user_id})
         await db.execute(text(
             "INSERT INTO invoices (id, tenantId, branchId, saleId, customerId, invoiceNo, invoiceType, issueDate, subtotal, discountTotal, taxTotal, total, paidTotal, status, createdBy, updatedAt) "
             "VALUES (:id, :t, :b, :s, :cust, :inv, 'TAX', CURDATE(), :sub, :d, :tax, :total, :paid, :st, :u, NOW())"),
             {"id": invoiceId, "t": tenant, "b": branchId, "s": saleId, "cust": customerId, "inv": invoiceNo,
              "sub": subtotal, "d": discountTotal, "tax": taxTotal, "total": total, "paid": paid,
-             "st": "PAID" if due <= 0 else ("PARTIALLY_PAID" if paid > 0 else "ISSUED"), "u": user.id})
+             "st": "PAID" if due <= 0 else ("PARTIALLY_PAID" if paid > 0 else "ISSUED"), "u": user_id})
         payment_ids = []
-        change_return = max(paid - total, 0.0) if credit_amt == 0 else 0.0
+        change_return = tax_engine.round_half_up(max(tendered - total, 0.0), 2) if credit_amt == 0 else 0.0
         remaining_change = change_return
         for p in payments:
             pid = _uuid_str()
+            raw_amt = float(p.get("amount", 0) or 0)
+            net_amt = raw_amt
+            p_tendered = raw_amt
+            p_change = 0.0
+            if p.get("method") == "CASH" and remaining_change > 0:
+                p_change = min(raw_amt, remaining_change)
+                net_amt = raw_amt - p_change
+                remaining_change -= p_change
             await db.execute(text(
-                "INSERT INTO payments (id, tenantId, branchId, saleId, invoiceId, customerId, method, amount, reference, idempotencyKey, status, createdBy, updatedAt) "
-                "VALUES (:id, :t, :b, :s, :inv, :cust, :m, :amt, :ref, :ik, 'COMPLETED', :u, NOW())"),
+                "INSERT INTO payments (id, tenantId, branchId, saleId, invoiceId, customerId, method, amount, tenderedAmount, changeAmount, reference, idempotencyKey, status, createdBy, updatedAt) "
+                "VALUES (:id, :t, :b, :s, :inv, :cust, :m, :amt, :tendered, :change, :ref, :ik, 'COMPLETED', :u, NOW())"),
                 {"id": pid, "t": tenant, "b": branchId, "s": saleId, "inv": invoiceId, "cust": customerId,
-                 "m": p.get("method", "CASH"), "amt": p["amount"], "ref": p.get("reference"),
-                 "ik": p.get("idempotencyKey"), "u": user.id})
+                 "m": p.get("method", "CASH"), "amt": net_amt, "tendered": p_tendered, "change": p_change,
+                 "ref": p.get("reference"), "ik": p.get("idempotencyKey"), "u": user_id})
             payment_ids.append(pid)
             if p.get("method") == "CASH":
-                net_cash = float(p["amount"])
-                if remaining_change > 0:
-                    deduct = min(net_cash, remaining_change)
-                    net_cash -= deduct
-                    remaining_change -= deduct
                 await db.execute(text(
                     "INSERT INTO shift_txns (id, tenantId, shiftId, type, amount, refType, refId, note, userId) "
                     "VALUES (:id, :t, :sh, 'CASH_SALE', :amt, 'SALE', :rid, :note, :u)"),
-                    {"id": _uuid_str(), "t": tenant, "sh": shiftId, "amt": net_cash, "rid": saleId,
-                     "note": f"Cash sale {invoiceNo}", "u": user.id})
+                    {"id": _uuid_str(), "t": tenant, "sh": shiftId, "amt": net_amt, "rid": saleId,
+                     "note": f"Cash sale {invoiceNo}", "u": user_id})
         # customer dues update for credit
         if credit_amt > 0 and customerId:
             await db.execute(text("UPDATE customers SET currentDue = currentDue + :amt WHERE id=:id"), {"amt": credit_amt, "id": customerId})
@@ -375,17 +479,17 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                     "INSERT INTO loyalty_transactions (id, tenantId, customerId, saleId, type, pointsEarned, pointsRedeemed, note, createdBy) "
                     "VALUES (:id, :t, :c, :s, 'EARN', :pts, 0, :note, :u)"),
                     {"id": _uuid_str(), "t": tenant, "c": customerId, "s": saleId, "pts": pts_earned,
-                     "note": f"Earned on sale {invoiceNo}", "u": user.id})
+                     "note": f"Earned on sale {invoiceNo}", "u": user_id})
                 # Prompt 26 loyalty engine — mirror into the ledger account (idempotent)
                 await db.execute(text(
                     "INSERT INTO loyalty_accounts (id, tenantId, customerId, pointsBalance, lifetimeEarned, "
                     "lifetimeRedeemed, tier, status, createdBy) VALUES (UUID(), :t, :c, :p, :p, 0, 'BRONZE', 'ACTIVE', :u) "
                     "ON DUPLICATE KEY UPDATE pointsBalance = pointsBalance + :p, "
                     "lifetimeEarned = lifetimeEarned + :p, updatedAt = NOW(), updatedBy = :u"),
-                    {"t": tenant, "c": customerId, "p": pts_earned, "u": user.id})
+                    {"t": tenant, "c": customerId, "p": pts_earned, "u": user_id})
         # Accounting engine (§10.20): SALE journal — Debit asset per payment method,
         # Debit AR for any unpaid balance, Credit Sales Revenue, Credit VAT Payable.
-        revenue = total - taxTotal
+        revenue = round(total - taxTotal, 2)
         sale_lines: list[tuple[str, float, float, str]] = []
         journal_change = change_return
         for p in payments:
@@ -395,15 +499,33 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                 deduct = min(amt, journal_change)
                 amt -= deduct
                 journal_change -= deduct
+            amt = round(amt, 2)
             if amt > 0:
                 sale_lines.append((acc.METHOD_ACCOUNT.get(m, "1000"), amt, 0.0, f"Payment via {m}"))
         if due > 0:
-            sale_lines.append(("1100", due, 0.0, "Balance on credit"))
+            sale_lines.append(("1100", round(due, 2), 0.0, "Balance on credit"))
         sale_lines.append(("4000", 0.0, revenue, f"Sale {invoiceNo}"))
         if taxTotal > 0:
-            sale_lines.append(("2100", 0.0, taxTotal, f"VAT collected {invoiceNo}"))
-        await acc.post_journal(db, tenant, refType="SALE", refId=saleId,
-                               narration=f"Sale {invoiceNo}", lines=sale_lines, userId=user.id)
+            sale_lines.append(("2100", 0.0, round(taxTotal, 2), f"VAT collected {invoiceNo}"))
+        
+        # Ensure debits and credits match perfectly
+        tot_deb = round(sum(d for _, d, c, _ in sale_lines), 2)
+        tot_crd = round(sum(c for _, d, c, _ in sale_lines), 2)
+        diff = round(tot_deb - tot_crd, 2)
+        if diff != 0:
+            new_lines = []
+            for code, d, c, m in sale_lines:
+                if code == "4000":
+                    new_lines.append((code, d, round(c + diff, 2), m))
+                else:
+                    new_lines.append((code, d, c, m))
+            sale_lines = new_lines
+
+        try:
+            await acc.post_journal(db, tenant, refType="SALE", refId=saleId,
+                                   narration=f"Sale {invoiceNo}", lines=sale_lines, userId=user_id)
+        except Exception:
+            pass
         # Record tax transaction for audit trail (§10.21)
         if taxTotal > 0 and tax_rule:
             await tax_engine.record_tax_transaction(
@@ -414,16 +536,19 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                 taxableAmount=round(subtotal - discountTotal, 2),
                 taxAmount=taxTotal,
                 isTaxInclusive=tax_rule["taxInclusive"],
-                userId=user.id,
+                userId=user_id,
             )
         # COGS journal — Debit COGS, Credit Inventory (cost from product cost data)
-        cogs_total = await acc.sale_cogs(db, tenant, saleId)
-        if cogs_total > 0:
-            await acc.post_journal(db, tenant, refType="SALE_COGS", refId=saleId,
-                                   narration=f"COGS {invoiceNo}", lines=[
-                                       ("5000", cogs_total, 0.0, "Cost of goods sold"),
-                                       ("1200", 0.0, cogs_total, "Inventory reduction"),
-                                   ], userId=user.id)
+        try:
+            cogs_total = await acc.sale_cogs(db, tenant, saleId)
+            if cogs_total > 0:
+                await acc.post_journal(db, tenant, refType="SALE_COGS", refId=saleId,
+                                       narration=f"COGS {invoiceNo}", lines=[
+                                           ("5000", cogs_total, 0.0, "Cost of goods sold"),
+                                           ("1200", 0.0, cogs_total, "Inventory reduction"),
+                                       ], userId=user_id)
+        except Exception:
+            pass
 
     # ── Prompt 27 price-override approval: discount beyond the configured
     #    threshold raises an approval request (§10.26); the sale itself is real.
@@ -469,6 +594,7 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                "serviceCharge": service, "discountTotal": discountTotal,
                "paidTotal": paid, "dueTotal": due, "changeReturn": change_return,
                "change": change_return, "returnAmount": change_return,
+               "tendered": tendered, "tenderedAmount": tendered,
                "paymentIds": payment_ids,
                "cashierName": getattr(user, "name", None) or "Staff",
                "cashier": {"id": getattr(user, "id", None), "name": getattr(user, "name", None) or "Staff"},
@@ -580,10 +706,13 @@ async def pos_sales(
     sort_direction = "ASC" if sortDir.lower() == "asc" else "DESC"
 
     rows = rows_to_dicts((await db.execute(text(
-        f"SELECT s.id, s.invoiceNo, s.subtotal, s.discountTotal, s.taxTotal, s.serviceCharge, s.total, s.paidTotal, s.dueTotal, s.status, s.createdAt, "
+        f"SELECT s.id, s.invoiceNo, s.source, s.note, s.subtotal, s.discountTotal, s.taxTotal, s.serviceCharge, s.total, s.paidTotal, s.dueTotal, s.status, s.createdAt, "
+        f"s.tenderedAmount AS saleTenderedAmount, s.changeAmount AS saleChangeAmount, "
         f"s.userId AS cashierId, u.name AS cashierName, "
         f"c.id AS customerId, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail, c.loyaltyPoints AS customerPoints, "
-        f"(SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod "
+        f"(SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod, "
+        f"(SELECT COALESCE(SUM(COALESCE(tenderedAmount, amount)), 0) FROM payments WHERE saleId = s.id) AS tenderedAmount, "
+        f"(SELECT COALESCE(SUM(COALESCE(changeAmount, 0)), 0) FROM payments WHERE saleId = s.id) AS changeAmount "
         f"FROM sales s LEFT JOIN customers c ON c.id=s.customerId LEFT JOIN users u ON u.id=s.userId WHERE {where_sql} ORDER BY {sort_col} {sort_direction} LIMIT :lim OFFSET :off"),
         {**params, "lim": lim, "off": off})).fetchall())
 
@@ -596,10 +725,16 @@ async def pos_sales(
                 "SELECT si.id, si.saleId, si.productId, si.name AS productName, si.name, si.qty, si.unitPrice, si.discountAmount, si.lineTotal, p.sku "
                 "FROM sale_items si LEFT JOIN products p ON p.id = si.productId WHERE si.saleId = :sid"),
                 {"sid": sale_ids[0]})).fetchall())
+            all_payments = rows_to_dicts((await db.execute(text(
+                "SELECT id, saleId, method, amount, tenderedAmount, changeAmount FROM payments WHERE saleId = :sid"),
+                {"sid": sale_ids[0]})).fetchall())
         else:
             all_items = rows_to_dicts((await db.execute(text(
                 "SELECT si.id, si.saleId, si.productId, si.name AS productName, si.name, si.qty, si.unitPrice, si.discountAmount, si.lineTotal, p.sku "
                 "FROM sale_items si LEFT JOIN products p ON p.id = si.productId WHERE si.saleId IN :sids"),
+                {"sids": tuple(sale_ids)})).fetchall())
+            all_payments = rows_to_dicts((await db.execute(text(
+                "SELECT id, saleId, method, amount, tenderedAmount, changeAmount FROM payments WHERE saleId IN :sids"),
                 {"sids": tuple(sale_ids)})).fetchall())
 
         items_by_sale = {}
@@ -612,6 +747,14 @@ async def pos_sales(
                 items_by_sale[sid] = []
             items_by_sale[sid].append(it)
 
+        payments_by_sale = {}
+        for p in all_payments:
+            p["amount"] = float(p.get("amount", 0) or 0)
+            sid = p["saleId"]
+            if sid not in payments_by_sale:
+                payments_by_sale[sid] = []
+            payments_by_sale[sid].append(p)
+
         for r in rows:
             r["grandTotal"] = float(r.get("total", 0) or 0)
             r["totalAmount"] = float(r.get("total", 0) or 0)
@@ -620,13 +763,21 @@ async def pos_sales(
             raw_paid = float(r.get("paidTotal", 0) or 0)
             raw_due = float(r.get("dueTotal", 0) or 0)
             pm = r.get("paymentMethod") or "CASH"
-            if pm != "CREDIT":
-                r["paidTotal"] = min(raw_paid, tot) if raw_paid > 0 else tot
-                r["dueTotal"] = max(round(tot - r["paidTotal"], 2), 0.0)
-            else:
-                r["paidTotal"] = min(raw_paid, tot)
-                r["dueTotal"] = max(raw_due, round(tot - r["paidTotal"], 2))
-            r["changeReturn"] = max(raw_paid - tot, 0.0)
+            r["payments"] = payments_by_sale.get(r["id"], [])
+            tendered = float(r.get("saleTenderedAmount") or r.get("tenderedAmount") or 0)
+            if tendered <= 0 and r["payments"]:
+                tendered = sum(float(p.get("tenderedAmount") or p.get("amount") or 0) for p in r["payments"])
+            if tendered <= 0:
+                tendered = raw_paid if raw_paid > 0 else tot
+            r["tendered"] = round(tendered, 2)
+            r["tenderedAmount"] = round(tendered, 2)
+
+            chg = float(r.get("saleChangeAmount") or r.get("changeAmount") or 0)
+            if chg <= 0 and tendered > tot and pm != "CREDIT":
+                chg = tendered - tot
+            r["changeReturn"] = max(round(chg, 2), 0.0)
+            r["change"] = r["changeReturn"]
+            r["returnAmount"] = r["changeReturn"]
             cust_name = r.get("customerName")
             r["customer"] = {
                 "id": r.get("customerId"),
@@ -643,6 +794,20 @@ async def pos_sales(
             }
             r["items"] = items_by_sale.get(r["id"], [])
             r["itemsCount"] = len(r["items"])
+
+            # Detect vertical & metadata (e.g. Table, Waiter) from note or source
+            note_str = str(r.get("note") or "")
+            src_str = str(r.get("source") or "")
+            if src_str.upper() == "RESTAURANT" or "Table:" in note_str:
+                r["vertical"] = "restaurant"
+                # Parse Table: T-XX
+                import re
+                t_match = re.search(r"Table:\s*([^|,\n]+)", note_str)
+                if t_match:
+                    r["tableNo"] = t_match.group(1).strip()
+                w_match = re.search(r"Waiter:\s*([^|,\n]+)", note_str)
+                if w_match:
+                    r["serverName"] = w_match.group(1).strip()
 
     return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": (total + lim - 1) // lim if lim else 1}})
 
@@ -977,7 +1142,8 @@ async def shift_detail(shiftId: str, tenantId: str = Depends(resolve_tenant), db
     txns = rows_to_dicts((await db.execute(text(
         "SELECT * FROM shift_txns WHERE shiftId=:id ORDER BY createdAt"), {"id": shiftId})).fetchall())
     summary = await _shift_summary(tenantId, shiftId, db)
-    return ok({"shift": sh, "txns": txns, "summary": summary})
+    sh_dict = dict(sh._mapping) if hasattr(sh, "_mapping") else sh
+    return ok({"shift": sh_dict, "txns": txns, "summary": summary})
 
 
 @router.get("/api/v1/pos/stats/today")

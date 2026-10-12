@@ -784,52 +784,28 @@ async def receive_goods(body: dict, user: AuthUser = Depends(require_auth),
                     if new_recv < float(poi[1]): fully = False
             await db.execute(text("UPDATE purchase_orders SET status=:s WHERE id=:id"),
                              {"s": "RECEIVED" if fully else "PARTIALLY_RECEIVED", "id": po_id})
-        # Accounting (§10.20): GRN journal — Debit Inventory, Credit AP, Debit Input VAT
+        # Accounting: GRN journal — Debit Inventory, Credit AP (Purchases do not add extra VAT)
         grn_cost = sum(float(i["qty"]) * float(i["costPrice"]) for i in items)
-        # §10.21 — Calculate purchase VAT
-        purchase_tax_rule = await tax_engine.resolve_tax_rate(db, tenantId, appliesTo="PURCHASE")
         purchase_tax = 0.0
-        if purchase_tax_rule and purchase_tax_rule["rate"] > 0:
-            for i in items:
-                line_cost = float(i["qty"]) * float(i["costPrice"])
-                tc = tax_engine.calculate_tax(line_cost, purchase_tax_rule["rate"],
-                                             tax_inclusive=purchase_tax_rule["taxInclusive"])
-                purchase_tax += tc["taxAmount"]
-            purchase_tax = round(purchase_tax, 2)
-            # Record tax transaction
-            await tax_engine.record_tax_transaction(
-                db, tenantId, branchId=branchId,
-                refType="GRN", refId=grn_id, refNo=grnNo,
-                taxRuleId=purchase_tax_rule["ruleId"], taxRateId=purchase_tax_rule["rateId"],
-                taxRate=purchase_tax_rule["rate"],
-                taxableAmount=grn_cost,
-                taxAmount=purchase_tax,
-                isTaxInclusive=purchase_tax_rule["taxInclusive"],
-                userId=user.id,
-            )
         grn_lines: list[tuple[str, float, float, str]] = []
-        if purchase_tax > 0:
-            grn_lines.append(("1200", grn_cost, 0.0, f"Inventory from GRN {grnNo}"))
-            grn_lines.append(("2110", purchase_tax, 0.0, f"Input VAT on GRN {grnNo}"))
-            grn_lines.append(("2000", 0.0, grn_cost + purchase_tax, f"AP for GRN {grnNo}"))
-        elif grn_cost > 0:
+        if grn_cost > 0:
             grn_lines.append(("1200", grn_cost, 0.0, f"Inventory from GRN {grnNo}"))
             grn_lines.append(("2000", 0.0, grn_cost, f"AP for GRN {grnNo}"))
         if grn_lines:
             await acc.post_journal(db, tenantId, refType="GRN", refId=grn_id,
                                    narration=f"Goods received {grnNo}", lines=grn_lines, userId=user.id)
         # Accounts payable: a GRN against a PO or direct supplier creates the supplier invoice and
-        # increments the supplier's currentDue — stock in, payable owed (§10.17).
+        # increments the supplier's currentDue — exactly matching goods cost.
         if supplierId:
             piNo = gen_no("PI")
             pi_subtotal = grn_cost
-            pi_total = round(grn_cost + purchase_tax, 2)
+            pi_total = round(grn_cost, 2)
             await db.execute(text(
                 "INSERT INTO purchase_invoices (id, tenantId, branchId, supplierId, purchaseOrderId, goodsReceiptId, "
                 "piNo, invoiceDate, subtotal, discountTotal, taxTotal, total, paidTotal, status, createdBy) "
-                "VALUES (UUID(), :t, :b, :s, :po, :grn, :pi, NOW(), :sub, 0, :tax, :total, 0, 'UNPAID', :u)"),
+                "VALUES (UUID(), :t, :b, :s, :po, :grn, :pi, NOW(), :sub, 0, 0, :total, 0, 'UNPAID', :u)"),
                 {"t": tenantId, "b": branchId, "s": supplierId, "po": po_id, "grn": grn_id, "pi": piNo,
-                 "sub": pi_subtotal, "tax": purchase_tax, "total": pi_total, "u": user.id})
+                 "sub": pi_subtotal, "total": pi_total, "u": user.id})
             await db.execute(text("UPDATE suppliers SET currentDue = currentDue + :a WHERE id=:s"),
                              {"a": pi_total, "s": supplierId})
     return ok({"grnNo": grnNo, "id": grn_id}, 201)
@@ -884,18 +860,8 @@ async def create_purchase_invoice(body: dict, user: AuthUser = Depends(require_a
         branchId = b[0]
     piNo = gen_no("PI")
     subtotal = sum(float(i["qty"]) * float(i["costPrice"]) for i in items)
-    # §10.21 — Calculate purchase VAT server-side
-    purchase_tax_rule = await tax_engine.resolve_tax_rate(db, tenantId, appliesTo="PURCHASE")
-    taxTotal = 0.0
-    if purchase_tax_rule and purchase_tax_rule["rate"] > 0:
-        for i in items:
-            line_cost = float(i["qty"]) * float(i["costPrice"])
-            tc = tax_engine.calculate_tax(line_cost, purchase_tax_rule["rate"],
-                                         tax_inclusive=purchase_tax_rule["taxInclusive"])
-            taxTotal += tc["taxAmount"]
-        taxTotal = round(taxTotal, 2)
-    else:
-        taxTotal = float(body.get("taxTotal", 0) or 0)
+    # Purchases do not add extra VAT — total matches goods cost
+    taxTotal = float(body.get("taxTotal", 0) or 0)
     total = max(subtotal - float(body.get("discountTotal", 0) or 0) + taxTotal, 0)
     async with txn(db):
         await db.execute(text(

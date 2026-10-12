@@ -272,10 +272,16 @@ class _RetailHeaderState extends State<RetailHeader> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
               children: [
-                // 1. Back Button (only shown on desktop / tablet >= 900px)
-                if (!isMobile) ...[
+                // 1. Back Button (only shown on desktop / tablet >= 900px and if can pop)
+                if (!isMobile && (ModalRoute.of(context)?.canPop ?? false)) ...[
                   InkWell(
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      } else {
+                        Navigator.of(context).maybePop();
+                      }
+                    },
                     borderRadius: BorderRadius.circular(4),
                     child: Container(
                       width: 36,
@@ -624,7 +630,7 @@ class _RetailHeaderState extends State<RetailHeader> {
                   const SizedBox(width: 8),
 
                   // Quick Actions Button
-                  if (screenWidth >= 950) ...[
+                  if (screenWidth >= 1050) ...[
                     InkWell(
                       onTap: () => showRetailHoldsDialog(context, retailProvider, isDark),
                       borderRadius: BorderRadius.circular(4),
@@ -663,7 +669,7 @@ class _RetailHeaderState extends State<RetailHeader> {
                   ],
 
                   // Date & Time Pill
-                  if (screenWidth >= 1200) ...[
+                  if (screenWidth >= 1250) ...[
                     Container(
                       height: 36,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -725,7 +731,7 @@ class _RetailHeaderState extends State<RetailHeader> {
                           ),
                           child: const Icon(Icons.person_rounded, size: 12, color: Colors.white),
                         ),
-                        if (screenWidth >= 1100) ...[
+                        if (screenWidth >= 1150) ...[
                           const SizedBox(width: 6),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

@@ -22,6 +22,17 @@ from util import ok, err, rows_to_dicts
 router = APIRouter()
 
 
+def _normalize_date_range(start_date: str, end_date: str):
+    """Normalize startDate and endDate so that a single day e.g. 2026-10-07 to 2026-10-07 covers the full day up to 23:59:59."""
+    sd = start_date.strip() if start_date else ""
+    ed = end_date.strip() if end_date else ""
+    if sd and len(sd) == 10:
+        sd = f"{sd} 00:00:00"
+    if ed and len(ed) == 10:
+        ed = f"{ed} 23:59:59"
+    return sd, ed
+
+
 # ═════════════════════════ SALES REPORTS ═════════════════════════
 
 @router.get("/api/v1/reports/sales/summary")
@@ -35,6 +46,7 @@ async def sales_summary(
     db: AsyncSession = Depends(get_db),
 ):
     """Sales summary grouped by period with totals."""
+    startDate, endDate = _normalize_date_range(startDate, endDate)
     where = "s.tenantId = :t AND s.status = 'CONFIRMED'"
     params: dict = {"t": tenantId}
 
@@ -90,6 +102,7 @@ async def sales_by_product(
     db: AsyncSession = Depends(get_db),
 ):
     """Top selling products by revenue and quantity."""
+    startDate, endDate = _normalize_date_range(startDate, endDate)
     where = "si.tenantId = :t AND s.status = 'CONFIRMED'"
     params: dict = {"t": tenantId}
 
@@ -139,6 +152,7 @@ async def sales_by_category(
     db: AsyncSession = Depends(get_db),
 ):
     """Sales breakdown by product category."""
+    startDate, endDate = _normalize_date_range(startDate, endDate)
     where = "si.tenantId = :t AND s.status = 'CONFIRMED'"
     params: dict = {"t": tenantId}
 
@@ -184,6 +198,7 @@ async def sales_by_cashier(
     db: AsyncSession = Depends(get_db),
 ):
     """Sales performance by cashier / staff member."""
+    startDate, endDate = _normalize_date_range(startDate, endDate)
     where = "s.tenantId = :t AND s.status = 'CONFIRMED'"
     params: dict = {"t": tenantId}
 
@@ -229,6 +244,7 @@ async def sales_by_payment_method(
     db: AsyncSession = Depends(get_db),
 ):
     """Sales breakdown by payment method."""
+    startDate, endDate = _normalize_date_range(startDate, endDate)
     where = "p.tenantId = :t AND p.status = 'COMPLETED'"
     params: dict = {"t": tenantId}
 
@@ -491,6 +507,7 @@ async def profit_and_loss(
     db: AsyncSession = Depends(get_db),
 ):
     """Profit & Loss statement — Revenue, COGS, Expenses, Net Profit."""
+    startDate, endDate = _normalize_date_range(startDate, endDate)
     date_filter = ""
     params: dict = {"t": tenantId}
 

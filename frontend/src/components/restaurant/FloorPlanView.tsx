@@ -55,11 +55,7 @@ const STATUS_COLORS: Record<Table["status"], { bg: string; border: string; text:
   CLEANING: { bg: "bg-slate-100", border: "border-slate-200", text: "text-gray-600", dot: "bg-slate-500" },
 };
 
-export const DEFAULT_FLOORS: Floor[] = [
-  { id: "floor-main", name: "Main Dining", sortOrder: 1 },
-  { id: "floor-vip", name: "VIP Lounge", sortOrder: 2 },
-  { id: "floor-terrace", name: "Rooftop Terrace", sortOrder: 3 },
-];
+export const DEFAULT_FLOORS: Floor[] = [];
 
 export default function FloorPlanView() {
   const [floors, setFloors] = useState<Floor[]>([]);
@@ -115,11 +111,11 @@ export default function FloorPlanView() {
       const loadedFloors = resFloors.data || [];
       const loadedTables = resTables.data || [];
 
-      setFloors(loadedFloors.length > 0 ? loadedFloors : DEFAULT_FLOORS);
+      setFloors(loadedFloors);
       setTables(loadedTables);
     } catch (err: any) {
       setError(err.message || "Failed to load sections");
-      setFloors(DEFAULT_FLOORS);
+      setFloors([]);
     } finally {
       setLoading(false);
     }

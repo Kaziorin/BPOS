@@ -36,6 +36,8 @@ class POSProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final systemTax = await ApiService.instance.fetchDefaultTaxRate(businessType: businessType);
+      _taxRate = systemTax;
       final rawList = await ApiService.instance.fetchProducts(businessType: businessType);
       if (rawList.isNotEmpty) {
         _liveMenuItems = rawList.asMap().entries.map((entry) {
@@ -159,12 +161,48 @@ class POSProvider extends ChangeNotifier {
     return totalDisc > subtotal ? subtotal : totalDisc;
   }
 
+  double _taxRate = 0.15;
+  double _serviceChargePercent = 3.0;
+
   double get subtotalAfterDiscount => subtotal - discountValue;
 
-  double get tax => subtotalAfterDiscount * 0.08;
-  double get serviceCharge => subtotalAfterDiscount * 0.04;
+  double get taxRatePct => _taxRate * 100;
+  double get serviceChargePercent => _serviceChargePercent;
+  double get tax => subtotalAfterDiscount * _taxRate;
+  double get serviceCharge => subtotalAfterDiscount * (_serviceChargePercent / 100.0);
   double get totalPayable => subtotalAfterDiscount + tax + serviceCharge;
   int get totalItemCount => _cartItems.fold(0, (sum, item) => sum + item.quantity);
+
+  void setServiceChargePercent(double pct) {
+    _serviceChargePercent = pct;
+    notifyListeners();
+  }
+
+  Future<bool> sendKotToKitchen() async {
+    if (_cartItems.isEmpty) return false;
+    final itemsPayload = _cartItems.map((ci) => {
+      'productId': ci.menuItem.id,
+      'name': ci.menuItem.name,
+      'qty': ci.quantity,
+      'notes': ci.note,
+      'modifiers': ci.modifiers,
+    }).toList();
+
+    final notes = _orderNote.isNotEmpty
+        ? '$_orderNote | Table: $_tableNumber | Waiter: $_waiterKey'
+        : 'Table: $_tableNumber | Waiter: $_waiterKey';
+
+    await ApiService.instance.sendRestaurantKot(
+      items: itemsPayload,
+      tableId: _tableNumber,
+      orderType: _selectedOrderType,
+      notes: notes,
+    );
+
+    _orderNote = '';
+    notifyListeners();
+    return true;
+  }
 
   // Setters & Actions
   void selectCategory(String categoryId) {

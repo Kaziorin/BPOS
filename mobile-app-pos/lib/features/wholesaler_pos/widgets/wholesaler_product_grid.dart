@@ -369,15 +369,6 @@ class _ProductCardState extends State<_ProductCard>
                                           color: WholesalerColors.primary,
                                         ),
                                       ),
-                                      if (p.bulkMinQty <= 50)
-                                        Text(
-                                          'Bulk ${p.bulkMinQty}+: ৳${p.bulkPrice.toStringAsFixed(0)}',
-                                          style: const TextStyle(
-                                            fontSize: 8,
-                                            fontWeight: FontWeight.w600,
-                                            color: WholesalerColors.accentGreen,
-                                          ),
-                                        ),
                                     ],
                                   ),
                                 ),
@@ -538,7 +529,7 @@ class _ProductListTileState extends State<_ProductListTile>
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('৳${p.b2bPrice.toStringAsFixed(2)}',
+                    Text('৳${p.price.toStringAsFixed(2)}',
                         style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: WholesalerColors.primary)),
                     Text(
                       isOutOfStock ? '● Out of Stock' : 'Stock: ${p.stock}',

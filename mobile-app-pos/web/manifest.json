@@ -1,6 +1,6 @@
 {
-    "name": "restaurant_pos",
-    "short_name": "restaurant_pos",
+    "name": "BPOS",
+    "short_name": "BPOS",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

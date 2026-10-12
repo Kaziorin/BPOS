@@ -716,10 +716,15 @@ export default function PharmacyPOSPage() {
               invoiceNo: apiData.invoiceNo,
               invoiceId: apiData.invoiceId || apiData.saleId || apiData.id,
               total: Number(apiData.total ?? total),
-              paidTotal: Number(paidAmt),
+              paidTotal: Number(apiData.paidTotal ?? (paidAmt > total ? total : paidAmt)),
               dueTotal: Number(apiData.dueTotal ?? 0),
+              tendered: Number(apiData.tenderedAmount ?? apiData.tendered ?? paidAmt),
+              tenderedAmount: Number(apiData.tenderedAmount ?? apiData.tendered ?? paidAmt),
+              change: Number(apiData.changeReturn ?? apiData.change ?? (paidAmt > total ? paidAmt - total : 0)),
+              changeReturn: Number(apiData.changeReturn ?? apiData.change ?? (paidAmt > total ? paidAmt - total : 0)),
+              taxTotal: Number(apiData.taxTotal ?? 0),
               paymentIds: apiData.paymentIds ?? [],
-            };
+            } as any;
           }
         } catch (apiErr: any) {
           console.warn("Online sale confirm failed, falling back to local transaction generation", apiErr);
@@ -756,12 +761,17 @@ export default function PharmacyPOSPage() {
           invoiceNo: `INV-${Date.now().toString(36).toUpperCase()}`,
           invoiceId: crypto.randomUUID(),
           total,
-          paidTotal: Number(paidAmt),
+          paidTotal: Number(paidAmt > total ? total : paidAmt),
           dueTotal: Math.max(total - paidAmt, 0),
+          tendered: Number(paidAmt),
+          tenderedAmount: Number(paidAmt),
+          change: Math.max(paidAmt - total, 0),
+          changeReturn: Math.max(paidAmt - total, 0),
           paymentIds: [],
-        };
+        } as any;
       }
 
+      setPayments(finalPayments);
       setResult(saleRes);
       // Do NOT resetSale() here; the ReceiptModal will call it when dismissed
     } catch (err: any) {

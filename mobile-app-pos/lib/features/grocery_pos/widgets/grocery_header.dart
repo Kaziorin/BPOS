@@ -36,6 +36,12 @@ class GroceryHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // Back button on web/desktop view (only shown if there is a previous route)
+          if (!isMobile && (ModalRoute.of(context)?.canPop ?? false)) ...[
+            _BackBtn(isDark: isDark),
+            const SizedBox(width: 10),
+          ],
+
           // Logo
           _Logo(locale: locale, compact: isCompact),
           SizedBox(width: isMobile ? 8 : 16),
@@ -49,15 +55,17 @@ class GroceryHeader extends StatelessWidget {
           ],
 
           const SizedBox(width: 8),
-          // Fullscreen
-          FullscreenButton(
-            builder: (context, isFull, toggle) => _IconChip(
-              icon: isFull ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
-              isDark: isDark,
-              onTap: toggle,
+          // Fullscreen (Desktop only)
+          if (!isMobile) ...[
+            FullscreenButton(
+              builder: (context, isFull, toggle) => _IconChip(
+                icon: isFull ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
+                isDark: isDark,
+                onTap: toggle,
+              ),
             ),
-          ),
-          const SizedBox(width: 6),
+            const SizedBox(width: 6),
+          ],
           // Theme
           _IconChip(
             icon: app.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
@@ -423,6 +431,49 @@ class _LangChip extends StatelessWidget {
               fontWeight: FontWeight.w900,
               color: Colors.white,
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BackBtn extends StatelessWidget {
+  final bool isDark;
+  const _BackBtn({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          } else {
+            Navigator.of(context).maybePop();
+          }
+        },
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: isDark ? GroceryColors.inputBg(true) : Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: GroceryColors.border(isDark)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.arrow_back_rounded,
+            size: 20,
+            color: GroceryColors.textPrimary(isDark),
           ),
         ),
       ),

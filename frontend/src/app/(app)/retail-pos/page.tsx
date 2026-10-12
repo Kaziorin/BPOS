@@ -158,6 +158,7 @@ export default function PosPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const searchRef = useRef<HTMLInputElement>(null);
+  const isRemoteCartUpdate = useRef(false);
 
   // Cart (restored from localStorage if available, otherwise empty)
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -578,14 +579,41 @@ export default function PosPage() {
     }, 0);
   }, [cart, systemTaxRate]);
 
-  const effectiveTaxPct = useMemo(() => {
-    if (cart.length === 0) return systemTaxRate;
-    const rates = cart.map((i) => (i.taxRate !== undefined && i.taxRate !== null && !isNaN(Number(i.taxRate))) ? Number(i.taxRate) : systemTaxRate);
-    const allSame = rates.every((r) => r === rates[0]);
-    if (allSame) return rates[0];
-    const taxableAmount = Math.max(subtotal - discountTotal, 0);
-    return taxableAmount > 0 ? Number(((taxTotal / taxableAmount) * 100).toFixed(1)) : systemTaxRate;
-  }, [cart, subtotal, discountTotal, taxTotal, systemTaxRate]);
+  const { taxLabel, isMixedTax, taxBreakdown } = useMemo(() => {
+    if (cart.length === 0) return { taxLabel: `Tax (${systemTaxRate}%)`, isMixedTax: false, taxBreakdown: [] };
+    const rateMap = new Map<number, { count: number; taxableBase: number; taxAmount: number }>();
+    cart.forEach((i) => {
+      const r = i.taxRate !== undefined && i.taxRate !== null && !isNaN(Number(i.taxRate))
+        ? Number(i.taxRate)
+        : systemTaxRate;
+      const prev = rateMap.get(r) || { count: 0, taxableBase: 0, taxAmount: 0 };
+      const lineNet = Math.max(i.lineTotal, 0);
+      rateMap.set(r, {
+        count: prev.count + 1,
+        taxableBase: prev.taxableBase + lineNet,
+        taxAmount: prev.taxAmount + (lineNet * (r / 100)),
+      });
+    });
+
+    const uniqueRates = Array.from(rateMap.keys());
+    const breakdown = Array.from(rateMap.entries()).map(([rate, data]) => ({
+      rate,
+      ...data,
+    })).sort((a, b) => a.rate - b.rate);
+
+    if (uniqueRates.length === 1) {
+      return {
+        taxLabel: `Tax (${uniqueRates[0]}%)`,
+        isMixedTax: false,
+        taxBreakdown: breakdown,
+      };
+    }
+    return {
+      taxLabel: "Tax / VAT (Itemized)",
+      isMixedTax: true,
+      taxBreakdown: breakdown,
+    };
+  }, [cart, systemTaxRate]);
 
   const taxable = Math.max(subtotal - discountTotal, 0);
   const total = Math.max(taxable + taxTotal + serviceCharge, 0);
@@ -599,7 +627,7 @@ export default function PosPage() {
     ? (selectedCustomer as any).name || (selectedCustomer as any).fullName || "Customer"
     : "";
 
-  // ── Customer display sync ──
+  // ── Customer display & Live Cart sync ──
   useEffect(() => {
     publishCart({
       updatedAt: Date.now(),
@@ -620,7 +648,95 @@ export default function PosPage() {
       if (customerId) localStorage.setItem("bpos_general_customer", customerId);
       else localStorage.removeItem("bpos_general_customer");
     } catch {}
-  }, [cart, customerId, note, discountTotal, serviceCharge, subtotal, taxTotal, total, customerName]);
+
+    // Broadcast to backend for real-time mobile app sync
+    if (isRemoteCartUpdate.current) {
+      isRemoteCartUpdate.current = false;
+      return;
+    }
+
+    try {
+      api.post("/api/v1/pos/live-cart", {
+        items: cart,
+        customerId,
+        customerName,
+        discountTotal,
+        serviceCharge,
+        taxTotal,
+        subtotal,
+        total,
+        source: "WEB_RETAIL",
+      }).catch(() => {});
+    } catch {}
+  }, [cart, customerId, note, discountTotal, serviceCharge, subtotal, taxTotal, total, customerName, cashierName]);
+
+  // ── Real-time Mobile App Cart Synchronization (SSE + Initial Fetch) ──
+  useEffect(() => {
+    // 1. Initial live cart restore from backend
+    api.get<any>("/api/v1/pos/live-cart")
+      .then((res) => {
+        const live = res.data?.data || res.data;
+        if (live && Array.isArray(live.items) && live.items.length > 0) {
+          isRemoteCartUpdate.current = true;
+          setCart(live.items.map((i: any) => calcLine({
+            productId: i.productId || i.id || "",
+            variantId: i.variantId || null,
+            name: i.name || "Item",
+            qty: Number(i.qty || 1),
+            unitPrice: Number(i.unitPrice || 0),
+            discountAmount: Number(i.discountAmount || 0),
+            lineTotal: Number(i.lineTotal || (Number(i.unitPrice || 0) * Number(i.qty || 1))),
+            image: i.imageUrl || i.image || "",
+            sku: i.sku || "",
+          })));
+          if (live.customerId) setCustomerId(live.customerId);
+          if (live.discountTotal) setDiscountTotal(Number(live.discountTotal));
+        }
+      })
+      .catch(() => {});
+
+    // 2. Real-time SSE listener
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource(`${backendUrl}/api/v1/realtime/stream?channel=POS&tenantId=19f2452c-78dc-4309-9a41-6463c93ccaf7`);
+      es.onmessage = (e) => {
+        try {
+          const msg = JSON.parse(e.data);
+          if (msg.type === "CART_UPDATED" && msg.payload) {
+            const payload = msg.payload;
+            if (payload.source !== "WEB_RETAIL") {
+              isRemoteCartUpdate.current = true;
+              const newItems: CartItem[] = (payload.items || []).map((i: any) => calcLine({
+                productId: i.productId || i.id || "",
+                variantId: i.variantId || null,
+                name: i.name || "Item",
+                qty: Number(i.qty || 1),
+                unitPrice: Number(i.unitPrice || 0),
+                discountAmount: Number(i.discountAmount || 0),
+                lineTotal: Number(i.lineTotal || (Number(i.unitPrice || 0) * Number(i.qty || 1))),
+                image: i.imageUrl || i.image || "",
+                sku: i.sku || "",
+              }));
+              setCart(newItems);
+              if (payload.customerId !== undefined) setCustomerId(payload.customerId || "");
+              if (payload.discountTotal !== undefined) setDiscountTotal(Number(payload.discountTotal || 0));
+              if (newItems.length > 0) {
+                toast.info(`Cart updated from Mobile POS (${newItems.length} items)`, {
+                  autoClose: 2000,
+                  toastId: "mobile-cart-sync",
+                });
+              }
+            }
+          }
+        } catch (_) {}
+      };
+    } catch (_) {}
+
+    return () => {
+      es?.close();
+    };
+  }, []);
 
   // Sync payment amount with total
   useEffect(() => {
@@ -630,6 +746,19 @@ export default function PosPage() {
 
   // ── Cart operations ──
   function addProduct(p: CachedProduct) {
+    const maxStock = p.stockQty !== undefined ? Number(p.stockQty) : undefined;
+    if (maxStock !== undefined && maxStock <= 0) {
+      toast.error(`"${p.name}" is Out of Stock! Cannot add to cart.`);
+      return;
+    }
+
+    const existing = cart.find((i) => (i.productId === p.id || i.name === p.name) && !i.variantId);
+    const curQty = existing ? existing.qty : 0;
+    if (maxStock !== undefined && curQty + 1 > maxStock) {
+      toast.warning(`Cannot add more "${p.name}". Available stock is only ${maxStock}!`);
+      return;
+    }
+
     setCart((prev) => {
       const idx = prev.findIndex((i) => (i.productId === p.id || i.name === p.name) && !i.variantId);
       if (idx >= 0) {
@@ -644,6 +773,7 @@ export default function PosPage() {
         discountAmount: 0, lineTotal: Number(p.sellingPrice),
         image: (p as any).imageUrl || (p as any).image,
         sku: p.sku,
+        stockQty: p.stockQty,
         taxRate: (p as any).taxRate !== undefined && (p as any).taxRate !== null && !isNaN(Number((p as any).taxRate))
           ? Number((p as any).taxRate)
           : systemTaxRate,
@@ -653,6 +783,14 @@ export default function PosPage() {
 
   function handleQtyChange(idx: number, qty: number) {
     if (qty <= 0) { removeItem(idx); return; }
+    const currentItem = cart[idx];
+    if (currentItem && (currentItem as any).stockQty !== undefined) {
+      const maxStock = Number((currentItem as any).stockQty);
+      if (qty > maxStock) {
+        toast.warning(`Cannot order ${qty} of "${currentItem.name}". Available stock: ${maxStock}`);
+        return;
+      }
+    }
     setCart((prev) => prev.map((item, i) => i === idx ? calcLine({ ...item, qty }) : item));
   }
 
@@ -748,10 +886,11 @@ export default function PosPage() {
       let saleRes: SaleResult;
 
       if (onlineNow) {
+        const validCustomerId = customerId && !customerId.startsWith("local_") ? customerId : null;
         const payload = {
           branchId,
           warehouseId,
-          customerId: customerId || null,
+          customerId: validCustomerId,
           customerName: customerNameSnapshot !== "Walk-in Retail Customer" ? customerNameSnapshot : undefined,
           customerPhone: (selectedCustomer as any)?.phone || undefined,
           items: cart.map((i) => ({
@@ -783,6 +922,8 @@ export default function PosPage() {
           invoiceId: serverData.invoiceId || serverData.saleId || crypto.randomUUID(),
           total: Number(serverData.total ?? total),
           paidTotal: Number(serverData.paidTotal ?? finalTendered),
+          tendered: Number(serverData.tendered ?? serverData.tenderedAmount ?? finalTendered),
+          tenderedAmount: Number(serverData.tendered ?? serverData.tenderedAmount ?? finalTendered),
           dueTotal: Number(serverData.dueTotal ?? (payMethod === "CREDIT" ? total : 0)),
           change: Number(serverData.changeReturn ?? serverData.change ?? changeAmount),
           changeAmount: Number(serverData.changeReturn ?? serverData.change ?? changeAmount),
@@ -816,6 +957,8 @@ export default function PosPage() {
         const localResult = makeOfflineResult(invoiceNo, cartSnapshot, total, paymentsSnapshot);
         (localResult as any).change = changeAmount;
         (localResult as any).changeAmount = changeAmount;
+        (localResult as any).tendered = finalTendered;
+        (localResult as any).tenderedAmount = finalTendered;
         saleRes = localResult;
         setSaleSnapshot({ cart: cartSnapshot, payments: paymentsSnapshot, customerName: customerNameSnapshot });
         setResult(saleRes);
@@ -1060,7 +1203,7 @@ export default function PosPage() {
 
   // ── MAIN RENDER ────────────────────────────────────────────────     
   return (
-    <div className="h-screen w-screen flex flex-col bg-[#f4f5fa] text-gray-600 select-none overflow-hidden" style={{ fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
+    <div data-theme="retail" className="theme-retail h-screen w-screen flex flex-col bg-[#f4f5fa] text-gray-600 select-none overflow-hidden" style={{ fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
       <style>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -1231,7 +1374,7 @@ export default function PosPage() {
           {/* Fullscreen Button */}
           <button
             onClick={toggleFullscreen}
-            title={isFullscreen ? "Exit Fullscreen (F)" : "Fullscreen (F)"}
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
             className="w-9 h-9 rounded-sm border border-slate-200 bg-white hover:bg-violet-50/60 text-gray-600 flex items-center justify-center shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
           >
             {isFullscreen ? (
@@ -1241,15 +1384,18 @@ export default function PosPage() {
             )}
           </button>
 
-          {/* Quick Actions Button with VFX Shimmer & 3D Tactile Press */}
-          <button
+          {/* Quick Actions CustomButton */}
+          <CustomButton
+            type="button"
+            variant="primary"
+            size="sm"
             onClick={() => { loadHolds(); setShowHolds(true); }}
-            className="h-9 px-3.5 rounded-full bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-400 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-violet-300/50 hover:shadow-md hover:shadow-violet-400/50 transition-all cursor-pointer btn-3d vfx-shimmer-btn"
+            leftIcon={<Zap size={14} className="text-amber-300 fill-amber-300 animate-pulse" />}
+            rightIcon={<ChevronDown size={13} />}
+            className="rounded-full !px-3.5"
           >
-            <Zap size={14} className="text-amber-300 fill-amber-300 animate-pulse shrink-0" />
-            <span>Quick Actions</span>
-            <ChevronDown size={13} />
-          </button>
+            Quick Actions
+          </CustomButton>
 
           {/* Date & Time */}
           <div className="hidden lg:flex items-center gap-1.5 h-9 px-3 rounded-full border border-slate-200 bg-slate-50 text-slate-600 shrink-0 text-xs font-medium shadow-2xs">
@@ -1374,13 +1520,15 @@ export default function PosPage() {
         </div>
 
         {/* 7. Add Customer */}
-        <button
+        <CustomButton
+          type="button"
+          variant="primary"
           onClick={() => setShowCustomerModal(true)}
-          className="flex items-center justify-center gap-2 h-12 px-3.5 rounded-sm border border-slate-200/90 bg-white hover:bg-violet-50/70 hover:border-violet-300 text-gray-600 hover:text-violet-700 font-semibold text-xs shadow-2xs hover:shadow-md transition-all flex-1 min-w-[130px] group cursor-pointer btn-3d"
+          leftIcon={<User size={15} />}
+          className="h-12 !rounded-sm flex-1 min-w-[130px] !text-xs font-bold shadow-2xs"
         >
-          <User size={15} className="text-violet-500 shrink-0 group-hover:scale-110 transition-transform" />
-          <span className="truncate">Add Customer</span>
-        </button>
+          Add Customer
+        </CustomButton>
       </div>
 
       {/* ── 3. MAIN CONTENT BODY ──────────────────────────────────── */}
@@ -1478,7 +1626,7 @@ export default function PosPage() {
                           "absolute top-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-sm z-10 shadow-2xs",
                           outOfStock ? "bg-rose-500 text-white" : "bg-slate-800/80 text-white backdrop-blur-xs"
                         )}>
-                          {outOfStock ? "Out" : `${stock}`}
+                          {outOfStock ? "Out of Stock" : `${stock}`}
                         </span>
                         {inCart && (
                           <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-gradient-to-r from-violet-500 to-indigo-400 text-white flex items-center justify-center text-[10px] font-bold z-10 shadow-md shadow-violet-500/40 ring-2 ring-white">
@@ -1501,18 +1649,20 @@ export default function PosPage() {
                           {p.name}
                         </p>
                         <p className="text-[10px] text-slate-400 font-mono">SKU: {p.sku}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-extrabold text-gray-600">{fmt(price)}</span>
-                          <button type="button" onClick={(e) => { e.stopPropagation(); if (!outOfStock) addProduct(p); }}
-                            className="w-6 h-6 rounded-sm bg-gradient-to-r from-violet-500 to-indigo-400 text-white hover:from-violet-600 hover:to-indigo-500 flex items-center justify-center transition-all shadow-xs hover:shadow-sm hover:shadow-violet-400/40 active:scale-85 cursor-pointer shrink-0">
-                            <Plus size={13} />
-                          </button>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", outOfStock ? "bg-rose-500" : "bg-emerald-500")} />
-                          <span className={cn("text-[10px] font-medium", outOfStock ? "text-rose-500" : "text-emerald-600")}>
-                            {outOfStock ? "Out of Stock" : "In Stock"}
-                          </span>
+                        <div className="flex items-center justify-between mt-0.5 min-h-[28px]">
+                          <span className="text-xs font-black text-slate-800">{fmt(price)}</span>
+                          {!outOfStock && (
+                            <CustomButton
+                              type="button"
+                              variant="primary"
+                              size="xs"
+                              onClick={(e) => { e.stopPropagation(); addProduct(p); }}
+                              className="!w-7 !h-7 !p-0 !min-w-0 !rounded-md flex items-center justify-center shrink-0 cursor-pointer shadow-brand-button"
+                              title="Add to Order"
+                            >
+                              <Plus size={14} className="stroke-[2.5]" />
+                            </CustomButton>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1522,74 +1672,104 @@ export default function PosPage() {
             ) : (
               /* List View */
               <div className="space-y-2">
-                {paginatedProducts.map((p) => (
-                  <div
-                    key={p.id}
-                    onClick={() => addProduct(p)}
-                    className="flex items-center justify-between p-2.5 rounded-sm border border-slate-200/80 bg-white hover:border-violet-300 hover:shadow-xs transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-sm bg-slate-50 flex items-center justify-center overflow-hidden border border-slate-100 shrink-0">
-                        {(p as any).imageUrl ? (
-                          <img src={(p as any).imageUrl} alt={p.name} className="w-full h-full object-contain p-1" />
-                        ) : (
-                          <Package size={18} className="text-slate-300" />
+                {paginatedProducts.map((p) => {
+                  const stock = p.stockQty !== undefined ? Number(p.stockQty) : 0;
+                  const outOfStock = stock <= 0;
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => !outOfStock && addProduct(p)}
+                      className={cn(
+                        "flex items-center justify-between p-2.5 rounded-sm border border-slate-200/80 bg-white transition",
+                        outOfStock ? "opacity-60 cursor-not-allowed" : "hover:border-violet-300 hover:shadow-xs cursor-pointer"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-sm bg-slate-50 flex items-center justify-center overflow-hidden border border-slate-100 shrink-0 relative">
+                          {(p as any).imageUrl ? (
+                            <img src={(p as any).imageUrl} alt={p.name} className="w-full h-full object-contain p-1" />
+                          ) : (
+                            <Package size={18} className="text-slate-300" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-gray-700">{p.name}</p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] text-gray-500 font-mono">SKU: {p.sku}</span>
+                            {outOfStock ? (
+                              <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">
+                                Out of Stock
+                              </span>
+                            ) : (
+                              <span className="text-[11px] text-gray-500 font-mono">Stock: {stock}</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-black text-slate-800">{fmt(Number(p.sellingPrice))}</span>
+                        {!outOfStock && (
+                          <CustomButton
+                            type="button"
+                            variant="primary"
+                            size="xs"
+                            onClick={(e) => { e.stopPropagation(); addProduct(p); }}
+                            leftIcon={<Plus size={12} className="stroke-[2.5]" />}
+                            className="!h-7 !px-3 !rounded-sm text-xs font-bold"
+                          >
+                            Add
+                          </CustomButton>
                         )}
                       </div>
-                      <div>
-                        <p className="text-xs font-bold text-gray-600">{p.name}</p>
-                        <p className="text-[11px] text-gray-500 font-mono">Stock: {p.stockQty !== undefined ? p.stockQty : 0}</p>
-                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-extrabold text-gray-600">{fmt(Number(p.sellingPrice))}</span>
-                      <CustomButton variant="primary" size="sm" className="px-2.5 py-1 text-xs font-bold rounded-sm bg-gradient-to-r from-violet-500 to-indigo-400 hover:from-violet-600 hover:to-indigo-500 text-white">
-                        + Add
-                      </CustomButton>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
 
           {/* Dynamic API Pagination Bar */}
           <div className="flex items-center justify-between px-4 py-2 border-t border-slate-200/80 bg-white shrink-0">
-            <span className="text-xs font-bold text-gray-600">
+            <span className="text-xs font-semibold text-slate-600">
               Showing {paginatedProducts.length} of {filteredProducts.length} products (Page {currentPage} of {totalPages})
             </span>
             <div className="flex items-center gap-1.5">
               <CustomButton
+                type="button"
                 variant="outline"
-                size="sm"
+                size="xs"
                 disabled={currentPage <= 1}
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                className="px-2 py-1 text-xs font-bold rounded-sm border-slate-200 text-gray-600 disabled:opacity-40"
+                leftIcon={<ChevronLeft size={13} />}
+                className="!h-7 !px-2.5 !rounded-sm text-xs font-bold"
               >
-                <ChevronLeft size={14} className="mr-0.5" /> Prev
+                Prev
               </CustomButton>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
+                  type="button"
                   onClick={() => setCurrentPage(page)}
                   className={cn(
-                    "w-7 h-7 rounded-sm text-xs font-bold transition cursor-pointer",
+                    "w-7 h-7 rounded-sm text-xs font-bold transition-all cursor-pointer flex items-center justify-center",
                     currentPage === page
-                      ? "bg-gradient-to-r from-violet-500 to-indigo-400 text-white shadow-xs"
-                      : "bg-white border border-slate-200 text-gray-600 hover:bg-violet-50"
+                      ? "bg-brand-gradient text-white shadow-brand-button"
+                      : "bg-white border border-brand-border text-slate-700 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-primary shadow-2xs"
                   )}
                 >
                   {page}
                 </button>
               ))}
               <CustomButton
+                type="button"
                 variant="outline"
-                size="sm"
+                size="xs"
                 disabled={currentPage >= totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                className="px-2 py-1 text-xs font-bold rounded-sm border-slate-200 text-gray-600 disabled:opacity-40"
+                rightIcon={<ChevronRight size={13} />}
+                className="!h-7 !px-2.5 !rounded-sm text-xs font-bold"
               >
-                Next <ChevronRight size={14} className="ml-0.5" />
+                Next
               </CustomButton>
             </div>
           </div>
@@ -1607,22 +1787,27 @@ export default function PosPage() {
               </span>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
-              <button
+              <CustomButton
+                type="button"
+                variant="outline"
+                size="xs"
                 onClick={() => setShowCustomerModal(true)}
-                className="flex items-center gap-1.5 h-7 px-3 rounded-full border border-slate-200 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 text-slate-600 font-semibold text-xs whitespace-nowrap transition shadow-2xs cursor-pointer"
+                leftIcon={<User size={12} className="text-violet-500" />}
+                className="!h-7 !px-3 rounded-full text-xs font-semibold"
               >
-                <User size={12} className="text-violet-500 shrink-0" />
-                <span>Add Customer</span>
-              </button>
-              <button
+                Add Customer
+              </CustomButton>
+              <CustomButton
+                type="button"
+                variant="danger"
+                size="xs"
                 onClick={resetSale}
                 disabled={cart.length === 0}
-                className="flex items-center gap-1.5 h-7 px-3 rounded-full border border-rose-200 bg-rose-50/60 hover:bg-rose-100 text-rose-600 font-semibold text-xs whitespace-nowrap transition shadow-2xs cursor-pointer disabled:opacity-40"
+                leftIcon={<Trash2 size={12} />}
+                className="!h-7 !px-3 rounded-full text-xs font-semibold !bg-rose-50 !text-rose-600 border border-rose-200 hover:!bg-rose-100 disabled:opacity-40"
               >
-                <Trash2 size={12} className="text-rose-500 shrink-0" />
-                <span>Clear Cart</span>
-                <span className="text-[9px] text-rose-400 font-medium">F9</span>
-              </button>
+                Clear Cart
+              </CustomButton>
             </div>
           </div>
 
@@ -1658,32 +1843,43 @@ export default function PosPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-bold text-gray-600 truncate leading-tight">{item.name}</p>
-                      <p className="text-[10px] text-slate-400 font-mono truncate">SKU: {(item as any).sku || item.productId?.slice(0, 9)}</p>
+                      <div className="flex items-center gap-1.5 truncate mt-0.5">
+                        <span className="text-[10px] text-slate-400 font-mono truncate">SKU: {(item as any).sku || item.productId?.slice(0, 9)}</span>
+                        {((item as any).taxRate !== undefined && (item as any).taxRate !== null && !isNaN(Number((item as any).taxRate))) ? (
+                          <span className="text-[9px] font-semibold text-slate-500 bg-slate-100 px-1 py-0.2 rounded border border-slate-200">
+                            VAT {Number((item as any).taxRate)}%
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                   <div className="col-span-2 text-right text-xs font-bold text-gray-600">
                     {fmt(item.unitPrice)}
                   </div>
-                  <div className="col-span-3 flex items-center justify-center gap-1">
+                  <div className="col-span-3 flex items-center justify-center gap-1.5">
                     <button
+                      type="button"
                       onClick={() => handleQtyChange(idx, item.qty - 1)}
-                      className="w-5 h-5 rounded-sm border border-slate-200/80 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-300 text-slate-600 flex items-center justify-center transition-all active:scale-80 cursor-pointer shadow-2xs"
+                      className="w-6 h-6 rounded-sm border border-slate-200 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-300 text-slate-700 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-2xs"
                     >
-                      <Minus size={11} />
+                      <Minus size={12} className="stroke-[2.5]" />
                     </button>
-                    <span className="text-xs font-bold text-gray-600 w-4 text-center">{item.qty}</span>
+                    <span className="text-xs font-black text-slate-800 w-5 text-center">{item.qty}</span>
                     <button
+                      type="button"
                       onClick={() => handleQtyChange(idx, item.qty + 1)}
-                      className="w-5 h-5 rounded-sm border border-slate-200/80 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-300 text-slate-600 flex items-center justify-center transition-all active:scale-80 cursor-pointer shadow-2xs"
+                      className="w-6 h-6 rounded-sm border border-slate-200 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-300 text-slate-700 flex items-center justify-center transition-all active:scale-90 cursor-pointer shadow-2xs"
                     >
-                      <Plus size={11} />
+                      <Plus size={12} className="stroke-[2.5]" />
                     </button>
                   </div>
                   <div className="col-span-2 text-right flex items-center justify-end gap-1.5">
-                    <span className="text-xs font-extrabold text-gray-600">{fmt(item.lineTotal)}</span>
+                    <span className="text-xs font-black text-slate-800">{fmt(item.lineTotal)}</span>
                     <button
+                      type="button"
                       onClick={() => removeItem(idx)}
-                      className="text-slate-300 hover:text-rose-500 transition-colors cursor-pointer p-0.5 active:scale-80"
+                      className="text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-sm p-1 transition-all cursor-pointer active:scale-85"
+                      title="Remove item"
                     >
                       <Trash2 size={13} />
                     </button>
@@ -1707,8 +1903,18 @@ export default function PosPage() {
                   <span>Discount</span>
                   <span className="font-bold">-{fmt(discountTotal)}</span>
                 </div>
-                <div className="flex justify-between text-slate-600 font-medium">
-                  <span>Tax ({effectiveTaxPct}%)</span>
+                <div className="flex justify-between items-center text-slate-600 font-medium">
+                  <div className="flex items-center gap-1">
+                    <span>{taxLabel}</span>
+                    {isMixedTax && (
+                      <span
+                        title={taxBreakdown.map(b => `${b.rate}% on ৳${b.taxableBase.toFixed(2)} = ৳${b.taxAmount.toFixed(2)}`).join(" | ")}
+                        className="cursor-help text-[10px] text-violet-600 bg-violet-50 px-1 py-0.2 rounded font-bold border border-violet-200"
+                      >
+                        ℹ
+                      </span>
+                    )}
+                  </div>
                   <span className="font-bold text-gray-600">{fmt(taxTotal)}</span>
                 </div>
               </div>
@@ -1731,55 +1937,51 @@ export default function PosPage() {
               {PAYMENT_METHODS.map((pm) => (
                 <button
                   key={pm.method}
+                  type="button"
                   onClick={() => { setActivePaymentMethod(pm.method); setPayments([{ method: pm.method, amount: total }]); }}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-0.5 p-1 rounded-sm border text-center transition-all duration-150 cursor-pointer h-13 relative pay-method-tile",
+                    "flex flex-col items-center justify-center gap-1 p-1.5 rounded-sm border text-center transition-all duration-150 cursor-pointer h-14 relative",
                     activePaymentMethod === pm.method
-                      ? "bg-gradient-to-r from-violet-500 to-indigo-400 text-white border-violet-400 shadow-md shadow-violet-300/60 ring-2 ring-violet-400/40"
-                      : "bg-white text-slate-600 border-slate-200 hover:bg-violet-50/70 hover:border-violet-300 hover:text-violet-600 shadow-2xs hover:shadow-xs"
+                      ? "bg-brand-gradient text-white border-brand-primary shadow-brand-button ring-2 ring-violet-400/40"
+                      : "bg-white text-slate-700 border-slate-200 hover:bg-brand-50 hover:border-brand-primary hover:text-brand-primary shadow-2xs hover:shadow-xs"
                   )}
                 >
-                  <pm.icon size={15} />
+                  <pm.icon size={16} />
                   <span className="text-[10px] font-bold leading-none">{pm.label}</span>
-                  <span className={cn("text-[9px] font-medium leading-none",
-                    activePaymentMethod === pm.method ? "text-violet-100" : "text-slate-400"
-                  )}>{(pm as any).shortcut}</span>
                 </button>
               ))}
             </div>
 
             {/* Action Buttons: Save & Hold, Pay Now */}
             <div className="flex items-center gap-2">
-              <button
+              <CustomButton
+                type="button"
+                variant="outline"
                 onClick={holdSale}
                 disabled={cart.length === 0}
-                className="flex-1 h-12 rounded-sm border border-slate-200 bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 text-gray-600 font-semibold text-xs flex flex-col items-center justify-center leading-tight transition-all disabled:opacity-40 shadow-xs hover:shadow-md cursor-pointer btn-3d"
+                leftIcon={<PauseCircle size={16} className="text-violet-500" />}
+                className="flex-1 !h-12 !rounded-sm !text-xs font-bold"
               >
-                <div className="flex items-center gap-1.5">
-                  <PauseCircle size={14} className="text-violet-500" />
-                  <span className="text-xs font-bold">Save &amp; Hold</span>
-                </div>
-                <span className="text-[10px] text-slate-400 font-medium mt-0.5">F8</span>
-              </button>
+                Save &amp; Hold
+              </CustomButton>
 
-              {/* Flagship CTA: Pay Now Button with VFX Glossy Shimmer Beam & 3D Tactile Elevation */}
-              <button
+              {/* Flagship CTA: Pay Now Button with matching brand gradient */}
+              <CustomButton
+                type="button"
+                variant="primary"
                 disabled={cart.length === 0 || submitting}
                 onClick={openCheckoutModal}
-                className="vfx-shimmer-btn btn-3d flex-[2] h-12 flex items-center justify-between px-4 rounded-sm font-bold text-sm shadow-lg shadow-violet-400/40 hover:shadow-xl hover:shadow-violet-500/50 cursor-pointer bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-400 hover:from-violet-600 hover:to-indigo-500 text-white transition-all disabled:opacity-40"
+                className="flex-[2] !h-12 !rounded-sm !text-sm font-bold flex !items-center !justify-between !px-4"
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <CheckCircle2 size={17} className="shrink-0 animate-pulse" />
-                  <div className="flex flex-col items-start leading-tight">
-                    <span className="text-xs font-extrabold whitespace-nowrap">Pay Now</span>
-                    <span className="text-[10px] text-violet-100 font-medium leading-none">F12</span>
-                  </div>
+                  <CheckCircle2 size={18} className="shrink-0" />
+                  <span className="text-sm font-extrabold whitespace-nowrap">Pay Now</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-base font-black whitespace-nowrap">{fmt(total)}</span>
-                  <ArrowRight size={15} />
+                  <ArrowRight size={16} />
                 </div>
-              </button>
+              </CustomButton>
             </div>
           </div>
         </div>
@@ -1942,8 +2144,8 @@ export default function PosPage() {
           {/* Bottom Toolbar (8 Buttons spanning 100% of left column) */}
           <div className="grid grid-cols-8 gap-1.5">
             {[
-              { label: "Hold Orders", fkey: "F10", icon: PauseCircle, action: () => { loadHolds(); setShowHolds(true); } },
-              { label: "Recent Orders", fkey: "F11", icon: Clock, action: () => { fetchRecentOrders(); setShowRecentOrders(true); } },
+              { label: "Hold Orders", fkey: "", icon: PauseCircle, action: () => { loadHolds(); setShowHolds(true); } },
+              { label: "Recent Orders", fkey: "", icon: Clock, action: () => { fetchRecentOrders(); setShowRecentOrders(true); } },
               { label: "Price Check", fkey: "", icon: Search, action: () => { setPriceCheckSearch(""); setShowPriceCheck(true); } },
               { label: "Stock Lookup", fkey: "", icon: Package, action: () => { setPriceCheckSearch(""); setShowPriceCheck(true); } },
               { label: "Return", fkey: "", icon: RotateCcw, action: () => setShowReturn(true) },
@@ -1951,12 +2153,17 @@ export default function PosPage() {
               { label: "Note", fkey: "", icon: FileText, action: () => setShowExtras(true) },
               { label: "Calculator", fkey: "", icon: Calculator, action: () => setShowCalculator(true) },
             ].map((btn, i) => (
-              <button key={i} onClick={btn.action}
-                className="h-8 px-2 rounded-sm border border-slate-200/80 bg-white hover:bg-violet-50 hover:border-violet-300 text-gray-600 hover:text-violet-600 text-[11px] font-semibold flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs hover:-translate-y-0.5 active:scale-95 cursor-pointer transition-all truncate">
-                <btn.icon size={13} className="text-violet-500 shrink-0" />
+              <CustomButton
+                key={i}
+                type="button"
+                variant="outline"
+                size="xs"
+                onClick={btn.action}
+                leftIcon={<btn.icon size={13} className="text-violet-600 shrink-0" />}
+                className="!h-8 !px-1.5 !rounded-sm !text-[11px] font-bold !justify-center truncate hover:!text-violet-700"
+              >
                 <span className="truncate">{btn.label}</span>
-                {btn.fkey && <span className="text-[9px] text-slate-400 font-medium shrink-0">{btn.fkey}</span>}
-              </button>
+              </CustomButton>
             ))}
           </div>
         </div>
@@ -2277,7 +2484,7 @@ export default function PosPage() {
                 </div>
               )}
               <div className="flex justify-between gap-4">
-                <span className="text-slate-400">Tax ({effectiveTaxPct}%):</span>
+                <span className="text-slate-400">{taxLabel}:</span>
                 <span>{fmt(taxTotal)}</span>
               </div>
             </div>
@@ -2463,8 +2670,12 @@ export default function PosPage() {
 
           {/* ── ACTION BUTTON ── */}
           <div className="pt-2">
-            <button
+            <CustomButton
               type="button"
+              variant="primary"
+              size="lg"
+              fullWidth
+              loading={submitting}
               disabled={
                 submitting ||
                 (checkoutPayMethod === "CASH" &&
@@ -2475,22 +2686,15 @@ export default function PosPage() {
                 const payLineMethod = checkoutPayMethod === "MFS" ? "MOBILE_PAY" : checkoutPayMethod;
                 confirmSale(payLineMethod, tendered);
               }}
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-sm bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-400 text-white font-black text-sm shadow-md shadow-violet-300/40 hover:from-violet-600 hover:to-indigo-500 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              leftIcon={<CheckCircle2 size={18} />}
+              className="!h-12 !rounded-sm !text-sm font-black"
             >
-              {submitting ? (
-                <>
-                  <RefreshCw size={18} className="animate-spin" /> Processing Sale...
-                </>
-              ) : checkoutPayMethod === "CASH" && (parseFloat(cashTenderedInput) || 0) < total ? (
-                <>
-                  <CheckCircle2 size={18} /> Enter Tendered Cash ({fmt(total)})
-                </>
+              {checkoutPayMethod === "CASH" && (parseFloat(cashTenderedInput) || 0) < total ? (
+                `Enter Tendered Cash (${fmt(total)})`
               ) : (
-                <>
-                  <CheckCircle2 size={18} /> Complete Sale ({fmt(total)})
-                </>
+                `Complete Sale (${fmt(total)})`
               )}
-            </button>
+            </CustomButton>
           </div>
         </div>
       </CustomModal>

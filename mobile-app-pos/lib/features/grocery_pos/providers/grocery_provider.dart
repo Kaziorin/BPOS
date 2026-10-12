@@ -154,6 +154,8 @@ class GroceryProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
+      final systemTax = await ApiService.instance.fetchDefaultTaxRate(businessType: businessType);
+      _taxRate = systemTax;
       final apiProducts = await ApiService.instance.fetchProducts(businessType: businessType);
       if (apiProducts.isNotEmpty) {
         final List<GroceryProduct> loaded = [];
@@ -238,14 +240,19 @@ class GroceryProvider extends ChangeNotifier {
   int get totalItems => _cart.length;
   int get totalQty => _cart.fold(0, (s, i) => s + i.quantity);
 
+  double _taxRate = 0.15; // 15% System Standard VAT
+  double get taxRate => _taxRate;
+  int get taxRatePct => (_taxRate * 100).round();
+
   double get itemsSubtotal => _cart.fold(0.0, (s, i) => s + i.lineSubtotal);
   double get itemsDiscount => _cart.fold(0.0, (s, i) => s + i.lineDiscount);
   double get billDiscount =>
       (itemsSubtotal - itemsDiscount) * (_billDiscountPercent / 100);
   double get totalDiscount => itemsDiscount + billDiscount;
   double get subtotal => itemsSubtotal;
-  double get vat => 0.0;
-  double get grandTotal => itemsSubtotal - totalDiscount + vat;
+  double get taxableAmount => (itemsSubtotal - totalDiscount).clamp(0.0, double.infinity);
+  double get vat => taxableAmount * _taxRate;
+  double get grandTotal => taxableAmount + vat;
   double get totalSavings => totalDiscount;
 
   void setSearchQuery(String q) {
@@ -527,7 +534,11 @@ class GroceryProvider extends ChangeNotifier {
           'payments': [
             {'method': paymentMethod, 'amount': grandTotal}
           ],
+          'subtotal': subtotal,
           'discountTotal': totalDiscount,
+          'taxTotal': vat,
+          'taxAmount': vat,
+          'total': grandTotal,
           'source': 'GROCERY',
           'customerName': _customer.name,
           'note': _salesNote,

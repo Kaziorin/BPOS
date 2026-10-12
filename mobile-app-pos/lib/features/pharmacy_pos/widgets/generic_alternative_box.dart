@@ -12,6 +12,7 @@ class GenericAlternativeBox extends StatelessWidget {
     const tealColor = Color(0xFF00897B);
     final provider = context.watch<PharmacyProvider>();
     final focused = provider.focusedMedicine;
+    if (focused == null) return const SizedBox.shrink();
     final alternatives = provider.getAlternativesFor(focused);
 
     return Container(

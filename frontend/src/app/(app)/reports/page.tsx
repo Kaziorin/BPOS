@@ -297,7 +297,7 @@ function ReportsContent() {
     else if (activeTab === "commission") loadCommission();
     else if (activeTab === "installments") loadInstallments();
     else if (activeTab === "saved" || activeTab === "scheduled") loadSaved();
-  }, [activeTab, loadSales, loadInventory, loadFinancial, loadCommission, loadInstallments, loadSaved]);
+  }, [activeTab, startDate, endDate, branchFilter, loadSales, loadInventory, loadFinancial, loadCommission, loadInstallments, loadSaved]);
 
   const handleExport = (reportType: string) => {
     const params = qs();
@@ -441,42 +441,73 @@ function ReportsContent() {
       {/* Global Filter Bar */}
       <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          {/* Date Range Inputs */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="flex items-center gap-1.5 rounded-sm border border-slate-200 bg-brand-50/40 px-3 py-1.5 text-xs text-gray-600">
-              <CalendarRange size={14} className="text-slate-400" />
+          {/* Date Range Inputs with Clean Form Design & Clear Button */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {/* From Date */}
+            <div className="flex items-center gap-1.5 rounded-sm border border-slate-300 bg-white px-3 py-1.5 shadow-2xs hover:border-brand-primary transition-colors">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">From:</span>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="bg-transparent text-xs text-gray-600 outline-none"
+                className="bg-transparent text-xs font-medium text-slate-700 outline-none cursor-pointer"
               />
-              <span className="text-slate-400">to</span>
+            </div>
+
+            {/* To Date */}
+            <div className="flex items-center gap-1.5 rounded-sm border border-slate-300 bg-white px-3 py-1.5 shadow-2xs hover:border-brand-primary transition-colors">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">To:</span>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="bg-transparent text-xs text-gray-600 outline-none"
+                className="bg-transparent text-xs font-medium text-slate-700 outline-none cursor-pointer"
               />
             </div>
 
+            {/* Clear / Reset Date Button (visible when date is selected) */}
+            {(startDate || endDate) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                }}
+                className="inline-flex items-center gap-1 rounded-sm border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100 transition"
+                title="Clear selected dates"
+              >
+                <X size={13} />
+                <span>Clear Date</span>
+              </button>
+            )}
+
             {/* Quick Date Presets */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 border-l border-slate-200 pl-2">
               {[
                 { label: "Today", val: "today" },
                 { label: "This Week", val: "this_week" },
                 { label: "This Month", val: "this_month" },
                 { label: "All Time", val: "clear" },
-              ].map((p) => (
-                <button
-                  key={p.val}
-                  type="button"
-                  onClick={() => applyDatePreset(p.val as any)}
-                  className="rounded-sm border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-brand-50/50 transition"
-                >
-                  {p.label}
-                </button>
-              ))}
+              ].map((p) => {
+                const isActive =
+                  p.val === "clear"
+                    ? !startDate && !endDate
+                    : false;
+                return (
+                  <button
+                    key={p.val}
+                    type="button"
+                    onClick={() => applyDatePreset(p.val as any)}
+                    className={`rounded-sm border px-2.5 py-1.5 text-[11px] font-semibold transition ${
+                      isActive
+                        ? "border-brand-primary bg-brand-primary text-white shadow-2xs"
+                        : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:border-slate-300"
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

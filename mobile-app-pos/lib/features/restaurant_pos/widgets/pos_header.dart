@@ -40,6 +40,38 @@ class POSHeader extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // ── BACK BUTTON (Web/Desktop - only shown if can pop) ──
+                  if (!isMobile && (ModalRoute.of(context)?.canPop ?? false)) ...[
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          } else {
+                            Navigator.of(context).maybePop();
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_back_rounded,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+
                   // ── LOGO ──
                   _LogoWidget(isMobile: isMobile),
 
@@ -50,7 +82,11 @@ class POSHeader extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: isMobile
-                          ? _RightIcons(isMobile: true, locale: locale)
+                          ? FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerRight,
+                              child: _RightIcons(isMobile: true, locale: locale),
+                            )
                           : SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               physics: const BouncingScrollPhysics(),
@@ -439,24 +475,45 @@ class _RightIcons extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(width: isMobile ? 2 : 4),
-        IconButton(
-          icon: Icon(Icons.receipt_long_rounded, color: Colors.white, size: isMobile ? 20 : 24),
-          tooltip: locale == 'bn' ? 'সেলস হিস্ট্রি' : 'Sales History',
-          onPressed: () {
-            showLiveSalesHistoryDialog(context, businessType: 'restaurant');
-          },
-          constraints: isMobile ? const BoxConstraints(minWidth: 34, minHeight: 34) : const BoxConstraints(minWidth: 48, minHeight: 48),
-          padding: isMobile ? EdgeInsets.zero : const EdgeInsets.all(8),
-          splashRadius: isMobile ? 20 : 24,
-        ),
-        SizedBox(width: isMobile ? 2 : 4),
-        FullscreenButton(
-          iconColor: Colors.white,
-          iconSize: isMobile ? 20 : 24,
-          padding: isMobile ? EdgeInsets.zero : const EdgeInsets.all(8),
-          constraints: isMobile ? const BoxConstraints(minWidth: 34, minHeight: 34) : const BoxConstraints(minWidth: 48, minHeight: 48),
-        ),
+        // Sales History Button (Desktop only, excluded from mobile)
+        if (!isMobile) ...[
+          IconButton(
+            icon: const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 24),
+            tooltip: locale == 'bn' ? 'সেলস হিস্ট্রি' : 'Sales History',
+            onPressed: () {
+              showLiveSalesHistoryDialog(context, businessType: 'restaurant');
+            },
+            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+            padding: const EdgeInsets.all(8),
+            splashRadius: 24,
+          ),
+          const SizedBox(width: 4),
+        ],
+
+        // Fullscreen on Desktop / Home button on Mobile
+        if (isMobile) ...[
+          IconButton(
+            icon: const Icon(Icons.home_rounded, color: Colors.white, size: 22),
+            tooltip: locale == 'bn' ? 'হোম' : 'Home',
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                Navigator.of(context).maybePop();
+              }
+            },
+            constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
+            padding: EdgeInsets.zero,
+            splashRadius: 20,
+          ),
+        ] else ...[
+          FullscreenButton(
+            iconColor: Colors.white,
+            iconSize: 24,
+            padding: const EdgeInsets.all(8),
+            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+          ),
+        ],
         SizedBox(width: isMobile ? 2 : 4),
         PopupMenuButton<String>(
           color: context.cardBg,

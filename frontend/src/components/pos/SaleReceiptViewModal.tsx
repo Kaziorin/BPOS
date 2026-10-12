@@ -39,6 +39,8 @@ export interface ReceiptViewData {
   total: number;
   paidTotal: number;
   dueTotal: number;
+  tendered?: number;
+  tenderedAmount?: number;
   changeReturn?: number;
   change?: number;
   changeAmount?: number;
@@ -191,6 +193,13 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
       : (data.paymentMethod || "CASH").toUpperCase();
 
   const paidTotal = Number(data.paidTotal ?? data.total ?? 0);
+  const rawTendered = Number(
+    data.tenderedAmount ??
+    data.tendered ??
+    (data.payments && data.payments.length > 0
+      ? data.payments.reduce((acc, p) => acc + (Number(p.amount) || 0), 0)
+      : 0)
+  );
   const changeReturn = Math.max(
     0,
     Number(
@@ -198,9 +207,10 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
       data.change ??
       data.changeAmount ??
       data.returnAmount ??
-      (paidTotal > data.total ? paidTotal - data.total : 0)
+      (rawTendered > 0 && rawTendered > data.total ? rawTendered - data.total : (paidTotal > data.total ? paidTotal - data.total : 0))
     )
   );
+  const tenderedAmount = rawTendered > 0 ? rawTendered : (paidTotal + changeReturn);
 
   // Determine if this receipt belongs to a Restaurant context
   const isRestaurant = Boolean(
@@ -707,6 +717,13 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
                 <div className="flex justify-between items-baseline pt-0.5">
                   <span className="text-gray-600">Tender Method:</span>
                   <span className="font-bold text-black font-mono">{primaryMethod}</span>
+                </div>
+              )}
+
+              {tenderedAmount > 0 && (
+                <div className="flex justify-between items-baseline">
+                  <span className="text-gray-600">Tendered / Received:</span>
+                  <span className="font-bold text-black font-mono">৳{tenderedAmount.toFixed(2)}</span>
                 </div>
               )}
 

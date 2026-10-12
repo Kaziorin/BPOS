@@ -27,7 +27,6 @@ class PharmacyHeader extends StatelessWidget {
     if (isMobile) {
       return Consumer<PharmacyProvider>(
         builder: (context, pharmacyProvider, _) {
-          final cartCount = pharmacyProvider.cart.fold<int>(0, (sum, item) => sum + item.quantity);
           return Container(
             height: 56,
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -52,7 +51,7 @@ class PharmacyHeader extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'MediCare',
+                          'BPOS',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
@@ -112,15 +111,6 @@ class PharmacyHeader extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
 
-                // Fullscreen Toggle
-                FullscreenButton(
-                  iconColor: Colors.grey.shade600,
-                  iconSize: 20,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                ),
-                const SizedBox(width: 2),
-
                 // Theme Toggle
                 IconButton(
                   onPressed: () => appProvider.toggleTheme(),
@@ -135,33 +125,24 @@ class PharmacyHeader extends StatelessWidget {
                 ),
                 const SizedBox(width: 2),
 
-                // Sales History Button
+                // Home Button (on mobile view)
                 IconButton(
-                  onPressed: () => showLiveSalesHistoryDialog(context, businessType: 'pharmacy'),
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context).maybePop();
+                    }
+                  },
                   icon: const Icon(
-                    Icons.receipt_long_rounded,
+                    Icons.home_rounded,
                     color: primaryTeal,
                     size: 20,
                   ),
-                  tooltip: 'Sales History',
+                  tooltip: 'Home',
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                 ),
-                const SizedBox(width: 2),
-
-                // Cart Button with badge
-                if (onOpenCart != null)
-                  IconButton(
-                    onPressed: onOpenCart,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-                    icon: Badge(
-                      isLabelVisible: cartCount > 0,
-                      label: Text('$cartCount', style: const TextStyle(fontSize: 10)),
-                      backgroundColor: primaryTeal,
-                      child: const Icon(Icons.shopping_cart_outlined, color: primaryTeal, size: 22),
-                    ),
-                  ),
               ],
             ),
           );
@@ -174,6 +155,45 @@ class PharmacyHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
+          // ── BACK BUTTON (Web/Desktop - only shown if can pop) ──
+          if (ModalRoute.of(context)?.canPop ?? false) ...[
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  } else {
+                    Navigator.of(context).maybePop();
+                  }
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: context.isDark ? context.surfaceBg : Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: context.dividerColor),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_rounded,
+                    size: 20,
+                    color: context.isDark ? Colors.white : Colors.grey.shade800,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+          ],
+
           // ── LOGO ──
           Row(
             children: [

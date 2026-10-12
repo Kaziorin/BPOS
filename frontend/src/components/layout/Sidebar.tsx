@@ -453,13 +453,13 @@ export function Sidebar() {
         {/* Menu Quick Search */}
         <div className="px-3 pt-3 pb-1">
           <div className="relative flex items-center">
-            <Search size={14} className="pointer-events-none absolute left-3 text-sky-500" />
+            <Search size={14} className="pointer-events-none absolute left-3 text-brand-primary" />
             <input
               type="text"
               placeholder="Search menu..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-sky-100 bg-sky-50/50 pl-9 pr-8 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 outline-none focus:outline-none focus:border-sky-400 focus:bg-white focus:ring-1 focus:ring-sky-200 shadow-2xs transition-colors"
+              className="theme-search-input w-full rounded-full pl-9 pr-8 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 outline-none shadow-2xs"
             />
             {searchQuery && (
               <button
@@ -811,6 +811,8 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
                 <Link
                   key={`${sub.label}-${sub.href}-${idx}`}
                   href={sub.href}
+                  target={sub.target}
+                  rel={sub.target === "_blank" ? "noopener noreferrer" : undefined}
                   className={cn(
                     "group flex items-center gap-2 rounded-sm px-2 py-1.5 text-[11px] font-semibold transition-all duration-150",
                     subActive
@@ -833,6 +835,8 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
   return (
     <Link
       href={child.href}
+      target={child.target}
+      rel={child.target === "_blank" ? "noopener noreferrer" : undefined}
       className={cn(
         "group flex items-center gap-2 rounded-sm px-2.5 py-1.5 text-xs transition-all duration-150",
         exactActive

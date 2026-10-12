@@ -724,28 +724,34 @@ export const RestaurantProductFields: React.FC<Props> = ({ formData, onChange })
             <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide">
               Add Custom Size (e.g. Medium, Half Pack, Family Pack)
             </label>
-            <div className="flex items-center gap-2">
-              <CustomInput
-                placeholder="Size Name (e.g. Medium / 1 Litre / Family Pack)"
-                value={newCustomSizeName}
-                onChange={(e) => setNewCustomSizeName(e.target.value)}
-                containerClassName="flex-1"
-              />
-              <CustomInput
-                type="number"
-                placeholder="Price (৳)"
-                value={newCustomSizePrice}
-                onChange={(e) => setNewCustomSizePrice(e.target.value)}
-                containerClassName="w-32"
-              />
-              <CustomButton
-                type="button"
-                onClick={handleAddCustomSize}
-                size="sm"
-                leftIcon={<Plus size={14} />}
-              >
-                Add Size
-              </CustomButton>
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
+              <div className="sm:col-span-6">
+                <CustomInput
+                  placeholder="Size Name (e.g. Medium / Half Pack / Family Pack)"
+                  value={newCustomSizeName}
+                  onChange={(e) => setNewCustomSizeName(e.target.value)}
+                />
+              </div>
+              <div className="sm:col-span-4">
+                <CustomInput
+                  type="number"
+                  placeholder="Price (৳)"
+                  value={newCustomSizePrice}
+                  onChange={(e) => setNewCustomSizePrice(e.target.value)}
+                  rightIcon={<span className="text-xs text-slate-400 font-bold">৳</span>}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <CustomButton
+                  type="button"
+                  onClick={handleAddCustomSize}
+                  size="sm"
+                  fullWidth
+                  leftIcon={<Plus size={14} />}
+                >
+                  Add Size
+                </CustomButton>
+              </div>
             </div>
           </div>
         </div>

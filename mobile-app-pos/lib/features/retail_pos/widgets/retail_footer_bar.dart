@@ -210,13 +210,30 @@ class RetailFooterBar extends StatelessWidget {
                 // Top Row: 7 Module Cards — fixed height 64
                 SizedBox(
                   height: 64,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: moduleCards.map((card) => Expanded(child: Padding(
-                      padding: const EdgeInsets.only(right: 4.0),
-                      child: card,
-                    ))).toList(),
-                  ),
+                  child: screenWidth >= 1600
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: moduleCards
+                              .map((card) => Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 4.0),
+                                      child: card,
+                                    ),
+                                  ))
+                              .toList(),
+                        )
+                      : SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: Row(
+                            children: moduleCards
+                                .map((card) => Padding(
+                                      padding: const EdgeInsets.only(right: 6.0),
+                                      child: SizedBox(width: 140, child: card),
+                                    ))
+                                .toList(),
+                          ),
+                        ),
                 ),
 
                 const SizedBox(height: 3),
@@ -224,13 +241,30 @@ class RetailFooterBar extends StatelessWidget {
                 // Bottom Toolbar: 8 Action Buttons — fixed height 28
                 SizedBox(
                   height: 28,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: actionButtons.map((btn) => Expanded(child: Padding(
-                      padding: const EdgeInsets.only(right: 4.0),
-                      child: btn,
-                    ))).toList(),
-                  ),
+                  child: screenWidth >= 1600
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: actionButtons
+                              .map((btn) => Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 4.0),
+                                      child: btn,
+                                    ),
+                                  ))
+                              .toList(),
+                        )
+                      : SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: Row(
+                            children: actionButtons
+                                .map((btn) => Padding(
+                                      padding: const EdgeInsets.only(right: 6.0),
+                                      child: SizedBox(width: 110, child: btn),
+                                    ))
+                                .toList(),
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -458,7 +492,7 @@ class RetailFooterBar extends StatelessWidget {
             const SizedBox(width: 3),
             Flexible(
               child: Text(
-                label,
+                badge.isNotEmpty ? '$label $badge' : label,
                 style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.bold,
@@ -468,17 +502,6 @@ class RetailFooterBar extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (badge.isNotEmpty) ...[
-              const SizedBox(width: 3),
-              Text(
-                badge,
-                style: const TextStyle(
-                  fontSize: 8.5,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF94A3B8),
-                ),
-              ),
-            ],
           ],
         ),
       ),

@@ -10,6 +10,7 @@ class RetailSale {
   final double total;
   final double paidAmount;
   final double changeAmount;
+  final double tenderedAmount;
   final String paymentMethod;
   final String customerName;
   final DateTime createdAt;
@@ -24,6 +25,7 @@ class RetailSale {
     required this.total,
     required this.paidAmount,
     required this.changeAmount,
+    this.tenderedAmount = 0.0,
     required this.paymentMethod,
     required this.customerName,
     required this.createdAt,
