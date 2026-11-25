@@ -111,7 +111,7 @@ export function LandingPage() {
 
           <nav className="hidden lg:flex items-center gap-8 text-xs font-bold text-slate-600">
             <a href="#pos-screens" className="hover:text-sky-600 transition">
-              8 POS Screens
+              POS Screens
             </a>
             <a href="#features" className="hover:text-sky-600 transition">
               POS Features
@@ -181,7 +181,7 @@ export function LandingPage() {
               onClick={() => setMobileMenuOpen(false)}
               className="block rounded bg-sky-50/70 px-3 py-2"
             >
-              8 POS Screens
+              POS Screens
             </a>
             <a
               href="#features"

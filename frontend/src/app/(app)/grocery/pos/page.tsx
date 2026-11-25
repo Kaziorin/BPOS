@@ -455,7 +455,55 @@ export default function GroceryPOSPage() {
     } catch { }
   }, [cart]);
 
-  const holdCart = () => { if (!cart.length) return; setHeldCarts(prev => [...prev, { id: `HOLD-${Date.now().toString().slice(-4)}`, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), items: cart }]); clearCart(); setCouponToast("📌 Bill Held Successfully"); setTimeout(() => setCouponToast(""), 2500); };
+  useEffect(() => {
+    try {
+      const resumeHoldId = localStorage.getItem("bpos_resume_hold_id");
+      const rawCart = localStorage.getItem("bpos_general_cart");
+      if (resumeHoldId && rawCart) {
+        const parsed = JSON.parse(rawCart);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setCart(parsed.map((it: any, idx: number) => ({
+            id: String(it.id || `${it.productId || "item"}-${Date.now()}-${idx}`),
+            productId: String(it.productId || it.id || ""),
+            name: String(it.name || "Item"),
+            sku: String(it.sku || ""),
+            barcode: it.barcode || undefined,
+            unitPrice: Number(it.unitPrice || it.price || 0),
+            qty: Number(it.qty || 1),
+            isWeighed: Boolean(it.isWeighed),
+            weightKg: it.weightKg,
+            lineTotal: Number(it.lineTotal ?? Number(it.qty || 1) * Number(it.unitPrice || it.price || 0)),
+            discountPct: Number(it.discountPct || 0),
+            uom: it.uom || "pcs",
+            image: it.image || it.imageUrl,
+          })));
+          setCouponToast("📌 Held Cart Resumed");
+          setTimeout(() => setCouponToast(""), 2500);
+        }
+        localStorage.removeItem("bpos_resume_hold_id");
+        localStorage.removeItem("bpos_general_cart");
+      }
+    } catch {}
+  }, []);
+
+  const holdCart = () => {
+    if (!cart.length) return;
+    const holdId = `HOLD-${Date.now().toString().slice(-4)}`;
+    const snapshot = [...cart];
+    setHeldCarts(prev => [...prev, { id: holdId, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), items: snapshot }]);
+    api.post("/api/v1/pos/holds", {
+      holdRef: holdId,
+      terminalMode: "GROCERY",
+      items: snapshot,
+      customerId: selectedCustomer?.id || null,
+      subtotal: subTotal,
+      total: grandTotal,
+      notes: salesNote || "Grocery POS Hold",
+    }).catch(() => {});
+    clearCart();
+    setCouponToast("📌 Bill Held Successfully");
+    setTimeout(() => setCouponToast(""), 2500);
+  };
   const recallCart = (h: { id: string; items: CartItem[] }) => { setCart(h.items); setHeldCarts(prev => prev.filter(x => x.id !== h.id)); setHeldCartsOpen(false); };
   const openScale = (prod: Product) => { setScaleProd(prod); setGrossKg("1.000"); setScaleOpen(true); };
   const confirmScale = () => { if (!scaleProd) return; const net = Math.max(0.001, parseFloat(grossKg) || 0); addToCart(scaleProd, net, true, net); setScaleOpen(false); setScaleProd(null); };
