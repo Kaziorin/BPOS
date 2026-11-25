@@ -73,7 +73,7 @@ function CopilotChat() {
             <div className="flex items-center gap-2">
               <h3 className="font-black text-sm text-gray-600">Business AI Copilot</h3>
               <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-                GPT-4o / Realtime SQL
+                Live SQL & Business Intelligence
               </span>
             </div>
             <p className="text-[11px] text-slate-500">Autonomous retail intelligence & sales forecasting assistant</p>
@@ -99,14 +99,14 @@ function CopilotChat() {
             </div>
             <h4 className="font-black text-base text-gray-600">How can I assist your business today?</h4>
             <p className="text-xs text-slate-500 mt-1 mb-6">
-              Ask questions across sales reports, dead stock detection, customer churn, and NBR tax calculations in natural language.
+              Ask questions across sales reports, dead stock detection, customer churn, and NBR tax calculations in natural language (বাংলা বা English).
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
               {[
-                { title: "What are today's top sales?", sub: "Live revenue & transaction count" },
-                { title: "Which products need reorder?", sub: "Safety stock & lead time checks" },
-                { title: "Show overdue installments", sub: "EMI credit aging summary" },
-                { title: "Forecast next month profit", sub: "Predictive margin model" },
+                { title: "আজকের মোট বিক্রি কত?", sub: "Today's live revenue & sales count" },
+                { title: "চলতি মাসের লাভ কত?", sub: "Revenue vs expenses profit margin" },
+                { title: "কোন কোন পণ্যের স্টক কম?", sub: "Safety stock & reorder alert" },
+                { title: "বকেয়া বাকির পরিমাণ কত?", sub: "Outstanding customer dues & AR" },
               ].map((q) => (
                 <button
                   key={q.title}
