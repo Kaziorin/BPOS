@@ -883,7 +883,7 @@ async def pos_list_holds(tenantId: str = Depends(resolve_tenant), db: AsyncSessi
                          user: AuthUser = Depends(require_auth)):
     try:
         rows = rows_to_dicts((await db.execute(text(
-            "SELECT id, holdNo, cartSnapshot, note, createdAt FROM held_sales WHERE tenantId=:t ORDER BY createdAt DESC LIMIT 50"),
+            "SELECT id, holdNo, cartSnapshot, note, createdAt, customerId, branchId, terminalId FROM held_sales WHERE tenantId=:t ORDER BY createdAt DESC LIMIT 50"),
             {"t": tenantId})).fetchall())
         return ok(rows)
     except Exception:
