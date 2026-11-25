@@ -77,21 +77,21 @@ export interface ThemeConfig {
 export const DEFAULT_VIBRANT_THEME: ThemeConfig = {
   themePreset: "shopease-vibrant",
   headerStyle: "standard",
-  primaryColor: "#2563eb",
+  primaryColor: "#0284c7",
   accentColor: "#f59e0b",
   isDarkMode: false,
   fontFamily: "Inter, system-ui, sans-serif",
   showAnnouncement: true,
-  announcementText: "🎉 Super Spring Sale! Free Shipping on orders over $50 / ৳500 with code FREESHIP",
+  announcementText: "Super Spring Sale: Free shipping on orders over ৳500 with code FREESHIP",
   sections: [
     {
       id: "sec-notice-1",
       type: "special_notice",
-      title: "⚡ Weekend Mega Flash Sale: Up to 60% OFF Across All Trending Collections!",
+      title: "Weekend Flash Sale: Up to 60% off across trending collections",
       subtitle: "Use voucher code SHOP2026 for instant checkout discounts.",
-      badge: "HOT OFFER",
+      badge: "Offer",
       enabled: true,
-      settings: { ctaText: "Shop Deals", ctaLink: "/products", themeStyle: "gradient" },
+      settings: { ctaText: "Shop deals", ctaLink: "/products", themeStyle: "gradient" },
     },
     {
       id: "sec-hero-1",

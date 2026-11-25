@@ -58,56 +58,56 @@ export default function FlashSaleSection({ section, products, isDarkMode }: Prop
 
   return (
     <section className="py-6 sm:py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Flash Sale Header Bar */}
         <div
-          className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl mb-6 shadow-xs border ${
+          className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-4.5 rounded-xl mb-6 shadow-2xs border ${
             isDarkMode
               ? "bg-zinc-900 border-zinc-800 text-white"
-              : "bg-gradient-to-r from-rose-50 via-orange-50/60 to-amber-50 border-rose-200/70 text-slate-900"
+              : "bg-slate-50 border-slate-200 text-slate-900"
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-md shadow-rose-500/20">
-              <Flame className="w-6 h-6 animate-pulse" />
+            <div className="w-9 h-9 rounded-lg bg-rose-600 text-white flex items-center justify-center shadow-2xs">
+              <Flame className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg sm:text-xl font-black">{title || "Flash Sale"}</h2>
-                <span className="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
-                  {settings?.discountText || "UP TO 70% OFF"}
+                <h2 className="text-base sm:text-lg font-bold">{title || "Flash Sale"}</h2>
+                <span className="bg-rose-100 text-rose-700 border border-rose-200 text-[10px] font-semibold px-2 py-0.5 rounded uppercase">
+                  {settings?.discountText || "Up to 70% off"}
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-                {subtitle || "Top deals. Limited time only!"}
+                {subtitle || "Top deals available for a limited time."}
               </p>
             </div>
           </div>
 
           {/* Live Countdown Clock */}
           <div className="flex items-center gap-2 self-start sm:self-auto">
-            <span className="text-xs font-semibold text-slate-600 dark:text-zinc-300 mr-1 hidden sm:inline">
+            <span className="text-xs font-medium text-slate-500 dark:text-zinc-400 mr-1 hidden sm:inline">
               Ending in:
             </span>
-            <div className="flex items-center gap-1.5 font-mono text-xs font-black">
-              <span className="bg-slate-900 text-white px-2.5 py-1.5 rounded-lg shadow-xs">
+            <div className="flex items-center gap-1 font-mono text-xs font-semibold">
+              <span className="bg-slate-900 text-white px-2 py-1 rounded shadow-2xs">
                 {String(timeLeft.hours).padStart(2, "0")}h
               </span>
-              <span className="text-slate-900 dark:text-white font-bold">:</span>
-              <span className="bg-slate-900 text-white px-2.5 py-1.5 rounded-lg shadow-xs">
+              <span className="text-slate-400 font-bold">:</span>
+              <span className="bg-slate-900 text-white px-2 py-1 rounded shadow-2xs">
                 {String(timeLeft.minutes).padStart(2, "0")}m
               </span>
-              <span className="text-slate-900 dark:text-white font-bold">:</span>
-              <span className="bg-rose-600 text-white px-2.5 py-1.5 rounded-lg shadow-xs animate-pulse">
+              <span className="text-slate-400 font-bold">:</span>
+              <span className="bg-slate-900 text-white px-2 py-1 rounded shadow-2xs">
                 {String(timeLeft.seconds).padStart(2, "0")}s
               </span>
             </div>
             <Link
               href="/products?filter=flash-sale"
-              className="ml-3 inline-flex items-center gap-1 text-xs font-bold text-rose-600 hover:text-rose-700 dark:text-rose-400"
+              className="ml-3 inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-400"
             >
-              <span>View All</span>
+              <span>View all</span>
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>

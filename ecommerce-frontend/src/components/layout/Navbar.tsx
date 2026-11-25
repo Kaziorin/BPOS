@@ -97,19 +97,19 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
       {/* ── Optional Top Header Announcement Bar ── */}
       {theme.showAnnouncement !== false && theme.announcementText && (
         <div
-          className="text-xs font-bold py-2 px-4 text-center transition-colors flex items-center justify-center gap-2"
+          className="text-xs font-medium py-2 px-4 text-center transition-colors flex items-center justify-center gap-2"
           style={{
-            backgroundColor: theme.announcementBgColor || primaryColor || "#2563eb",
+            backgroundColor: theme.announcementBgColor || primaryColor || "#0284c7",
             color: theme.announcementTextColor || "#ffffff",
           }}
         >
-          <span>{theme.announcementText}</span>
+          <span>{theme.announcementText.replace(/🎉\s*/g, "")}</span>
           {theme.announcementLink && (
             <Link
               href={theme.announcementLink}
-              className="underline hover:opacity-80 inline-flex items-center gap-1 font-black ml-1 text-[11px]"
+              className="underline hover:opacity-85 inline-flex items-center gap-1 font-semibold ml-1 text-xs"
             >
-              <span>Shop Deals</span>
+              <span>Shop deals</span>
               <ArrowRight className="w-3 h-3" />
             </Link>
           )}
@@ -135,7 +135,7 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
         }`}
       >
         {/* Main Navbar Bar */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20 gap-3 sm:gap-6">
             
             {/* Logo: Image Logo or Text Logo */}
@@ -217,19 +217,19 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
                     className="fixed inset-0 z-40"
                     onClick={() => setShowSearchDropdown(false)}
                   />
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl overflow-hidden z-50 divide-y divide-slate-800 animate-in fade-in zoom-in-95">
-                    <div className="p-3 bg-slate-950/80 flex items-center justify-between text-[11px] font-bold text-slate-400">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-2xl shadow-xl overflow-hidden z-50 divide-y divide-slate-100 dark:divide-zinc-800 animate-in fade-in zoom-in-95">
+                    <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
                       <span>Live Results ({searchResults.length})</span>
                       <button
                         type="button"
                         onClick={() => setShowSearchDropdown(false)}
-                        className="text-slate-500 hover:text-white"
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
 
-                    <div className="p-2 space-y-1 max-h-72 overflow-y-auto">
+                    <div className="p-1.5 space-y-0.5 max-h-72 overflow-y-auto">
                       {searchResults.map((item) => (
                         <Link
                           key={item.id}
@@ -238,41 +238,38 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
                             setShowSearchDropdown(false);
                             setSearchQuery("");
                           }}
-                          className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-800 transition-colors group"
+                          className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors group"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 overflow-hidden shrink-0 flex items-center justify-center">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 overflow-hidden shrink-0 flex items-center justify-center">
                               {item.imageUrl ? (
                                 <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                               ) : (
                                 <ShoppingBag className="w-4 h-4 text-slate-400" />
                               )}
                             </div>
-                            <div>
-                              <h4 className="text-xs font-bold text-white group-hover:text-sky-400 transition-colors line-clamp-1">
+                            <div className="min-w-0">
+                              <h4 className="text-xs font-semibold text-slate-800 dark:text-white group-hover:text-sky-600 transition-colors truncate">
                                 {item.name}
                               </h4>
-                              <span className="text-[10px] text-slate-400 font-medium">
+                              <span className="text-[10px] text-slate-400 font-normal">
                                 {item.categoryName || "Product"}
                               </span>
                             </div>
                           </div>
 
-                          <span
-                            className="text-xs font-black shrink-0 ml-2"
-                            style={{ color: primaryColor }}
-                          >
+                          <span className="text-xs font-bold text-slate-900 dark:text-white shrink-0 ml-2 tabular-nums font-mono">
                             ৳{Number(item.sellingPrice || item.price || 0).toLocaleString()}
                           </span>
                         </Link>
                       ))}
                     </div>
 
-                    <div className="p-2.5 bg-slate-950/90 text-center">
+                    <div className="p-2.5 bg-slate-50/80 dark:bg-zinc-800/40 text-center border-t border-slate-100 dark:border-zinc-800">
                       <Link
                         href={`/products?search=${encodeURIComponent(searchQuery.trim())}`}
                         onClick={() => setShowSearchDropdown(false)}
-                        className="text-xs font-bold text-sky-400 hover:underline inline-flex items-center gap-1"
+                        className="text-xs font-semibold text-sky-600 hover:underline inline-flex items-center gap-1"
                       >
                         <span>View all matching products</span>
                         <ArrowRight className="w-3 h-3" />
@@ -428,7 +425,7 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
 
         {/* Categories Navigation Bar */}
         <div className="border-t border-slate-100 dark:border-zinc-800/80 bg-slate-50/70 dark:bg-zinc-900/60 hidden sm:block">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-2 text-xs font-semibold">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-2 text-xs font-semibold">
             
             {/* All Categories Trigger */}
             <div className="relative">

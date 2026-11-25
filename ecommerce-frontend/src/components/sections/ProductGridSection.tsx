@@ -70,6 +70,33 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
     }, 2000);
   };
 
+  const getProductImage = (p: ProductItem, idx: number) => {
+    if (p.imageUrl && !p.imageUrl.includes("photo-1523275335684-37898b6baf30")) return p.imageUrl;
+    const n = (p.name || "").toLowerCase();
+    if (n.includes("bread") || n.includes("wheat") || n.includes("loaf")) {
+      return "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80";
+    }
+    if (n.includes("chip") || n.includes("lays") || n.includes("snack") || n.includes("potato")) {
+      return "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=600&auto=format&fit=crop&q=80";
+    }
+    if (n.includes("coca") || n.includes("cola") || n.includes("drink") || n.includes("soda") || n.includes("beverage")) {
+      return "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&auto=format&fit=crop&q=80";
+    }
+    if (n.includes("cake") || n.includes("croissant") || n.includes("pastry") || n.includes("bakery")) {
+      return "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&auto=format&fit=crop&q=80";
+    }
+    if (n.includes("bun") || n.includes("burger")) {
+      return "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=600&auto=format&fit=crop&q=80";
+    }
+    const generalCurated = [
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&auto=format&fit=crop&q=80",
+    ];
+    return generalCurated[idx % generalCurated.length];
+  };
+
   // Determine grid columns classes
   const getGridColsClass = () => {
     switch (columns) {
@@ -78,35 +105,35 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
       case 3:
         return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
       case 5:
-        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5";
+        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6";
       case 6:
-        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6";
+        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6";
       case 4:
       default:
-        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4";
+        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6";
     }
   };
 
   return (
     <section className="py-6 sm:py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
           <div>
             {badge && (
               <span
-                className="text-[11px] font-black uppercase tracking-wider block mb-1"
+                className="text-[10px] font-semibold uppercase tracking-wider block mb-1"
                 style={{ color: primaryColor }}
               >
                 {badge}
               </span>
             )}
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
               {title || "Featured Products"}
             </h2>
             {subtitle && (
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-1">{subtitle}</p>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{subtitle}</p>
             )}
           </div>
 
@@ -204,7 +231,7 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
                     <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0">
                       <Link href={`/products/${p.id}`} className="block w-full h-full">
                         <img
-                          src={p.imageUrl || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&auto=format&fit=crop&q=80"}
+                          src={getProductImage(p, idx)}
                           alt={p.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
@@ -308,9 +335,9 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
                   <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-slate-100 dark:bg-zinc-800 mb-3.5">
                     <Link href={`/products/${p.id}`} className="block w-full h-full">
                       <img
-                        src={p.imageUrl || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80"}
+                        src={getProductImage(p, idx)}
                         alt={p.name}
-                        className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </Link>
 
@@ -318,12 +345,12 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
                     {showStock && p.totalStock !== undefined && (
                       <div className="absolute top-2.5 left-2.5">
                         {Number(p.totalStock) > 0 ? (
-                          <span className="bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-xs">
-                            In Stock
+                          <span className="bg-emerald-500/90 backdrop-blur-xs text-white text-[10px] font-medium px-2 py-0.5 rounded shadow-2xs">
+                            In stock
                           </span>
                         ) : (
-                          <span className="bg-slate-700 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-xs">
-                            Pre-Order
+                          <span className="bg-slate-800/90 backdrop-blur-xs text-white text-[10px] font-medium px-2 py-0.5 rounded shadow-2xs">
+                            Pre-order
                           </span>
                         )}
                       </div>
@@ -332,7 +359,7 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
                     {/* Discount badge */}
                     {showBadge && (
                       <div className="absolute top-2.5 right-2.5">
-                        <span className="bg-rose-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-xs">
+                        <span className="bg-rose-600 text-white text-[10px] font-medium px-2 py-0.5 rounded shadow-2xs">
                           -20%
                         </span>
                       </div>
@@ -345,10 +372,10 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
                         e.stopPropagation();
                         setQuickViewProduct(p);
                       }}
-                      className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-xl bg-slate-900/90 hover:bg-sky-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:scale-105 active:scale-95"
-                      title="Quick View Details"
+                      className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-lg bg-slate-900/80 hover:bg-sky-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-md active:scale-95"
+                      title="Quick view"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-3.5 h-3.5" />
                     </button>
                   </div>
 
@@ -356,26 +383,26 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
                   <div>
                     {showRating && (
                       <div className="flex items-center gap-1.5 text-[11px] text-amber-500 mb-1">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        <span className="font-bold">4.8</span>
+                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                        <span className="font-semibold tabular-nums">4.8</span>
                         <span className="text-slate-400 dark:text-zinc-500 text-[10px]">
-                          ({240 + idx * 30} sold)
+                          ({240 + idx * 30} reviews)
                         </span>
                       </div>
                     )}
 
                     <Link href={`/products/${p.id}`}>
-                      <h3 className="text-xs sm:text-sm font-bold line-clamp-2 leading-tight hover:underline">
+                      <h3 className="text-xs sm:text-sm font-semibold line-clamp-2 leading-snug hover:text-sky-600 transition-colors">
                         {p.name}
                       </h3>
                     </Link>
 
                     {/* Price */}
-                    <div className="mt-2.5 flex items-baseline gap-2">
-                      <span className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                    <div className="mt-2 flex items-baseline gap-2">
+                      <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tabular-nums font-mono">
                         {formatPrice(p.sellingPrice)}
                       </span>
-                      <span className="text-xs text-slate-400 line-through">
+                      <span className="text-xs text-slate-400 line-through tabular-nums font-mono">
                         {formatPrice(originalPrice)}
                       </span>
                     </div>
@@ -385,19 +412,11 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
                   <button
                     type="button"
                     onClick={(e) => handleAdd(p, e)}
-                    className={`mt-3.5 w-full py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-xs ${
+                    className={`mt-3 w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors active:scale-98 shadow-2xs ${
                       isAdded
                         ? "bg-emerald-600 text-white"
-                        : "text-white"
+                        : "bg-slate-900 hover:bg-sky-600 text-white"
                     }`}
-                    style={
-                      !isAdded
-                        ? {
-                            backgroundColor: primaryColor,
-                            boxShadow: `0 4px 12px ${primaryColor}30`,
-                          }
-                        : {}
-                    }
                   >
                     {isAdded ? (
                       <>
@@ -407,7 +426,7 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
                     ) : (
                       <>
                         <ShoppingCart className="w-3.5 h-3.5" />
-                        <span>Add to Cart</span>
+                        <span>Add to cart</span>
                       </>
                     )}
                   </button>

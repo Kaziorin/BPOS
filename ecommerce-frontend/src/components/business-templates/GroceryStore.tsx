@@ -19,7 +19,7 @@ export default function GroceryStore({ config, products, categories }: GrocerySt
     <div className="space-y-16 pb-20">
       {/* ── 1. GROCERY HERO BANNER ── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-teal-950 to-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+        <div className="max-w-[1600px] mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-semibold backdrop-blur-md">
               <Leaf className="w-3.5 h-3.5" />
@@ -67,7 +67,7 @@ export default function GroceryStore({ config, products, categories }: GrocerySt
       </section>
 
       {/* ── 2. TRUST BADGES ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
@@ -101,7 +101,7 @@ export default function GroceryStore({ config, products, categories }: GrocerySt
 
       {/* ── 3. GROCERY AISLES ── */}
       {categories.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex items-end justify-between">
             <div>
               <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Supermarket Aisles</h2>
@@ -134,7 +134,7 @@ export default function GroceryStore({ config, products, categories }: GrocerySt
       )}
 
       {/* ── 4. PRODUCTS LIST ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="flex items-end justify-between">
           <div>
             <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Daily Essentials & Fresh Items</h2>

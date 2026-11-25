@@ -26,16 +26,16 @@ interface Props {
 }
 
 const CATEGORY_COLORS = [
-  { bg: "bg-pink-100 text-pink-600 dark:bg-pink-950/60 dark:text-pink-300", icon: Shirt },
-  { bg: "bg-blue-100 text-blue-600 dark:bg-blue-950/60 dark:text-blue-300", icon: Smartphone },
-  { bg: "bg-amber-100 text-amber-600 dark:bg-amber-950/60 dark:text-amber-300", icon: Home },
-  { bg: "bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-300", icon: Sparkles },
-  { bg: "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-300", icon: ShoppingBag },
-  { bg: "bg-cyan-100 text-cyan-600 dark:bg-cyan-950/60 dark:text-cyan-300", icon: Activity },
-  { bg: "bg-purple-100 text-purple-600 dark:bg-purple-950/60 dark:text-purple-300", icon: Gamepad2 },
-  { bg: "bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-300", icon: Utensils },
-  { bg: "bg-teal-100 text-teal-600 dark:bg-teal-950/60 dark:text-teal-300", icon: Pill },
-  { bg: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300", icon: Layers },
+  { bg: "bg-slate-50 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 group-hover:bg-sky-50 group-hover:text-sky-600 border border-slate-200/80 dark:border-zinc-800 group-hover:border-sky-300", icon: Shirt },
+  { bg: "bg-slate-50 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 group-hover:bg-sky-50 group-hover:text-sky-600 border border-slate-200/80 dark:border-zinc-800 group-hover:border-sky-300", icon: Smartphone },
+  { bg: "bg-slate-50 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 group-hover:bg-sky-50 group-hover:text-sky-600 border border-slate-200/80 dark:border-zinc-800 group-hover:border-sky-300", icon: Home },
+  { bg: "bg-slate-50 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 group-hover:bg-sky-50 group-hover:text-sky-600 border border-slate-200/80 dark:border-zinc-800 group-hover:border-sky-300", icon: Sparkles },
+  { bg: "bg-slate-50 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 group-hover:bg-sky-50 group-hover:text-sky-600 border border-slate-200/80 dark:border-zinc-800 group-hover:border-sky-300", icon: ShoppingBag },
+  { bg: "bg-slate-50 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 group-hover:bg-sky-50 group-hover:text-sky-600 border border-slate-200/80 dark:border-zinc-800 group-hover:border-sky-300", icon: Activity },
+  { bg: "bg-slate-50 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 group-hover:bg-sky-50 group-hover:text-sky-600 border border-slate-200/80 dark:border-zinc-800 group-hover:border-sky-300", icon: Gamepad2 },
+  { bg: "bg-slate-50 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 group-hover:bg-sky-50 group-hover:text-sky-600 border border-slate-200/80 dark:border-zinc-800 group-hover:border-sky-300", icon: Utensils },
+  { bg: "bg-slate-50 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 group-hover:bg-sky-50 group-hover:text-sky-600 border border-slate-200/80 dark:border-zinc-800 group-hover:border-sky-300", icon: Pill },
+  { bg: "bg-slate-50 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 group-hover:bg-sky-50 group-hover:text-sky-600 border border-slate-200/80 dark:border-zinc-800 group-hover:border-sky-300", icon: Layers },
 ];
 
 export default function CategoryShowcaseSection({ section, categories, isDarkMode }: Props) {
@@ -60,7 +60,7 @@ export default function CategoryShowcaseSection({ section, categories, isDarkMod
 
   return (
     <section className="py-6 sm:py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="flex items-end justify-between mb-6">

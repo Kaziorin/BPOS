@@ -16,7 +16,7 @@ export default function AdminBar() {
     <>
       {/* Top Admin Sticky Bar */}
       <div className="bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950 text-white border-b border-indigo-500/30 px-4 py-2 z-50 sticky top-0 shadow-lg">
-        <div className="max-w-7xl mx-auto flex items-center justify-between text-xs">
+        <div className="max-w-[1600px] mx-auto flex items-center justify-between text-xs">
           <div className="flex items-center gap-2.5">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
             <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider text-[10px] flex items-center gap-1">
