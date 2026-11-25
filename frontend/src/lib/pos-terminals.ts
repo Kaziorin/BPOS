@@ -258,7 +258,7 @@ const BUSINESS_ROUTE_PREFIXES: {
     prefix: "/appointments",
     vertical: "ALL",
     verticals: ["SALON", "REPAIR", "RESTAURANT"],
-    addons: ["salon", "repair", "appointments"],
+    addons: ["salon", "repair"],
   },
   { prefix: "/franchise", vertical: "FRANCHISE", plan: "ENTERPRISE" },
 ];

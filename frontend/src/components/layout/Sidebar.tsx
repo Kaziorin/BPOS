@@ -354,12 +354,12 @@ export function Sidebar() {
                       onClick={() => toggleGroup(group.title)}
                       aria-expanded={isGroupOpen}
                       className={cn(
-                        "w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-[11.5px] font-bold tracking-tight transition cursor-pointer group select-none",
+                        "w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-xs font-bold tracking-tight transition cursor-pointer group select-none",
                         isGroupOpen
-                          ? "text-brand-dark bg-white shadow-2xs ring-1 ring-slate-200/70"
+                          ? "text-brand-dark bg-white shadow-2xs ring-1 ring-slate-200/80"
                           : groupHasActive
                           ? "text-brand-dark"
-                          : "text-slate-700 hover:bg-slate-100/70 hover:text-slate-900"
+                          : "text-slate-800 hover:bg-slate-100/80 hover:text-slate-950"
                       )}
                     >
                       <span className="flex items-center gap-2.5 truncate">
@@ -627,15 +627,15 @@ function ExpandedModuleRow({
             lockReason: item.lockReason,
           })
         }
-        className="group flex w-full items-center justify-between rounded-md px-2.5 py-2 text-xs transition-colors text-slate-400 bg-slate-50/50 hover:bg-amber-50/70 hover:text-amber-800 cursor-pointer"
+        className="group flex w-full items-center justify-between rounded-md px-2.5 py-2 text-xs transition-colors text-slate-600 bg-slate-50/70 hover:bg-amber-50/80 hover:text-amber-900 cursor-pointer"
       >
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-slate-100 text-slate-400 group-hover:bg-amber-100/70 group-hover:text-amber-600">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-slate-200/70 text-slate-500 group-hover:bg-amber-100 group-hover:text-amber-700">
             <Icon size={14} />
           </div>
-          <span className="truncate font-medium">{item.label}</span>
+          <span className="truncate font-semibold">{item.label}</span>
         </div>
-        <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+        <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-300/80 shrink-0">
           <Lock size={8} />
           <span>{item.lockReason || "Upgrade"}</span>
         </span>
@@ -652,7 +652,7 @@ function ExpandedModuleRow({
           "group flex items-center justify-between rounded-md px-2.5 py-2 text-xs transition-all duration-150",
           active
             ? "bg-brand-gradient text-white font-semibold shadow-2xs"
-            : "text-slate-700 font-medium hover:bg-slate-100/80 hover:text-brand-dark"
+            : "text-slate-800 font-semibold hover:bg-slate-100/90 hover:text-brand-dark"
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0">
@@ -661,7 +661,7 @@ function ExpandedModuleRow({
               "flex h-6 w-6 shrink-0 items-center justify-center rounded transition-colors",
               active
                 ? "bg-white/20 text-white"
-                : "bg-slate-100 text-slate-500 group-hover:bg-brand-50 group-hover:text-brand-primary"
+                : "bg-slate-100 text-slate-600 group-hover:bg-brand-50 group-hover:text-brand-primary"
             )}
           >
             <Icon size={14} />
@@ -705,8 +705,8 @@ function ExpandedModuleRow({
             : active
             ? "bg-brand-50 text-brand-dark font-bold border-l-2 border-brand-primary"
             : moduleExpanded
-            ? "bg-white/90 text-brand-dark font-semibold shadow-2xs"
-            : "text-slate-700 font-medium hover:bg-slate-100/80 hover:text-brand-dark"
+            ? "bg-white/95 text-slate-900 font-bold shadow-2xs"
+            : "text-slate-800 font-semibold hover:bg-slate-100/90 hover:text-brand-dark"
         )}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -715,7 +715,7 @@ function ExpandedModuleRow({
               "flex h-6 w-6 shrink-0 items-center justify-center rounded transition-colors",
               active || moduleExpanded
                 ? "bg-brand-50 text-brand-primary"
-                : "bg-slate-100 text-slate-500 group-hover:bg-brand-50 group-hover:text-brand-primary"
+                : "bg-slate-100 text-slate-600 group-hover:bg-brand-50 group-hover:text-brand-primary"
             )}
           >
             <Icon size={14} />
@@ -883,13 +883,13 @@ function MenuItemRow({
             lockReason: child.lockReason,
           })
         }
-        className="group flex w-full items-center justify-between rounded px-2 py-1.5 text-[11.5px] text-slate-400 hover:bg-amber-50/70 hover:text-amber-800 transition cursor-pointer"
+        className="group flex w-full items-center justify-between rounded px-2 py-1.5 text-xs text-slate-600 hover:bg-amber-50/80 hover:text-amber-900 transition cursor-pointer"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <ChildIcon size={13} className="shrink-0 text-slate-400" />
-          <span className="truncate">{child.label}</span>
+          <ChildIcon size={13} className="shrink-0 text-slate-500" />
+          <span className="truncate font-medium">{child.label}</span>
         </div>
-        <span className="flex items-center gap-0.5 text-[8.5px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+        <span className="flex items-center gap-0.5 text-[8.5px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-300/80 shrink-0">
           <Lock size={8} />
           <span>{child.lockReason || "Upgrade"}</span>
         </span>
@@ -903,17 +903,17 @@ function MenuItemRow({
       target={child.target}
       rel={child.target === "_blank" ? "noopener noreferrer" : undefined}
       className={cn(
-        "group flex items-center gap-2 rounded px-2 py-1.5 text-[11.5px] transition-all duration-150",
+        "group flex items-center gap-2 rounded px-2 py-1.5 text-xs transition-all duration-150",
         exactActive
           ? "bg-brand-gradient text-white font-semibold shadow-2xs"
-          : "text-slate-600 font-medium hover:bg-white hover:text-brand-dark"
+          : "text-slate-700 font-medium hover:bg-white hover:text-brand-dark"
       )}
     >
       <ChildIcon
         size={13}
         className={cn(
           "transition-colors shrink-0",
-          exactActive ? "text-white" : "text-slate-400 group-hover:text-brand-primary"
+          exactActive ? "text-white" : "text-slate-500 group-hover:text-brand-primary"
         )}
       />
       <span className="truncate">{child.label}</span>

@@ -875,12 +875,12 @@ export function useDynamicNav() {
     const hasAppointmentsAccess =
       ["SALON", "REPAIR", "RESTAURANT"].includes(userBusinessType) ||
       enabledModules.has("salon") ||
-      enabledModules.has("repair") ||
-      enabledModules.has("appointments");
+      enabledModules.has("repair");
     const accessibleTerminals = getAccessiblePosTerminals(user, subscription);
     const accessibleTerminalMap = new Map(accessibleTerminals.map((t) => [t.href, t]));
 
-    return DEFAULT_MASTER_NAV.filter((group) => group.title !== "SaaS & Platform Core").map((group) => {
+    return DEFAULT_MASTER_NAV.filter((group) => group.title !== "SaaS & Platform Core")
+      .map((group) => {
       const groupRequiredTier = group.requiredPlan ? PLAN_TIER_RANK[group.requiredPlan] || 1 : 1;
       const groupAddonMissing =
         group.requiredAddon &&
@@ -902,6 +902,10 @@ export function useDynamicNav() {
       if (group.title === "Industry Solutions") {
         rawItems = group.items.filter((item) => {
           const addon = item.requiredAddon?.toLowerCase() || "";
+          // Retail POS & Sales are already top-level in POS / Sales; hide redundant "Retail & Superstore" hub for single-vertical Retail
+          if (addon === "retail" && userBusinessType === "RETAIL") {
+            return false;
+          }
           if (userBusinessType === "MANUFACTURING" && (addon === "bakery" || addon === "manufacturing")) {
             return true;
           }
@@ -1010,7 +1014,8 @@ export function useDynamicNav() {
         isLocked: groupLocked,
         lockReason: groupLockReason,
       };
-    });
+    })
+    .filter((group) => group.items.length > 0);
   }, [user, subscription]);
 
   return { navGroups, loading, error: null as string | null };
