@@ -83,7 +83,11 @@ axiosClient.interceptors.response.use(
         localStorage.removeItem("modernpos_user");
         localStorage.removeItem("modernpos_subscription");
         localStorage.removeItem(TENANT_STORAGE_KEY);
-        if (!window.location.pathname.includes("/login") && !window.location.pathname.includes("/register")) {
+        if (
+          window.location.pathname !== "/" &&
+          !window.location.pathname.includes("/login") &&
+          !window.location.pathname.includes("/register")
+        ) {
           window.location.href = "/login";
         }
       }
