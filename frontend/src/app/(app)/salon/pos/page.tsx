@@ -107,13 +107,6 @@ const CATEGORIES = [
   { id: "products", label: "Products", icon: Package },
 ];
 
-const DEMO_ADDONS: AddOn[] = [
-  { id: "a1", name: "Hair Wash & Blow Dry", duration: "20 min", price: 300, image: "https://images.unsplash.com/photo-1560869713-7d0a29430039?q=80&w=100&auto=format&fit=crop" },
-  { id: "a2", name: "Hair Serum Treatment", duration: "15 min", price: 400, image: "https://images.unsplash.com/photo-1527799822341-47100b3d746d?q=80&w=100&auto=format&fit=crop" },
-  { id: "a3", name: "Nail Art Design", duration: "15 min", price: 300, image: "https://images.unsplash.com/photo-1604654894610-df490601f626?q=80&w=100&auto=format&fit=crop" },
-  { id: "a4", name: "Premium Face Mask", duration: "15 min", price: 350, image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=100&auto=format&fit=crop" },
-];
-
 const CHECKOUT_METHODS = [
   { id: "CASH", label: "Cash", icon: <DollarSign size={20} /> },
   { id: "CARD", label: "Card", icon: <CreditCard size={20} /> },
@@ -369,12 +362,28 @@ export default function SalonPOSPage() {
     return cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
   }, [cart]);
 
+  const addonOptions = useMemo<AddOn[]>(() => {
+    return servicesList
+      .filter((s) => {
+        const cat = (s.category || "").toLowerCase();
+        const nm = (s.name || "").toLowerCase();
+        return cat.includes("add") || nm.includes("add-on") || nm.includes("addon");
+      })
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        duration: s.duration || "15 min",
+        price: s.price,
+        image: s.image || "",
+      }));
+  }, [servicesList]);
+
   const addonsTotal = useMemo(() => {
     return selectedAddOnIds.reduce((acc, id) => {
-      const ao = DEMO_ADDONS.find(a => a.id === id);
+      const ao = addonOptions.find(a => a.id === id);
       return acc + (ao?.price || 0);
     }, 0);
-  }, [selectedAddOnIds]);
+  }, [selectedAddOnIds, addonOptions]);
 
   const subtotal = baseSubtotal + addonsTotal;
 
@@ -558,7 +567,7 @@ export default function SalonPOSPage() {
       }));
 
       selectedAddOnIds.forEach(id => {
-        const addon = DEMO_ADDONS.find(a => a.id === id);
+        const addon = addonOptions.find(a => a.id === id);
         if (addon) {
           items.push({
             productId: addon.id,
@@ -990,7 +999,10 @@ export default function SalonPOSPage() {
               </div>
 
               <div className="space-y-2.5 px-0.5">
-                {DEMO_ADDONS.map((ao) => {
+                {addonOptions.length === 0 ? (
+                  <p className="text-xs text-slate-400 italic py-2 px-1">No add-on services configured yet.</p>
+                ) : (
+                  addonOptions.map((ao) => {
                   const isSelected = selectedAddOnIds.includes(ao.id);
                   return (
                     <div
@@ -1019,7 +1031,7 @@ export default function SalonPOSPage() {
                       <span className="text-[12px] font-black text-rose-600 tabular-nums">+৳{ao.price}</span>
                     </div>
                   );
-                })}
+                }))}
               </div>
             </div>
           </div>
