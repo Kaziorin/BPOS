@@ -14,6 +14,7 @@ import {
   FileText,
   ShieldCheck,
   Menu,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { siteConfig } from "@/config/site";
@@ -246,6 +247,14 @@ export function Header() {
                     <FileText size={14} className="text-brand-primary" />
                     Reports & Analytics
                   </Link>
+                  <Link
+                    href="/ai"
+                    onClick={() => setOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition"
+                  >
+                    <Sparkles size={14} className="text-amber-500" />
+                    AI Copilot & Intelligence
+                  </Link>
                 </div>
 
                 <div className="border-t border-slate-100 pt-2 mt-1.5">
@@ -317,6 +326,19 @@ export function Header() {
 
           {/* Right: Quick POS Terminal Button + User Profile Pill */}
           <div className="flex items-center gap-3 shrink-0">
+            {/* Quick AI Copilot Button */}
+            <Link
+              href="/ai"
+              className="flex items-center gap-1.5 rounded-full bg-white/95 hover:bg-white text-slate-700 hover:text-sky-600 px-3.5 py-2 text-xs font-bold border border-brand-border/70 shadow-xs transition hover:shadow-md cursor-pointer shrink-0"
+              title="Open AI Business Copilot"
+            >
+              <Sparkles size={14} className="text-amber-500 fill-amber-400/30" />
+              <span>AI Copilot</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200">
+                AI
+              </span>
+            </Link>
+
             {/* Quick POS Terminal Action Button */}
             <button
               onClick={() => setPosModalOpen(true)}

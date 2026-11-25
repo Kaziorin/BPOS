@@ -277,11 +277,10 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         requiredPlan: "BUSINESS",
       },
       {
-        label: "AI Business Assistant",
+        label: "AI Copilot & Intelligence",
         href: "/ai",
-        icon: Activity,
+        icon: Sparkles,
         badge: "AI",
-        requiredPlan: "ENTERPRISE",
       },
       {
         label: "Tasks & To-Dos",
