@@ -121,11 +121,6 @@ function WholesalePOSInner() {
     cart: WsCartItem[];
     payments: PaymentLine[];
     customerName: string;
-    taxAmount?: number;
-    discountAmount?: number;
-    shipping?: number;
-    subtotal?: number;
-    total?: number;
   } | null>(null);
   const [recentOrdersOpen, setRecentOrdersOpen] = useState(false);
   const [recentTab, setRecentTab] = useState<"HISTORY" | "HELD">("HISTORY");
@@ -190,64 +185,11 @@ function WholesalePOSInner() {
     return () => { document.documentElement.classList.remove("dark"); };
   }, []);
 
-  // Track when web POS last saved the cart, so polling doesn’t overwrite local edits
-  const lastLocalSave = useRef<number>(0);
-
-  // Sync cart from backend (runs on mount + polls every 5s for realtime cross-device sync)
-  const syncCartFromBackend = useCallback((isMounted: { current: boolean }, isPolling = false) => {
-    // If polling and we saved locally within the past 4s, skip – our version is authoritative
-    if (isPolling && Date.now() - lastLocalSave.current < 4000) return;
-    api.get<any>("/pos/active-cart?channel=wholesale")
-      .then((res: any) => {
-        if (!isMounted.current) return;
-        const d = res?.data || res;
-        if (d && Array.isArray(d.items)) {
-          // Always apply – even empty array (e.g. mobile deleted all items)
-          setCart(d.items);
-          if (d.customerId !== undefined) setCustomerId(d.customerId ?? "");
-          if (d.discountInput !== undefined) setDiscountInput(d.discountInput ?? "0");
-          if (d.discountMode !== undefined) setDiscountMode(d.discountMode ?? "flat");
-          if (typeof d.shipping === "number") setShipping(d.shipping);
-          if (d.note !== undefined) setNote(d.note ?? "");
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    const mounted = { current: true };
-    // Initial load
-    syncCartFromBackend(mounted);
-    // Poll every 5 seconds for realtime cross-device sync
-    const interval = setInterval(() => syncCartFromBackend(mounted, true), 5000);
-    return () => {
-      mounted.current = false;
-      clearInterval(interval);
-    };
-  }, [syncCartFromBackend]);
-
   useEffect(() => {
     try {
       localStorage.setItem("bpos_wholesale_cart", JSON.stringify(cart));
     } catch { /* ignore */ }
-
-    // Mark that we saved locally – poller will skip overwriting for 4s
-    lastLocalSave.current = Date.now();
-
-    const timer = setTimeout(() => {
-      api.post("/pos/active-cart", {
-        channel: "wholesale",
-        items: cart,
-        customerId,
-        discountInput,
-        discountMode,
-        shipping,
-        note,
-      }).catch(() => {});
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [cart, customerId, discountInput, discountMode, shipping, note]);
+  }, [cart]);
 
   useEffect(() => {
     try {
@@ -542,7 +484,8 @@ function WholesalePOSInner() {
     const paidAmt = tenderedAmount !== undefined ? tenderedAmount : total;
     const dueAmt = Math.max(total - paidAmt, 0);
 
-    const payments: PaymentLine[] = [{ method: wsPayMethod as any, amount: paidAmt }];
+    const mappedMethod = wsPayMethod === "MOBILE" ? "BKASH" : wsPayMethod;
+    const payments: PaymentLine[] = [{ method: mappedMethod as any, amount: paidAmt }];
     try {
       let saleRes: SaleResult | null = null;
 
@@ -561,37 +504,18 @@ function WholesalePOSInner() {
             })),
             payments,
             discountTotal: discountAmount,
-            taxTotal: taxAmount,
-            taxAmount: taxAmount,
-            subtotal: subtotal,
-            total: total,
-            grandTotal: total,
-            shippingTotal: Number(shipping) || 0,
-            shipping: Number(shipping) || 0,
             note: note || `Wholesale SO ${orderSeq}`,
             source: "B2B",
           });
           const apiData = res?.data ?? res;
           if (apiData && (apiData.saleId || apiData.id || apiData.invoiceNo)) {
-            const apiTotal = Number(apiData.total ?? total);
-            // If backend returned total without tax, preserve frontend total with tax
-            const finalTotal = (apiTotal > 0 && Math.abs(apiTotal - subtotal) < 0.01 && taxAmount > 0) ? total : (apiTotal || total);
-            const changeAmount = Math.max(0, paidAmt - finalTotal);
-
             saleRes = {
               saleId: apiData.saleId || apiData.id,
               invoiceNo: apiData.invoiceNo || orderSeq,
               invoiceId: apiData.invoiceId || apiData.saleId || apiData.id,
-              total: finalTotal,
-              subtotal: subtotal,
-              taxTotal: Number(apiData.taxTotal ?? taxAmount),
-              shipping: Number(shipping) || 0,
-              shippingTotal: Number(shipping) || 0,
+              total: Number(apiData.total ?? total),
               paidTotal: Number(paidAmt),
-              dueTotal: Math.max(0, finalTotal - paidAmt),
-              change: changeAmount,
-              changeReturn: changeAmount,
-              returnAmount: changeAmount,
+              dueTotal: Number(apiData.dueTotal ?? dueAmt),
               paymentIds: apiData.paymentIds ?? [],
             };
           }
@@ -623,29 +547,17 @@ function WholesalePOSInner() {
               })),
               payments,
               discountTotal: discountAmount,
-              taxTotal: taxAmount,
-              taxAmount: taxAmount,
-              subtotal,
-              total,
               note,
             },
           });
         }
-        const changeAmount = Math.max(0, paidAmt - total);
         saleRes = {
           saleId,
           invoiceNo: orderSeq,
           invoiceId: crypto.randomUUID(),
           total,
-          subtotal,
-          taxTotal: taxAmount,
-          shipping: Number(shipping) || 0,
-          shippingTotal: Number(shipping) || 0,
           paidTotal: paidAmt,
           dueTotal: dueAmt,
-          change: changeAmount,
-          changeReturn: changeAmount,
-          returnAmount: changeAmount,
           paymentIds: [],
         };
       }
@@ -654,10 +566,6 @@ function WholesalePOSInner() {
         cart: [...cart],
         payments,
         customerName: selectedCustomer?.name || "Walk-in Customer",
-        taxAmount,
-        discountAmount,
-        subtotal,
-        total,
       });
       setResult(saleRes);
       loadProductsAndStats();
@@ -706,7 +614,6 @@ function WholesalePOSInner() {
           payments={saleSnapshot?.payments || [{ method: "CREDIT", amount: total }]}
           customerName={saleSnapshot?.customerName || "Walk-in Customer"}
           cashierName={user?.name || "Staff"}
-          shipping={saleSnapshot?.shipping ?? (Number(shipping) || 0)}
           onNewSale={resetSale}
         />
       </div>
