@@ -28,13 +28,13 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useAuth } from "@/lib/auth";
-import { checkRouteEntitlement } from "@/lib/pos-terminals";
+import { checkRouteEntitlement, getAccessiblePosTerminals } from "@/lib/pos-terminals";
 
 interface CommandItem {
   id: string;
   title: string;
   subtitle: string;
-  category: "Quick Actions" | "POS & Retail" | "Inventory" | "Accounting" | "Admin & Settings";
+  category: "Quick Actions" | "POS & Terminal" | "Inventory" | "Accounting" | "Admin & Settings";
   icon: any;
   href: string;
   keywords?: string[];
@@ -47,20 +47,20 @@ const COMMANDS: CommandItem[] = [
   { id: "new-po", title: "Create Purchase Order (PO)", subtitle: "Order inventory from vendor", category: "Quick Actions", icon: FileText, href: "/purchasing/orders", keywords: ["po", "purchase", "vendor", "supplier", "buy"] },
   { id: "new-customer", title: "Add New Customer", subtitle: "Register customer profile & phone", category: "Quick Actions", icon: Users, href: "/customers/create", keywords: ["customer", "client", "buyer"] },
 
-  // POS & Retail
-  { id: "pos-terminal", title: "Retail POS Counter", subtitle: "Express retail checkout interface", category: "POS & Retail", icon: ShoppingCart, href: "/retail-pos", keywords: ["retail", "pos", "counter", "checkout"] },
-  { id: "bakery-pos", title: "Bakery & Confectionery POS", subtitle: "Fresh baked goods, pastries & recipe BOM", category: "POS & Retail", icon: Croissant, href: "/bakery/pos", keywords: ["bakery", "pastry", "cake", "bread", "pos"] },
-  { id: "grocery-pos", title: "Grocery & Supermarket POS", subtitle: "Weigh scales, PLU loose item barcodes & lanes", category: "POS & Retail", icon: ShoppingBag, href: "/grocery/pos", keywords: ["grocery", "supermarket", "scale", "produce"] },
-  { id: "restaurant-pos", title: "Restaurant & Table Map POS", subtitle: "Dine-in table map, KDS kitchen & takeout", category: "POS & Retail", icon: UtensilsCrossed, href: "/restaurant/pos", keywords: ["restaurant", "cafe", "table", "kitchen", "kds"] },
-  { id: "pharmacy-pos", title: "Pharmacy Rx FEFO POS", subtitle: "Batch expiry FEFO tracking & prescription billing", category: "POS & Retail", icon: Pill, href: "/pharmacy/pos", keywords: ["pharmacy", "medicine", "fefo", "rx"] },
-  { id: "wholesale-pos", title: "Wholesale B2B POS", subtitle: "Volume tiers, client credit limits & invoice counter", category: "POS & Retail", icon: Truck, href: "/wholesale/pos", keywords: ["wholesale", "b2b", "bulk", "credit"] },
-  { id: "repair-pos", title: "Repair & Service POS", subtitle: "Device intake diagnosis, technician labor & warranty", category: "POS & Retail", icon: Wrench, href: "/repair/pos", keywords: ["repair", "service", "job", "device"] },
-  { id: "salon-pos", title: "Salon & Spa POS", subtitle: "Stylist appointment calendar & chair commission", category: "POS & Retail", icon: Scissors, href: "/salon/pos", keywords: ["salon", "spa", "beauty", "hair"] },
-  { id: "franchise-pos", title: "Franchise & Outlet POS", subtitle: "Multi-branch synchronized sales & master catalog", category: "POS & Retail", icon: Building2, href: "/franchise/pos", keywords: ["franchise", "chain", "outlet"] },
-  { id: "cash-register", title: "Cash Register & Shifts", subtitle: "Drawer balance, cash in/out, Z-report", category: "POS & Retail", icon: DollarSign, href: "/cash-register", keywords: ["cash", "register", "drawer", "shift"] },
-  { id: "held-orders", title: "Held Sales / Carts", subtitle: "Resume paused transactions", category: "POS & Retail", icon: ShoppingCart, href: "/retail-pos/holds", keywords: ["hold", "held", "pause"] },
-  { id: "price-checker", title: "Price & Barcode Checker", subtitle: "Fast kiosk price scanner", category: "POS & Retail", icon: Search, href: "/retail-pos/price-checker", keywords: ["price", "barcode", "checker"] },
-  { id: "customer-display", title: "Customer Facing Display", subtitle: "Dual-screen live cart & total", category: "POS & Retail", icon: Monitor, href: "/customer-display", keywords: ["customer", "display", "screen"] },
+  // POS & Terminal
+  { id: "pos-terminal", title: "Retail POS Counter", subtitle: "Express retail checkout interface", category: "POS & Terminal", icon: ShoppingCart, href: "/retail-pos", keywords: ["retail", "pos", "counter", "checkout"] },
+  { id: "bakery-pos", title: "Bakery & Confectionery POS", subtitle: "Fresh baked goods, pastries & recipe BOM", category: "POS & Terminal", icon: Croissant, href: "/bakery/pos", keywords: ["bakery", "pastry", "cake", "bread", "pos"] },
+  { id: "grocery-pos", title: "Grocery & Supermarket POS", subtitle: "Weigh scales, PLU loose item barcodes & lanes", category: "POS & Terminal", icon: ShoppingBag, href: "/grocery/pos", keywords: ["grocery", "supermarket", "scale", "produce"] },
+  { id: "restaurant-pos", title: "Restaurant & Table Map POS", subtitle: "Dine-in table map, KDS kitchen & takeout", category: "POS & Terminal", icon: UtensilsCrossed, href: "/restaurant/pos", keywords: ["restaurant", "cafe", "table", "kitchen", "kds"] },
+  { id: "pharmacy-pos", title: "Pharmacy Rx FEFO POS", subtitle: "Batch expiry FEFO tracking & prescription billing", category: "POS & Terminal", icon: Pill, href: "/pharmacy/pos", keywords: ["pharmacy", "medicine", "fefo", "rx"] },
+  { id: "wholesale-pos", title: "Wholesale B2B POS", subtitle: "Volume tiers, client credit limits & invoice counter", category: "POS & Terminal", icon: Truck, href: "/wholesale/pos", keywords: ["wholesale", "b2b", "bulk", "credit"] },
+  { id: "repair-pos", title: "Repair & Service POS", subtitle: "Device intake diagnosis, technician labor & warranty", category: "POS & Terminal", icon: Wrench, href: "/repair/pos", keywords: ["repair", "service", "job", "device"] },
+  { id: "salon-pos", title: "Salon & Spa POS", subtitle: "Stylist appointment calendar & chair commission", category: "POS & Terminal", icon: Scissors, href: "/salon/pos", keywords: ["salon", "spa", "beauty", "hair"] },
+  { id: "franchise-pos", title: "Franchise & Outlet POS", subtitle: "Multi-branch synchronized sales & master catalog", category: "POS & Terminal", icon: Building2, href: "/franchise/pos", keywords: ["franchise", "chain", "outlet"] },
+  { id: "cash-register", title: "Cash Register & Shifts", subtitle: "Drawer balance, cash in/out, Z-report", category: "POS & Terminal", icon: DollarSign, href: "/cash-register", keywords: ["cash", "register", "drawer", "shift"] },
+  { id: "held-orders", title: "Held Sales / Carts", subtitle: "Resume paused transactions", category: "POS & Terminal", icon: ShoppingCart, href: "/pos/holds", keywords: ["hold", "held", "pause"] },
+  { id: "price-checker", title: "Price & Barcode Checker", subtitle: "Fast kiosk price scanner", category: "POS & Terminal", icon: Search, href: "/pos/price-checker", keywords: ["price", "barcode", "checker"] },
+  { id: "customer-display", title: "Customer Facing Display", subtitle: "Dual-screen live cart & total", category: "POS & Terminal", icon: Monitor, href: "/customer-display", keywords: ["customer", "display", "screen"] },
 
   // Inventory
   { id: "products-list", title: "Products Catalog", subtitle: "Manage stock items, prices and barcodes", category: "Inventory", icon: Package, href: "/products", keywords: ["items", "inventory", "stock", "products"] },
@@ -108,7 +108,10 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  const accessibleCommands = COMMANDS.filter(
+  const primaryPosHref = getAccessiblePosTerminals(user, subscription)[0]?.href || "/retail-pos";
+  const accessibleCommands = COMMANDS.map((cmd) =>
+    cmd.id === "new-sale" ? { ...cmd, href: primaryPosHref } : cmd
+  ).filter(
     (cmd) => checkRouteEntitlement(cmd.href, user, subscription).allowed
   );
 

@@ -327,12 +327,12 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
       },
       {
         label: "Held Carts & Kiosk Tools",
-        href: "/retail-pos/holds",
+        href: "/pos/holds",
         icon: PauseCircle,
         children: [
-          { label: "Held Carts / Orders", href: "/retail-pos/holds", icon: PauseCircle },
-          { label: "Price & Barcode Checker", href: "/retail-pos/price-checker", icon: Search },
-          { label: "Self-Checkout Kiosk", href: "/retail-pos/self-checkout", icon: Monitor, requiredPlan: "BUSINESS" },
+          { label: "Held Carts / Orders", href: "/pos/holds", icon: PauseCircle },
+          { label: "Price & Barcode Checker", href: "/pos/price-checker", icon: Search },
+          { label: "Self-Checkout Kiosk", href: "/pos/self-checkout", icon: Monitor, requiredPlan: "BUSINESS" },
           { label: "Customer Facing Display", href: "/customer-display", icon: Monitor },
           { label: "Retail Customer Display", href: "/retail-pos/customer-display", icon: Monitor },
           { label: "Restaurant Customer Display", href: "/restaurant/customer-display", icon: Monitor, requiredAddon: "restaurant" },
@@ -868,10 +868,8 @@ export function useDynamicNav() {
       enabledModules.has("restaurant") ||
       enabledModules.has("restaurant_kds");
     const hasRetailDisplay =
-      userBusinessType !== "RESTAURANT" ||
-      enabledModules.has("retail") ||
-      enabledModules.has("grocery") ||
-      enabledModules.has("wholesale");
+      userBusinessType === "RETAIL" ||
+      enabledModules.has("retail");
     const hasAppointmentsAccess =
       ["SALON", "REPAIR", "RESTAURANT"].includes(userBusinessType) ||
       enabledModules.has("salon") ||
@@ -902,8 +900,8 @@ export function useDynamicNav() {
       if (group.title === "Industry Solutions") {
         rawItems = group.items.filter((item) => {
           const addon = item.requiredAddon?.toLowerCase() || "";
-          // Retail POS & Sales are already top-level in POS / Sales; hide redundant "Retail & Superstore" hub for single-vertical Retail
-          if (addon === "retail" && userBusinessType === "RETAIL") {
+          // Retail/Grocery POS & Sales are already top-level in POS / Sales; hide redundant hub for single-vertical tenants
+          if ((addon === "retail" && userBusinessType === "RETAIL") || (addon === "grocery" && userBusinessType === "GROCERY")) {
             return false;
           }
           if (userBusinessType === "MANUFACTURING" && (addon === "bakery" || addon === "manufacturing")) {

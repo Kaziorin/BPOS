@@ -105,8 +105,8 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
     const res = await printDirectThermal({
       storeName: siteConfig.name || "Blue Oceans POS",
       storeAddress: settings.address || "",
-      storePhone: settings.phone || "",
-      binNumber: settings.vatNumber || "",
+      storePhone: settings.phoneContact || "",
+      binNumber: settings.vatBinNo || "",
       invoiceNo: result.invoiceNo,
       dateStr: currentDate,
       cashierName,
@@ -335,7 +335,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
       <div className="flex flex-col w-full gap-2 mt-2">
         <div className="flex w-full gap-2">
           <CustomButton
-            variant="solid"
+            variant="primary"
             themeColor="primary"
             onClick={handleDirectPrint}
             className="flex-1 h-10 gap-1.5 text-xs font-bold"

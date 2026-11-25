@@ -234,6 +234,9 @@ const BUSINESS_ROUTE_PREFIXES: {
   addons?: string[];
   plan?: PlanTierCode;
 }[] = [
+  { prefix: "/pos/self-checkout", vertical: "ALL", plan: "BUSINESS" },
+  { prefix: "/pos/holds", vertical: "ALL" },
+  { prefix: "/pos/price-checker", vertical: "ALL" },
   { prefix: "/retail-pos/self-checkout", vertical: "ALL", plan: "BUSINESS" },
   { prefix: "/retail-pos/holds", vertical: "ALL" },
   { prefix: "/retail-pos/price-checker", vertical: "ALL" },

@@ -119,7 +119,7 @@ def compute_enabled_module_codes(
     norm_plan = normalize_plan_code(plan_code)
     bt_code = (business_type or "RETAIL").strip().lower()
     if norm_plan == "ENTERPRISE":
-        enabled = {str(c).lower() for c in (all_module_codes or ())} | ADVANCE_MODULES | {bt_code}
+        enabled = ({str(c).lower() for c in (all_module_codes or ())} - VERTICAL_MODULE_CODES) | ADVANCE_MODULES | {bt_code}
     elif norm_plan == "BUSINESS":
         enabled = set(ADVANCE_MODULES) | {bt_code}
     else:
