@@ -650,6 +650,38 @@ async def ai_copilot(
                 "• পিওএস, ইনভেন্টরি, রেস্তোরাঁ KOT, ফার্মেসি, অ্যাকাউন্টিং এবং অন্যান্য মডিউল ব্যবহারের সঠিক নির্দেশনা দিতে পারি।"
             )
 
+        # How Subscription / SaaS Plans Work Intent
+        elif any(w in msg_lower for w in ["subscription", "plan", "package", "প্যাকেজ", "প্ল্যান", "সাবস্ক্রিপশন", "কত টাকা", "চার্জ"]):
+            plans_db = rows_to_dicts((await db.execute(text(
+                "SELECT name, priceMonthly, maxUsers, maxBranches, maxTerminals, description FROM saas_plans ORDER BY priceMonthly ASC"))).fetchall())
+            if plans_db:
+                p_lines = []
+                for p in plans_db:
+                    p_lines.append(
+                        f"• {p['name']} (৳{float(p['priceMonthly'] or 0):,.0f}/মাস):\n"
+                        f"  আউটলেট: {p['maxBranches']}টি, টার্মিনাল: {p['maxTerminals']}টি, স্টাফ: {p['maxUsers']} জন।"
+                    )
+                answer = (
+                    "💳 ব্লু ওশানস পিওএস-এর সাবস্ক্রিপশন প্ল্যানসমূহ:\n\n" +
+                    "\n\n".join(p_lines) +
+                    "\n\n⚙️ কীভাবে কাজ করে:\n"
+                    "১. প্রতিটি প্ল্যানে আউটলেট, টার্মিনাল ও ইউজারের নির্ধারিত লিমিট থাকে।\n"
+                    "২. মাসিক বা বাৎসরিক ভিত্তিতে সাবস্ক্রিপশন রিনিউ করা যায়।\n"
+                    "৩. সুপার এডমিন প্যানেল থেকে যেকোনো সময় প্ল্যান আপগ্রেড বা এডিট করা সম্ভব।"
+                )
+            else:
+                answer = (
+                    "💳 ব্লু ওশানস পিওএস-এর প্রধান ৩টি কমার্শিয়াল সাবস্ক্রিপশন প্ল্যান:\n\n"
+                    "১. Starter (৳৯৯০/মাস):\n"
+                    "   • ১টি ব্রাঞ্চ, ২টি পিওএস টার্মিনাল, ৫ জন স্টাফ, ২৫০০ পণ্য ক্যাটালগ।\n"
+                    "   • কোর রিটেইল পিওএস ও ইনভেন্টরি।\n\n"
+                    "২. Business Pro (৳২,৯৯০/মাস):\n"
+                    "   • ৫টি ব্রাঞ্চ, ১০টি টার্মিনাল, ২৫ জন স্টাফ, ২৫০০০ পণ্য।\n"
+                    "   • মাল্টি-ব্রাঞ্চ স্টক ট্রান্সফার, রেস্তোরাঁ KOT ও অ্যাকাউন্টিং।\n\n"
+                    "৩. Enterprise (৳৯,৯৯০/মাস):\n"
+                    "   • আনলিমিটেড ব্রাঞ্চ ও টার্মিনাল, সম্পূর্ণ ইআরপি, ম্যানুফ্যাকচারিং ও ফ্র্যাঞ্চাইজি রয়্যালটি।"
+                )
+
         # How Inventory Works Intent
         elif any(w in msg_lower for w in ["inventory ke vabe", "inventory kivabe", "how inventory", "inventory কাজ", "ইনভেন্টরি কীভাবে", "ইনভেন্টরি কিভাবে", "ইনভেন্টরি কাজ", "স্টক কীভাবে", "স্টক কিভাবে"]):
             # Get live stock overview
