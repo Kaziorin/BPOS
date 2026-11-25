@@ -171,33 +171,6 @@ export default function RestaurantCustomerDisplayPage() {
   const qrPayload = `bpos-restaurant-bill-${cart?.updatedAt || "standby"}-${Math.round(total)}`;
   const activePaymentHint = PAYMENT_HINTS[selectedPayment];
 
-  const handleQuickDemo = () => {
-    const demoCart: DisplayCart = {
-      updatedAt: Date.now(),
-      source: "RESTAURANT",
-      lines: [
-        { name: "Chef's Special Kacchi Biryani", qty: 2, unitPrice: 380, discountAmount: 0, category: "Main Course" },
-        { name: "Grilled BBQ Chicken Quarter", qty: 1, unitPrice: 220, discountAmount: 0, category: "Grilled" },
-        { name: "Special Garlic Naan", qty: 3, unitPrice: 45, discountAmount: 0, category: "Bread" },
-        { name: "Fresh Mint Lemonade", qty: 2, unitPrice: 90, discountAmount: 0, category: "Beverage" },
-      ],
-      subtotal: 1295,
-      discountTotal: 50,
-      taxTotal: 186.75,
-      serviceCharge: 49.8,
-      total: 1481.55,
-      status: "ACTIVE",
-      customerName: "Rahim Uddin",
-      customerTier: "Gold Member",
-      customerPoints: 120,
-      tableNo: "Table 04",
-      orderType: "DINE_IN",
-      cashierName: "Staff 1",
-    };
-    publishRestaurantCart(demoCart);
-    setCart(demoCart);
-  };
-
   const handleClearCart = () => {
     const empty: DisplayCart = {
       updatedAt: Date.now(),
@@ -283,7 +256,7 @@ export default function RestaurantCustomerDisplayPage() {
                 <span className="hidden sm:inline">Back to POS</span>
               </Link>
 
-              {hasItems ? (
+              {hasItems && (
                 <button
                   onClick={handleClearCart}
                   className="flex items-center gap-1.5 h-9 px-3 rounded-sm border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold transition shadow-xs cursor-pointer"
@@ -291,15 +264,6 @@ export default function RestaurantCustomerDisplayPage() {
                 >
                   <Trash2 size={13} />
                   <span>Clear</span>
-                </button>
-              ) : (
-                <button
-                  onClick={handleQuickDemo}
-                  className="flex items-center gap-1.5 h-9 px-3 rounded-sm border border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 text-xs font-bold transition shadow-xs cursor-pointer"
-                  title="Load sample restaurant order"
-                >
-                  <PlusCircle size={13} className="text-orange-600" />
-                  <span>Demo Order</span>
                 </button>
               )}
 
