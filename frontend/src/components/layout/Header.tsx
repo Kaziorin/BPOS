@@ -293,7 +293,7 @@ export function Header() {
                     className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition"
                   >
                     <Sparkles size={14} className="text-amber-500" />
-                    AI Copilot & Intelligence
+                    AI Agent & Intelligence
                   </Link>
                 </div>
 
@@ -366,14 +366,14 @@ export function Header() {
 
           {/* Right: Quick POS Terminal Button + User Profile Pill */}
           <div className="flex items-center gap-3 shrink-0">
-            {/* Quick AI Copilot Button */}
+            {/* Quick AI Agent Button */}
             <Link
               href="/ai"
               className="flex items-center gap-1.5 rounded-full bg-white/95 hover:bg-white text-slate-700 hover:text-sky-600 px-3.5 py-2 text-xs font-bold border border-brand-border/70 shadow-xs transition hover:shadow-md cursor-pointer shrink-0"
-              title="Open AI Business Copilot"
+              title="Open AI Business Agent"
             >
               <Sparkles size={14} className="text-amber-500 fill-amber-400/30" />
-              <span>AI Copilot</span>
+              <span>AI Agent</span>
               <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200">
                 AI
               </span>
