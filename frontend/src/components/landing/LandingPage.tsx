@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -32,8 +33,17 @@ import { EcosystemVFXShowcase } from "@/components/landing/EcosystemVFXShowcase"
 import { SubscriptionCheckoutModal } from "@/components/landing/SubscriptionCheckoutModal";
 
 export function LandingPage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const currentYear = new Date().getFullYear();
+
+  useEffect(() => {
+    if (loading) return;
+    const hasToken = typeof window !== "undefined" && Boolean(localStorage.getItem("modernpos_token"));
+    if (user || hasToken) {
+      router.replace("/dashboard");
+    }
+  }, [user, loading, router]);
 
   const [plans, setPlans] = useState<PlanItem[]>(FALLBACK_PLANS);
   const [addons, setAddons] = useState<AddonItem[]>(FALLBACK_ADDONS);

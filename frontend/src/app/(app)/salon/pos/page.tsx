@@ -605,7 +605,7 @@ export default function SalonPOSPage() {
       {/* --- TOP HEADER --- */}
       <header className="flex-none h-[72px] px-8 flex items-center justify-between gap-8 bg-white/70 backdrop-blur-xl border-b border-indigo-50 z-30 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4">
-          <Link href="/" className="w-12 h-12 rounded-sm bg-white border border-indigo-50 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm">
+          <Link href="/dashboard" className="w-12 h-12 rounded-sm bg-white border border-indigo-50 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm">
             <ChevronLeft size={24} />
           </Link>
           <div className="w-12 h-12 rounded-sm bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-xl shadow-indigo-200 rotate-3 transform transition hover:rotate-0">
