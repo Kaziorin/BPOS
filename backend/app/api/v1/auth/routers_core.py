@@ -1,6 +1,7 @@
 """Auth router — /api/auth (login) + /api/v1/tenant, menu, dashboard-summary."""
 from __future__ import annotations
 
+import json
 import textwrap
 
 from fastapi import APIRouter, Depends, Request, Query
@@ -50,6 +51,31 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
             "businessType": row.businessType or "",
         }
     )
+    # Fetch subscription & enabled modules for the tenant
+    sub_row = (await db.execute(text("""
+        SELECT s.id, s.status, s.trialEndsAt, p.code as planCode, p.name as planName
+        FROM saas_subscriptions s
+        JOIN saas_plans p ON p.id = s.planId
+        WHERE s.tenantId = :t
+        ORDER BY s.createdAt DESC LIMIT 1
+    """), {"t": row.tenantId})).first()
+
+    mod_rows = (await db.execute(text("""
+        SELECT m.code
+        FROM tenant_modules tm
+        JOIN modules m ON m.id = tm.moduleId
+        WHERE tm.tenantId = :t AND tm.isEnabled = 1
+    """), {"t": row.tenantId})).fetchall()
+    enabled_mods = [m[0].lower() for m in mod_rows] if mod_rows else []
+
+    sub_data = {
+        "planCode": sub_row.planCode if sub_row else "STARTER",
+        "planName": sub_row.planName if sub_row else "Starter",
+        "status": sub_row.status if sub_row else "ACTIVE",
+        "trialEndsAt": str(sub_row.trialEndsAt) if sub_row and sub_row.trialEndsAt else None,
+        "enabledModules": enabled_mods,
+    }
+
     return ApiJSONResponse(
         {
             "token": token,
@@ -70,14 +96,40 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
                 "name": row.tenantName or "Default Store",
                 "businessType": row.businessType or "RETAIL",
             },
+            "subscription": sub_data,
         }
     )
 
 
 @router.get("/api/auth/me")
 @router.get("/api/v1/auth/me")
-async def get_me(user: AuthUser = Depends(require_auth)):
+async def get_me(user: AuthUser = Depends(require_auth), db: AsyncSession = Depends(get_db)):
     role = user.roleName or user.role or ""
+
+    sub_row = (await db.execute(text("""
+        SELECT s.id, s.status, s.trialEndsAt, p.code as planCode, p.name as planName
+        FROM saas_subscriptions s
+        JOIN saas_plans p ON p.id = s.planId
+        WHERE s.tenantId = :t
+        ORDER BY s.createdAt DESC LIMIT 1
+    """), {"t": user.tenantId})).first()
+
+    mod_rows = (await db.execute(text("""
+        SELECT m.code
+        FROM tenant_modules tm
+        JOIN modules m ON m.id = tm.moduleId
+        WHERE tm.tenantId = :t AND tm.isEnabled = 1
+    """), {"t": user.tenantId})).fetchall()
+    enabled_mods = [m[0].lower() for m in mod_rows] if mod_rows else []
+
+    sub_data = {
+        "planCode": sub_row.planCode if sub_row else "STARTER",
+        "planName": sub_row.planName if sub_row else "Starter",
+        "status": sub_row.status if sub_row else "ACTIVE",
+        "trialEndsAt": str(sub_row.trialEndsAt) if sub_row and sub_row.trialEndsAt else None,
+        "enabledModules": enabled_mods,
+    }
+
     return ok({
         "user": {
             "id": user.id,
@@ -88,7 +140,8 @@ async def get_me(user: AuthUser = Depends(require_auth)):
             "role": role,
             "roleName": role,
             "businessType": user.businessType,
-        }
+        },
+        "subscription": sub_data,
     })
 
 
@@ -101,6 +154,10 @@ async def register(body: dict, db: AsyncSession = Depends(get_db)):
     business_name = (body.get("businessName") or body.get("storeName") or name or "My Store").strip()
     business_type = (body.get("businessType") or "RETAIL").strip().upper()
     phone = (body.get("phone") or "").strip()
+    plan_code = (body.get("planCode") or "STARTER").strip().upper()
+    if plan_code in ("ADVANCE", "PRO"):
+        plan_code = "BUSINESS"
+    selected_addons = [str(a).strip().lower() for a in (body.get("selectedAddons") or [])]
 
     if not email or not password:
         return err("Email and password are required", 400)
@@ -167,13 +224,52 @@ async def register(body: dict, db: AsyncSession = Depends(get_db)):
             "e": email, "p": phone, "ph": hash_password(password), "r": owner_role_id
         })
 
-        # 6. Enable all modules for tenant
-        mods = (await db.execute(text("SELECT id FROM modules"))).fetchall()
+        # 6. Lookup Plan & Create SaaS Subscription (14-day trial)
+        plan_row = (await db.execute(text("SELECT id, name, code FROM saas_plans WHERE code = :c LIMIT 1"), {"c": plan_code})).first()
+        if not plan_row:
+            plan_row = (await db.execute(text("SELECT id, name, code FROM saas_plans WHERE code = 'STARTER' LIMIT 1"))).first()
+
+        sub_id = str(uuid.uuid4())
+        await db.execute(text("""
+            INSERT INTO saas_subscriptions (id, tenantId, planId, billingCycle, status, trialEndsAt, currentPeriodStart, currentPeriodEnd, createdAt, updatedAt)
+            VALUES (:id, :t, :p, 'MONTHLY', 'TRIAL', DATE_ADD(NOW(), INTERVAL 14 DAY), NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), NOW(), NOW())
+        """), {"id": sub_id, "t": tenant_id, "p": plan_row.id if plan_row else None})
+
+        # 7. Configure Tenant Modules based on Plan & Selected Add-ons
+        starter_mods = {'dashboard', 'pos', 'sales', 'products', 'inventory', 'cashregister', 'customers', 'invoices', 'payments', 'settings', business_type.lower()}
+        advance_mods = starter_mods | {'accounting', 'vat', 'purchasing', 'suppliers', 'credit', 'installments', 'returns', 'promotions', 'commission', 'targets', 'expenses', 'reports', 'delivery', 'appointments'}
+
+        if plan_code in ('BUSINESS', 'ADVANCE'):
+            enabled_set = set(advance_mods)
+        elif plan_code == 'ENTERPRISE':
+            all_m_codes = {m[1].lower() for m in (await db.execute(text("SELECT id, code FROM modules"))).fetchall()}
+            enabled_set = set(all_m_codes)
+        else:
+            enabled_set = set(starter_mods)
+
+        # Include selected add-ons with smart module mapping
+        for a in selected_addons:
+            a_low = str(a).lower()
+            enabled_set.add(a_low)
+            if any(k in a_low for k in ('restaurant', 'kds', 'kitchen', 'table', 'qr_menu')):
+                enabled_set.add('restaurant')
+            if 'ecommerce' in a_low:
+                enabled_set.add('ecommerce')
+            if any(k in a_low for k in ('pharmacy', 'prescription', 'rx')):
+                enabled_set.add('pharmacy')
+            if any(k in a_low for k in ('loyalty', 'cashback')):
+                enabled_set.add('loyalty')
+            if 'hardware' in a_low or 'barcode' in a_low:
+                enabled_set.add('inventory')
+
+        mods = (await db.execute(text("SELECT id, code FROM modules"))).fetchall()
         for m in mods:
+            m_code = m[1].lower()
+            is_en = 1 if (m_code in enabled_set or plan_code == 'ENTERPRISE') else 0
             await db.execute(text("""
                 INSERT INTO tenant_modules (id, tenantId, moduleId, isEnabled, createdAt)
-                VALUES (UUID(), :t, :m, 1, NOW())
-            """), {"t": tenant_id, "m": m[0]})
+                VALUES (UUID(), :t, :m, :en, NOW())
+            """), {"t": tenant_id, "m": m[0], "en": is_en})
 
     token = sign_token({
         "id": user_id,
@@ -204,8 +300,82 @@ async def register(body: dict, db: AsyncSession = Depends(get_db)):
             "slug": slug,
             "name": business_name,
             "businessType": business_type,
+        },
+        "subscription": {
+            "planCode": plan_row.code if plan_row else "STARTER",
+            "planName": plan_row.name if plan_row else "Starter",
+            "status": "TRIAL",
+            "trialEndsAt": "14 days remaining",
+            "enabledModules": list(enabled_set),
         }
     }, 201)
+
+
+@router.get("/api/auth/pricing")
+@router.get("/api/v1/auth/pricing")
+async def get_pricing(db: AsyncSession = Depends(get_db)):
+    """Public endpoint: Returns active SaaS plans and industry-specific add-ons dynamically from the database."""
+    # 1. Fetch Plans
+    plans_res = await db.execute(text("""
+        SELECT id, name, code, description, monthlyPrice, yearlyPrice,
+               maxUsers, maxBranches, maxWarehouses, maxPOS, maxProducts, maxStorageMB,
+               maxAPICallsDaily, maxAIQueriesDaily, isActive
+        FROM saas_plans
+        WHERE isActive = 1
+        ORDER BY monthlyPrice ASC
+    """))
+    plans = []
+    for r in plans_res.fetchall():
+        plans.append({
+            "id": r.id,
+            "name": r.name,
+            "code": r.code,
+            "description": r.description or "",
+            "monthlyPrice": float(r.monthlyPrice or 0),
+            "yearlyPrice": float(r.yearlyPrice or 0),
+            "maxUsers": r.maxUsers,
+            "maxBranches": r.maxBranches,
+            "maxWarehouses": r.maxWarehouses,
+            "maxPOS": r.maxPOS,
+            "maxProducts": r.maxProducts,
+            "maxStorageMB": r.maxStorageMB,
+            "maxAPICallsDaily": r.maxAPICallsDaily,
+            "maxAIQueriesDaily": r.maxAIQueriesDaily,
+        })
+
+    # 2. Fetch Add-ons
+    addons_res = await db.execute(text("""
+        SELECT id, code, name, description, industry, monthlyPrice, yearlyPrice,
+               icon, badge, features, sortOrder
+        FROM saas_addons
+        WHERE isActive = 1
+        ORDER BY sortOrder ASC, monthlyPrice ASC
+    """))
+    addons = []
+    for a in addons_res.fetchall():
+        feats = a.features
+        if isinstance(feats, str):
+            try:
+                feats = json.loads(feats)
+            except Exception:
+                feats = []
+        elif not feats:
+            feats = []
+        addons.append({
+            "id": a.id,
+            "code": a.code,
+            "name": a.name,
+            "description": a.description or "",
+            "industry": a.industry,
+            "monthlyPrice": float(a.monthlyPrice or 0),
+            "yearlyPrice": float(a.yearlyPrice or 0),
+            "icon": a.icon or "Layers",
+            "badge": a.badge or "",
+            "features": feats,
+            "sortOrder": a.sortOrder,
+        })
+
+    return ok({"plans": plans, "addons": addons})
 
 
 @router.get("/api/v1/tenant")

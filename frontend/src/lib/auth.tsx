@@ -5,8 +5,17 @@ import { useRouter } from "next/navigation";
 import { api, ApiError, TENANT_STORAGE_KEY } from "./api";
 import { AuthUser } from "./types";
 
+export interface TenantSubscription {
+  planCode: "STARTER" | "BUSINESS" | "ENTERPRISE" | string;
+  planName: string;
+  status: string;
+  trialEndsAt?: string | null;
+  enabledModules: string[];
+}
+
 interface AuthContextValue {
   user: AuthUser | null;
+  subscription: TenantSubscription | null;
   loading: boolean;
   login: (email: string, password: string, tenantSlug?: string) => Promise<void>;
   register: (data: {
@@ -16,6 +25,8 @@ interface AuthContextValue {
     email: string;
     password: string;
     phone?: string;
+    planCode?: string;
+    selectedAddons?: string[];
   }) => Promise<void>;
   logout: () => void;
 }
@@ -34,12 +45,19 @@ function normalizeAuthUser(u: any): AuthUser | null {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [subscription, setSubscription] = useState<TenantSubscription | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const stored = localStorage.getItem("modernpos_user");
+    const storedSub = localStorage.getItem("modernpos_subscription");
     const token = localStorage.getItem("modernpos_token");
+    if (storedSub) {
+      try {
+        setSubscription(JSON.parse(storedSub));
+      } catch (e) {}
+    }
     if (stored && token) {
       try {
         const parsed = JSON.parse(stored);
@@ -50,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       api.get<any>("/auth/me")
         .then((res) => {
           const u = res?.data?.user || res?.user;
+          const sub = res?.data?.subscription || res?.subscription;
           if (u) {
             const norm = normalizeAuthUser(u);
             setUser(norm);
@@ -57,13 +76,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               localStorage.setItem("modernpos_user", JSON.stringify(norm));
             }
           }
+          if (sub) {
+            setSubscription(sub);
+            localStorage.setItem("modernpos_subscription", JSON.stringify(sub));
+          }
         })
         .catch((err: any) => {
           if (err?.status === 401) {
             localStorage.removeItem("modernpos_token");
             localStorage.removeItem("modernpos_user");
+            localStorage.removeItem("modernpos_subscription");
             localStorage.removeItem(TENANT_STORAGE_KEY);
             setUser(null);
+            setSubscription(null);
             router.push("/login");
           }
         })
@@ -80,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       token: string;
       user: AuthUser;
       tenant?: { id: string; slug: string; name: string; businessType?: string };
+      subscription?: TenantSubscription;
     }>("/auth/login", {
       email,
       password,
@@ -99,6 +125,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (normUser) {
       localStorage.setItem("modernpos_user", JSON.stringify(normUser));
       setUser(normUser);
+    }
+
+    if (res.subscription) {
+      setSubscription(res.subscription);
+      localStorage.setItem("modernpos_subscription", JSON.stringify(res.subscription));
     }
 
     // Set tenant context for multi-tenant API endpoints (v1)
@@ -127,11 +158,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string;
     password: string;
     phone?: string;
+    planCode?: string;
+    selectedAddons?: string[];
   }) {
     const res = await api.post<{
       token: string;
       user: AuthUser;
       tenant?: { id: string; slug: string; name: string; businessType?: string };
+      subscription?: TenantSubscription;
     }>("/auth/register", data);
 
     // Clear any previous tenant/user cache completely
@@ -147,6 +181,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ...res.user,
       role: res.user.roleName || res.user.role || "Owner",
     }));
+
+    if (res.subscription) {
+      setSubscription(res.subscription);
+      localStorage.setItem("modernpos_subscription", JSON.stringify(res.subscription));
+    }
 
     const tenantInfo = res.tenant || {
       id: res.user.tenantId,
@@ -171,19 +210,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         localStorage.removeItem("modernpos_token");
         localStorage.removeItem("modernpos_user");
+        localStorage.removeItem("modernpos_subscription");
         localStorage.removeItem(TENANT_STORAGE_KEY);
         localStorage.clear();
         sessionStorage.clear();
       } catch (e) {}
       setUser(null);
+      setSubscription(null);
       window.location.replace("/login");
     } else {
       setUser(null);
+      setSubscription(null);
     }
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, subscription, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

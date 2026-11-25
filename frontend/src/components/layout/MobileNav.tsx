@@ -11,7 +11,9 @@ import {
   LogOut,
   Building2,
   Loader2,
+  Lock,
 } from "lucide-react";
+import { UpgradeModal } from "./UpgradeModal";
 import { useDynamicNav, type NavItem, type NavChild } from "@/lib/dynamic-nav";
 import { siteConfig } from "@/config/site";
 import { useAuth } from "@/lib/auth";
@@ -82,6 +84,11 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
   });
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [upgradeTarget, setUpgradeTarget] = useState<{
+    title: string;
+    requiredPlan?: string;
+    requiredAddon?: string;
+  } | null>(null);
   const Logo = siteConfig.logoIcon;
 
   // Dynamic Role from User / Database
@@ -381,6 +388,33 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
 
                       // Single direct link (no sub-children)
                       if (!hasChildren) {
+                        if (item.isLocked) {
+                          return (
+                            <button
+                              key={`${group.title}-${item.label}-${idx}`}
+                              type="button"
+                              onClick={() => {
+                                onOpenChange(false);
+                                setUpgradeTarget({
+                                  title: item.label,
+                                  requiredPlan: item.requiredPlan,
+                                  requiredAddon: item.requiredAddon,
+                                });
+                              }}
+                              className="group flex w-full items-center justify-between rounded-sm px-3 py-2 text-xs text-slate-400 hover:bg-amber-50 hover:text-amber-800 transition cursor-pointer"
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <Icon size={16} className="shrink-0 text-slate-400 group-hover:text-amber-600" />
+                                <span className="truncate">{item.label}</span>
+                              </div>
+                              <span className="flex items-center gap-1 text-[9px] font-bold text-amber-700 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded-sm">
+                                <Lock size={9} />
+                                <span>{item.lockReason || "Upgrade"}</span>
+                              </span>
+                            </button>
+                          );
+                        }
+
                         return (
                           <Link
                             key={`${group.title}-${item.label}-${idx}`}
@@ -548,6 +582,33 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                   );
                                 }
 
+                                if (child.isLocked) {
+                                  return (
+                                    <button
+                                      key={child.href || child.label}
+                                      type="button"
+                                      onClick={() => {
+                                        onOpenChange(false);
+                                        setUpgradeTarget({
+                                          title: child.label,
+                                          requiredPlan: child.requiredPlan,
+                                          requiredAddon: child.requiredAddon,
+                                        });
+                                      }}
+                                      className="group flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-xs text-slate-400 hover:bg-amber-50 hover:text-amber-800 transition cursor-pointer"
+                                    >
+                                      <div className="flex items-center gap-2 min-w-0">
+                                        <ChildIcon size={13} className="shrink-0 text-slate-400 group-hover:text-amber-600" />
+                                        <span className="truncate">{child.label}</span>
+                                      </div>
+                                      <span className="flex items-center gap-1 text-[9px] font-bold text-amber-700 bg-amber-100 border border-amber-300 px-1.5 py-0.2 rounded-sm shrink-0">
+                                        <Lock size={8} />
+                                        <span>{child.lockReason || "Upgrade"}</span>
+                                      </span>
+                                    </button>
+                                  );
+                                }
+
                                 return (
                                   <Link
                                     key={child.href}
@@ -617,6 +678,16 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
             </div>
           </div>
         </div>
+      )}
+
+      {upgradeTarget && (
+        <UpgradeModal
+          isOpen={!!upgradeTarget}
+          onClose={() => setUpgradeTarget(null)}
+          featureTitle={upgradeTarget.title}
+          requiredPlan={upgradeTarget.requiredPlan}
+          requiredAddon={upgradeTarget.requiredAddon}
+        />
       )}
     </>
   );

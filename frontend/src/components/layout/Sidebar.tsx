@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useMemo } from "react";
 import {
-  ChevronDown, LogOut, Loader2, Search, X,
+  ChevronDown, LogOut, Loader2, Search, X, Lock,
 } from "lucide-react";
+import { UpgradeModal } from "./UpgradeModal";
 import { useDynamicNav, type NavItem, type NavChild } from "@/lib/dynamic-nav";
 import { siteConfig } from "@/config/site";
 import { useAuth } from "@/lib/auth";
@@ -100,6 +101,12 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [upgradeTarget, setUpgradeTarget] = useState<{
+    featureName: string;
+    requiredPlan?: string;
+    requiredAddon?: string;
+    lockReason?: string;
+  } | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
     return new Set(["Overview", "Point of Sale (POS)"]);
   });
@@ -579,6 +586,7 @@ export function Sidebar() {
                           onToggleModule={() => toggleModule(item.label)}
                           onToggleItem={toggleItem}
                           isSearching={isSearching}
+                          onShowUpgrade={setUpgradeTarget}
                         />
                       ))}
                     </div>
@@ -711,6 +719,17 @@ export function Sidebar() {
           </div>
         </div>
       )}
+      {/* Upgrade / Add-on Modal */}
+      {upgradeTarget && (
+        <UpgradeModal
+          isOpen={!!upgradeTarget}
+          onClose={() => setUpgradeTarget(null)}
+          featureName={upgradeTarget.featureName}
+          requiredPlan={upgradeTarget.requiredPlan}
+          requiredAddon={upgradeTarget.requiredAddon}
+          lockReason={upgradeTarget.lockReason}
+        />
+      )}
     </aside>
   );
 }
@@ -726,6 +745,7 @@ interface ExpandedModuleRowProps {
   onToggleModule: () => void;
   onToggleItem: (href: string) => void;
   isSearching?: boolean;
+  onShowUpgrade: (target: any) => void;
 }
 
 function ExpandedModuleRow({
@@ -737,6 +757,7 @@ function ExpandedModuleRow({
   onToggleModule,
   onToggleItem,
   isSearching,
+  onShowUpgrade,
 }: ExpandedModuleRowProps) {
   const Icon = item.icon;
   const hasChildren = !!item.children?.length;
@@ -744,6 +765,32 @@ function ExpandedModuleRow({
 
   // Direct Single Link (no sub-children)
   if (!hasChildren) {
+    if (item.isLocked) {
+      return (
+        <button
+          type="button"
+          onClick={() =>
+            onShowUpgrade({
+              featureName: item.label,
+              requiredPlan: item.requiredPlan,
+              requiredAddon: item.requiredAddon,
+              lockReason: item.lockReason,
+            })
+          }
+          className="group flex w-full items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-150 text-slate-400 hover:bg-amber-50/60 hover:text-slate-600 cursor-pointer"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Icon size={16} className="text-slate-400 shrink-0" />
+            <span className="truncate">{item.label}</span>
+          </div>
+          <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+            <Lock size={9} />
+            <span>{item.lockReason || "Upgrade"}</span>
+          </span>
+        </button>
+      );
+    }
+
     return (
       <Link
         href={item.href}
@@ -800,14 +847,19 @@ function ExpandedModuleRow({
           />
           <span className="truncate text-left">{item.label}</span>
         </div>
-        {item.badge && (
+        {item.isLocked ? (
+          <span className="flex items-center gap-1 mr-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+            <Lock size={9} />
+            <span>{item.lockReason || "Upgrade"}</span>
+          </span>
+        ) : item.badge ? (
           <span className={cn(
             "shrink-0 mr-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
             active ? "bg-white/20 text-white" : "bg-brand-100 text-brand-primary border border-brand-border"
           )}>
             {item.badge}
           </span>
-        )}
+        ) : null}
         <ChevronDown
           size={13}
           className={cn(
@@ -829,6 +881,7 @@ function ExpandedModuleRow({
               allHrefs={allHrefs}
               itemExpanded={isSearching || expandedItems.has(child.href)}
               onToggle={() => onToggleItem(child.href)}
+              onShowUpgrade={onShowUpgrade}
             />
           ))}
         </div>
@@ -845,9 +898,10 @@ interface MenuItemRowProps {
   allHrefs: Set<string>;
   itemExpanded: boolean;
   onToggle: () => void;
+  onShowUpgrade: (target: any) => void;
 }
 
-function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: MenuItemRowProps) {
+function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle, onShowUpgrade }: MenuItemRowProps) {
   const ChildIcon = child.icon;
   const hasSubChildren = !!child.children?.length;
   const active = isChildActive(child, pathname, allHrefs);
@@ -872,14 +926,20 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
             <ChildIcon size={13} className={cn("shrink-0", active ? "text-white" : "text-brand-primary group-hover:text-brand-dark")} />
             <span className="truncate text-left">{child.label}</span>
           </div>
-          <ChevronDown
-            size={12}
-            className={cn(
-              "shrink-0 transition-transform duration-200",
-              active ? "text-white" : "text-brand-primary group-hover:text-brand-dark",
-              itemExpanded && "rotate-180",
-            )}
-          />
+          {child.isLocked ? (
+            <span className="flex items-center gap-1 text-[8.5px] font-bold px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+              <Lock size={8} />
+            </span>
+          ) : (
+            <ChevronDown
+              size={12}
+              className={cn(
+                "shrink-0 transition-transform duration-200",
+                active ? "text-white" : "text-brand-primary group-hover:text-brand-dark",
+                itemExpanded && "rotate-180",
+              )}
+            />
+          )}
         </button>
 
         {/* Render ONLY sub-children cleanly with border guide line */}
@@ -888,6 +948,31 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
             {child.children!.map((sub, idx) => {
               const SubIcon = sub.icon;
               const subActive = isRouteActive(sub.href, pathname, allHrefs);
+
+              if (sub.isLocked) {
+                return (
+                  <button
+                    key={`${sub.label}-${sub.href}-${idx}`}
+                    type="button"
+                    onClick={() =>
+                      onShowUpgrade({
+                        featureName: sub.label,
+                        requiredPlan: sub.requiredPlan,
+                        requiredAddon: sub.requiredAddon,
+                        lockReason: sub.lockReason,
+                      })
+                    }
+                    className="flex w-full items-center justify-between px-2 py-1.5 text-[11px] rounded-sm text-slate-400 hover:bg-amber-50/60 hover:text-slate-600 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <SubIcon size={11} className="shrink-0 text-slate-400" />
+                      <span className="truncate">{sub.label}</span>
+                    </div>
+                    <Lock size={9} className="text-amber-600 shrink-0" />
+                  </button>
+                );
+              }
+
               return (
                 <Link
                   key={`${sub.label}-${sub.href}-${idx}`}
@@ -913,6 +998,32 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
   }
 
   // Regular 2nd-level submenu item
+  if (child.isLocked) {
+    return (
+      <button
+        type="button"
+        onClick={() =>
+          onShowUpgrade({
+            featureName: child.label,
+            requiredPlan: child.requiredPlan,
+            requiredAddon: child.requiredAddon,
+            lockReason: child.lockReason,
+          })
+        }
+        className="group flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-xs text-slate-400 hover:bg-amber-50/60 hover:text-slate-600 transition cursor-pointer"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <ChildIcon size={13} className="shrink-0 text-slate-400" />
+          <span className="truncate">{child.label}</span>
+        </div>
+        <span className="flex items-center gap-1 text-[8.5px] font-bold px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+          <Lock size={8} />
+          <span>{child.lockReason || "Upgrade"}</span>
+        </span>
+      </button>
+    );
+  }
+
   return (
     <Link
       href={child.href}

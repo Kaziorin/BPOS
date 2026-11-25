@@ -3,6 +3,7 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useState } from "react";
+import Link from "next/link";
 import { useAuth, ApiError } from "@/lib/auth";
 import { Mail, Lock, Eye, EyeOff, Store } from "lucide-react";
 import { CustomInput } from "@/components/custom/CustomInput";
@@ -205,6 +206,14 @@ export default function LoginPage() {
             >
               {formik.isSubmitting ? "Authenticating..." : "Sign In"}
             </CustomButton>
+
+            {/* Registration Link */}
+            <div className="text-center pt-2">
+              <span className="text-xs text-slate-500">Need a new store? </span>
+              <Link href="/register" className="text-xs font-bold text-sky-600 hover:text-sky-800 hover:underline">
+                Start 14-Day Free Trial
+              </Link>
+            </div>
           </div>
 
           {/* Copyright text inside card with compact bottom padding & slightly larger text */}

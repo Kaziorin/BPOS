@@ -76,9 +76,9 @@ import {
   Repeat,
   Printer,
   UserCheck,
+  Lock,
   type LucideIcon,
 } from "lucide-react";
-import { api } from "./api";
 
 // ─── Icon map ─────────────────────────────────────────────────────────
 const iconMap: Record<string, LucideIcon> = {
@@ -139,11 +139,11 @@ const iconMap: Record<string, LucideIcon> = {
   Wrench,
   Factory,
   Store,
+  Lock,
 
   // Aliases
   GitBranch: Building2,
   Key: Shield,
-  Lock: Shield,
   ShieldCheck: Shield,
   Calculator: Landmark,
   FileMinus: FileText,
@@ -211,6 +211,10 @@ export interface NavSubChild {
   href: string;
   icon: LucideIcon;
   target?: string;
+  requiredPlan?: "STARTER" | "BUSINESS" | "ENTERPRISE";
+  requiredAddon?: string;
+  isLocked?: boolean;
+  lockReason?: string;
 }
 
 /** 2nd level: direct child of a module (may have its own sub-children) */
@@ -220,6 +224,10 @@ export interface NavChild {
   icon: LucideIcon;
   target?: string;
   children?: NavSubChild[];
+  requiredPlan?: "STARTER" | "BUSINESS" | "ENTERPRISE";
+  requiredAddon?: string;
+  isLocked?: boolean;
+  lockReason?: string;
 }
 
 /** 1st level: module = accordion parent */
@@ -230,14 +238,22 @@ export interface NavItem {
   badge?: string;
   /** If undefined → direct link. If present → accordion. */
   children?: NavChild[];
+  requiredPlan?: "STARTER" | "BUSINESS" | "ENTERPRISE";
+  requiredAddon?: string;
+  isLocked?: boolean;
+  lockReason?: string;
 }
 
 export interface NavGroup {
   title: string;
   items: NavItem[];
+  requiredPlan?: "STARTER" | "BUSINESS" | "ENTERPRISE";
+  requiredAddon?: string;
+  isLocked?: boolean;
+  lockReason?: string;
 }
 
-// ─── Master Navigation (Logically Organized & 100% Complete) ───────────
+// ─── Master Navigation with Commercial Gating Rules ───────────────────
 export const DEFAULT_MASTER_NAV: NavGroup[] = [
   // ══════════════════════════════════════════════════════════════════════
   // 1. OVERVIEW & ANALYTICS
@@ -251,19 +267,21 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         icon: LayoutDashboard,
         children: [
           { label: "Dashboard Overview", href: "/dashboard", icon: LayoutDashboard },
-          { label: "Dashboard Builder", href: "/dashboard/builder", icon: Layers },
+          { label: "Dashboard Builder", href: "/dashboard/builder", icon: Layers, requiredPlan: "BUSINESS" },
         ],
       },
       {
         label: "Business Intelligence & Reports",
         href: "/reports",
         icon: BarChart3,
+        requiredPlan: "BUSINESS",
       },
       {
         label: "AI Business Assistant",
         href: "/ai",
         icon: Activity,
         badge: "AI",
+        requiredPlan: "ENTERPRISE",
       },
       {
         label: "Tasks & To-Dos",
@@ -274,7 +292,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════════
-  // 2. POINT OF SALE (POS)
+  // 2. POINT OF SALE (POS) — Core to ALL Plans
   // ══════════════════════════════════════════════════════════════════════
   {
     title: "Point of Sale (POS)",
@@ -286,15 +304,15 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         badge: "10 Businesses",
         children: [
           { label: "Retail POS Terminal", href: "/retail-pos", icon: ShoppingCart },
-          { label: "Wholesale POS Counter", href: "/wholesale/pos", icon: Package },
-          { label: "Pharmacy Rx POS", href: "/pharmacy/pos", icon: Pill },
-          { label: "Restaurant & Cafe POS", href: "/restaurant/pos", icon: UtensilsCrossed },
-          { label: "Bakery & Confectionery POS", href: "/bakery/pos", icon: Croissant },
+          { label: "Wholesale POS Counter", href: "/wholesale/pos", icon: Package, requiredAddon: "wholesale" },
+          { label: "Pharmacy Rx POS", href: "/pharmacy/pos", icon: Pill, requiredAddon: "pharmacy" },
+          { label: "Restaurant & Cafe POS", href: "/restaurant/pos", icon: UtensilsCrossed, requiredAddon: "restaurant" },
+          { label: "Bakery & Confectionery POS", href: "/bakery/pos", icon: Croissant, requiredAddon: "bakery" },
           { label: "Grocery & Supermarket POS", href: "/grocery/pos", icon: ShoppingBag },
-          { label: "Repair & Service POS", href: "/repair/pos", icon: Wrench },
-          { label: "Salon & Spa POS", href: "/salon/pos", icon: Scissors },
-          { label: "Franchise & Outlet POS", href: "/franchise/pos", icon: Building2 },
-          { label: "Batch & Factory POS", href: "/manufacturing/pos", icon: Factory },
+          { label: "Repair & Service POS", href: "/repair/pos", icon: Wrench, requiredAddon: "repair" },
+          { label: "Salon & Spa POS", href: "/salon/pos", icon: Scissors, requiredAddon: "salon" },
+          { label: "Franchise & Outlet POS", href: "/franchise/pos", icon: Building2, requiredPlan: "ENTERPRISE" },
+          { label: "Batch & Factory POS", href: "/manufacturing/pos", icon: Factory, requiredAddon: "manufacturing" },
         ],
       },
       {
@@ -309,7 +327,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         children: [
           { label: "Held Carts / Orders", href: "/retail-pos/holds", icon: PauseCircle },
           { label: "Price & Barcode Checker", href: "/retail-pos/price-checker", icon: Search },
-          { label: "Self-Checkout Kiosk", href: "/retail-pos/self-checkout", icon: Monitor },
+          { label: "Self-Checkout Kiosk", href: "/retail-pos/self-checkout", icon: Monitor, requiredPlan: "BUSINESS" },
           { label: "Customer Display Screen", href: "/restaurant/customer-display", icon: Monitor },
         ],
       },
@@ -352,13 +370,14 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         icon: Users,
         children: [
           { label: "Customer Directory", href: "/customers", icon: Users },
-          { label: "Loyalty Programme", href: "/loyalty", icon: Star },
+          { label: "Loyalty Programme", href: "/loyalty", icon: Star, requiredPlan: "BUSINESS" },
         ],
       },
       {
         label: "Customer Credit & Dues",
         href: "/credit",
         icon: Wallet,
+        requiredPlan: "BUSINESS",
         children: [
           { label: "Credit Overview", href: "/credit", icon: Wallet },
           { label: "Aging Report", href: "/credit/aging", icon: Clock },
@@ -369,6 +388,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Returns & RMA",
         href: "/returns",
         icon: RotateCcw,
+        requiredPlan: "BUSINESS",
         children: [
           { label: "Customer Returns", href: "/returns", icon: RotateCcw },
           { label: "RMA Management", href: "/rma", icon: Repeat },
@@ -379,6 +399,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Promotions & Marketing",
         href: "/promotions",
         icon: Gift,
+        requiredPlan: "BUSINESS",
         children: [
           { label: "Promotions Overview", href: "/promotions", icon: Gift },
           { label: "Coupon Codes", href: "/promotions/coupons", icon: Tag },
@@ -389,6 +410,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Delivery & Logistics",
         href: "/delivery",
         icon: Truck,
+        requiredPlan: "BUSINESS",
       },
       {
         label: "Appointments & Bookings",
@@ -415,7 +437,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
           { label: "Categories & Subcategories", href: "/categories", icon: Tags },
           { label: "Brands & Manufacturers", href: "/brands", icon: Building2 },
           { label: "Units of Measure", href: "/units", icon: Scale },
-          { label: "Price Lists & Tiers", href: "/price-lists", icon: Tag },
+          { label: "Price Lists & Tiers", href: "/price-lists", icon: Tag, requiredPlan: "BUSINESS" },
         ],
       },
       {
@@ -425,15 +447,16 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         children: [
           { label: "Inventory Overview", href: "/inventory", icon: BarChart3 },
           { label: "Stock Levels", href: "/inventory/stock", icon: Package },
-          { label: "Warehouses & Storage", href: "/warehouses", icon: Warehouse },
+          { label: "Warehouses & Storage", href: "/warehouses", icon: Warehouse, requiredPlan: "BUSINESS" },
           { label: "Stock Movements", href: "/inventory/movements", icon: ArrowLeftRight },
-          { label: "Inter-Branch Transfers", href: "/inventory/transfers", icon: RefreshCw },
+          { label: "Inter-Branch Transfers", href: "/inventory/transfers", icon: RefreshCw, requiredPlan: "BUSINESS" },
         ],
       },
       {
         label: "Batches, Expiry & Serials",
         href: "/inventory/batches",
         icon: FlaskConical,
+        requiredPlan: "BUSINESS",
         children: [
           { label: "Batches & Expiry (FEFO)", href: "/inventory/batches", icon: FlaskConical },
           { label: "Serial Numbers", href: "/inventory/serials", icon: Hash },
@@ -455,10 +478,11 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════════
-  // 5. PURCHASING & PROCUREMENT
+  // 5. PURCHASING & PROCUREMENT (Advance / Enterprise)
   // ══════════════════════════════════════════════════════════════════════
   {
     title: "Purchasing",
+    requiredPlan: "BUSINESS",
     items: [
       {
         label: "Purchasing & Receiving",
@@ -481,16 +505,17 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════════
-  // 6. ONLINE STORE (OMNICHANNEL)
+  // 6. ONLINE STORE (OMNICHANNEL ADD-ON)
   // ══════════════════════════════════════════════════════════════════════
   {
     title: "E-Commerce",
+    requiredAddon: "ecommerce",
     items: [
       {
         label: "E-Commerce Storefront",
         href: "http://localhost:3001",
         icon: Globe,
-        badge: "Omnichannel",
+        badge: "Add-on",
         children: [
           { label: "Live Online Store", href: "http://localhost:3001", icon: Store },
           { label: "Visual Page Builder", href: "http://localhost:3001/setup", icon: Layers },
@@ -502,10 +527,11 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════════
-  // 7. FINANCE & ACCOUNTING
+  // 7. FINANCE & ACCOUNTING (Advance / Enterprise)
   // ══════════════════════════════════════════════════════════════════════
   {
     title: "Finance & Accounts",
+    requiredPlan: "BUSINESS",
     items: [
       {
         label: "Financial Accounting",
@@ -553,7 +579,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════════
-  // 8. INDUSTRY VERTICALS & HUBS
+  // 8. INDUSTRY VERTICALS & ADD-ON HUBS
   // ══════════════════════════════════════════════════════════════════════
   {
     title: "Industry Solutions",
@@ -562,9 +588,10 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Restaurant & Cafe",
         href: "/restaurant",
         icon: UtensilsCrossed,
+        requiredAddon: "restaurant",
         children: [
           { label: "Restaurant Management", href: "/restaurant", icon: LayoutDashboard },
-          { label: "Kitchen Management", href: "/restaurant/kitchen", icon: Flame, target: "_blank" },
+          { label: "Kitchen Management (KDS)", href: "/restaurant/kitchen", icon: Flame, target: "_blank", requiredAddon: "kitchen" },
           { label: "Customer Display Screen", href: "/restaurant/customer-display", icon: Monitor },
           { label: "Slots & Reservation Matrix", href: "/restaurant/slots-matrix", icon: Calendar },
         ],
@@ -573,6 +600,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Pharmacy & Healthcare",
         href: "/pharmacy",
         icon: Pill,
+        requiredAddon: "pharmacy",
         children: [
           { label: "Pharmacy Operations", href: "/pharmacy", icon: FlaskConical },
           { label: "Patient Display Screen", href: "/pharmacy/patient-display", icon: Monitor },
@@ -598,6 +626,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Wholesale & B2B",
         href: "/wholesale",
         icon: Truck,
+        requiredAddon: "wholesale",
         children: [
           { label: "Wholesale Commercial Hub", href: "/wholesale", icon: Building2 },
         ],
@@ -606,7 +635,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Bakery & Confectionery",
         href: "/bakery",
         icon: Croissant,
-        badge: "Bakery",
+        requiredAddon: "bakery",
         children: [
           { label: "Bakery Operations Hub", href: "/bakery", icon: Croissant },
           { label: "Recipe & Production BOM", href: "/manufacturing", icon: Layers },
@@ -616,6 +645,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Manufacturing & Production",
         href: "/manufacturing",
         icon: Factory,
+        requiredAddon: "manufacturing",
         children: [
           { label: "Production & BOM Hub", href: "/manufacturing", icon: Layers },
         ],
@@ -624,6 +654,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Salon & Spa Center",
         href: "/salon",
         icon: Scissors,
+        requiredAddon: "salon",
         children: [
           { label: "Salon & Booking Hub", href: "/salon", icon: Calendar },
         ],
@@ -632,6 +663,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Repair & Service",
         href: "/repair",
         icon: Wrench,
+        requiredAddon: "repair",
         children: [
           { label: "Repair Service Center", href: "/repair", icon: CheckSquare },
         ],
@@ -640,6 +672,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Franchise Network",
         href: "/franchise",
         icon: Store,
+        requiredPlan: "ENTERPRISE",
         children: [
           { label: "Franchise HQ Hub", href: "/franchise", icon: Building2 },
         ],
@@ -687,17 +720,20 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Multi-Branch Outlets",
         href: "/branches",
         icon: Building2,
+        requiredPlan: "BUSINESS",
       },
       {
         label: "Roles & Permissions (RBAC)",
         href: "/rbac",
         icon: Shield,
+        requiredPlan: "ENTERPRISE",
       },
       {
         label: "Workflow & Approvals",
         href: "/workflow",
         icon: GitMerge,
         badge: "Engine",
+        requiredPlan: "ENTERPRISE",
         children: [
           { label: "Approval Center", href: "/workflow", icon: GitMerge },
           { label: "Pending Approvals", href: "/workflow/pending", icon: Clock },
@@ -711,6 +747,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Audit & Security Logs",
         href: "/audit-security",
         icon: Eye,
+        requiredPlan: "ENTERPRISE",
       },
       {
         label: "Notifications & Alerts",
@@ -732,12 +769,14 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         href: "/integrations",
         icon: Plug,
         badge: "API",
+        requiredPlan: "ENTERPRISE",
       },
       {
         label: "Platform & SaaS Management",
         href: "/saas",
         icon: Shield,
         badge: "SaaS",
+        requiredPlan: "ENTERPRISE",
       },
       {
         label: "Onboarding Wizard",
@@ -748,20 +787,11 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "System Performance",
         href: "/system/performance",
         icon: Cpu,
+        requiredPlan: "ENTERPRISE",
       },
     ],
   },
 ];
-
-const CATEGORY_NAMES: Record<string, string> = {
-  PLATFORM: "Administration",
-  CORE: "Point of Sale",
-  ENGINE: "Finance & Accounts",
-  INDUSTRY: "Industry Solutions",
-  FEATURE: "Sales & Customers",
-};
-
-const CATEGORY_ORDER = ["CORE", "ENGINE", "PLATFORM", "INDUSTRY", "FEATURE"];
 
 export function useDynamicNav() {
   const [navGroups, setNavGroups] = useState<NavGroup[]>(DEFAULT_MASTER_NAV);
@@ -769,9 +799,127 @@ export function useDynamicNav() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Keep curated DEFAULT_MASTER_NAV as the gold standard
-    setNavGroups(DEFAULT_MASTER_NAV);
-    setLoading(false);
+    let sub: any = null;
+    let user: any = null;
+    try {
+      const storedSub = typeof window !== "undefined" ? localStorage.getItem("modernpos_subscription") : null;
+      if (storedSub) sub = JSON.parse(storedSub);
+      const storedUser = typeof window !== "undefined" ? localStorage.getItem("modernpos_user") : null;
+      if (storedUser) user = JSON.parse(storedUser);
+    } catch (e) {}
+
+    const isSuperAdmin = user?.email === "admin@gmail.com" || user?.roleName === "Super Administrator";
+
+    if (isSuperAdmin || !sub) {
+      // Super admin or fresh login: everything unlocked
+      setNavGroups(DEFAULT_MASTER_NAV);
+      return;
+    }
+
+    const currentPlan = (sub.planCode || "STARTER").toUpperCase();
+    const planTier: Record<string, number> = {
+      STARTER: 1,
+      ADVANCE: 2,
+      BUSINESS: 2,
+      PRO: 2,
+      ENTERPRISE: 3,
+    };
+    const userTier = planTier[currentPlan] || 1;
+    const enabledModules = new Set<string>((sub.enabledModules || []).map((m: string) => m.toLowerCase()));
+    const userBusinessType = (user?.businessType || sub?.businessType || "").toUpperCase();
+    const hasRestaurant = userBusinessType === "RESTAURANT" || enabledModules.has("restaurant") || enabledModules.has("restaurant_kds");
+
+    const gated = DEFAULT_MASTER_NAV.map((group) => {
+      const groupRequiredTier = group.requiredPlan ? planTier[group.requiredPlan] || 1 : 1;
+      const groupAddonMissing =
+        group.requiredAddon && !enabledModules.has(group.requiredAddon.toLowerCase()) && userTier < 3;
+      const groupPlanMissing = userTier < groupRequiredTier;
+
+      const groupLocked = groupPlanMissing || groupAddonMissing;
+      const groupLockReason = groupAddonMissing
+        ? `${group.title} Add-on`
+        : groupPlanMissing
+        ? group.requiredPlan === "ENTERPRISE"
+          ? "Enterprise Plan"
+          : "Advance Plan"
+        : undefined;
+
+      // Filter or prioritize items based on tenant business vertical
+      let rawItems = group.items;
+      if (group.title === "Industry Solutions") {
+        rawItems = group.items.filter((item) => {
+          // If tenant is Restaurant, hide irrelevant retail/pharmacy clutter
+          if (userBusinessType === "RESTAURANT") {
+            return (
+              item.href.includes("restaurant") ||
+              item.requiredAddon === "restaurant" ||
+              enabledModules.has(item.requiredAddon?.toLowerCase() || "")
+            );
+          }
+          // If tenant is not restaurant and has no restaurant addon, hide restaurant/kitchen
+          if (!hasRestaurant && (item.href.includes("restaurant") || item.requiredAddon === "restaurant")) {
+            return false;
+          }
+          return true;
+        });
+      }
+
+      const items = rawItems.map((item) => {
+        const itemRequiredTier = item.requiredPlan ? planTier[item.requiredPlan] || 1 : 1;
+        const itemAddonMissing =
+          item.requiredAddon && !enabledModules.has(item.requiredAddon.toLowerCase()) && userTier < 3;
+        const itemPlanMissing = userTier < itemRequiredTier;
+
+        const isLocked = groupLocked || itemPlanMissing || itemAddonMissing;
+        const lockReason = itemAddonMissing
+          ? `${item.label} Add-on`
+          : itemPlanMissing
+          ? item.requiredPlan === "ENTERPRISE"
+            ? "Enterprise Plan"
+            : "Advance Plan"
+          : groupLockReason;
+
+        // Also check children
+        let rawChildren = item.children || [];
+        if (item.label === "All POS Terminals" && hasRestaurant) {
+          // Promote Restaurant & Cafe POS to top for restaurant tenants
+          rawChildren = [
+            ...rawChildren.filter((c) => c.href.includes("restaurant")),
+            ...rawChildren.filter((c) => !c.href.includes("restaurant")),
+          ];
+        }
+
+        const children = rawChildren.map((child) => {
+          const childRequiredTier = child.requiredPlan ? planTier[child.requiredPlan] || 1 : 1;
+          const childAddonMissing =
+            child.requiredAddon && !enabledModules.has(child.requiredAddon.toLowerCase()) && userTier < 3;
+          const childPlanMissing = userTier < childRequiredTier;
+          const isChildLocked = isLocked || childPlanMissing || childAddonMissing;
+
+          return {
+            ...child,
+            isLocked: !!isChildLocked,
+            lockReason: childAddonMissing ? "Add-on" : childPlanMissing ? "Upgrade" : lockReason,
+          };
+        });
+
+        return {
+          ...item,
+          isLocked: !!isLocked,
+          lockReason,
+          children,
+        };
+      });
+
+      return {
+        ...group,
+        items,
+        isLocked: !!groupLocked,
+        lockReason: groupLockReason,
+      };
+    });
+
+    setNavGroups(gated);
   }, []);
 
   return { navGroups, loading, error };
