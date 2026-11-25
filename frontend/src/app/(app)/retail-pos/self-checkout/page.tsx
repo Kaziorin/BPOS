@@ -20,6 +20,8 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
+import { getAccessiblePosTerminals, getTenantEntitlementContext } from "@/lib/pos-terminals";
 import { CustomBreadcrumb, CustomButton, CustomModal } from "@/components/custom";
 import { ReceiptModal } from "../ReceiptModal";
 import type { CartItem, PaymentLine, SaleResult } from "../pos-types";
@@ -80,6 +82,11 @@ function unwrapProducts(res: unknown): Product[] {
 
 export default function SelfCheckoutPage() {
   const router = useRouter();
+  const { user, subscription } = useAuth();
+  const entCtx = getTenantEntitlementContext(user, subscription);
+  const primaryTerminalHref = getAccessiblePosTerminals(user, subscription)[0]?.href || "/retail-pos";
+  const businessLabel =
+    entCtx.businessType.charAt(0) + entCtx.businessType.slice(1).toLowerCase();
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
@@ -277,8 +284,8 @@ export default function SelfCheckoutPage() {
         description="Autonomous customer kiosk — scan items, verify totals, and complete digital or cash payment"
         icon={<Store size={15} />}
         items={[
-          { label: "Retail", href: "/retail-pos" },
-          { label: "POS Terminal", href: "/retail-pos" },
+          { label: businessLabel, href: primaryTerminalHref },
+          { label: "POS Terminal", href: primaryTerminalHref },
           { label: "Self Checkout Kiosk" },
         ]}
         actions={
@@ -303,7 +310,7 @@ export default function SelfCheckoutPage() {
             <CustomButton
               variant="primary"
               size="sm"
-              onClick={() => router.push("/retail-pos")}
+              onClick={() => router.push(primaryTerminalHref)}
             >
               Staff POS
             </CustomButton>

@@ -72,6 +72,14 @@ export function Header() {
       ? "Dashboard"
       : pathname === "/retail-pos"
       ? "Retail POS"
+      : pathname === "/grocery/pos"
+      ? "Grocery POS"
+      : pathname === "/pos/holds" || pathname === "/retail-pos/holds"
+      ? "POS / Held Sales"
+      : pathname === "/pos/price-checker" || pathname === "/retail-pos/price-checker"
+      ? "POS / Price Checker"
+      : pathname === "/pos/self-checkout" || pathname === "/retail-pos/self-checkout"
+      ? "POS / Self Checkout"
       : pathname
           .split("/")
           .filter(Boolean)

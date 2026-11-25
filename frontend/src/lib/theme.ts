@@ -375,7 +375,14 @@ export function getRouteBusinessType(pathname: string | null): GlobalThemeId | n
   if (!pathname) return null;
   const path = pathname.toLowerCase();
 
-  if (path === "/retail-pos" || path.startsWith("/retail")) return "retail";
+  if (
+    path === "/retail-pos" ||
+    path === "/retail" ||
+    path.startsWith("/retail/") ||
+    path === "/retail-pos/customer-display"
+  ) {
+    return "retail";
+  }
   if (path.startsWith("/restaurant")) return "restaurant";
   if (path.startsWith("/grocery")) return "grocery";
   if (path.startsWith("/pharmacy")) return "pharmacy";

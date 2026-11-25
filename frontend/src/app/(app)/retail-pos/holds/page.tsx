@@ -21,6 +21,8 @@ import {
   FileText,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
+import { getAccessiblePosTerminals, getTenantEntitlementContext } from "@/lib/pos-terminals";
 import {
   CustomBreadcrumb,
   CustomButton,
@@ -47,6 +49,11 @@ function timeAgo(dateString: string): string {
 
 export default function HoldsPage() {
   const router = useRouter();
+  const { user, subscription } = useAuth();
+  const entCtx = getTenantEntitlementContext(user, subscription);
+  const primaryTerminalHref = getAccessiblePosTerminals(user, subscription)[0]?.href || "/retail-pos";
+  const businessLabel =
+    entCtx.businessType.charAt(0) + entCtx.businessType.slice(1).toLowerCase();
   const [holds, setHolds] = useState<HeldSale[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -160,7 +167,7 @@ export default function HoldsPage() {
       // Delete from holds table in backend so it does not remain duplicated
       await api.del(`/api/v1/pos/holds/${hold.id}`).catch(() => {});
 
-      router.push("/retail-pos");
+      router.push(primaryTerminalHref);
     } catch (err) {
       console.error("Failed to resume hold:", err);
       showToast("Failed to restore cart to POS");
@@ -203,8 +210,8 @@ export default function HoldsPage() {
         description="Parked customer transactions across all POS registers — review item snapshots, calculate totals, and resume checkout instantly"
         icon={<PauseCircle size={15} />}
         items={[
-          { label: "Retail", href: "/retail-pos" },
-          { label: "POS Terminal", href: "/retail-pos" },
+          { label: businessLabel, href: primaryTerminalHref },
+          { label: "POS Terminal", href: primaryTerminalHref },
           { label: "Held Sales" },
         ]}
         actions={
@@ -227,7 +234,7 @@ export default function HoldsPage() {
               variant="primary"
               size="sm"
               icon={ShoppingCart}
-              onClick={() => router.push("/retail-pos")}
+              onClick={() => router.push(primaryTerminalHref)}
             >
               Open POS Register
             </CustomButton>
@@ -347,7 +354,7 @@ export default function HoldsPage() {
             variant="primary"
             size="sm"
             icon={ShoppingCart}
-            onClick={() => router.push("/retail-pos")}
+            onClick={() => router.push(primaryTerminalHref)}
           >
             Go to POS Terminal
           </CustomButton>
