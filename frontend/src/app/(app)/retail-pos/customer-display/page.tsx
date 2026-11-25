@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, useRef, useCallback } from "react";
 import {
   ShoppingBag,
@@ -10,7 +11,6 @@ import {
   Maximize2,
   Minimize2,
   CreditCard,
-  Package,
   Scale,
   Award,
   SmilePlus,
@@ -21,63 +21,24 @@ import {
   Tag,
   ShoppingCart,
   Star,
+  ArrowLeft,
 } from "lucide-react";
 import {
   subscribeCart,
   readCart,
   publishCart,
+  fmtDisplayMoney,
+  playDisplayScanSound,
+  playDisplaySuccessChime,
+  buildQrSvg,
+  formatDisplayClock,
   type DisplayCart,
-  type DisplayLine,
 } from "@/lib/customer-display";
 import { isOnline } from "@/lib/offline/db";
 import { cn } from "@/lib/cn";
 
-// ── Currency Formatter ──
-function fmt(n: number): string {
-  return `৳${Number(n || 0).toLocaleString("en-BD", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-}
-
-// ── Audio Feedback ──
-function playScanSound() {
-  try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(1046.5, ctx.currentTime);
-    gain.gain.setValueAtTime(0.12, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.1);
-  } catch {}
-}
-
-function playSuccessChime() {
-  try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const now = ctx.currentTime;
-    [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(freq, now + i * 0.08);
-      gain.gain.setValueAtTime(0.18, now + i * 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.28);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now + i * 0.08);
-      osc.stop(now + i * 0.08 + 0.28);
-    });
-  } catch {}
-}
-
-// ── Product emoji mapper for retail items ──
 const RETAIL_EMOJIS = ["📦", "🛍️", "🧴", "🥤", "🍫", "🧃", "🧹", "💊", "🪥", "📱", "👕", "🔌"];
+
 function getProductEmoji(name: string, idx: number): string {
   const n = (name || "").toLowerCase();
   if (n.includes("milk") || n.includes("dairy")) return "🥛";
@@ -95,61 +56,44 @@ function getProductEmoji(name: string, idx: number): string {
   return RETAIL_EMOJIS[idx % RETAIL_EMOJIS.length];
 }
 
-// ── QR Code Generator ──
-function qrSvg(payload: string, size = 165, dark = "#1e293b"): string {
-  let seed = 0;
-  for (const ch of payload) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
-  const n = 21;
-  const cells: boolean[][] = [];
-  for (let y = 0; y < n; y++) {
-    const row: boolean[] = [];
-    for (let x = 0; x < n; x++) {
-      seed = (seed * 1103515245 + 12345) >>> 0;
-      const f = (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7);
-      if (f) {
-        const b = x === 0 || x === 6 || y === 0 || y === 6 ||
-          (x >= n - 7 && (x === n - 7 || x === n - 1)) ||
-          (y >= n - 7 && (y === n - 7 || y === n - 1));
-        const c = (x >= 2 && x <= 4 && y >= 2 && y <= 4) ||
-          (x >= n - 5 && x <= n - 3 && y >= 2 && y <= 4) ||
-          (x >= 2 && x <= 4 && y >= n - 5 && y <= n - 3);
-        row.push(b || c);
-      } else row.push((seed & 1) === 1);
-    }
-    cells.push(row);
-  }
-  const cell = size / n;
-  const rects = cells.flatMap((row, y) =>
-    row.map((on, x) =>
-      on ? `<rect x="${(x * cell).toFixed(1)}" y="${(y * cell).toFixed(1)}" width="${cell.toFixed(1)}" height="${cell.toFixed(1)}" rx="1.5"/>` : ""
-    )
-  ).join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" fill="#ffffff" rx="14"/><g fill="${dark}">${rects}</g></svg>`;
-}
+const PAYMENT_HINTS: Record<"cash" | "card" | "qr" | "wallet" | "split", { title: string; subtitle: string }> = {
+  cash: { title: "Pay with Cash at Counter", subtitle: "Counter change receipt ready upon payment" },
+  card: { title: "Tap or Insert Card on Terminal", subtitle: "Visa, Mastercard & UnionPay accepted" },
+  qr: { title: "Scan to Pay with bKash / Nagad", subtitle: "Instant & Secure Digital Payment" },
+  wallet: { title: "Pay via Store Credit / Wallet", subtitle: "Redeem wallet balance or loyalty points" },
+  split: { title: "Split Payment Across Methods", subtitle: "Combine Cash, Card & Mobile Wallet" },
+};
 
-// ── Live Clock Widget ──
 function LiveClockWidget() {
-  const [t, setT] = useState(new Date());
+  const [clock, setClock] = useState<{ hh: string; mm: string; ss: string; ap: string; day: string } | null>(null);
+
   useEffect(() => {
-    const id = setInterval(() => setT(new Date()), 1000);
-    return () => clearInterval(id);
+    const update = () => setClock(formatDisplayClock(new Date()));
+    const init = window.setTimeout(update, 0);
+    const id = window.setInterval(update, 1000);
+    return () => {
+      window.clearTimeout(init);
+      window.clearInterval(id);
+    };
   }, []);
-  const hh = String(t.getHours() % 12 || 12).padStart(2, "0");
-  const mm = String(t.getMinutes()).padStart(2, "0");
-  const ss = String(t.getSeconds()).padStart(2, "0");
-  const ap = t.getHours() >= 12 ? "pm" : "am";
-  const day = t.toLocaleDateString("en-BD", { weekday: "short", day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
 
   return (
-    <div className="flex items-center gap-2.5 px-4 py-1.5 rounded-sm border bg-brand-50/80 border-brand-border text-gray-600 shadow-sm">
-      <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-brand-50 text-brand-primary text-sm">
-        <Scale size={15} />
+    <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-sm border bg-brand-50/80 border-brand-border text-gray-700 shadow-xs">
+      <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-brand-50 border border-brand-border text-brand-primary text-sm">
+        <Scale size={14} />
       </div>
-      <div className="text-left leading-tight">
-        <div className="text-[13px] font-black tracking-tight text-gray-600">
-          {hh}:{mm}:{ss} <span className="text-xs font-bold text-brand-primary">{ap}</span>
+      <div className="text-left leading-tight min-w-[110px]">
+        <div className="text-[13px] font-black tracking-tight text-gray-700 tabular-nums">
+          {clock ? (
+            <>
+              {clock.hh}:{clock.mm}:{clock.ss}{" "}
+              <span className="text-xs font-bold text-brand-primary uppercase">{clock.ap}</span>
+            </>
+          ) : (
+            "--:--:--"
+          )}
         </div>
-        <div className="text-[9px] text-gray-500 font-bold uppercase tracking-wider">{day}</div>
+        <div className="text-[9px] text-gray-500 font-bold uppercase tracking-wider">{clock?.day || "READY"}</div>
       </div>
     </div>
   );
@@ -169,40 +113,41 @@ export default function RetailCustomerDisplayPage() {
   }, [soundOn]);
   const paidRef = useRef(false);
 
-  // Network check
   useEffect(() => {
-    const check = async () => setOnline(isOnline());
-    check();
-    const id = setInterval(check, 5000);
-    return () => clearInterval(id);
+    const syncNetwork = () => setOnline(isOnline());
+    const init = window.setTimeout(syncNetwork, 0);
+    const id = window.setInterval(syncNetwork, 5000);
+    return () => {
+      window.clearTimeout(init);
+      window.clearInterval(id);
+    };
   }, []);
 
-  // Subscribe to real-time cart updates from Retail POS
   useEffect(() => {
-    const initial = readCart();
-    setCart(initial);
-
+    const init = window.setTimeout(() => setCart(readCart()), 0);
     const unsub = subscribeCart((data) => {
       setCart((prev) => {
         const prevLen = prev?.lines?.length ?? 0;
         const nextLen = data?.lines?.length ?? 0;
-        if (nextLen > prevLen && soundRef.current) playScanSound();
+        if (nextLen > prevLen && soundRef.current) playDisplayScanSound(1046.5);
 
         const wasPaid = paidRef.current;
         const isPaid = data?.status === "PAID";
         if (!wasPaid && isPaid) {
-          if (soundRef.current) playSuccessChime();
+          if (soundRef.current) playDisplaySuccessChime();
           setShowThankYou(true);
-          setTimeout(() => setShowThankYou(false), 9000);
+          window.setTimeout(() => setShowThankYou(false), 9000);
         }
         paidRef.current = isPaid;
         return data;
       });
     });
-    return () => unsub?.();
+    return () => {
+      window.clearTimeout(init);
+      unsub?.();
+    };
   }, []);
 
-  // Fullscreen toggle
   const toggleFs = useCallback(() => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen?.().catch(() => {});
@@ -213,22 +158,21 @@ export default function RetailCustomerDisplayPage() {
     }
   }, []);
 
-  // Quick demo data
   const handleQuickDemo = () => {
     const demoCart: DisplayCart = {
       updatedAt: Date.now(),
       source: "RETAIL",
       lines: [
-        { name: "Coca Cola 500ml", qty: 2, unitPrice: 1.75, discountAmount: 0, sku: "COKE-0500", category: "Beverages" },
-        { name: "Lays Classic 52g", qty: 1, unitPrice: 1.50, discountAmount: 0.75, sku: "LAY-0052", category: "Snacks" },
-        { name: "Fresh Milk 1L", qty: 1, unitPrice: 1.85, discountAmount: 0, sku: "MILK-1000", category: "Dairy" },
-        { name: "Dettol Soap 125g", qty: 2, unitPrice: 1.10, discountAmount: 0, sku: "DET-0125", category: "Personal Care" },
-        { name: "Ariel Matic 1kg", qty: 1, unitPrice: 5.20, discountAmount: 0, sku: "ARL-1000", category: "Household" },
+        { name: "Coca Cola 500ml", qty: 2, unitPrice: 50, discountAmount: 0, sku: "COKE-0500", category: "Beverages" },
+        { name: "Lays Classic 52g", qty: 1, unitPrice: 35, discountAmount: 5, sku: "LAY-0052", category: "Snacks" },
+        { name: "Fresh Milk 1L", qty: 1, unitPrice: 110, discountAmount: 0, sku: "MILK-1000", category: "Dairy" },
+        { name: "Dettol Soap 125g", qty: 2, unitPrice: 55, discountAmount: 0, sku: "DET-0125", category: "Personal Care" },
+        { name: "Ariel Matic 1kg", qty: 1, unitPrice: 280, discountAmount: 0, sku: "ARL-1000", category: "Household" },
       ],
-      subtotal: 14.25,
-      discountTotal: 0.75,
-      taxTotal: 0.67,
-      total: 14.17,
+      subtotal: 635,
+      discountTotal: 5,
+      taxTotal: 31.5,
+      total: 661.5,
       status: "ACTIVE",
       customerName: "Rahim Uddin",
       customerTier: "Gold Member",
@@ -242,12 +186,20 @@ export default function RetailCustomerDisplayPage() {
   };
 
   const handleClearCart = () => {
-    const empty: DisplayCart = { updatedAt: Date.now(), source: "RETAIL", lines: [], subtotal: 0, discountTotal: 0, taxTotal: 0, total: 0, status: "IDLE" };
+    const empty: DisplayCart = {
+      updatedAt: Date.now(),
+      source: "RETAIL",
+      lines: [],
+      subtotal: 0,
+      discountTotal: 0,
+      taxTotal: 0,
+      total: 0,
+      status: "IDLE",
+    };
     publishCart(empty);
     setCart(empty);
   };
 
-  // Derived values
   const lines = cart?.lines || [];
   const hasItems = lines.length > 0;
   const subtotal = cart?.subtotal || (hasItems ? lines.reduce((s, l) => s + l.unitPrice * l.qty, 0) : 0);
@@ -262,69 +214,54 @@ export default function RetailCustomerDisplayPage() {
   const laneNo = cart?.laneNo || "T-01";
   const merchantName = cart?.merchantName || "BPOS Retail";
   const qrPayload = `bpos-retail-payment-${laneNo}-${Math.round(total)}`;
+  const activePaymentHint = PAYMENT_HINTS[selectedPayment];
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
-        *, *::before, *::after { font-family: 'Plus Jakarta Sans', sans-serif; box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #99f6e4; border-radius: 4px; }
-      `}</style>
-
-      {/* ── THANK YOU OVERLAY ── */}
       {showThankYou && (
-        <div
-          className="fixed inset-0 flex flex-col items-center justify-center z-50 overflow-hidden bg-teal-950"
-        >
-          <div className="flex flex-col items-center gap-5 text-center px-8 text-white">
-            <div className="text-8xl leading-none animate-bounce">🛍️</div>
-            <h1 className="text-6xl font-black tracking-tight" style={{ textShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
-              Thank You!
-            </h1>
-            <p className="text-2xl font-bold opacity-95">
+        <div className="fixed inset-0 flex flex-col items-center justify-center z-50 overflow-hidden bg-brand-gradient">
+          <div className="flex flex-col items-center gap-4 text-center px-6 sm:px-8 text-white">
+            <div className="text-7xl sm:text-8xl leading-none animate-bounce">🛍️</div>
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight">Thank You!</h1>
+            <p className="text-xl sm:text-2xl font-bold opacity-95">
               {customerName ? `ধন্যবাদ, ${customerName}!` : "Payment Successful!"}
             </p>
-            <p className="text-lg opacity-85">Thank you for shopping with us! Come back soon.</p>
-            <div className="mt-4 px-6 py-2.5 rounded-full bg-white/20 border border-white/30 backdrop-blur font-bold text-sm">
-              Lane {laneNo} • Total Paid: {fmt(total)}
+            <p className="text-base sm:text-lg opacity-85">Thank you for shopping with us! Come back soon.</p>
+            <div className="mt-2 px-6 py-2.5 rounded-full bg-white/20 border border-white/30 backdrop-blur font-bold text-sm">
+              Lane {laneNo} • Total Paid: {fmtDisplayMoney(total)}
             </div>
-            <div className="flex items-center gap-2 mt-2 px-4 py-2 rounded-full bg-white/10 border border-white/20">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20">
               <Star size={14} className="text-amber-300 fill-amber-300" />
-              <span className="text-sm font-semibold">+{Math.floor(total * 10)} loyalty points earned!</span>
+              <span className="text-sm font-semibold">+{Math.floor(total / 10)} loyalty points earned!</span>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── FULLSCREEN CONTAINER — Retail Teal theme ── */}
       <div
         id="retail-customer-display"
-        className="fixed inset-0 flex flex-col justify-between overflow-hidden p-5 select-none bg-slate-50"
+        className="min-h-screen lg:h-screen w-full flex flex-col justify-between overflow-y-auto lg:overflow-hidden p-3 sm:p-4 select-none bg-slate-50"
       >
-        <div className="flex flex-col gap-3 flex-1 min-h-0 max-w-[1700px] w-full mx-auto">
-
-          {/* ── 1. TOP HEADER ── */}
-          <header className="rounded-sm border border-brand-border bg-white shadow-sm px-6 py-3 flex items-center justify-between shrink-0">
-            {/* Left: Brand + Lane */}
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-sm border shrink-0 bg-brand-50 border-brand-border text-brand-primary shadow-sm">
-                <ShoppingBag size={22} />
+        <div className="flex flex-col gap-2.5 sm:gap-3 flex-1 min-h-0 max-w-[1700px] w-full mx-auto">
+          <header className="rounded-sm border border-brand-border bg-white shadow-sm px-4 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2.5 shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-10 w-10 items-center justify-center rounded-sm border shrink-0 bg-brand-50 border-brand-border text-brand-primary shadow-xs">
+                <ShoppingBag size={20} />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-gray-600 text-lg leading-tight tracking-tight">{merchantName}</span>
-                  <span className="px-2 py-0.5 rounded-sm text-[11px] font-black uppercase tracking-wider text-white bg-brand-primary shadow-sm">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-extrabold text-gray-700 text-base sm:text-lg leading-tight tracking-tight truncate">
+                    {merchantName}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-sm text-[11px] font-black uppercase tracking-wider text-white bg-brand-primary shadow-xs">
                     Lane {laneNo}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 mt-0.5">
+                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                   <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                     CUSTOMER DISPLAY TERMINAL
                   </span>
-                  <span className="text-gray-300">•</span>
+                  <span className="text-gray-300 hidden sm:inline">•</span>
                   <span className={cn("flex items-center gap-1 text-[11px] font-bold", online ? "text-brand-primary" : "text-rose-500")}>
                     {online ? <Wifi size={12} /> : <WifiOff size={12} />}
                     {online ? (hasItems ? "POS Live Synced" : "POS Connected • Live") : "POS Offline"}
@@ -333,17 +270,24 @@ export default function RetailCustomerDisplayPage() {
               </div>
             </div>
 
-            {/* Center: Clock */}
-            <div className="hidden md:flex items-center">
+            <div className="hidden lg:flex items-center">
               <LiveClockWidget />
             </div>
 
-            {/* Right: Controls */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0 flex-wrap">
+              <Link
+                href="/retail-pos"
+                className="flex items-center gap-1.5 h-9 px-3 rounded-sm border border-slate-200 bg-white text-gray-600 hover:text-brand-primary hover:border-brand-border text-xs font-bold transition shadow-xs cursor-pointer"
+                title="Back to Retail POS"
+              >
+                <ArrowLeft size={14} />
+                <span className="hidden sm:inline">Back to POS</span>
+              </Link>
+
               {hasItems ? (
                 <button
                   onClick={handleClearCart}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold transition shadow-sm cursor-pointer"
+                  className="flex items-center gap-1.5 h-9 px-3 rounded-sm border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold transition shadow-xs cursor-pointer"
                 >
                   <Trash2 size={13} />
                   <span>Clear</span>
@@ -351,7 +295,7 @@ export default function RetailCustomerDisplayPage() {
               ) : (
                 <button
                   onClick={handleQuickDemo}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-brand-border bg-brand-50 text-brand-dark hover:bg-brand-50 text-xs font-bold transition shadow-sm cursor-pointer"
+                  className="flex items-center gap-1.5 h-9 px-3 rounded-sm border border-brand-border bg-brand-50 text-brand-dark hover:bg-brand-50/80 text-xs font-bold transition shadow-xs cursor-pointer"
                 >
                   <PlusCircle size={13} className="text-brand-primary" />
                   <span>Demo Order</span>
@@ -361,40 +305,43 @@ export default function RetailCustomerDisplayPage() {
               <button
                 id="rcd-sound"
                 onClick={() => setSoundOn((v) => !v)}
-                className="flex h-10 w-10 items-center justify-center rounded-sm border border-slate-200 bg-white text-gray-600 hover:text-brand-primary hover:border-brand-border transition shadow-sm cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center rounded-sm border border-slate-200 bg-white text-gray-600 hover:text-brand-primary hover:border-brand-border transition shadow-xs cursor-pointer"
                 title={soundOn ? "Mute" : "Enable sound"}
               >
-                {soundOn ? <Volume2 size={17} /> : <VolumeX size={17} />}
+                {soundOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
               </button>
 
               <button
                 id="rcd-fullscreen"
                 onClick={toggleFs}
-                className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-primary hover:bg-brand-dark text-white transition shadow-sm cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center rounded-sm bg-brand-primary hover:bg-brand-dark text-white transition shadow-xs cursor-pointer"
                 title="Toggle fullscreen"
               >
-                {fullscreen ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
+                {fullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
               </button>
             </div>
           </header>
 
-          {/* ── 2. WELCOME BANNER ── */}
-          <div className="rounded-sm border border-brand-border bg-white shadow-sm px-6 py-3 flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-3.5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-sm font-black text-lg shadow-sm shrink-0 bg-brand-50 text-brand-dark border border-brand-border">
+          <div className="rounded-sm border border-brand-border bg-white shadow-sm px-4 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2.5 shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-10 w-10 items-center justify-center rounded-sm font-black text-base shadow-xs shrink-0 bg-brand-50 text-brand-dark border border-brand-border">
                 {(customerName || "G")[0].toUpperCase()}
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-gray-600 text-base">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-extrabold text-gray-700 text-sm sm:text-base truncate">
                     {customerName ? `Welcome back, ${customerName}!` : "Welcome, Valued Customer!"}
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-sm text-xs font-bold bg-brand-50 text-brand-dark border border-brand-border">
+                  <span className="px-2 py-0.5 rounded-sm text-[11px] font-bold bg-brand-50 text-brand-dark border border-brand-border">
                     {customerTier}
                   </span>
                 </div>
-                <div className="text-xs text-gray-400 font-medium mt-0.5 flex items-center gap-2">
-                  {customerPoints > 0 && <span className="flex items-center gap-1"><Award size={10} className="text-brand-primary" /> {customerPoints} Points Balance</span>}
+                <div className="text-xs text-gray-500 font-medium mt-0.5 flex items-center gap-2 flex-wrap">
+                  {customerPoints > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Award size={11} className="text-brand-primary" /> {customerPoints} Points Balance
+                    </span>
+                  )}
                   {customerPoints > 0 && <span>•</span>}
                   <span>Cashier: {cashierName}</span>
                   <span>•</span>
@@ -404,41 +351,36 @@ export default function RetailCustomerDisplayPage() {
             </div>
 
             {hasItems ? (
-              <span className="px-3 py-1 rounded-sm text-xs font-black uppercase tracking-wider bg-brand-50 text-brand-dark border border-brand-border">
+              <span className="px-3 py-1 rounded-sm text-xs font-black uppercase tracking-wider bg-brand-50 text-brand-dark border border-brand-border shrink-0">
                 🟢 Live Order Active
               </span>
             ) : (
-              <span className="px-3 py-1 rounded-sm text-xs font-bold bg-slate-100 text-gray-500 border border-slate-200">
+              <span className="px-3 py-1 rounded-sm text-xs font-bold bg-slate-100 text-gray-500 border border-slate-200 shrink-0">
                 Waiting for scan…
               </span>
             )}
           </div>
 
-          {/* ── 3. TWO-PANEL MAIN CONTENT ── */}
-          <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
-
-            {/* ── LEFT PANEL: Basket Items (col-span-7) ── */}
-            <div className="col-span-12 lg:col-span-7 rounded-sm border border-brand-border bg-white shadow-sm p-5 flex flex-col min-h-0 overflow-hidden">
-              {/* Header */}
-              <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 shrink-0">
+          <div className="grid grid-cols-12 gap-3 sm:gap-4 flex-1 min-h-0">
+            <div className="col-span-12 lg:col-span-7 rounded-sm border border-brand-border bg-white shadow-sm p-4 flex flex-col min-h-[300px] lg:min-h-0 overflow-hidden">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-sm border shrink-0 bg-brand-50 border-brand-border text-brand-primary shadow-sm">
-                    <ShoppingCart size={18} />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-sm border shrink-0 bg-brand-50 border-brand-border text-brand-primary shadow-xs">
+                    <ShoppingCart size={17} />
                   </div>
                   <div>
-                    <h2 className="font-extrabold text-gray-600 text-base leading-none">Basket Items</h2>
+                    <h2 className="font-extrabold text-gray-700 text-sm sm:text-base leading-none">Basket Items</h2>
                     <p className="text-xs text-gray-400 font-medium mt-1">Live scan itemization</p>
                   </div>
                 </div>
-                <span className="px-3.5 py-1 rounded-sm text-xs font-extrabold bg-brand-50 text-brand-dark border border-brand-border">
+                <span className="px-3 py-1 rounded-sm text-xs font-extrabold bg-brand-50 text-brand-dark border border-brand-border">
                   {lines.reduce((s, l) => s + l.qty, 0)} {lines.reduce((s, l) => s + l.qty, 0) === 1 ? "Item" : "Items"}
                 </span>
               </div>
 
-              {/* Column headers */}
               {hasItems && (
-                <div className="flex items-center gap-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400 shrink-0 border-b border-slate-50">
-                  <span className="w-14 shrink-0">Item</span>
+                <div className="hidden sm:flex items-center gap-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400 shrink-0 border-b border-slate-100">
+                  <span className="w-12 shrink-0">Item</span>
                   <span className="flex-1">Name</span>
                   <span className="w-16 text-center">Price</span>
                   <span className="w-10 text-center">Qty</span>
@@ -446,34 +388,25 @@ export default function RetailCustomerDisplayPage() {
                 </div>
               )}
 
-              {/* Scrollable Items */}
-              <div className="flex-1 overflow-y-auto pt-3 pr-1 space-y-2.5">
+              <div className="flex-1 overflow-y-auto pt-2.5 pr-1 space-y-2">
                 {hasItems ? (
                   lines.map((line, idx) => {
                     const lineTotal = (line.unitPrice - (line.discountAmount ?? 0)) * line.qty;
                     return (
                       <div
                         key={line.sku || `${line.name}-${idx}`}
-                        className="flex items-center gap-3 p-3 rounded-sm border border-slate-100 bg-white shadow-sm hover:border-brand-border transition"
+                        className="flex items-center gap-3 p-2.5 sm:p-3 rounded-sm border border-slate-100 bg-white shadow-xs hover:border-brand-border transition"
                       >
-                        {/* Product image/emoji */}
-                        {line.image ? (
-                          <img src={line.image} alt={line.name} className="h-14 w-14 rounded-sm object-cover border border-slate-200 shrink-0" />
-                        ) : (
-                          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-sm border border-brand-border bg-brand-50 text-2xl shadow-sm">
-                            {getProductEmoji(line.name, idx)}
-                          </div>
-                        )}
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border border-brand-border bg-brand-50 text-xl shadow-xs">
+                          {getProductEmoji(line.name, idx)}
+                        </div>
 
-                        {/* Name + SKU + Category */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-bold text-gray-600 text-sm leading-tight truncate">{line.name}</h3>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <h3 className="font-bold text-gray-700 text-sm leading-tight truncate">{line.name}</h3>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
                             {line.sku && (
                               <span className="text-[10px] text-gray-400 font-medium flex items-center gap-0.5">
-                                <Barcode size={8} /> SKU: {line.sku}
+                                <Barcode size={9} /> {line.sku}
                               </span>
                             )}
                             {line.category && (
@@ -489,23 +422,20 @@ export default function RetailCustomerDisplayPage() {
                           </div>
                         </div>
 
-                        {/* Price */}
-                        <div className="w-16 text-center">
+                        <div className="hidden sm:block w-16 text-center shrink-0">
                           <p className="text-xs font-bold text-gray-600 tabular-nums">৳{line.unitPrice.toFixed(2)}</p>
                           <p className="text-[9px] text-gray-400">each</p>
                         </div>
 
-                        {/* Qty badge */}
-                        <div className="w-10 flex justify-center">
+                        <div className="w-10 flex justify-center shrink-0">
                           <span className="px-2 py-0.5 rounded-sm bg-slate-900 text-white font-black text-xs">
                             {line.qty}x
                           </span>
                         </div>
 
-                        {/* Line total */}
                         <div className="w-20 text-right shrink-0">
-                          <span className="font-black text-base text-gray-600 tracking-tight tabular-nums">
-                            {fmt(lineTotal)}
+                          <span className="font-black text-sm sm:text-base text-gray-700 tracking-tight tabular-nums">
+                            {fmtDisplayMoney(lineTotal)}
                           </span>
                           <p className="text-[9px] font-black text-gray-400 tracking-widest uppercase mt-0.5">TOTAL</p>
                         </div>
@@ -513,10 +443,9 @@ export default function RetailCustomerDisplayPage() {
                     );
                   })
                 ) : (
-                  /* Empty State */
-                  <div className="flex flex-col items-center justify-center h-full min-h-[260px] text-center p-6 text-gray-400">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-sm bg-brand-50 border border-brand-border text-brand-primary mb-3 shadow-sm">
-                      <ShoppingCart size={30} />
+                  <div className="flex flex-col items-center justify-center h-full min-h-[220px] text-center p-6 text-gray-400">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-sm bg-brand-50 border border-brand-border text-brand-primary mb-3 shadow-xs">
+                      <ShoppingCart size={28} />
                     </div>
                     <h3 className="font-extrabold text-gray-600 text-base">Your Basket is Empty</h3>
                     <p className="text-xs text-gray-400 mt-1 max-w-xs leading-relaxed">
@@ -531,64 +460,57 @@ export default function RetailCustomerDisplayPage() {
               </div>
             </div>
 
-            {/* ── RIGHT PANEL: Order Summary + Payment ── */}
-            <div className="col-span-12 lg:col-span-5 rounded-sm border border-brand-border bg-white shadow-sm p-5 flex flex-col justify-between min-h-0 overflow-y-auto">
+            <div className="col-span-12 lg:col-span-5 rounded-sm border border-brand-border bg-white shadow-sm p-4 flex flex-col justify-between min-h-0 lg:overflow-y-auto">
               <div>
-                {/* Header */}
-                <div className="flex items-center gap-2 pb-3.5 border-b border-slate-100">
-                  <CreditCard size={16} className="text-brand-primary" />
+                <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100">
+                  <CreditCard size={15} className="text-brand-primary" />
                   <span className="text-xs font-black text-gray-500 uppercase tracking-wider">ORDER SUMMARY</span>
                 </div>
 
-                {/* Breakdown */}
-                <div className="py-3.5 space-y-2.5">
+                <div className="py-2.5 space-y-1.5">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500 font-medium">Subtotal</span>
-                    <span className="font-bold text-gray-600 tabular-nums">{fmt(subtotal)}</span>
+                    <span className="font-bold text-gray-700 tabular-nums">{fmtDisplayMoney(subtotal)}</span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-emerald-600 font-semibold">🎁 Discount</span>
-                      <span className="font-bold text-emerald-600 tabular-nums">−{fmt(discount)}</span>
+                      <span className="font-bold text-emerald-600 tabular-nums">−{fmtDisplayMoney(discount)}</span>
                     </div>
                   )}
                   {tax > 0 && (
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-500 font-medium">Tax (15%)</span>
-                      <span className="font-bold text-gray-600 tabular-nums">{fmt(tax)}</span>
+                      <span className="text-gray-500 font-medium">VAT / Tax</span>
+                      <span className="font-bold text-gray-700 tabular-nums">{fmtDisplayMoney(tax)}</span>
                     </div>
                   )}
                 </div>
 
-                {/* Hero Amount Due Card — Solid Retail Teal theme */}
-                <div
-                  className="rounded-sm p-5 text-white shadow-md my-2 bg-brand-primary"
-                >
+                <div className="rounded-sm p-3.5 sm:p-4 text-white shadow-md my-1.5 bg-brand-gradient">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-black uppercase tracking-widest text-white/90">TOTAL PAYABLE</span>
                     <span className="text-xs font-bold text-white/90">BDT (৳)</span>
                   </div>
-                  <div className="text-5xl font-black text-white tracking-tight leading-none mt-2 tabular-nums">
-                    {fmt(total)}
+                  <div className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none mt-1.5 tabular-nums">
+                    {fmtDisplayMoney(total)}
                   </div>
                   {discount > 0 && (
-                    <div className="flex items-center gap-1.5 mt-2 text-emerald-300 text-xs font-bold">
+                    <div className="flex items-center gap-1.5 mt-1.5 text-emerald-200 text-xs font-bold">
                       <Sparkles size={12} />
-                      You save {fmt(discount)} today!
+                      You save {fmtDisplayMoney(discount)} today!
                     </div>
                   )}
                 </div>
 
-                {/* Payment Method Tabs */}
-                <div className="mt-4">
-                  <div className="flex items-center justify-between mb-2.5">
+                <div className="mt-3">
+                  <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-black text-gray-500 uppercase tracking-wider">PAYMENT OPTIONS</span>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-sm bg-brand-50 text-brand-dark border border-brand-border">
                       POS Checkout
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-5 gap-1.5 mb-3">
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 mb-2.5">
                     {(["cash", "card", "qr", "wallet", "split"] as const).map((m) => {
                       const labels: Record<string, string> = { cash: "Cash", card: "Card", qr: "UPI / QR", wallet: "Wallet", split: "Split" };
                       const isActive = selectedPayment === m;
@@ -598,9 +520,9 @@ export default function RetailCustomerDisplayPage() {
                           id={`rcd-tab-${m}`}
                           onClick={() => setSelectedPayment(m)}
                           className={cn(
-                            "py-2 rounded-sm text-xs font-bold transition-all text-center cursor-pointer border",
+                            "py-1.5 rounded-sm text-xs font-bold transition-all text-center cursor-pointer border",
                             isActive
-                              ? "bg-brand-primary text-white border-transparent shadow-sm"
+                              ? "bg-brand-primary text-white border-transparent shadow-xs"
                               : "bg-slate-50 text-gray-600 border-slate-200 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-border"
                           )}
                         >
@@ -610,20 +532,18 @@ export default function RetailCustomerDisplayPage() {
                     })}
                   </div>
 
-                  {/* QR Code */}
-                  <div className="flex flex-col items-center justify-center p-4 rounded-sm border border-brand-border bg-brand-50">
+                  <div className="flex flex-col items-center justify-center p-3 rounded-sm border border-brand-border bg-brand-50/70">
                     <div
-                      className="rounded-sm border border-brand-border bg-white p-3 shadow-sm"
-                      dangerouslySetInnerHTML={{ __html: qrSvg(qrPayload, 155, "#0d9488") }}
+                      className="rounded-sm border border-brand-border bg-white p-2 shadow-xs"
+                      dangerouslySetInnerHTML={{ __html: buildQrSvg(qrPayload, 124, "#0284c7") }}
                     />
-                    <p className="text-xs font-bold text-gray-600 mt-2.5">Scan to Pay with bKash / Nagad</p>
-                    <p className="text-[10px] text-gray-400 font-medium">Instant & Secure Payment</p>
+                    <p className="text-xs font-bold text-gray-700 mt-2">{activePaymentHint.title}</p>
+                    <p className="text-[10px] text-gray-500 font-medium">{activePaymentHint.subtitle}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Bottom notice */}
-              <div className="flex items-center justify-center gap-1.5 pt-3 text-gray-400 text-xs font-medium border-t border-slate-100 mt-3">
+              <div className="flex items-center justify-center gap-1.5 pt-2.5 text-gray-400 text-xs font-medium border-t border-slate-100 mt-2.5">
                 <SmilePlus size={14} className="text-brand-primary" />
                 <span>Thank you for shopping with us!</span>
               </div>

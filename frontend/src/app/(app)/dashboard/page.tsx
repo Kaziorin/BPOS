@@ -5,6 +5,7 @@ import Link from "next/link";
 import { DollarSign, Package, AlertTriangle, Users, Wallet, ArrowRight, ShoppingCart, ChevronDown, BarChart3, Clock, TrendingUp } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { checkRouteEntitlement, getAccessiblePosTerminals } from "@/lib/pos-terminals";
 import { DashboardSummary, TrendPoint } from "@/lib/types";
 import { CustomStatCard } from "@/components/custom/CustomStatCard";
 import { StatusBadge } from "@/components/custom/CustomBadge";
@@ -21,12 +22,17 @@ function useGreeting() {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, subscription } = useAuth();
   const greeting = useGreeting();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [trend, setTrend] = useState<TrendPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [posModalOpen, setPosModalOpen] = useState(false);
+
+  const canAccessBuilder = checkRouteEntitlement("/dashboard/builder", user, subscription).allowed;
+  const canAccessReports = checkRouteEntitlement("/reports", user, subscription).allowed;
+  const accessibleTerminals = getAccessiblePosTerminals(user, subscription);
+  const posButtonLabel = accessibleTerminals.length === 1 ? "POS Terminal" : "POS Terminals";
 
   useEffect(() => {
     Promise.all([
@@ -126,24 +132,28 @@ export default function DashboardPage() {
 
         {/* Action buttons: Exact tactile gradient button pattern matching Dashboard Builder */}
         <div className="relative z-10 flex items-center gap-2 sm:gap-2.5 self-start sm:self-center flex-wrap">
-          <Link href="/dashboard/builder">
-            <CustomButton
-              variant="primary"
-              size="md"
-              leftIcon={<BarChart3 size={15} strokeWidth={2.5} className="shrink-0 text-white" />}
-            >
-              Dashboard Builder
-            </CustomButton>
-          </Link>
-          <Link href="/reports">
-            <CustomButton
-              variant="primary"
-              size="md"
-              leftIcon={<TrendingUp size={15} strokeWidth={2.5} className="shrink-0 text-white" />}
-            >
-              Reports & Analytics
-            </CustomButton>
-          </Link>
+          {canAccessBuilder && (
+            <Link href="/dashboard/builder">
+              <CustomButton
+                variant="primary"
+                size="md"
+                leftIcon={<BarChart3 size={15} strokeWidth={2.5} className="shrink-0 text-white" />}
+              >
+                Dashboard Builder
+              </CustomButton>
+            </Link>
+          )}
+          {canAccessReports && (
+            <Link href="/reports">
+              <CustomButton
+                variant="primary"
+                size="md"
+                leftIcon={<TrendingUp size={15} strokeWidth={2.5} className="shrink-0 text-white" />}
+              >
+                Reports & Analytics
+              </CustomButton>
+            </Link>
+          )}
           <CustomButton
             variant="primary"
             size="md"
@@ -151,7 +161,7 @@ export default function DashboardPage() {
             leftIcon={<ShoppingCart size={15} strokeWidth={2.5} className="shrink-0 text-white" />}
             rightIcon={<ChevronDown size={14} className="opacity-90 shrink-0 text-white" />}
           >
-            POS Terminals
+            {posButtonLabel}
           </CustomButton>
         </div>
       </div>

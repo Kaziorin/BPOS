@@ -14,7 +14,6 @@ import {
   RefreshCw,
   Copy,
   Check,
-  AlertCircle,
   LayoutGrid,
   List,
   Store,
@@ -25,7 +24,6 @@ import { api } from "@/lib/api";
 import {
   CustomBreadcrumb,
   CustomButton,
-  CustomInput,
   CustomModal,
   ConfirmModal,
 } from "@/components/custom";
@@ -203,14 +201,14 @@ export default function HoldsPage() {
       <CustomBreadcrumb
         title="Held Sales & Parked Carts"
         description="Parked customer transactions across all POS registers — review item snapshots, calculate totals, and resume checkout instantly"
-        icon={<PauseCircle className="w-4 h-4 text-sky-600" />}
+        icon={<PauseCircle size={15} />}
         items={[
           { label: "Retail", href: "/retail-pos" },
           { label: "POS Terminal", href: "/retail-pos" },
           { label: "Held Sales" },
         ]}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {toastMessage && (
               <span className="text-xs font-semibold px-3 py-1.5 rounded-sm bg-emerald-50 text-emerald-700 border border-emerald-200">
                 {toastMessage}
@@ -238,46 +236,46 @@ export default function HoldsPage() {
       />
 
       {/* ── Metric Gauges (Blue Oceans Light Theme) ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="p-4 rounded-sm bg-white border border-slate-200/90 shadow-2xs space-y-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="p-4 rounded-sm bg-white border border-brand-border shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-[10px] font-bold uppercase tracking-wider">Parked Carts</span>
             <PauseCircle size={15} className="text-amber-500" />
           </div>
-          <div className="text-2xl font-black text-slate-800 tabular-nums">
+          <div className="text-2xl font-black text-brand-dark tabular-nums">
             {metrics.totalCarts}
           </div>
           <p className="text-[11px] text-slate-400">Transactions on hold</p>
         </div>
 
-        <div className="p-4 rounded-sm bg-white border border-slate-200/90 shadow-2xs space-y-1">
+        <div className="p-4 rounded-sm bg-white border border-brand-border shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-[10px] font-bold uppercase tracking-wider">Total Parked Value</span>
-            <Store size={15} className="text-sky-600" />
+            <Store size={15} className="text-brand-primary" />
           </div>
-          <div className="text-2xl font-black text-slate-800 tabular-nums">
+          <div className="text-2xl font-black text-brand-dark tabular-nums">
             {formatMoney(metrics.totalValue)}
           </div>
           <p className="text-[11px] text-emerald-600 font-semibold">Active merchandise value</p>
         </div>
 
-        <div className="p-4 rounded-sm bg-white border border-slate-200/90 shadow-2xs space-y-1">
+        <div className="p-4 rounded-sm bg-white border border-brand-border shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-[10px] font-bold uppercase tracking-wider">Total Units Parked</span>
-            <Package size={15} className="text-indigo-500" />
+            <Package size={15} className="text-brand-primary" />
           </div>
-          <div className="text-2xl font-black text-slate-800 tabular-nums">
+          <div className="text-2xl font-black text-brand-dark tabular-nums">
             {metrics.totalItems}
           </div>
           <p className="text-[11px] text-slate-400">Total items across carts</p>
         </div>
 
-        <div className="p-4 rounded-sm bg-white border border-slate-200/90 shadow-2xs space-y-1">
+        <div className="p-4 rounded-sm bg-white border border-brand-border shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-[10px] font-bold uppercase tracking-wider">Oldest Parked Cart</span>
             <Clock size={15} className="text-slate-400" />
           </div>
-          <div className="text-2xl font-black text-slate-800 tabular-nums">
+          <div className="text-2xl font-black text-brand-dark tabular-nums">
             {metrics.oldestDuration}
           </div>
           <p className="text-[11px] text-slate-400">Age of oldest pending cart</p>
@@ -285,33 +283,35 @@ export default function HoldsPage() {
       </div>
 
       {/* ── Toolbar: Search & View Modes ── */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-white border border-slate-200/90 rounded-sm shadow-2xs">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-white border border-brand-border rounded-sm shadow-2xs">
         <div className="relative w-full sm:w-80">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-primary" />
           <input
             type="text"
             placeholder="Search hold #, item name, note..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-sm border border-slate-200 focus:outline-none focus:border-sky-500 transition text-slate-700 placeholder:text-slate-400 bg-slate-50/50"
+            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-sm border border-brand-border focus:outline-none focus:border-brand-primary transition text-slate-700 placeholder:text-slate-400 bg-slate-50/50"
           />
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-          <div className="inline-flex rounded-sm border border-slate-200 p-0.5 bg-slate-50">
+          <div className="inline-flex rounded-sm border border-brand-border p-0.5 bg-slate-50">
             <button
+              type="button"
               onClick={() => setViewMode("grid")}
-              className={`p-1.5 rounded-xs transition cursor-pointer ${
-                viewMode === "grid" ? "bg-white text-sky-600 shadow-2xs font-bold" : "text-slate-400 hover:text-slate-600"
+              className={`p-1.5 rounded-sm transition cursor-pointer ${
+                viewMode === "grid" ? "bg-white text-brand-primary shadow-2xs font-bold" : "text-slate-400 hover:text-slate-600"
               }`}
               title="Grid View"
             >
               <LayoutGrid size={14} />
             </button>
             <button
+              type="button"
               onClick={() => setViewMode("table")}
-              className={`p-1.5 rounded-xs transition cursor-pointer ${
-                viewMode === "table" ? "bg-white text-sky-600 shadow-2xs font-bold" : "text-slate-400 hover:text-slate-600"
+              className={`p-1.5 rounded-sm transition cursor-pointer ${
+                viewMode === "table" ? "bg-white text-brand-primary shadow-2xs font-bold" : "text-slate-400 hover:text-slate-600"
               }`}
               title="Table View"
             >
@@ -365,19 +365,20 @@ export default function HoldsPage() {
             return (
               <div
                 key={h.id}
-                className="bg-white rounded-sm border border-slate-200/90 p-5 shadow-2xs hover:shadow-sm hover:border-slate-300 transition flex flex-col justify-between space-y-4 group"
+                className="bg-white rounded-sm border border-brand-border p-5 shadow-2xs hover:shadow-sm hover:border-brand-primary transition flex flex-col justify-between space-y-4 group"
               >
                 {/* Header */}
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="font-mono text-xs font-bold text-slate-800 tracking-tight">
+                        <span className="font-mono text-xs font-bold text-brand-dark tracking-tight">
                           {h.holdNo}
                         </span>
                         <button
+                          type="button"
                           onClick={() => copyHoldNo(h.holdNo, h.id)}
-                          className="text-slate-400 hover:text-slate-600 transition"
+                          className="text-slate-400 hover:text-brand-primary transition cursor-pointer"
                           title="Copy Hold #"
                         >
                           {isCopied ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
@@ -399,13 +400,13 @@ export default function HoldsPage() {
                   {/* Customer / Note details */}
                   <div className="space-y-1 pt-1 border-t border-slate-100">
                     <div className="flex items-center gap-1.5 text-xs text-slate-600">
-                      <User size={12} className="text-slate-400 shrink-0" />
+                      <User size={12} className="text-brand-primary shrink-0" />
                       <span className="font-medium truncate">
                         {h.customerId ? `Customer ID: ${h.customerId}` : "Walk-in Customer"}
                       </span>
                     </div>
                     {h.note && (
-                      <div className="flex items-start gap-1.5 text-xs text-slate-500 bg-slate-50 p-2 rounded-xs border border-slate-100">
+                      <div className="flex items-start gap-1.5 text-xs text-slate-500 bg-slate-50 p-2 rounded-sm border border-slate-100">
                         <FileText size={12} className="text-slate-400 mt-0.5 shrink-0" />
                         <span className="italic line-clamp-2">{h.note}</span>
                       </div>
@@ -418,12 +419,12 @@ export default function HoldsPage() {
                       <span>Items Breakdown</span>
                       <span>{itemCount} units</span>
                     </div>
-                    <div className="space-y-1 divide-y divide-slate-50 bg-slate-50/60 p-2.5 rounded-sm border border-slate-100 text-xs">
+                    <div className="space-y-1 divide-y divide-slate-100 bg-slate-50/70 p-2.5 rounded-sm border border-slate-100 text-xs">
                       {h.cartSnapshot.slice(0, 3).map((item, idx) => {
                         const lineTotal = item.lineTotal || (item.qty || 1) * (item.unitPrice || 0);
                         return (
-                          <div key={idx} className="flex justify-between items-center py-1 first:pt-0 last:pb-0">
-                            <span className="font-medium text-slate-700 truncate max-w-[170px]" title={item.name}>
+                          <div key={idx} className="flex justify-between items-center gap-2 py-1 first:pt-0 last:pb-0">
+                            <span className="font-medium text-slate-700 truncate min-w-0 flex-1" title={item.name}>
                               {item.name}
                             </span>
                             <div className="text-right tabular-nums text-slate-600 font-semibold shrink-0">
@@ -434,7 +435,7 @@ export default function HoldsPage() {
                         );
                       })}
                       {h.cartSnapshot.length > 3 && (
-                        <p className="text-[11px] text-sky-600 font-semibold pt-1 text-center">
+                        <p className="text-[11px] text-brand-primary font-semibold pt-1 text-center">
                           +{h.cartSnapshot.length - 3} more items in cart
                         </p>
                       )}
@@ -446,7 +447,7 @@ export default function HoldsPage() {
                 <div className="space-y-3 pt-3 border-t border-slate-100">
                   <div className="flex justify-between items-baseline">
                     <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Cart Amount</span>
-                    <span className="text-base font-black text-slate-800 tabular-nums">
+                    <span className="text-base font-black text-brand-dark tabular-nums">
                       {formatMoney(total)}
                     </span>
                   </div>
@@ -462,16 +463,18 @@ export default function HoldsPage() {
                       Resume in POS
                     </CustomButton>
                     <button
+                      type="button"
                       onClick={() => setSelectedHold(h)}
-                      className="h-8 px-2.5 rounded-sm border border-slate-200 text-slate-600 hover:bg-slate-50 transition cursor-pointer flex items-center justify-center text-xs font-semibold"
+                      className="h-9 px-3 rounded-sm border border-brand-border text-brand-dark hover:bg-brand-50 transition cursor-pointer flex items-center justify-center text-xs font-semibold"
                       title="Inspect Cart Details"
                     >
                       <Eye size={13} className="mr-1" />
                       View
                     </button>
                     <button
+                      type="button"
                       onClick={() => setHoldToDelete(h)}
-                      className="h-8 w-8 rounded-sm border border-slate-200 text-slate-400 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition cursor-pointer flex items-center justify-center shrink-0"
+                      className="h-9 w-9 rounded-sm border border-slate-200 text-slate-400 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition cursor-pointer flex items-center justify-center shrink-0"
                       title="Discard Cart"
                     >
                       <Trash2 size={13} />
@@ -541,18 +544,20 @@ export default function HoldsPage() {
                             Resume
                           </CustomButton>
                           <button
+                            type="button"
                             onClick={() => setSelectedHold(h)}
-                            className="p-1.5 rounded-sm border border-slate-200 text-slate-500 hover:bg-slate-100 transition"
+                            className="h-9 w-9 rounded-sm border border-brand-border text-brand-primary hover:bg-brand-50 transition cursor-pointer inline-flex items-center justify-center"
                             title="View items"
                           >
-                            <Eye size={13} />
+                            <Eye size={14} />
                           </button>
                           <button
+                            type="button"
                             onClick={() => setHoldToDelete(h)}
-                            className="p-1.5 rounded-sm border border-slate-200 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition"
+                            className="h-9 w-9 rounded-sm border border-slate-200 text-slate-400 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition cursor-pointer inline-flex items-center justify-center"
                             title="Discard"
                           >
-                            <Trash2 size={13} />
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </td>
@@ -675,10 +680,10 @@ export default function HoldsPage() {
         isOpen={!!holdToDelete}
         onClose={() => setHoldToDelete(null)}
         onConfirm={confirmDeleteHold}
+        type="DANGER"
         title="Discard Parked Cart?"
         message={`Are you sure you want to discard held cart "${holdToDelete?.holdNo}"? This action cannot be undone.`}
         confirmText="Discard Cart"
-        confirmVariant="danger"
         loading={deleting}
       />
     </div>

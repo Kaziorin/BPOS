@@ -15,13 +15,18 @@ import {
   ShieldCheck,
   Menu,
   Sparkles,
+  Crown,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/cn";
 import { CommandPalette } from "./CommandPalette";
 import { PosTerminalModal } from "./PosTerminalModal";
-import { getAccessiblePosTerminals, getTenantEntitlementContext } from "@/lib/pos-terminals";
+import {
+  checkRouteEntitlement,
+  getAccessiblePosTerminals,
+  getTenantEntitlementContext,
+} from "@/lib/pos-terminals";
 
 export function Header() {
   const { user, subscription, logout } = useAuth();
@@ -34,6 +39,7 @@ export function Header() {
   const Logo = siteConfig.logoIcon;
   const entCtx = getTenantEntitlementContext(user, subscription);
   const accessibleTerminals = getAccessiblePosTerminals(user, subscription);
+  const canAccessReports = checkRouteEntitlement("/reports", user, subscription).allowed;
   const terminalBadge =
     accessibleTerminals.length === 1
       ? entCtx.businessType
@@ -263,14 +269,16 @@ export function Header() {
                     <Settings size={14} className="text-brand-primary" />
                     Store Settings
                   </Link>
-                  <Link
-                    href="/reports"
-                    onClick={() => setOpen(false)}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition"
-                  >
-                    <FileText size={14} className="text-brand-primary" />
-                    Reports & Analytics
-                  </Link>
+                  {canAccessReports && (
+                    <Link
+                      href="/reports"
+                      onClick={() => setOpen(false)}
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition"
+                    >
+                      <FileText size={14} className="text-brand-primary" />
+                      Reports & Analytics
+                    </Link>
+                  )}
                   <Link
                     href="/ai"
                     onClick={() => setOpen(false)}
@@ -489,14 +497,16 @@ export function Header() {
                       Store Settings
                     </Link>
 
-                    <Link
-                      href="/reports"
-                      onClick={() => setOpen(false)}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition"
-                    >
-                      <FileText size={14} className="text-brand-primary" />
-                      Reports & Analytics
-                    </Link>
+                    {canAccessReports && (
+                      <Link
+                        href="/reports"
+                        onClick={() => setOpen(false)}
+                        className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition"
+                      >
+                        <FileText size={14} className="text-brand-primary" />
+                        Reports & Analytics
+                      </Link>
+                    )}
 
                     <button
                       onClick={() => {

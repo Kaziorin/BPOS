@@ -335,7 +335,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
           { label: "Self-Checkout Kiosk", href: "/retail-pos/self-checkout", icon: Monitor, requiredPlan: "BUSINESS" },
           { label: "Customer Facing Display", href: "/customer-display", icon: Monitor },
           { label: "Retail Customer Display", href: "/retail-pos/customer-display", icon: Monitor },
-          { label: "Restaurant Customer Display", href: "/restaurant/customer-display", icon: Monitor },
+          { label: "Restaurant Customer Display", href: "/restaurant/customer-display", icon: Monitor, requiredAddon: "restaurant" },
         ],
       },
     ],
@@ -867,10 +867,20 @@ export function useDynamicNav() {
       userBusinessType === "RESTAURANT" ||
       enabledModules.has("restaurant") ||
       enabledModules.has("restaurant_kds");
+    const hasRetailDisplay =
+      userBusinessType !== "RESTAURANT" ||
+      enabledModules.has("retail") ||
+      enabledModules.has("grocery") ||
+      enabledModules.has("wholesale");
+    const hasAppointmentsAccess =
+      ["SALON", "REPAIR", "RESTAURANT"].includes(userBusinessType) ||
+      enabledModules.has("salon") ||
+      enabledModules.has("repair") ||
+      enabledModules.has("appointments");
     const accessibleTerminals = getAccessiblePosTerminals(user, subscription);
     const accessibleTerminalMap = new Map(accessibleTerminals.map((t) => [t.href, t]));
 
-    return DEFAULT_MASTER_NAV.map((group) => {
+    return DEFAULT_MASTER_NAV.filter((group) => group.title !== "SaaS & Platform Core").map((group) => {
       const groupRequiredTier = group.requiredPlan ? PLAN_TIER_RANK[group.requiredPlan] || 1 : 1;
       const groupAddonMissing =
         group.requiredAddon &&
@@ -887,7 +897,7 @@ export function useDynamicNav() {
           : "Advance Plan"
         : undefined;
 
-      // Strictly filter Industry Solutions to the tenant's business vertical + enabled add-ons
+      // Strictly filter Industry Solutions & vertical-only Sales items to the tenant's vertical + enabled add-ons
       let rawItems = group.items;
       if (group.title === "Industry Solutions") {
         rawItems = group.items.filter((item) => {
@@ -903,6 +913,8 @@ export function useDynamicNav() {
           }
           return false;
         });
+      } else if (group.title === "Sales & Customers") {
+        rawItems = group.items.filter((item) => item.href !== "/appointments" || hasAppointmentsAccess);
       }
 
       const items = rawItems.map((item) => {
@@ -939,11 +951,11 @@ export function useDynamicNav() {
         }
 
         if (item.label === "Held Carts & Kiosk Tools") {
-          rawChildren = rawChildren.map((c) =>
-            c.label === "Customer Display Screen" && !hasRestaurant
-              ? { ...c, href: "/retail-pos/customer-display" }
-              : c
-          );
+          rawChildren = rawChildren.filter((c) => {
+            if (c.href === "/restaurant/customer-display") return hasRestaurant;
+            if (c.href === "/retail-pos/customer-display") return hasRetailDisplay;
+            return true;
+          });
         }
 
         const children = rawChildren.map((child) => {

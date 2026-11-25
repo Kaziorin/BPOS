@@ -84,7 +84,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   );
 
   // POS, KDS Kitchen Display & Customer/Patient Display screens are dedicated full-screen applications without sidebar/header layout chrome
-  const isPosPage = pathname?.endsWith("/pos") || pathname?.endsWith("/retail-pos") || pathname?.includes("/retail-pos/") || pathname?.includes("/customer-display") || pathname?.includes("/patient-display") || pathname === "/restaurant/kitchen" || pathname?.includes("/kitchen");
+  const isPosPage =
+    pathname?.endsWith("/pos") ||
+    pathname === "/retail-pos" ||
+    pathname?.endsWith("/customer-display") ||
+    pathname?.endsWith("/patient-display") ||
+    pathname === "/restaurant/kitchen" ||
+    pathname?.includes("/kitchen");
 
   if (isPosPage) {
     return (

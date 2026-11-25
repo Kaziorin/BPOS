@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Search,
   ShoppingCart,
   Barcode,
   RotateCcw,
@@ -13,21 +12,15 @@ import {
   CreditCard,
   Banknote,
   Smartphone,
-  CheckCircle2,
   AlertCircle,
   HelpCircle,
-  Package,
   ArrowRight,
   Store,
   QrCode,
   ShieldAlert,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import {
-  CustomBreadcrumb,
-  CustomButton,
-  CustomModal,
-} from "@/components/custom";
+import { CustomBreadcrumb, CustomButton, CustomModal } from "@/components/custom";
 import { ReceiptModal } from "../ReceiptModal";
 import type { CartItem, PaymentLine, SaleResult } from "../pos-types";
 import { toast } from "react-toastify";
@@ -59,6 +52,32 @@ function formatMoney(amount: number): string {
   return `৳${amount.toLocaleString("en-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function unwrapProducts(res: unknown): Product[] {
+  const obj = res as { data?: unknown } | unknown[];
+  const list = Array.isArray(obj)
+    ? obj
+    : (obj as { data?: { data?: unknown[] } })?.data?.data ||
+      (obj as { data?: unknown[] })?.data ||
+      [];
+  if (!Array.isArray(list)) return [];
+  return list.map((raw) => {
+    const item = raw as Record<string, unknown>;
+    const unitRaw = item.unit;
+    const unitStr =
+      typeof unitRaw === "string"
+        ? unitRaw
+        : ((unitRaw as { name?: string } | null)?.name ?? "pcs");
+    return {
+      id: String(item.id || ""),
+      name: String(item.name || "Unnamed Product"),
+      sku: String(item.sku || ""),
+      barcode: item.barcode ? String(item.barcode) : null,
+      sellingPrice: String(item.sellingPrice ?? item.selling_price ?? item.price ?? 0),
+      unit: unitStr,
+    };
+  });
+}
+
 export default function SelfCheckoutPage() {
   const router = useRouter();
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
@@ -66,7 +85,6 @@ export default function SelfCheckoutPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedMethod, setSelectedMethod] = useState<"CASH" | "CARD" | "BKASH" | "NAGAD">("CASH");
-  const [payments, setPayments] = useState<PaymentLine[]>([{ method: "CASH", amount: 0 }]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SaleResult | null>(null);
@@ -74,18 +92,33 @@ export default function SelfCheckoutPage() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    api.get<TenantInfo>("/api/v1/tenant").then(setTenantInfo).catch(() => {});
+    api
+      .get<Record<string, unknown>>("/api/v1/tenant")
+      .then((res) => {
+        const payload = ((res?.data as Record<string, unknown>) || res) as {
+          branch?: { id: string; name?: string };
+          branches?: { id: string; name?: string }[];
+          warehouse?: { id: string };
+          warehouses?: { id: string }[];
+        };
+        setTenantInfo({
+          branch: payload?.branch || payload?.branches?.[0] || null,
+          warehouse: payload?.warehouse || payload?.warehouses?.[0] || null,
+        });
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
+    const trimmed = search.trim();
     const t = setTimeout(() => {
-      if (!search.trim()) {
+      if (!trimmed) {
         setProducts([]);
         return;
       }
       api
-        .get<Product[]>(`/products?search=${encodeURIComponent(search.trim())}`)
-        .then(setProducts)
+        .get<unknown>(`/api/v1/products?search=${encodeURIComponent(trimmed)}&limit=12`)
+        .then((res) => setProducts(unwrapProducts(res)))
         .catch(() => {});
     }, 200);
     return () => clearTimeout(t);
@@ -93,10 +126,10 @@ export default function SelfCheckoutPage() {
 
   const subtotal = useMemo(() => cart.reduce((s, i) => s + i.lineTotal, 0), [cart]);
   const total = subtotal;
-
-  useEffect(() => {
-    setPayments([{ method: selectedMethod, amount: total }]);
-  }, [total, selectedMethod]);
+  const payments: PaymentLine[] = useMemo(
+    () => [{ method: selectedMethod, amount: total }],
+    [selectedMethod, total]
+  );
 
   function addProduct(p: Product) {
     setCart((prev) => {
@@ -121,6 +154,7 @@ export default function SelfCheckoutPage() {
       ];
     });
     setSearch("");
+    setProducts([]);
     searchRef.current?.focus();
     playScanSuccessBeep();
   }
@@ -128,7 +162,10 @@ export default function SelfCheckoutPage() {
   function handleSearchKey(e: React.KeyboardEvent) {
     if (e.key === "Enter" && search.trim()) {
       const match = products.find(
-        (p) => p.barcode === search.trim() || p.sku === search.trim() || p.name.toLowerCase().includes(search.toLowerCase().trim())
+        (p) =>
+          p.barcode === search.trim() ||
+          p.sku === search.trim() ||
+          p.name.toLowerCase().includes(search.toLowerCase().trim())
       );
       if (match) {
         addProduct(match);
@@ -153,19 +190,11 @@ export default function SelfCheckoutPage() {
       }
 
       try {
-        const res: any = await api.get(`/api/v1/products?search=${encodeURIComponent(code.trim())}&limit=1`);
-        const item = res?.data?.data?.[0] || res?.data?.[0] || (Array.isArray(res) ? res[0] : null);
-        if (item) {
-          const mapped: Product = {
-            id: item.id,
-            name: item.name,
-            sku: item.sku || "",
-            barcode: item.barcode || null,
-            sellingPrice: String(item.sellingPrice || item.selling_price || item.price || 0),
-            unit: item.unit || "pcs",
-          };
-          addProduct(mapped);
-          toast.success(`Scanned: ${mapped.name}`);
+        const res = await api.get<unknown>(`/api/v1/products?search=${encodeURIComponent(code.trim())}&limit=1`);
+        const first = unwrapProducts(res)[0];
+        if (first) {
+          addProduct(first);
+          toast.success(`Scanned: ${first.name}`);
           return;
         }
       } catch {}
@@ -199,17 +228,19 @@ export default function SelfCheckoutPage() {
     setError(null);
     setSubmitting(true);
     try {
-      const res = await api.post<SaleResult>("/api/v1/pos/confirm", {
+      const rawRes = await api.post<Record<string, unknown>>("/api/v1/pos/confirm", {
         branchId: tenantInfo?.branch?.id,
         warehouseId: tenantInfo?.warehouse?.id,
         items: cart,
         payments,
         selfCheckout: true,
       });
-      setResult(res);
+      const saleData = ((rawRes?.data as SaleResult) || rawRes) as SaleResult;
+      setResult(saleData);
       playScanSuccessBeep();
-    } catch (err: any) {
-      setError(err?.message || "Checkout transaction failed. Please request attendant assistance.");
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message;
+      setError(msg || "Checkout transaction failed. Please request attendant assistance.");
       playScanErrorBeep();
     } finally {
       setSubmitting(false);
@@ -219,7 +250,6 @@ export default function SelfCheckoutPage() {
   function resetSale() {
     setCart([]);
     setSelectedMethod("CASH");
-    setPayments([{ method: "CASH", amount: 0 }]);
     setResult(null);
     setError(null);
     searchRef.current?.focus();
@@ -241,26 +271,26 @@ export default function SelfCheckoutPage() {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6 animate-in fade-in duration-200">
-      {/* ── Breadcrumb & Top Bar ── */}
+    <div className="w-full space-y-6 animate-in fade-in duration-200">
       <CustomBreadcrumb
         title="Self-Service Express Checkout"
         description="Autonomous customer kiosk — scan items, verify totals, and complete digital or cash payment"
-        icon={<Store className="w-4 h-4 text-sky-600" />}
+        icon={<Store size={15} />}
         items={[
           { label: "Retail", href: "/retail-pos" },
           { label: "POS Terminal", href: "/retail-pos" },
           { label: "Self Checkout Kiosk" },
         ]}
         actions={
-          <div className="flex items-center gap-2">
-            <button
+          <div className="flex flex-wrap items-center gap-2">
+            <CustomButton
+              variant="outline"
+              size="sm"
+              icon={HelpCircle}
               onClick={() => setShowHelpModal(true)}
-              className="px-3 py-1.5 rounded-sm border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-600 flex items-center gap-1.5 transition cursor-pointer"
             >
-              <HelpCircle size={14} className="text-amber-500" />
-              <span>Call Attendant</span>
-            </button>
+              Call Attendant
+            </CustomButton>
             <CustomButton
               variant="outline"
               size="sm"
@@ -271,7 +301,7 @@ export default function SelfCheckoutPage() {
               Start Over
             </CustomButton>
             <CustomButton
-              variant="secondary"
+              variant="primary"
               size="sm"
               onClick={() => router.push("/retail-pos")}
             >
@@ -281,17 +311,14 @@ export default function SelfCheckoutPage() {
         }
       />
 
-      {/* ── Main Kiosk 2-Column Interface ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Scanner & Cart List (7 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         <div className="lg:col-span-7 space-y-4">
-          {/* Scanner Input Bar */}
-          <div className="bg-white p-5 rounded-sm border border-slate-200/90 shadow-2xs space-y-2">
+          <div className="bg-white p-5 rounded-sm border border-brand-border shadow-2xs space-y-2">
             <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500">
               Kiosk Barcode Scanner
             </label>
             <div className="relative">
-              <Barcode className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Barcode className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-primary" />
               <input
                 ref={searchRef}
                 autoFocus
@@ -300,10 +327,10 @@ export default function SelfCheckoutPage() {
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={handleSearchKey}
                 placeholder="Scan item barcode or search catalog..."
-                className="w-full pl-10 pr-4 py-3 text-sm rounded-sm border border-slate-300 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition text-slate-800 placeholder:text-slate-400 bg-white"
+                className="w-full pl-10 pr-4 py-2.5 text-sm rounded-sm border border-brand-border focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-border/40 transition text-slate-800 placeholder:text-slate-400 bg-white"
               />
             </div>
-            <div className="flex items-center justify-between text-[11px] text-slate-400">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 Hold barcode 2 inches from laser reader
@@ -312,24 +339,24 @@ export default function SelfCheckoutPage() {
             </div>
           </div>
 
-          {/* Quick Search Results Grid (when typing) */}
           {products.length > 0 && (
-            <div className="bg-white p-4 rounded-sm border border-slate-200/90 shadow-2xs space-y-2">
+            <div className="bg-white p-4 rounded-sm border border-brand-border shadow-2xs space-y-2">
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Matching Catalog Products
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {products.map((p) => (
                   <button
+                    type="button"
                     key={p.id}
                     onClick={() => addProduct(p)}
-                    className="p-3 rounded-sm border border-slate-200 hover:border-sky-400 hover:bg-sky-50/50 text-left transition flex items-center justify-between gap-2 cursor-pointer bg-white"
+                    className="p-3 rounded-sm border border-slate-200 hover:border-brand-primary hover:bg-brand-50/50 text-left transition flex items-center justify-between gap-2 cursor-pointer bg-white"
                   >
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-slate-800 truncate">{p.name}</p>
                       <p className="text-[10px] text-slate-400 font-mono">{p.sku}</p>
                     </div>
-                    <span className="text-xs font-black text-slate-800 shrink-0 tabular-nums">
+                    <span className="text-xs font-black text-brand-dark shrink-0 tabular-nums">
                       {formatMoney(Number(p.sellingPrice))}
                     </span>
                   </button>
@@ -338,18 +365,18 @@ export default function SelfCheckoutPage() {
             </div>
           )}
 
-          {/* Scanned Items Feed */}
-          <div className="bg-white rounded-sm border border-slate-200/90 shadow-2xs overflow-hidden">
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="bg-white rounded-sm border border-brand-border shadow-2xs overflow-hidden">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <ShoppingCart size={16} className="text-sky-600" />
-                <h3 className="text-sm font-bold text-slate-800">Scanned Items</h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
+                <ShoppingCart size={16} className="text-brand-primary" />
+                <h3 className="text-sm font-bold text-brand-dark">Scanned Items</h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-50 text-brand-dark border border-brand-border">
                   {cart.length} unique &bull; {cart.reduce((a, b) => a + b.qty, 0)} units
                 </span>
               </div>
               {cart.length > 0 && (
                 <button
+                  type="button"
                   onClick={() => setCart([])}
                   className="text-[11px] font-semibold text-rose-600 hover:text-rose-700 transition cursor-pointer"
                 >
@@ -359,8 +386,8 @@ export default function SelfCheckoutPage() {
             </div>
 
             {cart.length === 0 ? (
-              <div className="p-12 text-center space-y-3 text-slate-400">
-                <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto text-slate-300">
+              <div className="p-10 sm:p-12 text-center space-y-3 text-slate-400">
+                <div className="w-14 h-14 rounded-sm bg-brand-50 border border-brand-border flex items-center justify-center mx-auto text-brand-primary">
                   <Barcode size={28} />
                 </div>
                 <div className="space-y-1">
@@ -374,8 +401,8 @@ export default function SelfCheckoutPage() {
               <div className="divide-y divide-slate-100 max-h-[420px] overflow-y-auto">
                 {cart.map((item, idx) => (
                   <div
-                    key={idx}
-                    className="p-4 flex items-center justify-between gap-4 hover:bg-slate-50/60 transition"
+                    key={item.productId || idx}
+                    className="p-3.5 sm:p-4 flex items-center justify-between gap-3 hover:bg-slate-50/60 transition"
                   >
                     <div className="min-w-0 flex-1 space-y-0.5">
                       <p className="text-xs font-bold text-slate-800 truncate">{item.name}</p>
@@ -385,12 +412,13 @@ export default function SelfCheckoutPage() {
                       </p>
                     </div>
 
-                    {/* Touch Qty Controls */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       <div className="flex items-center border border-slate-200 rounded-sm bg-slate-50 overflow-hidden">
                         <button
+                          type="button"
                           onClick={() => updateQty(idx, -1)}
                           className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition cursor-pointer"
+                          aria-label="Decrease quantity"
                         >
                           <Minus size={12} />
                         </button>
@@ -398,8 +426,10 @@ export default function SelfCheckoutPage() {
                           {item.qty}
                         </span>
                         <button
+                          type="button"
                           onClick={() => updateQty(idx, 1)}
                           className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition cursor-pointer"
+                          aria-label="Increase quantity"
                         >
                           <Plus size={12} />
                         </button>
@@ -410,6 +440,7 @@ export default function SelfCheckoutPage() {
                       </span>
 
                       <button
+                        type="button"
                         onClick={() => removeItem(idx)}
                         className="p-1.5 rounded-sm text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
                         title="Remove item"
@@ -424,14 +455,12 @@ export default function SelfCheckoutPage() {
           </div>
         </div>
 
-        {/* Right Column: Order Summary & Fast Payment (5 cols) */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="bg-white p-6 rounded-sm border border-slate-200/90 shadow-2xs space-y-5">
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+        <div className="lg:col-span-5 lg:sticky lg:top-2 space-y-4">
+          <div className="bg-white p-5 sm:p-6 rounded-sm border border-brand-border shadow-2xs space-y-5">
+            <h3 className="text-sm font-bold text-brand-dark uppercase tracking-wider">
               Payment Summary
             </h3>
 
-            {/* Calculations */}
             <div className="space-y-2 border-b border-slate-100 pb-4 text-xs text-slate-600">
               <div className="flex justify-between">
                 <span>Subtotal ({cart.reduce((a, b) => a + b.qty, 0)} items)</span>
@@ -443,33 +472,31 @@ export default function SelfCheckoutPage() {
               </div>
             </div>
 
-            {/* Total Grand Highlight */}
-            <div className="p-4 rounded-sm bg-slate-50 border border-slate-200/80 space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="p-4 rounded-sm bg-brand-50/70 border border-brand-border space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-primary">
                 Total Amount Due
               </span>
-              <div className="text-3xl font-black text-slate-900 tabular-nums">
+              <div className="text-3xl font-black text-brand-dark tabular-nums">
                 {formatMoney(total)}
               </div>
-              <p className="text-[11px] text-slate-400">All prices in Bangladeshi Taka (BDT)</p>
+              <p className="text-[11px] text-slate-500">All prices in Bangladeshi Taka (BDT)</p>
             </div>
 
-            {/* Payment Method Selector */}
             <div className="space-y-2.5">
               <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500">
                 Choose Payment Method
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2.5">
                 <button
                   type="button"
                   onClick={() => setSelectedMethod("CASH")}
-                  className={`p-3 rounded-sm border text-left transition flex flex-col justify-between h-20 cursor-pointer ${
+                  className={`p-3 rounded-sm border text-left transition flex flex-col justify-between min-h-[84px] cursor-pointer ${
                     selectedMethod === "CASH"
-                      ? "border-sky-500 bg-sky-50/60 shadow-2xs"
-                      : "border-slate-200 hover:border-slate-300 bg-white"
+                      ? "border-brand-primary bg-brand-50/70 shadow-2xs"
+                      : "border-slate-200 hover:border-brand-border bg-white"
                   }`}
                 >
-                  <Banknote size={18} className={selectedMethod === "CASH" ? "text-sky-600" : "text-slate-400"} />
+                  <Banknote size={18} className={selectedMethod === "CASH" ? "text-brand-primary" : "text-slate-400"} />
                   <div>
                     <p className="text-xs font-bold text-slate-800">Cash Tender</p>
                     <p className="text-[10px] text-slate-400">Pay at kiosk / desk</p>
@@ -479,7 +506,7 @@ export default function SelfCheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedMethod("BKASH")}
-                  className={`p-3 rounded-sm border text-left transition flex flex-col justify-between h-20 cursor-pointer ${
+                  className={`p-3 rounded-sm border text-left transition flex flex-col justify-between min-h-[84px] cursor-pointer ${
                     selectedMethod === "BKASH"
                       ? "border-pink-500 bg-pink-50/60 shadow-2xs"
                       : "border-slate-200 hover:border-slate-300 bg-white"
@@ -488,20 +515,20 @@ export default function SelfCheckoutPage() {
                   <Smartphone size={18} className={selectedMethod === "BKASH" ? "text-pink-600" : "text-slate-400"} />
                   <div>
                     <p className="text-xs font-bold text-slate-800">bKash QR</p>
-                    <p className="text-[10px] text-slate-400">Scan & pay mobile</p>
+                    <p className="text-[10px] text-slate-400">Scan &amp; pay mobile</p>
                   </div>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setSelectedMethod("CARD")}
-                  className={`p-3 rounded-sm border text-left transition flex flex-col justify-between h-20 cursor-pointer ${
+                  className={`p-3 rounded-sm border text-left transition flex flex-col justify-between min-h-[84px] cursor-pointer ${
                     selectedMethod === "CARD"
-                      ? "border-sky-500 bg-sky-50/60 shadow-2xs"
-                      : "border-slate-200 hover:border-slate-300 bg-white"
+                      ? "border-brand-primary bg-brand-50/70 shadow-2xs"
+                      : "border-slate-200 hover:border-brand-border bg-white"
                   }`}
                 >
-                  <CreditCard size={18} className={selectedMethod === "CARD" ? "text-sky-600" : "text-slate-400"} />
+                  <CreditCard size={18} className={selectedMethod === "CARD" ? "text-brand-primary" : "text-slate-400"} />
                   <div>
                     <p className="text-xs font-bold text-slate-800">Debit / Card</p>
                     <p className="text-[10px] text-slate-400">Tap / chip terminal</p>
@@ -511,7 +538,7 @@ export default function SelfCheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedMethod("NAGAD")}
-                  className={`p-3 rounded-sm border text-left transition flex flex-col justify-between h-20 cursor-pointer ${
+                  className={`p-3 rounded-sm border text-left transition flex flex-col justify-between min-h-[84px] cursor-pointer ${
                     selectedMethod === "NAGAD"
                       ? "border-orange-500 bg-orange-50/60 shadow-2xs"
                       : "border-slate-200 hover:border-slate-300 bg-white"
@@ -526,7 +553,6 @@ export default function SelfCheckoutPage() {
               </div>
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="p-3 rounded-sm bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
                 <AlertCircle size={14} className="text-rose-600 shrink-0" />
@@ -534,7 +560,6 @@ export default function SelfCheckoutPage() {
               </div>
             )}
 
-            {/* Giant Pay Button */}
             <CustomButton
               variant="primary"
               size="lg"
@@ -554,7 +579,6 @@ export default function SelfCheckoutPage() {
         </div>
       </div>
 
-      {/* ── Modal: Call Attendant / Help ── */}
       <CustomModal
         isOpen={showHelpModal}
         onClose={() => setShowHelpModal(false)}
@@ -581,11 +605,7 @@ export default function SelfCheckoutPage() {
             </ul>
           </div>
           <div className="flex justify-end pt-3 border-t border-slate-100">
-            <CustomButton
-              variant="outline"
-              size="sm"
-              onClick={() => setShowHelpModal(false)}
-            >
+            <CustomButton variant="outline" size="sm" onClick={() => setShowHelpModal(false)}>
               Dismiss Notification
             </CustomButton>
           </div>

@@ -226,11 +226,23 @@ export interface RouteAccessCheck {
   requiredAddon?: string;
 }
 
-const BUSINESS_ROUTE_PREFIXES: { prefix: string; vertical: string; addon?: string; plan?: PlanTierCode }[] = [
+const BUSINESS_ROUTE_PREFIXES: {
+  prefix: string;
+  vertical: string;
+  verticals?: string[];
+  addon?: string;
+  addons?: string[];
+  plan?: PlanTierCode;
+}[] = [
   { prefix: "/retail-pos/self-checkout", vertical: "ALL", plan: "BUSINESS" },
   { prefix: "/retail-pos/holds", vertical: "ALL" },
   { prefix: "/retail-pos/price-checker", vertical: "ALL" },
-  { prefix: "/retail-pos/customer-display", vertical: "ALL" },
+  {
+    prefix: "/retail-pos/customer-display",
+    vertical: "ALL",
+    verticals: ["RETAIL", "GROCERY", "WHOLESALE", "PHARMACY", "MANUFACTURING", "REPAIR", "SALON", "FRANCHISE"],
+    addons: ["retail", "grocery", "wholesale"],
+  },
   { prefix: "/retail-pos", vertical: "RETAIL" },
   { prefix: "/retail", vertical: "RETAIL" },
   { prefix: "/grocery", vertical: "GROCERY", addon: "grocery" },
@@ -242,6 +254,12 @@ const BUSINESS_ROUTE_PREFIXES: { prefix: string; vertical: string; addon?: strin
   { prefix: "/manufacturing", vertical: "MANUFACTURING", addon: "manufacturing" },
   { prefix: "/repair", vertical: "REPAIR", addon: "repair" },
   { prefix: "/salon", vertical: "SALON", addon: "salon" },
+  {
+    prefix: "/appointments",
+    vertical: "ALL",
+    verticals: ["SALON", "REPAIR", "RESTAURANT"],
+    addons: ["salon", "repair", "appointments"],
+  },
   { prefix: "/franchise", vertical: "FRANCHISE", plan: "ENTERPRISE" },
 ];
 
@@ -273,7 +291,6 @@ const PLAN_ROUTE_PREFIXES: { prefix: string; plan: PlanTierCode; addon?: string;
   { prefix: "/commission", plan: "BUSINESS", label: "Sales Commission" },
   { prefix: "/targets", plan: "BUSINESS", label: "Sales Targets & KPIs" },
   { prefix: "/branches", plan: "BUSINESS", label: "Multi-Branch Outlets" },
-  { prefix: "/ai", plan: "ENTERPRISE", label: "AI Business Assistant" },
   { prefix: "/rbac", plan: "ENTERPRISE", label: "Roles & Permissions (RBAC)" },
   { prefix: "/workflow", plan: "ENTERPRISE", label: "Workflow & Approvals" },
   { prefix: "/business-rules", plan: "ENTERPRISE", label: "Business Rules Engine" },
@@ -301,17 +318,21 @@ export function checkRouteEntitlement(
           reason: `Requires ${rule.plan === "ENTERPRISE" ? "Enterprise" : "Advance"} Plan`,
         };
       }
-      if (rule.vertical !== "ALL") {
+      if (rule.vertical !== "ALL" || rule.verticals?.length) {
         const matchesVertical =
-          ctx.businessType === rule.vertical ||
+          (rule.vertical !== "ALL" && ctx.businessType === rule.vertical) ||
+          Boolean(rule.verticals?.includes(ctx.businessType)) ||
           (ctx.businessType === "MANUFACTURING" && rule.prefix.startsWith("/bakery"));
-        const hasAddon = rule.addon ? ctx.enabledModules.has(rule.addon) : false;
-        const hasVerticalMod = ctx.enabledModules.has(rule.vertical.toLowerCase());
+        const hasAddon =
+          (rule.addon ? ctx.enabledModules.has(rule.addon) : false) ||
+          Boolean(rule.addons?.some((a) => ctx.enabledModules.has(a)));
+        const hasVerticalMod =
+          rule.vertical !== "ALL" && ctx.enabledModules.has(rule.vertical.toLowerCase());
         if (!matchesVertical && !hasAddon && !hasVerticalMod) {
           return {
             allowed: false,
-            requiredAddon: rule.addon || rule.vertical.toLowerCase(),
-            reason: `Your workspace is configured for ${ctx.businessType}. Enable ${rule.vertical} add-on to access this screen.`,
+            requiredAddon: rule.addon || rule.addons?.[0] || rule.vertical.toLowerCase(),
+            reason: `Your workspace is configured for ${ctx.businessType}. Enable ${rule.verticals ? rule.verticals.join("/") : rule.vertical} access to open this screen.`,
           };
         }
       }
