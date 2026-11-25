@@ -29,20 +29,11 @@ import {
   buildQrSvg,
   formatDisplayClock,
   type DisplayCart,
-  type DisplayLine,
 } from "@/lib/customer-display";
 import { isOnline } from "@/lib/offline/db";
 import { useAuth } from "@/lib/auth";
 import { getAccessiblePosTerminals, getTenantEntitlementContext } from "@/lib/pos-terminals";
 import { cn } from "@/lib/cn";
-
-const DEFAULT_DEMO_LINES: DisplayLine[] = [
-  { name: "Wireless Over-Ear Headphones", qty: 2, unitPrice: 2450, discountAmount: 0, category: "Electronics" },
-  { name: "Smart Fitness Watch Pro", qty: 1, unitPrice: 3800, discountAmount: 0, category: "Wearables" },
-  { name: "True Wireless Earbuds", qty: 1, unitPrice: 1450, discountAmount: 0, category: "Audio" },
-  { name: "Compact Mechanical Keyboard", qty: 1, unitPrice: 2650, discountAmount: 0, category: "Accessories" },
-  { name: "20000mAh Fast Power Bank", qty: 1, unitPrice: 1200, discountAmount: 0, category: "Power" },
-];
 
 const DEMO_EMOJIS = ["🎧", "⌚", "🎵", "⌨️", "🔋", "📦"];
 
@@ -190,16 +181,15 @@ export default function CustomerDisplayPage() {
 
   const liveLines = cart?.lines && cart.lines.length > 0 ? cart.lines : null;
   const isLive = Boolean(liveLines);
-  const displayLines = liveLines || DEFAULT_DEMO_LINES;
+  const displayLines = liveLines || [];
 
-  const computedDemoSubtotal = DEFAULT_DEMO_LINES.reduce((s, l) => s + l.unitPrice * l.qty, 0);
   const subtotal = isLive
     ? cart?.subtotal ?? displayLines.reduce((s, l) => s + l.unitPrice * l.qty, 0)
-    : computedDemoSubtotal;
-  const tax = isLive ? cart?.taxTotal ?? 0 : Math.round(computedDemoSubtotal * 0.05);
+    : 0;
+  const tax = isLive ? cart?.taxTotal ?? 0 : 0;
   const discount = isLive ? cart?.discountTotal ?? 0 : 0;
   const serviceCharge = isLive ? cart?.serviceCharge ?? 0 : 0;
-  const total = isLive ? cart?.total ?? subtotal - discount + tax + serviceCharge : subtotal - discount + tax;
+  const total = isLive ? cart?.total ?? subtotal - discount + tax + serviceCharge : 0;
 
   const customerName = cart?.customerName || "Walk-in Customer";
   const customerTier = cart?.customerTier || "Member";
@@ -294,7 +284,7 @@ export default function CustomerDisplayPage() {
                     )}
                   >
                     {online ? <Wifi size={12} /> : <WifiOff size={12} />}
-                    {online ? (isLive ? "POS Live Synced" : "Demo Preview Ready") : "POS Offline"}
+                    {online ? (isLive ? "POS Live Synced" : "Standby · Waiting for POS") : "POS Offline"}
                   </span>
                 </div>
               </div>
@@ -403,7 +393,7 @@ export default function CustomerDisplayPage() {
               </span>
             ) : (
               <span className="px-3 py-1 rounded-sm text-xs font-bold bg-slate-100 text-gray-500 border border-slate-200 shrink-0">
-                Sample Preview Mode
+                Standby · Ready for Next Order
               </span>
             )}
           </div>
@@ -441,7 +431,18 @@ export default function CustomerDisplayPage() {
               </div>
 
               <div className="flex-1 overflow-y-auto pt-2.5 pr-1 space-y-2">
-                {displayLines.map((line, idx) => {
+                {displayLines.length === 0 ? (
+                  <div className="h-full min-h-[200px] flex flex-col items-center justify-center text-center px-4 py-8">
+                    <div className="w-12 h-12 rounded-sm bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 mb-3">
+                      <ShoppingBag size={22} />
+                    </div>
+                    <p className="text-sm font-bold text-gray-600">Ready for Next Customer</p>
+                    <p className="text-xs text-gray-400 mt-1 max-w-xs">
+                      Items scanned or added on your POS register will appear here automatically in real time.
+                    </p>
+                  </div>
+                ) : (
+                  displayLines.map((line, idx) => {
                   const lineTotal = (line.unitPrice - (line.discountAmount ?? 0)) * line.qty;
 
                   return (
@@ -493,7 +494,7 @@ export default function CustomerDisplayPage() {
                       </div>
                     </div>
                   );
-                })}
+                }))}
               </div>
             </div>
 

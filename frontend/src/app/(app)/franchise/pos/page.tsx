@@ -110,13 +110,17 @@ export interface ToastMessage {
   text: string;
 }
 
-// ── Default Fallback Outlets ────────────────────────────────────────
-const FALLBACK_OUTLETS: FranchiseOutlet[] = [
-  { id: "FR-01", name: "Dhanmondi Flagship Outlet", code: "DMD-01", ownerName: "Azizul Huq", royaltyPct: 6, marketingFeePct: 2, location: "Dhanmondi 27, Dhaka", phone: "+880 1711-001122", outstandingBalance: 45000 },
-  { id: "FR-02", name: "Uttara Sector 3 Branch", code: "UTT-02", ownerName: "Tanvir Ahmed", royaltyPct: 6, marketingFeePct: 2, location: "Rabindra Sarani, Uttara", phone: "+880 1819-334455", outstandingBalance: 12500 },
-  { id: "FR-03", name: "Gulshan 2 Express Store", code: "GUL-03", ownerName: "Sabrina Rashid", royaltyPct: 7, marketingFeePct: 2, location: "Gulshan Avenue, Dhaka", phone: "+880 1912-667788", outstandingBalance: 0 },
-  { id: "FR-04", name: "Chittagong GEC Circle Store", code: "CTG-04", ownerName: "Kamrul Hasan", royaltyPct: 5, marketingFeePct: 2, location: "GEC Circle, Chattogram", phone: "+880 1613-990011", outstandingBalance: 84000 },
-];
+const EMPTY_OUTLET: FranchiseOutlet = {
+  id: "",
+  name: "No Outlet Configured",
+  code: "—",
+  ownerName: "—",
+  royaltyPct: 0,
+  marketingFeePct: 0,
+  location: "",
+  phone: "",
+  outstandingBalance: 0,
+};
 
 function generateRequisitionInvoiceNo(): string {
   return `FRQ-${Date.now().toString().slice(-6)}`;
@@ -128,8 +132,8 @@ function generateHoldNo(): string {
 
 export default function FranchisePOSPage() {
   // ── State Variables ─────────────────────────────────────────────
-  const [outlets, setOutlets] = useState<FranchiseOutlet[]>(FALLBACK_OUTLETS);
-  const [selectedOutlet, setSelectedOutlet] = useState<FranchiseOutlet>(FALLBACK_OUTLETS[0]);
+  const [outlets, setOutlets] = useState<FranchiseOutlet[]>([]);
+  const [selectedOutlet, setSelectedOutlet] = useState<FranchiseOutlet>(EMPTY_OUTLET);
   const [catalog, setCatalog] = useState<FranchiseCatalogItem[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");

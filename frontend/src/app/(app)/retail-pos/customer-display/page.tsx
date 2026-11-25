@@ -158,33 +158,6 @@ export default function RetailCustomerDisplayPage() {
     }
   }, []);
 
-  const handleQuickDemo = () => {
-    const demoCart: DisplayCart = {
-      updatedAt: Date.now(),
-      source: "RETAIL",
-      lines: [
-        { name: "Coca Cola 500ml", qty: 2, unitPrice: 50, discountAmount: 0, sku: "COKE-0500", category: "Beverages" },
-        { name: "Lays Classic 52g", qty: 1, unitPrice: 35, discountAmount: 5, sku: "LAY-0052", category: "Snacks" },
-        { name: "Fresh Milk 1L", qty: 1, unitPrice: 110, discountAmount: 0, sku: "MILK-1000", category: "Dairy" },
-        { name: "Dettol Soap 125g", qty: 2, unitPrice: 55, discountAmount: 0, sku: "DET-0125", category: "Personal Care" },
-        { name: "Ariel Matic 1kg", qty: 1, unitPrice: 280, discountAmount: 0, sku: "ARL-1000", category: "Household" },
-      ],
-      subtotal: 635,
-      discountTotal: 5,
-      taxTotal: 31.5,
-      total: 661.5,
-      status: "ACTIVE",
-      customerName: "Rahim Uddin",
-      customerTier: "Gold Member",
-      customerPoints: 240,
-      cashierName: "Cashier",
-      laneNo: "T-01",
-      merchantName: "BPOS Retail",
-    };
-    publishCart(demoCart);
-    setCart(demoCart);
-  };
-
   const handleClearCart = () => {
     const empty: DisplayCart = {
       updatedAt: Date.now(),
@@ -284,21 +257,13 @@ export default function RetailCustomerDisplayPage() {
                 <span className="hidden sm:inline">Back to POS</span>
               </Link>
 
-              {hasItems ? (
+              {hasItems && (
                 <button
                   onClick={handleClearCart}
                   className="flex items-center gap-1.5 h-9 px-3 rounded-sm border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold transition shadow-xs cursor-pointer"
                 >
                   <Trash2 size={13} />
                   <span>Clear</span>
-                </button>
-              ) : (
-                <button
-                  onClick={handleQuickDemo}
-                  className="flex items-center gap-1.5 h-9 px-3 rounded-sm border border-brand-border bg-brand-50 text-brand-dark hover:bg-brand-50/80 text-xs font-bold transition shadow-xs cursor-pointer"
-                >
-                  <PlusCircle size={13} className="text-brand-primary" />
-                  <span>Demo Order</span>
                 </button>
               )}
 

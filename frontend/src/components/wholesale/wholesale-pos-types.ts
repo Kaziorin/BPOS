@@ -44,22 +44,3 @@ export interface WsCustomerProfile {
   availableCredit: number;
   outstanding: number;
 }
-
-export const DEMO_CUSTOMER: WsCustomerProfile = {
-  id: "CUST-10025",
-  name: "ABC Traders Ltd.",
-  phone: "01712-345678",
-  tier: "Platinum",
-  creditLimit: 50000,
-  availableCredit: 18750,
-  outstanding: 12250,
-};
-
-export const DEMO_STATS: WsStats = {
-  todaysSales: 24580,
-  orders: 48,
-  delivery: 32,
-  customers: 156,
-  pendingOrders: 12,
-  lowStockAlerts: 7,
-};
