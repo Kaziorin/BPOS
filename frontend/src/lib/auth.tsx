@@ -27,6 +27,14 @@ interface AuthContextValue {
     phone?: string;
     planCode?: string;
     selectedAddons?: string[];
+    paymentDetails?: {
+      trxId: string;
+      method: string;
+      amount: number;
+      status: string;
+    };
+    requestTrial?: boolean;
+    trialNote?: string;
   }) => Promise<void>;
   logout: () => void;
 }
@@ -160,6 +168,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     phone?: string;
     planCode?: string;
     selectedAddons?: string[];
+    paymentDetails?: {
+      trxId: string;
+      method: string;
+      amount: number;
+      status: string;
+    };
+    requestTrial?: boolean;
+    trialNote?: string;
   }) {
     const res = await api.post<{
       token: string;

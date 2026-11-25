@@ -38,9 +38,14 @@ import {
   Store,
   ShieldCheck,
   CreditCard,
+  Clock,
+  Send,
+  HelpCircle,
 } from "lucide-react";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomButton } from "@/components/custom/CustomButton";
+import { CustomModal } from "@/components/custom/CustomModal";
+import { SslPaymentModal, type SslPaymentSuccessData } from "@/components/payment/SslPaymentModal";
 import { siteConfig } from "@/config/site";
 
 // ─── Step Tabs Definition ─────────────────────────────────────────────
@@ -334,6 +339,13 @@ export default function RegisterPage() {
     loadPricing();
   }, []);
 
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showTrialRequestModal, setShowTrialRequestModal] = useState(false);
+  const [trialReason, setTrialReason] = useState("");
+  const [trialDaysRequested, setTrialDaysRequested] = useState(14);
+  const [trialSubmitted, setTrialSubmitted] = useState(false);
+  const [submittingTrial, setSubmittingTrial] = useState(false);
+
   const formik = useFormik({
     initialValues: {
       businessName: "",
@@ -344,21 +356,51 @@ export default function RegisterPage() {
       phone: "",
     },
     validationSchema: registerSchema,
-    onSubmit: async (values, { setSubmitting }) => {
+    onSubmit: async () => {
       setError(null);
-      try {
-        await register({
-          ...values,
-          planCode: selectedPlan,
-          selectedAddons,
-        });
-      } catch (err) {
-        setError(err instanceof ApiError ? err.message : "Registration failed. Please check your credentials.");
-      } finally {
-        setSubmitting(false);
-      }
+      // Open SSLCommerz Gateway modal to complete commercial activation
+      setShowPaymentModal(true);
     },
   });
+
+  const handlePaymentSuccess = async (paymentData: SslPaymentSuccessData) => {
+    setError(null);
+    try {
+      await register({
+        ...formik.values,
+        planCode: selectedPlan,
+        selectedAddons,
+        paymentDetails: {
+          trxId: paymentData.transactionId,
+          method: paymentData.method,
+          amount: paymentData.amount,
+          status: "PAID",
+        },
+      });
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Registration failed after payment verification.");
+    }
+  };
+
+  const handleTrialRequestSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSubmittingTrial(true);
+    try {
+      await register({
+        ...formik.values,
+        planCode: selectedPlan,
+        selectedAddons,
+        requestTrial: true,
+        trialNote: trialReason || `Requested ${trialDaysRequested} days trial for evaluation.`,
+      });
+      setTrialSubmitted(true);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to submit trial request. Please verify credentials.");
+    } finally {
+      setSubmittingTrial(false);
+    }
+  };
 
   const selectedCategoryObj = useMemo(
     () =>
@@ -482,7 +524,7 @@ export default function RegisterPage() {
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                14-day full commercial free trial on all plans • Instant provisioning
+                Instant Cloud Store Provisioning • Official Enterprise POS Gateway Activation
               </p>
             </div>
           </div>
@@ -628,7 +670,7 @@ export default function RegisterPage() {
                         Step 2: Choose Subscription Tier
                       </h2>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        Plans scale with your outlets, registers, and inventory. 14 days free trial.
+                        Plans scale with your outlets, registers, and inventory. Direct gateway activation.
                       </p>
                     </div>
 
@@ -725,8 +767,8 @@ export default function RegisterPage() {
                           </div>
 
                           <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
-                            <span>14 days trial</span>
-                            <span className="text-slate-700 font-semibold">৳0 today</span>
+                            <span>Instant Access</span>
+                            <span className="text-slate-700 font-semibold">Gateway Checkout</span>
                           </div>
                         </div>
                       );
@@ -1000,7 +1042,7 @@ export default function RegisterPage() {
                       variant="primary"
                       className="font-bold px-6 py-2.5 text-xs rounded bg-sky-600 hover:bg-sky-700 text-white cursor-pointer shadow-xs"
                     >
-                      {formik.isSubmitting ? "Provisioning Database..." : "Launch Store (14-Day Free Trial)"}
+                      {formik.isSubmitting ? "Provisioning Database..." : `Pay ৳${totalPrice.toLocaleString()} & Activate Store`}
                       <ArrowRight size={14} className="ml-1.5 inline" />
                     </CustomButton>
                   </div>
@@ -1016,8 +1058,8 @@ export default function RegisterPage() {
                     <ShieldCheck size={18} className="text-sky-600" />
                     <h3 className="text-sm font-bold text-slate-900">Subscription Summary</h3>
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
-                    14 Days Free
+                  <span className="text-[10px] font-bold text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded">
+                    Commercial Plan
                   </span>
                 </div>
 
@@ -1057,7 +1099,7 @@ export default function RegisterPage() {
                 {/* Total Line */}
                 <div className="border-t border-slate-200 pt-3 flex items-baseline justify-between">
                   <div>
-                    <span className="text-xs text-slate-500 block">Rate after trial</span>
+                    <span className="text-xs text-slate-500 block">Subscription Total</span>
                     <span className="text-lg font-bold tabular-nums text-slate-900">
                       ৳{totalPrice.toLocaleString()}
                     </span>
@@ -1067,9 +1109,9 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="text-right">
-                    <span className="text-xs text-slate-500 block">Due today</span>
-                    <span className="text-base font-bold text-emerald-600 font-mono">
-                      ৳0.00
+                    <span className="text-xs text-slate-500 block">Due Now</span>
+                    <span className="text-base font-bold text-[#e92929] font-mono">
+                      ৳{totalPrice.toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -1121,16 +1163,34 @@ export default function RegisterPage() {
                 )}
 
                 {currentStep === "account" && (
-                  <CustomButton
-                    type="submit"
-                    loading={formik.isSubmitting}
-                    size="lg"
-                    variant="primary"
-                    className="w-full font-bold py-3 text-xs rounded bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-xs transition-colors"
-                  >
-                    {formik.isSubmitting ? "Provisioning Database..." : "Launch Store (14-Day Free Trial)"}
-                    <ArrowRight size={15} className="ml-1.5 inline" />
-                  </CustomButton>
+                  <div className="space-y-2.5">
+                    <CustomButton
+                      type="submit"
+                      loading={formik.isSubmitting}
+                      size="lg"
+                      variant="primary"
+                      className="w-full font-bold py-3 text-xs rounded bg-sky-600 hover:bg-sky-700 text-white cursor-pointer shadow-xs transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <CreditCard size={15} />
+                      <span>{formik.isSubmitting ? "Provisioning Database..." : `Pay ৳${totalPrice.toLocaleString()} & Activate`}</span>
+                    </CustomButton>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const errs = Object.keys(formik.errors);
+                        if (errs.length > 0) {
+                          formik.handleSubmit();
+                          return;
+                        }
+                        setShowTrialRequestModal(true);
+                      }}
+                      className="w-full py-2.5 text-xs font-semibold text-slate-600 hover:text-sky-700 hover:bg-slate-50 rounded border border-dashed border-slate-300 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <Clock size={13} className="text-slate-400" />
+                      <span>Need a Free Trial? Request Trial Access</span>
+                    </button>
+                  </div>
                 )}
 
                 <p className="text-[11px] text-slate-400 text-center leading-normal">
@@ -1140,6 +1200,122 @@ export default function RegisterPage() {
             </div>
           </div>
         </form>
+
+        {/* ── SSLCommerz Dummy Payment Gateway Modal ── */}
+        <SslPaymentModal
+          open={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          amount={totalPrice}
+          orderId={`SUB-${storeSlug.toUpperCase().slice(0, 8)}-${Date.now().toString().slice(-4)}`}
+          customerName={formik.values.name || formik.values.businessName}
+          customerEmail={formik.values.email}
+          customerPhone={formik.values.phone}
+          onSuccess={handlePaymentSuccess}
+        />
+
+        {/* ── Request Free Trial Modal (Admin Approval Required) ── */}
+        <CustomModal
+          open={showTrialRequestModal}
+          onClose={() => {
+            setShowTrialRequestModal(false);
+            setTrialSubmitted(false);
+          }}
+          title="Request Free Trial Access"
+        >
+          {trialSubmitted ? (
+            <div className="p-6 text-center space-y-3">
+              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mx-auto">
+                <CheckCircle2 size={28} />
+              </div>
+              <h3 className="text-base font-bold text-slate-800">Trial Request Submitted!</h3>
+              <p className="text-xs text-slate-600 leading-relaxed max-w-sm mx-auto">
+                Your request has been forwarded to Blue Oceans POS Administration. An administrator will review your store profile and assign your trial days.
+              </p>
+              <div className="pt-2">
+                <Link
+                  href="/login"
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-xs transition"
+                >
+                  <span>Go to Login</span>
+                  <ArrowRight size={14} />
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleTrialRequestSubmit} className="p-5 space-y-4">
+              <div className="p-3 bg-sky-50 rounded-lg border border-sky-200 text-xs text-sky-900 flex items-start gap-2.5">
+                <HelpCircle size={18} className="text-sky-600 shrink-0 mt-0.5" />
+                <p className="text-[11px] leading-relaxed">
+                  Default registrations do not include automatic trials. You can submit a request below stating your business requirements. Store administrators decide and allocate trial periods.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Requested Trial Duration
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[7, 14, 30].map((days) => (
+                    <button
+                      key={days}
+                      type="button"
+                      onClick={() => setTrialDaysRequested(days)}
+                      className={`py-2 rounded-md text-xs font-bold border transition cursor-pointer ${
+                        trialDaysRequested === days
+                          ? "bg-sky-50 border-sky-600 text-sky-800 shadow-2xs"
+                          : "border-slate-200 text-slate-600 hover:border-slate-300"
+                      }`}
+                    >
+                      {days} Days
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Business Evaluation Note / Purpose
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  value={trialReason}
+                  onChange={(e) => setTrialReason(e.target.value)}
+                  placeholder="e.g. We operate a multi-counter retail shop and wish to test receipt printing and barcode scanning with our team before purchasing."
+                  className="w-full p-2.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                />
+              </div>
+
+              {error && (
+                <p className="text-xs text-rose-600 font-semibold">{error}</p>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowTrialRequestModal(false)}
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingTrial}
+                  className="px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  {submittingTrial ? (
+                    <span>Submitting Request...</span>
+                  ) : (
+                    <>
+                      <Send size={13} />
+                      <span>Submit Request to Admin</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          )}
+        </CustomModal>
       </div>
     </div>
   );

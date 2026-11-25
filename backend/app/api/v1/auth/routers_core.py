@@ -224,16 +224,43 @@ async def register(body: dict, db: AsyncSession = Depends(get_db)):
             "e": email, "p": phone, "ph": hash_password(password), "r": owner_role_id
         })
 
-        # 6. Lookup Plan & Create SaaS Subscription (14-day trial)
+        # 6. Lookup Plan & Create SaaS Subscription (No default free trial)
         plan_row = (await db.execute(text("SELECT id, name, code FROM saas_plans WHERE code = :c LIMIT 1"), {"c": plan_code})).first()
         if not plan_row:
             plan_row = (await db.execute(text("SELECT id, name, code FROM saas_plans WHERE code = 'STARTER' LIMIT 1"))).first()
 
+        payment_details = body.get("paymentDetails")
+        request_trial = body.get("requestTrial")
+
+        if payment_details and payment_details.get("trxId"):
+            sub_status = "ACTIVE"
+            tenant_status = "ACTIVE"
+            trial_ends = None
+        elif request_trial:
+            sub_status = "TRIAL_REQUESTED"
+            tenant_status = "PENDING"
+            trial_ends = None
+        else:
+            sub_status = "PENDING_PAYMENT"
+            tenant_status = "PENDING"
+            trial_ends = None
+
         sub_id = str(uuid.uuid4())
         await db.execute(text("""
             INSERT INTO saas_subscriptions (id, tenantId, planId, billingCycle, status, trialEndsAt, currentPeriodStart, currentPeriodEnd, createdAt, updatedAt)
-            VALUES (:id, :t, :p, 'MONTHLY', 'TRIAL', DATE_ADD(NOW(), INTERVAL 14 DAY), NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), NOW(), NOW())
-        """), {"id": sub_id, "t": tenant_id, "p": plan_row.id if plan_row else None})
+            VALUES (:id, :t, :p, 'MONTHLY', :st, :te, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), NOW(), NOW())
+        """), {"id": sub_id, "t": tenant_id, "p": plan_row.id if plan_row else None, "st": sub_status, "te": trial_ends})
+
+        # Update tenant status
+        await db.execute(text("UPDATE tenants SET status = :st WHERE id = :t"), {"st": tenant_status, "t": tenant_id})
+
+        # If payment completed through gateway, record initial invoice as PAID
+        if payment_details and payment_details.get("trxId"):
+            inv_id = str(uuid.uuid4())
+            await db.execute(text("""
+                INSERT INTO saas_invoices (id, tenantId, subscriptionId, amount, status, billingPeriod, createdAt, updatedAt)
+                VALUES (:id, :t, :s, :a, 'PAID', 'MONTHLY', NOW(), NOW())
+            """), {"id": inv_id, "t": tenant_id, "s": sub_id, "a": float(payment_details.get("amount") or 0)})
 
         # 7. Configure Tenant Modules based on Plan & Selected Add-ons
         starter_mods = {'dashboard', 'pos', 'sales', 'products', 'inventory', 'cashregister', 'customers', 'invoices', 'payments', 'settings', business_type.lower()}
@@ -304,8 +331,8 @@ async def register(body: dict, db: AsyncSession = Depends(get_db)):
         "subscription": {
             "planCode": plan_row.code if plan_row else "STARTER",
             "planName": plan_row.name if plan_row else "Starter",
-            "status": "TRIAL",
-            "trialEndsAt": "14 days remaining",
+            "status": sub_status,
+            "trialEndsAt": str(trial_ends) if trial_ends else None,
             "enabledModules": list(enabled_set),
         }
     }, 201)

@@ -55,11 +55,13 @@ import {
   CustomSelect,
   CustomModal,
 } from "@/components/custom";
+import { SslPaymentModal, type SslPaymentSuccessData } from "@/components/payment/SslPaymentModal";
 
 type TabType =
   | "overview"
   | "plans"
   | "subscription"
+  | "trials"
   | "usage"
   | "features"
   | "fields"
@@ -71,6 +73,7 @@ const TABS: { id: TabType; label: string; icon: any; badge?: string }[] = [
   { id: "overview", label: "Platform Overview", icon: Layout, badge: "Master" },
   { id: "plans", label: "Pricing Plans & Tiers", icon: Sparkles },
   { id: "subscription", label: "Tenant Subscription", icon: CreditCard },
+  { id: "trials", label: "Trial Requests & Approvals", icon: Clock, badge: "Admin" },
   { id: "usage", label: "Resource Quotas & Limits", icon: BarChart3 },
   { id: "features", label: "Feature Flags", icon: Flag },
   { id: "fields", label: "Custom Field Schemas", icon: Layers },
@@ -124,6 +127,11 @@ function SaaSContent() {
   const [health, setHealth] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
   const [platformTenants, setPlatformTenants] = useState<any[]>([]);
+  const [trialRequests, setTrialRequests] = useState<any[]>([]);
+  const [loadingTrials, setLoadingTrials] = useState(false);
+  const [approving, setApproving] = useState(false);
+  const [showSslModal, setShowSslModal] = useState(false);
+  const [sslModalAmount, setSslModalAmount] = useState(2999);
 
   // Search & Filter
   const [tenantSearch, setTenantSearch] = useState("");
@@ -202,6 +210,10 @@ function SaaSContent() {
         const r: any = await api.get("/api/v1/saas/tickets");
         const d = r?.data || r;
         setTickets(Array.isArray(d) ? d : []);
+      } else if (tab === "trials") {
+        const r: any = await api.get("/api/v1/saas/trial-requests");
+        const d = r?.data || r;
+        setTrialRequests(Array.isArray(d) ? d : []);
       }
     } catch (e) {
       console.error("Failed to load SaaS data:", e);
@@ -209,6 +221,46 @@ function SaaSContent() {
       setLoading(false);
     }
   }, []);
+
+  const fetchTrialRequests = useCallback(async () => {
+    setLoadingTrials(true);
+    try {
+      const res = await api.get<any>("/api/v1/saas/trial-requests");
+      setTrialRequests(res.data?.data || res.data || []);
+    } catch {
+      setTrialRequests([]);
+    } finally {
+      setLoadingTrials(false);
+    }
+  }, []);
+
+  const handleApproveTrial = async (subId: string, days: number) => {
+    setApproving(true);
+    try {
+      await api.post(`/api/v1/saas/trial-requests/${subId}/approve`, { trialDays: days });
+      showToast(`Trial approved for ${days} days!`);
+      fetchTrialRequests();
+    } catch (e: any) {
+      showToast(e.message || "Failed to approve trial");
+    } finally {
+      setApproving(false);
+    }
+  };
+
+  const handleSslPaymentSuccess = async (data: SslPaymentSuccessData) => {
+    try {
+      await api.post("/api/v1/saas/subscription/pay", {
+        subscriptionId: subscription?.id,
+        transactionId: data.transactionId,
+        amount: data.amount,
+      });
+      showToast(`Payment of ৳${data.amount} successful! Subscription activated.`);
+      loadData("subscription");
+    } catch (e: any) {
+      showToast(e.message || "Payment recorded, reloading subscription...");
+      loadData("subscription");
+    }
+  };
 
   useEffect(() => {
     loadData(activeTab);
@@ -859,12 +911,137 @@ function SaaSContent() {
                         </p>
                       </div>
                     </div>
+
+                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-slate-500 text-xs">Need to activate or renew subscription?</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSslModalAmount(2999);
+                          setShowSslModal(true);
+                        }}
+                        className="px-4 py-2 rounded-lg bg-[#e92929] hover:bg-[#d42020] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition"
+                      >
+                        <CreditCard size={14} />
+                        <span>Pay via SSLCommerz Gateway</span>
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <div className="p-12 text-center text-slate-400 space-y-3">
                     <CreditCard size={32} className="mx-auto text-slate-300" />
                     <p className="font-bold text-sm text-slate-600">No active subscription on record</p>
-                    <p className="text-xs">Start your 14-day full feature trial to unlock enterprise POS capabilities.</p>
+                    <p className="text-xs">Pay subscription or submit a free trial request to unlock enterprise POS capabilities.</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSslModalAmount(2999);
+                        setShowSslModal(true);
+                      }}
+                      className="px-5 py-2.5 rounded-lg bg-[#e92929] hover:bg-[#d42020] text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-xs cursor-pointer transition"
+                    >
+                      <CreditCard size={14} />
+                      <span>Activate Plan via SSLCommerz (৳2,999)</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* 3.1. TRIAL REQUESTS & ADMIN APPROVALS                            */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {activeTab === "trials" && (
+              <div className="bg-white rounded-sm border border-slate-200 p-6 shadow-2xs space-y-5 text-xs animate-in fade-in">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">Tenant Free Trial Requests</h3>
+                    <p className="text-slate-500 text-xs mt-0.5">
+                      Tenants with default registrations must be reviewed and approved by platform administrators. Choose trial duration to activate.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={fetchTrialRequests}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold cursor-pointer"
+                  >
+                    <RefreshCw size={13} className={cn(loadingTrials && "animate-spin")} />
+                    <span>Refresh List</span>
+                  </button>
+                </div>
+
+                {loadingTrials ? (
+                  <div className="py-12 text-center text-slate-400">Loading trial requests...</div>
+                ) : trialRequests.length === 0 ? (
+                  <div className="py-12 text-center text-slate-400 space-y-2">
+                    <CheckCircle2 size={32} className="mx-auto text-emerald-500" />
+                    <p className="font-bold text-sm text-slate-700">No Pending Trial Requests</p>
+                    <p className="text-xs">All tenant registrations are either active or processed.</p>
+                  </div>
+                ) : (
+                  <div className="border border-slate-200 rounded overflow-x-auto">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                          <th className="p-3">Tenant / Business</th>
+                          <th className="p-3">Industry</th>
+                          <th className="p-3">Plan</th>
+                          <th className="p-3">Requested At</th>
+                          <th className="p-3">Status</th>
+                          <th className="p-3 text-right">Admin Approve Days</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {trialRequests.map((tr) => (
+                          <tr key={tr.id} className="hover:bg-slate-50/70 transition">
+                            <td className="p-3">
+                              <p className="font-bold text-slate-900">{tr.tenantName}</p>
+                              <p className="font-mono text-[10px] text-sky-600">{tr.slug}</p>
+                            </td>
+                            <td className="p-3 text-slate-600 font-medium">{tr.businessType}</td>
+                            <td className="p-3">
+                              <span className="px-2 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200 font-bold text-[10px]">
+                                {tr.planName}
+                              </span>
+                            </td>
+                            <td className="p-3 text-slate-500 font-mono text-[11px]">
+                              {tr.createdAt?.split("T")[0] || tr.createdAt?.slice(0, 10)}
+                            </td>
+                            <td className="p-3">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                {tr.status === "TRIAL_REQUESTED" ? "Trial Requested" : "Pending Payment"}
+                              </span>
+                            </td>
+                            <td className="p-3 text-right space-x-1.5">
+                              <button
+                                type="button"
+                                disabled={approving}
+                                onClick={() => handleApproveTrial(tr.id, 7)}
+                                className="px-2.5 py-1 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 font-bold text-[11px] cursor-pointer"
+                              >
+                                7 Days
+                              </button>
+                              <button
+                                type="button"
+                                disabled={approving}
+                                onClick={() => handleApproveTrial(tr.id, 14)}
+                                className="px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-bold text-[11px] cursor-pointer"
+                              >
+                                14 Days
+                              </button>
+                              <button
+                                type="button"
+                                disabled={approving}
+                                onClick={() => handleApproveTrial(tr.id, 30)}
+                                className="px-2.5 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 font-bold text-[11px] cursor-pointer"
+                              >
+                                30 Days
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
@@ -1337,6 +1514,17 @@ function SaaSContent() {
           </div>
         </form>
       </CustomModal>
+
+      {/* SSLCommerz Dummy Payment Gateway Modal */}
+      <SslPaymentModal
+        open={showSslModal}
+        onClose={() => setShowSslModal(false)}
+        amount={sslModalAmount}
+        orderId={`RENEW-${Date.now().toString().slice(-6)}`}
+        customerName="Platform Administrator"
+        customerEmail="admin@blueoceans.io"
+        onSuccess={handleSslPaymentSuccess}
+      />
     </div>
   );
 }

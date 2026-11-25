@@ -158,6 +158,100 @@ async def update_subscription(
     return ok({"updated": True})
 
 
+@router.get("/api/v1/saas/trial-requests")
+async def list_trial_requests(
+    user: AuthUser = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """List tenants requesting free trials or pending activation."""
+    rows = (await db.execute(text("""
+        SELECT s.id, s.tenantId, t.name as tenantName, t.slug, t.businessType,
+               p.name as planName, s.status, s.createdAt
+        FROM saas_subscriptions s
+        JOIN tenants t ON t.id = s.tenantId
+        LEFT JOIN saas_plans p ON p.id = s.planId
+        WHERE s.status IN ('TRIAL_REQUESTED', 'PENDING_PAYMENT')
+        ORDER BY s.createdAt DESC
+    """))).fetchall()
+    return ok([{
+        "id": r[0],
+        "tenantId": r[1],
+        "tenantName": r[2],
+        "slug": r[3],
+        "businessType": r[4],
+        "planName": r[5] or "Starter",
+        "status": r[6],
+        "createdAt": str(r[7]),
+    } for r in rows])
+
+
+@router.post("/api/v1/saas/trial-requests/{sub_id}/approve")
+async def approve_trial_request(
+    sub_id: str,
+    body: dict,
+    user: AuthUser = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin approves a trial request and sets the allowed trial days."""
+    days = int(body.get("trialDays", 14))
+    now = datetime.utcnow()
+    trial_end = now + timedelta(days=days)
+
+    await db.execute(text("""
+        UPDATE saas_subscriptions
+        SET status = 'TRIAL', trialEndsAt = :te, currentPeriodStart = :now, currentPeriodEnd = :te, updatedAt = NOW()
+        WHERE id = :id
+    """), {"id": sub_id, "te": trial_end, "now": now})
+
+    sub = (await db.execute(text("SELECT tenantId FROM saas_subscriptions WHERE id = :id"), {"id": sub_id})).first()
+    if sub:
+        await db.execute(text("UPDATE tenants SET status = 'ACTIVE' WHERE id = :t"), {"t": sub[0]})
+
+    await db.commit()
+    return ok({"message": f"Trial approved for {days} days", "trialEndsAt": str(trial_end), "trialDays": days})
+
+
+@router.post("/api/v1/saas/subscription/pay")
+async def pay_subscription(
+    body: dict,
+    user: AuthUser = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Complete payment via SSLCommerz (or any gateway) to activate subscription."""
+    sub_id = body.get("subscriptionId")
+    tenant_id = body.get("tenantId") or getattr(user, "tenantId", None)
+    trx_id = body.get("transactionId") or f"SSL-{uuid.uuid4().hex[:8].upper()}"
+    amount = float(body.get("amount", 0))
+    now = datetime.utcnow()
+    period_end = now + timedelta(days=30)
+
+    if not sub_id and tenant_id:
+        sub_row = (await db.execute(text(
+            "SELECT id FROM saas_subscriptions WHERE tenantId = :t ORDER BY createdAt DESC LIMIT 1"),
+            {"t": tenant_id})).first()
+        if sub_row:
+            sub_id = sub_row[0]
+
+    if sub_id:
+        await db.execute(text("""
+            UPDATE saas_subscriptions
+            SET status = 'ACTIVE', trialEndsAt = NULL, currentPeriodStart = :now, currentPeriodEnd = :pe, updatedAt = NOW()
+            WHERE id = :id
+        """), {"id": sub_id, "now": now, "pe": period_end})
+
+        sub = (await db.execute(text("SELECT tenantId FROM saas_subscriptions WHERE id = :id"), {"id": sub_id})).first()
+        if sub:
+            await db.execute(text("UPDATE tenants SET status = 'ACTIVE' WHERE id = :t"), {"t": sub[0]})
+            inv_id = str(uuid.uuid4())
+            await db.execute(text("""
+                INSERT INTO saas_invoices (id, tenantId, subscriptionId, amount, status, billingPeriod, createdAt, updatedAt)
+                VALUES (:id, :t, :s, :a, 'PAID', 'MONTHLY', NOW(), NOW())
+            """), {"id": inv_id, "t": sub[0], "s": sub_id, "a": amount})
+
+    await db.commit()
+    return ok({"status": "ACTIVE", "transactionId": trx_id, "message": "Subscription paid and activated"})
+
+
 # ═══════════════════════════════════════════════════════════════════
 # 3. USAGE TRACKING
 # ═══════════════════════════════════════════════════════════════════
