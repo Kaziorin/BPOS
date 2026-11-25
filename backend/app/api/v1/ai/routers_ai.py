@@ -550,94 +550,13 @@ async def ai_copilot(
     # Check for local Ollama or optional external LLM (OpenAI / Gemini)
     import os
     ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
-    ollama_model = os.getenv("OLLAMA_MODEL", "qwen2.5:1.5b").strip()
+    ollama_model = os.getenv("OLLAMA_MODEL", "qwen2.5:0.5b").strip()
     openai_key = os.getenv("OPENAI_API_KEY", "").strip()
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
 
     is_bengali = any('\u0980' <= char <= '\u09FF' for char in message) or any(
         w in msg_lower for w in ["koto", "bikri", "lav", "baki", "kemon", "stock", "mal", "ki", "ke", "kake", "kobe", "keno"]
     )
-
-    # 1. Local Ollama or External LLM Path
-    try:
-        import httpx
-        # Fetch essential business stats for context injection
-        stats_today = (await db.execute(text(
-            "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales WHERE tenantId=:t AND status='CONFIRMED' AND DATE(createdAt)=CURDATE()"),
-            {"t": tenantId})).first()
-        stats_month = (await db.execute(text(
-            "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales WHERE tenantId=:t AND status='CONFIRMED' AND createdAt >= DATE_FORMAT(NOW(), '%Y-%m-01')"),
-            {"t": tenantId})).first()
-        low_stock = (await db.execute(text(
-            "SELECT COUNT(*) FROM stock s JOIN products p ON p.id=s.productId WHERE s.tenantId=:t AND s.qtyOnHand <= COALESCE(p.reorderPoint, 10)"),
-            {"t": tenantId})).first()
-        due_total = (await db.execute(text(
-            "SELECT COUNT(*), COALESCE(SUM(total - paidTotal),0) FROM invoices WHERE tenantId=:t AND status NOT IN ('PAID','VOID')"),
-            {"t": tenantId})).first()
-
-        system_instruction = (
-            "You are the dedicated internal Offline AI Agent for Blue Oceans POS (Enterprise Multi-Branch ERP & POS System).\n"
-            "STRICT OPERATIONAL RULES:\n"
-            "1. You ONLY answer questions related to Blue Oceans POS features, modules, navigation, sales, profit, inventory stock, customer dues, accounting, hardware (receipt printers, barcode scanners), and retail operations.\n"
-            "2. If the user asks anything unrelated to Blue Oceans POS or store management (such as movies, general knowledge, other coding, sports), politely decline in Bengali: 'আমি শুধুমাত্র ব্লু ওশানস পিওএস (Blue Oceans POS) এবং আপনার ব্যবসায়িক হিসাব-নিকাশ সম্পর্কিত প্রশ্নের উত্তর দিতে পারি।'\n"
-            "3. Answer in the same language as the user (Bengali if asked in Bengali or Banglish, English if in English). Keep answers practical, clear, and concise.\n"
-            f"\nLive Store Metrics Context:\n"
-            f"- Today's Sales: {stats_today[0]} orders, Total ৳{float(stats_today[1] or 0):,.2f}\n"
-            f"- This Month's Sales: {stats_month[0]} orders, Total ৳{float(stats_month[1] or 0):,.2f}\n"
-            f"- Low Stock Products Needing Reorder: {low_stock[0]} items\n"
-            f"- Total Outstanding Customer Due / AR: {due_total[0]} invoices, ৳{float(due_total[1] or 0):,.2f}\n"
-            "\nBlue Oceans POS Features Overview:\n"
-            "- Modules: Retail POS, Restaurant KOT & Dining Tables, Pharmacy (Rx & generic medicine), Grocery & Bakery (scales), Salon & Spa bookings, Wholesale B2B & RMA repair.\n"
-            "- Multi-Branch: Central warehouse, inter-branch stock transfers, franchise royalties.\n"
-            "- Accounts: Double-entry accounting, P&L, Balance Sheet, NBR VAT/Tax compliant, Customer EMI & Credit ledger.\n"
-            "- Offline Resilience: Full offline POS billing with automatic cloud sync on reconnect.\n"
-        )
-
-        # 1A. Local Ollama LLM (Preferred Offline Agent with fast timeout)
-        if ollama_url and not answer:
-            try:
-                # Fast timeout so it does not hang if CPU is slow
-                async with httpx.AsyncClient(timeout=12.0) as client:
-                    ollama_payload = {
-                        "model": ollama_model,
-                        "messages": [
-                            {"role": "system", "content": system_instruction},
-                            {"role": "user", "content": message}
-                        ],
-                        "stream": False,
-                        "options": {"temperature": 0.3}
-                    }
-                    resp = await client.post(f"{ollama_url}/api/chat", json=ollama_payload)
-                    if resp.status_code == 200:
-                        ollama_res = resp.json()
-                        msg_obj = ollama_res.get("message") or {}
-                        raw_ans = (msg_obj.get("content") or "").strip()
-                        # Only accept if non-empty and coherent
-                        if len(raw_ans) > 15:
-                            answer = raw_ans
-            except Exception:
-                pass
-
-        # 1B. Optional Google Gemini (Free Tier) if key is added in .env
-        if not answer and gemini_key:
-            try:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
-                async with httpx.AsyncClient(timeout=10.0) as client:
-                    resp = await client.post(url, json={
-                        "systemInstruction": {"parts": [{"text": system_instruction}]},
-                        "contents": [{"parts": [{"text": message}]}]
-                    })
-                    if resp.status_code == 200:
-                        gem_data = resp.json()
-                        candidates = gem_data.get("candidates") or []
-                        if candidates and "content" in candidates[0]:
-                            parts = candidates[0]["content"].get("parts") or []
-                            if parts:
-                                answer = parts[0].get("text", "").strip()
-            except Exception:
-                pass
-    except Exception:
-        pass
 
     # 2. Local Real-Time High-Accuracy Offline Business Intelligence Engine (Instant 0.01s)
     if not answer:
@@ -652,24 +571,27 @@ async def ai_copilot(
 
         # How Subscription / SaaS Plans Work Intent
         elif any(w in msg_lower for w in ["subscription", "plan", "package", "প্যাকেজ", "প্ল্যান", "সাবস্ক্রিপশন", "কত টাকা", "চার্জ"]):
-            plans_db = rows_to_dicts((await db.execute(text(
-                "SELECT name, priceMonthly, maxUsers, maxBranches, maxTerminals, description FROM saas_plans ORDER BY priceMonthly ASC"))).fetchall())
-            if plans_db:
-                p_lines = []
-                for p in plans_db:
-                    p_lines.append(
-                        f"• {p['name']} (৳{float(p['priceMonthly'] or 0):,.0f}/মাস):\n"
-                        f"  আউটলেট: {p['maxBranches']}টি, টার্মিনাল: {p['maxTerminals']}টি, স্টাফ: {p['maxUsers']} জন।"
+            try:
+                plans_db = rows_to_dicts((await db.execute(text(
+                    "SELECT name, monthlyPrice, maxUsers, maxBranches, maxPOS, description FROM saas_plans ORDER BY monthlyPrice ASC"))).fetchall())
+                if plans_db:
+                    p_lines = []
+                    for p in plans_db:
+                        p_lines.append(
+                            f"• {p['name']} (৳{float(p['monthlyPrice'] or 0):,.0f}/মাস):\n"
+                            f"  আউটলেট: {p.get('maxBranches', 1)}টি, টার্মিনাল: {p.get('maxPOS', 2)}টি, স্টাফ: {p.get('maxUsers', 5)} জন।"
+                        )
+                    answer = (
+                        "💳 ব্লু ওশানস পিওএস-এর সাবস্ক্রিপশন প্ল্যানসমূহ:\n\n" +
+                        "\n\n".join(p_lines) +
+                        "\n\n⚙️ কীভাবে কাজ করে:\n"
+                        "১. প্রতিটি প্ল্যানে আউটলেট, টার্মিনাল ও ইউজারের নির্ধারিত লিমিট থাকে।\n"
+                        "২. মাসিক বা বাৎসরিক ভিত্তিতে সাবস্ক্রিপশন রিনিউ করা যায়।\n"
+                        "৩. সুপার এডমিন প্যানেল (http://localhost:3000/saas) থেকে যেকোনো সময় প্ল্যান আপগ্রেড বা এডিট করা সম্ভব।"
                     )
-                answer = (
-                    "💳 ব্লু ওশানস পিওএস-এর সাবস্ক্রিপশন প্ল্যানসমূহ:\n\n" +
-                    "\n\n".join(p_lines) +
-                    "\n\n⚙️ কীভাবে কাজ করে:\n"
-                    "১. প্রতিটি প্ল্যানে আউটলেট, টার্মিনাল ও ইউজারের নির্ধারিত লিমিট থাকে।\n"
-                    "২. মাসিক বা বাৎসরিক ভিত্তিতে সাবস্ক্রিপশন রিনিউ করা যায়।\n"
-                    "৩. সুপার এডমিন প্যানেল থেকে যেকোনো সময় প্ল্যান আপগ্রেড বা এডিট করা সম্ভব।"
-                )
-            else:
+            except Exception:
+                pass
+            if not answer:
                 answer = (
                     "💳 ব্লু ওশানস পিওএস-এর প্রধান ৩টি কমার্শিয়াল সাবস্ক্রিপশন প্ল্যান:\n\n"
                     "১. Starter (৳৯৯০/মাস):\n"
@@ -868,13 +790,35 @@ async def ai_copilot(
                           "• \"Who are my top customers?\"")
 
         else:
-            if is_bengali:
+            # 2. Open-Ended AI Generation (Ollama Local or Gemini Cloud)
+            if ollama_url:
+                try:
+                    import httpx
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        ollama_payload = {
+                            "model": ollama_model,
+                            "messages": [
+                                {"role": "system", "content": "You are Blue Oceans POS AI Assistant. Reply concisely in Bengali."},
+                                {"role": "user", "content": message}
+                            ],
+                            "stream": False,
+                            "options": {"temperature": 0.3}
+                        }
+                        resp = await client.post(f"{ollama_url}/api/chat", json=ollama_payload)
+                        if resp.status_code == 200:
+                            raw_ans = (resp.json().get("message", {}).get("content") or "").strip()
+                            if len(raw_ans) > 10:
+                                answer = raw_ans
+                except Exception:
+                    pass
+
+            if not answer and is_bengali:
                 answer = ("আমি আপনার সেলস, প্রফিট, ইনভেন্টরি, কাস্টমার বাকি ও পারচেজ ডেটা বিশ্লেষণ করতে পারি। নিচের মতো করে প্রশ্ন করতে পারেন:\n"
                           "• \"আজকের সেল কত?\"\n"
                           "• \"চলতি মাসের প্রফিট কত?\"\n"
                           "• \"স্টক কম এমন প্রোডাক্ট দেখাও\"\n"
                           "• \"বকেয়া বাকির হিসাব দাও\"")
-            else:
+            elif not answer:
                 answer = ("I can assist with sales, profit, inventory stock, customer dues, and procurement.\n"
                           "Try asking:\n"
                           "• \"What were today's sales?\"\n"

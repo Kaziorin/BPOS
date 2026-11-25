@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { DollarSign, Package, AlertTriangle, Users, Wallet, ArrowRight, ShoppingCart, ChevronDown, BarChart3, Clock, TrendingUp } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -22,6 +23,7 @@ function useGreeting() {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { user, subscription } = useAuth();
   const greeting = useGreeting();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
@@ -33,6 +35,13 @@ export default function DashboardPage() {
   const canAccessReports = checkRouteEntitlement("/reports", user, subscription).allowed;
   const accessibleTerminals = getAccessiblePosTerminals(user, subscription);
   const posButtonLabel = accessibleTerminals.length === 1 ? "POS Terminal" : "POS Terminals";
+  const handlePosTerminalClick = () => {
+    if (accessibleTerminals.length === 1 && accessibleTerminals[0]?.href) {
+      router.push(accessibleTerminals[0].href);
+    } else {
+      setPosModalOpen(true);
+    }
+  };
 
   useEffect(() => {
     Promise.all([
@@ -157,9 +166,15 @@ export default function DashboardPage() {
           <CustomButton
             variant="primary"
             size="md"
-            onClick={() => setPosModalOpen(true)}
+            onClick={handlePosTerminalClick}
             leftIcon={<ShoppingCart size={15} strokeWidth={2.5} className="shrink-0 text-white" />}
-            rightIcon={<ChevronDown size={14} className="opacity-90 shrink-0 text-white" />}
+            rightIcon={
+              accessibleTerminals.length === 1 ? (
+                <ArrowRight size={14} className="opacity-90 shrink-0 text-white" />
+              ) : (
+                <ChevronDown size={14} className="opacity-90 shrink-0 text-white" />
+              )
+            }
           >
             {posButtonLabel}
           </CustomButton>

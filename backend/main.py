@@ -12,4 +12,5 @@ from app.main import app, create_app
 __all__ = ["app", "create_app"]
 
 if __name__ == "__main__":
+    # Reload trigger
     uvicorn.run("main:app", host="0.0.0.0", port=4000, reload=True)
