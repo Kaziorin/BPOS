@@ -118,8 +118,30 @@ export default function PosPage() {
     }
   }, [router]);
 
-  // ── Online status ──
+  // ── Online status & Offline Sync ──
   const [online, setOnline] = useState(true);
+  const [syncStatus, setSyncStatus] = useState<{
+    online: boolean;
+    syncing: boolean;
+    pendingCount: number;
+    failedCount: number;
+    lastSyncAt: string | null;
+  }>({
+    online: true,
+    syncing: false,
+    pendingCount: 0,
+    failedCount: 0,
+    lastSyncAt: null,
+  });
+
+  // ── Manager PIN / RBAC Security Override ──
+  const [showManagerPinModal, setShowManagerPinModal] = useState(false);
+  const [managerPinAction, setManagerPinAction] = useState<{
+    type: "CLEAR_CART" | "HIGH_DISCOUNT";
+    payload?: any;
+  } | null>(null);
+  const [managerPinInput, setManagerPinInput] = useState("");
+  const [managerPinError, setManagerPinError] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Context
@@ -343,18 +365,110 @@ export default function PosPage() {
     return () => clearInterval(t);
   }, []);
 
-  // ── Online/offline listener ──
+  // ── Online/offline & Background Sync listener ──
   useEffect(() => {
     setOnline(isOnline());
-    const handleOnline = () => setOnline(true);
+    syncManager.init();
+    const unsub = syncManager.subscribe((st) => {
+      setSyncStatus(st);
+      setOnline(st.online);
+    });
+
+    const handleOnline = () => {
+      setOnline(true);
+      syncManager.syncPending().then((res) => {
+        if (res.synced > 0) {
+          toast.success(`Online: Synced ${res.synced} offline transaction(s)!`);
+          loadData();
+        }
+      }).catch(() => {});
+    };
     const handleOffline = () => setOnline(false);
+
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
     return () => {
+      unsub();
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
+
+  const handleManualSync = async () => {
+    if (!online) {
+      toast.warning("Cannot sync while offline. Please connect to internet.");
+      return;
+    }
+    toast.loading("Syncing offline sales to server...", { id: "sync-toast" });
+    try {
+      const res = await syncManager.syncPending();
+      if (res.synced > 0) {
+        toast.success(`Successfully synced ${res.synced} offline sale(s)!`, { id: "sync-toast" });
+        await loadData();
+        fetchRecentOrders();
+      } else if (res.failed > 0) {
+        toast.error(`${res.failed} sale(s) failed to sync.`, { id: "sync-toast" });
+      } else {
+        toast.info("Offline sales queue is clean. All sales synced.", { id: "sync-toast" });
+      }
+    } catch (err: any) {
+      toast.error(`Sync error: ${err.message || "Failed to sync"}`, { id: "sync-toast" });
+    }
+  };
+
+  const handleManagerPinSubmit = async () => {
+    if (managerPinInput.trim() !== "1234") {
+      setManagerPinError("Invalid Manager PIN. Access denied.");
+      return;
+    }
+
+    try {
+      await api.post("/api/v1/audit/ingest", {
+        logs: [
+          {
+            entityType: "POS_RBAC",
+            action: managerPinAction?.type || "PIN_OVERRIDE",
+            entityId: invoiceNo,
+            newValues: JSON.stringify({
+              cashier: cashierName,
+              action: managerPinAction?.type,
+              cartItemsCount: cart.length,
+              subtotal,
+              payload: managerPinAction?.payload,
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        ],
+      }).catch(() => {});
+    } catch {}
+
+    if (managerPinAction?.type === "CLEAR_CART") {
+      resetSale();
+      toast.success("Cart cleared via Manager PIN authorization.");
+    } else if (managerPinAction?.type === "HIGH_DISCOUNT") {
+      setDiscountTotal(Number(managerPinAction.payload) || 0);
+      toast.success("High discount approved via Manager PIN.");
+    }
+
+    setShowManagerPinModal(false);
+    setManagerPinInput("");
+    setManagerPinError("");
+    setManagerPinAction(null);
+  };
+
+  const requestClearCart = () => {
+    if (cart.length === 0) return;
+    const role = (currentUser as any)?.role?.toLowerCase() || "";
+    if (role.includes("admin") || role.includes("manager")) {
+      resetSale();
+      toast.success("Cart cleared by manager.");
+    } else {
+      setManagerPinAction({ type: "CLEAR_CART" });
+      setManagerPinInput("");
+      setManagerPinError("");
+      setShowManagerPinModal(true);
+    }
+  };
 
   // Categories state from API
   const [apiCategories, setApiCategories] = useState<{ id: string; name: string }[]>([]);
@@ -1424,16 +1538,30 @@ export default function PosPage() {
             <ChevronDown size={11} className="text-slate-400" />
           </div>
 
-          {/* Status Badge with Radar Ping VFX */}
-          <div className={cn(
-            "flex items-center gap-1.5 h-9 px-3 rounded-full text-xs font-bold border shrink-0 shadow-2xs",
-            online ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-rose-50 text-rose-700 border-rose-200"
-          )}>
-            <div className="relative flex items-center justify-center w-2 h-2">
-              {online && <span className="radar-ring" />}
-              <span className={cn("relative w-2 h-2 rounded-full", online ? "bg-emerald-500" : "bg-rose-500 animate-pulse")} />
+          {/* Status Badge with Radar Ping VFX & Pending Sync Count */}
+          <div className="flex items-center gap-2">
+            <div className={cn(
+              "flex items-center gap-1.5 h-9 px-3 rounded-full text-xs font-bold border shrink-0 shadow-2xs",
+              online ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-rose-50 text-rose-700 border-rose-200"
+            )}>
+              <div className="relative flex items-center justify-center w-2 h-2">
+                {online && <span className="radar-ring" />}
+                <span className={cn("relative w-2 h-2 rounded-full", online ? "bg-emerald-500" : "bg-rose-500 animate-pulse")} />
+              </div>
+              <span>{online ? "Online" : "Offline"}</span>
             </div>
-            <span>{online ? "Online" : "Offline"}</span>
+
+            {syncStatus.pendingCount > 0 && (
+              <button
+                type="button"
+                onClick={handleManualSync}
+                title="Click to sync offline sales to server"
+                className="flex items-center gap-1.5 h-9 px-3 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition-colors shadow-2xs cursor-pointer animate-pulse"
+              >
+                <RefreshCw size={13} className={cn(syncStatus.syncing && "animate-spin")} />
+                <span>{syncStatus.pendingCount} Pending Sync</span>
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -1801,7 +1929,7 @@ export default function PosPage() {
                 type="button"
                 variant="danger"
                 size="xs"
-                onClick={resetSale}
+                onClick={requestClearCart}
                 disabled={cart.length === 0}
                 leftIcon={<Trash2 size={12} />}
                 className="!h-7 !px-3 rounded-full text-xs font-semibold !bg-rose-50 !text-rose-600 border border-rose-200 hover:!bg-rose-100 disabled:opacity-40"
@@ -3057,6 +3185,74 @@ export default function PosPage() {
                 {btn}
               </button>
             ))}
+          </div>
+        </div>
+      </CustomModal>
+
+      {/* Manager PIN Override Modal for RBAC Security */}
+      <CustomModal
+        open={showManagerPinModal}
+        onClose={() => {
+          setShowManagerPinModal(false);
+          setManagerPinInput("");
+          setManagerPinError("");
+          setManagerPinAction(null);
+        }}
+        title="Manager PIN Authorization"
+      >
+        <div className="p-4 space-y-4">
+          <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-800 flex items-start gap-2.5">
+            <AlertTriangle size={18} className="shrink-0 text-amber-600 mt-0.5" />
+            <div>
+              <p className="font-bold">
+                {managerPinAction?.type === "CLEAR_CART" ? "Clear Cart Authorization Required" : "High Discount Authorization Required"}
+              </p>
+              <p className="text-[11px] text-amber-700 mt-0.5">
+                This operation is restricted by security audit rules. A Store Manager or Administrator PIN is required to proceed.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1.5">Enter Manager PIN (Default: 1234)</label>
+            <input
+              type="password"
+              maxLength={8}
+              autoFocus
+              value={managerPinInput}
+              onChange={(e) => {
+                setManagerPinInput(e.target.value);
+                setManagerPinError("");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleManagerPinSubmit();
+              }}
+              placeholder="••••"
+              className="w-full text-center tracking-widest text-lg font-bold h-11 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+            />
+            {managerPinError && <p className="text-xs text-rose-600 font-semibold mt-1.5">{managerPinError}</p>}
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <button
+              type="button"
+              onClick={() => {
+                setShowManagerPinModal(false);
+                setManagerPinInput("");
+                setManagerPinError("");
+                setManagerPinAction(null);
+              }}
+              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleManagerPinSubmit}
+              className="px-5 py-2 rounded-lg text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 shadow-sm cursor-pointer"
+            >
+              Authorize & Proceed
+            </button>
           </div>
         </div>
       </CustomModal>
