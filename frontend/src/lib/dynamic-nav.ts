@@ -520,14 +520,14 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
     items: [
       {
         label: "E-Commerce Storefront",
-        href: "http://localhost:3001",
+        href: "http://localhost:3002",
         icon: Globe,
         badge: "Add-on",
         children: [
-          { label: "Live Online Store", href: "http://localhost:3001", icon: Store },
-          { label: "Visual Page Builder", href: "http://localhost:3001/setup", icon: Layers },
+          { label: "Live Online Store", href: "http://localhost:3002", icon: Store },
+          { label: "Visual Page Builder", href: "http://localhost:3002/setup", icon: Layers },
           { label: "Online Orders & Sales", href: "/sales/orders", icon: ShoppingCart },
-          { label: "Track Order Portal", href: "http://localhost:3001/track-order", icon: Truck },
+          { label: "Track Order Portal", href: "http://localhost:3002/track-order", icon: Truck },
         ],
       },
     ],
@@ -888,7 +888,7 @@ export function useDynamicNav() {
       storeSlug = String(user.tenantId);
     }
     const withStoreQuery = (url: string) => {
-      if (!storeSlug || !url.startsWith("http://localhost:3001")) return url;
+      if (!storeSlug || !url.startsWith("http://localhost:3002")) return url;
       const sep = url.includes("?") ? "&" : "?";
       return `${url}${sep}store=${encodeURIComponent(storeSlug)}`;
     };

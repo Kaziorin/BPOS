@@ -126,7 +126,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.removeItem(TENANT_STORAGE_KEY);
             setUser(null);
             setSubscription(null);
-            router.push("/login");
+            if (typeof window !== "undefined" && window.location.pathname !== "/") {
+              router.push("/login");
+            }
           }
         })
         .finally(() => {
