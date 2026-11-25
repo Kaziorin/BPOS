@@ -19,6 +19,8 @@ import {
   Layers,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
+import { getAccessiblePosTerminals, getTenantEntitlementContext } from "@/lib/pos-terminals";
 import { CustomBreadcrumb, CustomButton } from "@/components/custom";
 import {
   useBarcodeScanner,
@@ -81,6 +83,11 @@ function normalizeProduct(raw: any): ProductResult | null {
 
 export default function PriceCheckerPage() {
   const router = useRouter();
+  const { user, subscription } = useAuth();
+  const entCtx = getTenantEntitlementContext(user, subscription);
+  const primaryTerminalHref = getAccessiblePosTerminals(user, subscription)[0]?.href || "/retail-pos";
+  const businessLabel =
+    entCtx.businessType.charAt(0) + entCtx.businessType.slice(1).toLowerCase();
   const [query, setQuery] = useState("");
   const [product, setProduct] = useState<ProductResult | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -184,8 +191,8 @@ export default function PriceCheckerPage() {
         description="Scan barcodes or enter SKUs to check customer shelf prices, stock levels, and catalog specifications"
         icon={<Tag size={15} />}
         items={[
-          { label: "Retail", href: "/retail-pos" },
-          { label: "POS Terminal", href: "/retail-pos" },
+          { label: businessLabel, href: primaryTerminalHref },
+          { label: "POS Terminal", href: primaryTerminalHref },
           { label: "Price Checker" },
         ]}
         actions={
@@ -197,7 +204,7 @@ export default function PriceCheckerPage() {
               variant="primary"
               size="sm"
               icon={ShoppingCart}
-              onClick={() => router.push("/retail-pos")}
+              onClick={() => router.push(primaryTerminalHref)}
             >
               Open POS Register
             </CustomButton>
@@ -354,7 +361,7 @@ export default function PriceCheckerPage() {
             <div className={`grid gap-4 ${showStaffCost ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1"}`}>
               <div className="p-6 rounded-sm bg-brand-gradient text-white shadow-sm text-center space-y-1">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-white/85">
-                  Retail Customer Selling Price
+                  Customer Selling Price
                 </span>
                 <div className="text-4xl font-black text-white tabular-nums">
                   {formatMoney(product.sellingPrice)}
@@ -431,7 +438,7 @@ export default function PriceCheckerPage() {
               variant="primary"
               size="sm"
               icon={ShoppingCart}
-              onClick={() => router.push("/retail-pos")}
+              onClick={() => router.push(primaryTerminalHref)}
             >
               Add to POS Cart &amp; Bill
             </CustomButton>

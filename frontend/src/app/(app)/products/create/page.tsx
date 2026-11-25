@@ -268,6 +268,7 @@ export default function CreateProductPage() {
     hasDiffPriceWarehouse: false,
     hasBatchExpiry: false,
     hasSerial: false,
+    warehouseId: "",
   });
 
   const [warehouses, setWarehouses] = useState<any[]>([]);
@@ -716,6 +717,7 @@ export default function CreateProductPage() {
           hasDiffPriceWarehouse: false,
           hasBatchExpiry: false,
           hasSerial: false,
+          warehouseId: "",
         });
         setVariants([]);
       } else {

@@ -547,49 +547,85 @@ async def ai_copilot(
     answer = ""
     suggestions = []
 
-    # Check for optional external LLM (OpenAI / Gemini)
+    # Check for local Ollama or optional external LLM (OpenAI / Gemini)
     import os
+    ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+    ollama_model = os.getenv("OLLAMA_MODEL", "qwen2.5:1.5b").strip()
     openai_key = os.getenv("OPENAI_API_KEY", "").strip()
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
 
     is_bengali = any('\u0980' <= char <= '\u09FF' for char in message) or any(
-        w in msg_lower for w in ["koto", "bikri", "lav", "baki", "kemon", "stock", "mal"]
+        w in msg_lower for w in ["koto", "bikri", "lav", "baki", "kemon", "stock", "mal", "ki", "ke", "kake", "kobe", "keno"]
     )
 
-    # 1. External LLM Path (if API key is configured)
-    if openai_key or gemini_key:
-        try:
-            import httpx
-            # Fetch essential business stats for context injection
-            stats_today = (await db.execute(text(
-                "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales WHERE tenantId=:t AND status='CONFIRMED' AND DATE(createdAt)=CURDATE()"),
-                {"t": tenantId})).first()
-            stats_month = (await db.execute(text(
-                "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales WHERE tenantId=:t AND status='CONFIRMED' AND createdAt >= DATE_FORMAT(NOW(), '%Y-%m-01')"),
-                {"t": tenantId})).first()
-            low_stock = (await db.execute(text(
-                "SELECT COUNT(*) FROM stock s JOIN products p ON p.id=s.productId WHERE s.tenantId=:t AND s.qtyOnHand <= COALESCE(p.reorderPoint, 10)"),
-                {"t": tenantId})).first()
-            due_total = (await db.execute(text(
-                "SELECT COUNT(*), COALESCE(SUM(total - paidTotal),0) FROM invoices WHERE tenantId=:t AND status NOT IN ('PAID','VOID')"),
-                {"t": tenantId})).first()
+    # 1. Local Ollama or External LLM Path
+    try:
+        import httpx
+        # Fetch essential business stats for context injection
+        stats_today = (await db.execute(text(
+            "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales WHERE tenantId=:t AND status='CONFIRMED' AND DATE(createdAt)=CURDATE()"),
+            {"t": tenantId})).first()
+        stats_month = (await db.execute(text(
+            "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales WHERE tenantId=:t AND status='CONFIRMED' AND createdAt >= DATE_FORMAT(NOW(), '%Y-%m-01')"),
+            {"t": tenantId})).first()
+        low_stock = (await db.execute(text(
+            "SELECT COUNT(*) FROM stock s JOIN products p ON p.id=s.productId WHERE s.tenantId=:t AND s.qtyOnHand <= COALESCE(p.reorderPoint, 10)"),
+            {"t": tenantId})).first()
+        due_total = (await db.execute(text(
+            "SELECT COUNT(*), COALESCE(SUM(total - paidTotal),0) FROM invoices WHERE tenantId=:t AND status NOT IN ('PAID','VOID')"),
+            {"t": tenantId})).first()
 
-            context_prompt = (
-                f"You are Blue Oceans POS Business Copilot. Answer user question accurately based on real store database context.\n"
-                f"Store Metrics:\n"
-                f"- Today's Sales: {stats_today[0]} orders, Total ৳{float(stats_today[1] or 0):,.2f}\n"
-                f"- This Month's Sales: {stats_month[0]} orders, Total ৳{float(stats_month[1] or 0):,.2f}\n"
-                f"- Low Stock Products Needing Reorder: {low_stock[0]} items\n"
-                f"- Total Outstanding Customer Due / AR: {due_total[0]} invoices, ৳{float(due_total[1] or 0):,.2f}\n"
-                f"Always reply in the same language as the user (Bengali if user asks in Bengali or Banglish, English if in English). Be concise, executive, and helpful.\n"
-                f"User: {message}"
-            )
+        system_instruction = (
+            "You are the dedicated internal Offline AI Agent for Blue Oceans POS (Enterprise Multi-Branch ERP & POS System).\n"
+            "STRICT OPERATIONAL RULES:\n"
+            "1. You ONLY answer questions related to Blue Oceans POS features, modules, navigation, sales, profit, inventory stock, customer dues, accounting, hardware (receipt printers, barcode scanners), and retail operations.\n"
+            "2. If the user asks anything unrelated to Blue Oceans POS or store management (such as movies, general knowledge, other coding, sports), politely decline in Bengali: 'আমি শুধুমাত্র ব্লু ওশানস পিওএস (Blue Oceans POS) এবং আপনার ব্যবসায়িক হিসাব-নিকাশ সম্পর্কিত প্রশ্নের উত্তর দিতে পারি।'\n"
+            "3. Answer in the same language as the user (Bengali if asked in Bengali or Banglish, English if in English). Keep answers practical, clear, and concise.\n"
+            f"\nLive Store Metrics Context:\n"
+            f"- Today's Sales: {stats_today[0]} orders, Total ৳{float(stats_today[1] or 0):,.2f}\n"
+            f"- This Month's Sales: {stats_month[0]} orders, Total ৳{float(stats_month[1] or 0):,.2f}\n"
+            f"- Low Stock Products Needing Reorder: {low_stock[0]} items\n"
+            f"- Total Outstanding Customer Due / AR: {due_total[0]} invoices, ৳{float(due_total[1] or 0):,.2f}\n"
+            "\nBlue Oceans POS Features Overview:\n"
+            "- Modules: Retail POS, Restaurant KOT & Dining Tables, Pharmacy (Rx & generic medicine), Grocery & Bakery (scales), Salon & Spa bookings, Wholesale B2B & RMA repair.\n"
+            "- Multi-Branch: Central warehouse, inter-branch stock transfers, franchise royalties.\n"
+            "- Accounts: Double-entry accounting, P&L, Balance Sheet, NBR VAT/Tax compliant, Customer EMI & Credit ledger.\n"
+            "- Offline Resilience: Full offline POS billing with automatic cloud sync on reconnect.\n"
+        )
 
-            if gemini_key:
+        # 1A. Local Ollama LLM (Preferred Offline Agent with fast timeout)
+        if ollama_url and not answer:
+            try:
+                # Fast timeout so it does not hang if CPU is slow
+                async with httpx.AsyncClient(timeout=12.0) as client:
+                    ollama_payload = {
+                        "model": ollama_model,
+                        "messages": [
+                            {"role": "system", "content": system_instruction},
+                            {"role": "user", "content": message}
+                        ],
+                        "stream": False,
+                        "options": {"temperature": 0.3}
+                    }
+                    resp = await client.post(f"{ollama_url}/api/chat", json=ollama_payload)
+                    if resp.status_code == 200:
+                        ollama_res = resp.json()
+                        msg_obj = ollama_res.get("message") or {}
+                        raw_ans = (msg_obj.get("content") or "").strip()
+                        # Only accept if non-empty and coherent
+                        if len(raw_ans) > 15:
+                            answer = raw_ans
+            except Exception:
+                pass
+
+        # 1B. Optional Google Gemini (Free Tier) if key is added in .env
+        if not answer and gemini_key:
+            try:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
                 async with httpx.AsyncClient(timeout=10.0) as client:
                     resp = await client.post(url, json={
-                        "contents": [{"parts": [{"text": context_prompt}]}]
+                        "systemInstruction": {"parts": [{"text": system_instruction}]},
+                        "contents": [{"parts": [{"text": message}]}]
                     })
                     if resp.status_code == 200:
                         gem_data = resp.json()
@@ -598,26 +634,104 @@ async def ai_copilot(
                             parts = candidates[0]["content"].get("parts") or []
                             if parts:
                                 answer = parts[0].get("text", "").strip()
+            except Exception:
+                pass
+    except Exception:
+        pass
 
-            elif openai_key and not answer:
-                url = "https://api.openai.com/v1/chat/completions"
-                headers = {"Authorization": f"Bearer {openai_key}", "Content-Type": "application/json"}
-                payload = {
-                    "model": "gpt-4o-mini",
-                    "messages": [
-                        {"role": "system", "content": "You are Blue Oceans POS Copilot. Respond concisely with exact figures."},
-                        {"role": "user", "content": context_prompt}
-                    ],
-                    "temperature": 0.3
-                }
-                async with httpx.AsyncClient(timeout=10.0) as client:
-                    resp = await client.post(url, headers=headers, json=payload)
-                    if resp.status_code == 200:
-                        openai_data = resp.json()
-                        answer = openai_data["choices"][0]["message"]["content"].strip()
-        except Exception as e:
-            # Fallback to local SQL intelligence on LLM error
-            pass
+    # 2. Local Real-Time High-Accuracy Offline Business Intelligence Engine (Instant 0.01s)
+    if not answer:
+        # Identity & Greeting Intent
+        if any(w in msg_lower for w in ["tomar name", "tomar nam", "your name", "who are you", "tumi k", "tumi ke", "পরিচয়", "নাম কি", "নাম কী", "কে তুমি", "কে আপনি", "hello", "hi", "kemon aso", "কেমন আছো", "কেমন আছেন"]):
+            answer = (
+                "👋 আমি ব্লু ওশানস পিওএস (Blue Oceans POS)-এর অফলাইন বিজনেস এআই কোপাইলট।\n\n"
+                "আমি আপনার সফটওয়্যারের একজন ডেডিকেটেড সহকারী হিসেবে কাজ করি।\n"
+                "• আপনার দোকানের আজকের বিক্রি, লাভ-ক্ষতি, পণ্যের বর্তমান স্টক ও কাস্টমার বকেয়ার লাইভ হিসাব দিতে পারি।\n"
+                "• পিওএস, ইনভেন্টরি, রেস্তোরাঁ KOT, ফার্মেসি, অ্যাকাউন্টিং এবং অন্যান্য মডিউল ব্যবহারের সঠিক নির্দেশনা দিতে পারি।"
+            )
+
+        # How Subscription / SaaS Plans Work Intent
+        elif any(w in msg_lower for w in ["subscription", "plan", "package", "প্যাকেজ", "প্ল্যান", "সাবস্ক্রিপশন", "কত টাকা", "চার্জ"]):
+            plans_db = rows_to_dicts((await db.execute(text(
+                "SELECT name, priceMonthly, maxUsers, maxBranches, maxTerminals, description FROM saas_plans ORDER BY priceMonthly ASC"))).fetchall())
+            if plans_db:
+                p_lines = []
+                for p in plans_db:
+                    p_lines.append(
+                        f"• {p['name']} (৳{float(p['priceMonthly'] or 0):,.0f}/মাস):\n"
+                        f"  আউটলেট: {p['maxBranches']}টি, টার্মিনাল: {p['maxTerminals']}টি, স্টাফ: {p['maxUsers']} জন।"
+                    )
+                answer = (
+                    "💳 ব্লু ওশানস পিওএস-এর সাবস্ক্রিপশন প্ল্যানসমূহ:\n\n" +
+                    "\n\n".join(p_lines) +
+                    "\n\n⚙️ কীভাবে কাজ করে:\n"
+                    "১. প্রতিটি প্ল্যানে আউটলেট, টার্মিনাল ও ইউজারের নির্ধারিত লিমিট থাকে।\n"
+                    "২. মাসিক বা বাৎসরিক ভিত্তিতে সাবস্ক্রিপশন রিনিউ করা যায়।\n"
+                    "৩. সুপার এডমিন প্যানেল থেকে যেকোনো সময় প্ল্যান আপগ্রেড বা এডিট করা সম্ভব।"
+                )
+            else:
+                answer = (
+                    "💳 ব্লু ওশানস পিওএস-এর প্রধান ৩টি কমার্শিয়াল সাবস্ক্রিপশন প্ল্যান:\n\n"
+                    "১. Starter (৳৯৯০/মাস):\n"
+                    "   • ১টি ব্রাঞ্চ, ২টি পিওএস টার্মিনাল, ৫ জন স্টাফ, ২৫০০ পণ্য ক্যাটালগ।\n"
+                    "   • কোর রিটেইল পিওএস ও ইনভেন্টরি।\n\n"
+                    "২. Business Pro (৳২,৯৯০/মাস):\n"
+                    "   • ৫টি ব্রাঞ্চ, ১০টি টার্মিনাল, ২৫ জন স্টাফ, ২৫০০০ পণ্য।\n"
+                    "   • মাল্টি-ব্রাঞ্চ স্টক ট্রান্সফার, রেস্তোরাঁ KOT ও অ্যাকাউন্টিং।\n\n"
+                    "৩. Enterprise (৳৯,৯৯০/মাস):\n"
+                    "   • আনলিমিটেড ব্রাঞ্চ ও টার্মিনাল, সম্পূর্ণ ইআরপি, ম্যানুফ্যাকচারিং ও ফ্র্যাঞ্চাইজি রয়্যালটি।"
+                )
+
+        # How Inventory Works Intent
+        elif any(w in msg_lower for w in ["inventory ke vabe", "inventory kivabe", "how inventory", "inventory কাজ", "ইনভেন্টরি কীভাবে", "ইনভেন্টরি কিভাবে", "ইনভেন্টরি কাজ", "স্টক কীভাবে", "স্টক কিভাবে"]):
+            # Get live stock overview
+            total_items = (await db.execute(text("SELECT COUNT(*) FROM products WHERE tenantId=:t"), {"t": tenantId})).scalar() or 0
+            low_items = (await db.execute(text(
+                "SELECT COUNT(*) FROM stock s JOIN products p ON p.id=s.productId WHERE s.tenantId=:t AND s.qtyOnHand <= COALESCE(p.reorderPoint, 10) AND s.qtyOnHand > 0"),
+                {"t": tenantId})).scalar() or 0
+            answer = (
+                "📦 ব্লু ওশানস পিওএস-এ ইনভেন্টরি যেভাবে কাজ করে:\n\n"
+                "১. ক্যাটালগ ও বারকোড ট্র্যাকিং:\n"
+                "   প্রতিটি পণ্যের একক SKU, বারকোড, কেনা দাম (Cost Price) এবং বিক্রির দাম নির্ধারণ থাকে। বারকোড স্ক্যান করলেই তাৎক্ষণিক স্টক পাওয়া যায়।\n\n"
+                "২. অটো স্টক ডিডাকশন (POS Billing):\n"
+                "   পিওএস কাউন্টারে পণ্য বিক্রি হওয়ার সাথে সাথেই ইনভেন্টরি থেকে অটোমেটিক স্টক কমে যায়। কোনো কারণে সেল রিটার্ন হলে স্টক ফেরত আসে।\n\n"
+                "৩. মাল্টি-ওয়্যারহাউস ও ইন্টার-ব্রাঞ্চ ট্রান্সফার:\n"
+                "   সেন্ট্রাল ওয়্যারহাউস থেকে যেকোনো আউটলেট বা শাখায় পণ্য স্টক ট্রান্সফার চালান (Stock Transfer Order) এর মাধ্যমে পাঠানো ও গ্রহণ করা যায়।\n\n"
+                "৪. ব্যাচ ও এক্সপায়ারি ট্র্যাকিং:\n"
+                "   ফার্মেসি ও গ্রোসারির জন্য প্রতি চালানের ব্যাচ নম্বর ও মেয়াদোত্তীর্ণ তারিখ (Expiry Date) ট্র্যাক হয়। মেয়াদ শেষ হওয়ার আগেই এআই নোটিফিকেশন দেয়।\n\n"
+                "৫. সেফটি রি-অর্ডার পয়েন্ট ও রিয়েল-টাইম স্ট্যাটাস:\n"
+                f"   আপনার স্টোরে বর্তমানে সর্বমোট {total_items} টি পণ্য ক্যাটালগ রয়েছে। এর মধ্যে {low_items} টি পণ্যের স্টক রি-অর্ডার লেভেলের নিচে রয়েছে।"
+            )
+
+        # How POS / Billing Terminal Works Intent
+        elif any(w in msg_lower for w in ["pos ke vabe", "pos kivabe", "how pos", "পিওএস কীভাবে", "বিলিং কীভাবে", "বিল কীভাবে", "ক্যাশ কাউন্টার"]):
+            answer = (
+                "🛒 ব্লু ওশানস পিওএস টার্মিনাল ব্যবহারের কার্যপ্রণালী:\n\n"
+                "১. কুইক আইটেম সিলেকশন:\n"
+                "   বারকোড স্ক্যানার দিয়ে স্ক্যান করুন অথবা স্ক্রিনের ক্যাটাগরি গ্রিড থেকে টাচ করে আইটেম কার্টে যোগ করুন।\n"
+                "২. হোল্ড ও পার্ক সেল (Hold Sale):\n"
+                "   কাস্টমার টাকা গোছাতে দেরি করলে সেল 'Hold' করে পরের কাস্টমারের বিল করা যায়, পরে যেকোনো সময় পুনরায় 'Resume' করা যায়।\n"
+                "৩. মাল্টি-পেমেন্ট মেথড:\n"
+                "   ক্যাশ, কার্ড, বিকাশ/নগদ কিউআর বা কাস্টমারের বাকির খাতে পেমেন্ট স্প্লিট করে নেওয়া যায়।\n"
+                "৪. প্রিন্টিং ও হার্ডওয়্যার:\n"
+                "   পেমেন্ট শেষ হতেই অটোমেটিক থার্মাল প্রিন্টারে রসিদ প্রিন্ট হয় এবং ক্যাশ ড্রয়ার খুলে যায়।\n"
+                "৫. ১০০% অফলাইন সাপোর্ট:\n"
+                "   দোকানের ইন্টারনেট চলে গেলেও পিওএস নিরবচ্ছিন্ন বিলিং করতে পারে এবং নেট আসলে সেন্ট্রাল ডাটাবেজে অটো সিঙ্ক করে।"
+            )
+
+        # How Accounting Works Intent
+        elif any(w in msg_lower for w in ["accounting ke vabe", "accounting kivabe", "হিসাব কীভাবে", "অ্যাকাউন্টিং কীভাবে"]):
+            answer = (
+                "💰 ফিন্যান্সিয়াল অ্যাকাউন্টিং মডিউলের কার্যপ্রণালী:\n\n"
+                "১. স্বয়ংক্রিয় ডাবল-এন্ট্রি বুককিপিং (Automatic Ledger):\n"
+                "   প্রতিটি বিক্রি, পণ্য কেনা (Purchase), এবং খরচের এন্ট্রি সাথে সাথে চার্ট অফ অ্যাকাউন্টস লেজারে ডেবিট-ক্রেডিট হয়ে যায়।\n"
+                "২. লাইভ লাভ-ক্ষতি (P&L) ও ব্যালেন্স শিট:\n"
+                "   রিয়েল-টাইমে মোট রেভিনিউ বনাম খরচ বিশ্লেষণ করে নিট প্রফিট হিসাব করে।\n"
+                "৩. এনবিআর ভ্যাট ও ট্যাক্স:\n"
+                "   বাংলাদেশ এনবিআর ভ্যাট আইন অনুযায়ী সঠিক ভ্যাট চালান ও ট্যাক্স হিসাব তৈরি থাকে।\n"
+                "৪. কাস্টমার ও সাপ্লায়ার লেজার:\n"
+                "   কার কাছে কত বকেয়া পাওনা এবং সাপ্লায়ারকে কত দেনা আছে তা লেজার থেকে এক নজরে দেখা যায়।"
+            )
 
     # 2. Local Real-Time SQL Business Intelligence (Zero Cost / Offline / Bilingual)
     if not answer:

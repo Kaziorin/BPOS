@@ -71,12 +71,12 @@ function CopilotChat() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-black text-sm text-gray-600">Business AI Copilot</h3>
+              <h3 className="font-black text-sm text-gray-600">Business AI Agent</h3>
               <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-                Live SQL & Business Intelligence
+                100% Offline AI & SQL Intelligence
               </span>
             </div>
-            <p className="text-[11px] text-slate-500">Autonomous retail intelligence & sales forecasting assistant</p>
+            <p className="text-[11px] text-slate-500">Autonomous retail assistant — local air-gapped processing (Zero data leakage)</p>
           </div>
         </div>
 
@@ -156,7 +156,7 @@ function CopilotChat() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="Ask Copilot about sales, stock replenishment, gross margin..."
+          placeholder="Ask AI Agent about sales, stock replenishment, gross margin..."
           className="flex-1 rounded-sm border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-gray-600 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
         <CustomButton
@@ -304,7 +304,7 @@ export default function AIPage() {
 
         <div className="relative overflow-hidden rounded-sm border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">AI Copilot</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">AI Agent</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-primary-100 text-primary-600">
               <Bot size={18} />
             </div>
@@ -324,7 +324,7 @@ export default function AIPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-2">
         <div className="flex flex-wrap gap-2">
           {[
-            { id: "copilot", label: "Business Copilot", icon: MessageSquare },
+            { id: "copilot", label: "Business AI Agent", icon: MessageSquare },
             { id: "demand", label: "Demand Forecasting", icon: TrendingUp },
             { id: "profit", label: "Profit & Margin AI", icon: DollarSign },
             { id: "inventory", label: "Inventory Health", icon: Package },

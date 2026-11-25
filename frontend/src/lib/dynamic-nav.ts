@@ -283,7 +283,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         requiredPlan: "BUSINESS",
       },
       {
-        label: "AI Copilot & Intelligence",
+        label: "AI Agent & Intelligence",
         href: "/ai",
         icon: Sparkles,
         badge: "AI",
@@ -327,12 +327,12 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
       },
       {
         label: "Held Carts & Kiosk Tools",
-        href: "/retail-pos/holds",
+        href: "/pos/holds",
         icon: PauseCircle,
         children: [
-          { label: "Held Carts / Orders", href: "/retail-pos/holds", icon: PauseCircle },
-          { label: "Price & Barcode Checker", href: "/retail-pos/price-checker", icon: Search },
-          { label: "Self-Checkout Kiosk", href: "/retail-pos/self-checkout", icon: Monitor, requiredPlan: "BUSINESS" },
+          { label: "Held Carts / Orders", href: "/pos/holds", icon: PauseCircle },
+          { label: "Price & Barcode Checker", href: "/pos/price-checker", icon: Search },
+          { label: "Self-Checkout Kiosk", href: "/pos/self-checkout", icon: Monitor, requiredPlan: "BUSINESS" },
           { label: "Customer Facing Display", href: "/customer-display", icon: Monitor },
           { label: "Retail Customer Display", href: "/retail-pos/customer-display", icon: Monitor },
           { label: "Restaurant Customer Display", href: "/restaurant/customer-display", icon: Monitor, requiredAddon: "restaurant" },
@@ -868,19 +868,33 @@ export function useDynamicNav() {
       enabledModules.has("restaurant") ||
       enabledModules.has("restaurant_kds");
     const hasRetailDisplay =
-      userBusinessType !== "RESTAURANT" ||
-      enabledModules.has("retail") ||
-      enabledModules.has("grocery") ||
-      enabledModules.has("wholesale");
+      userBusinessType === "RETAIL" ||
+      enabledModules.has("retail");
     const hasAppointmentsAccess =
       ["SALON", "REPAIR", "RESTAURANT"].includes(userBusinessType) ||
       enabledModules.has("salon") ||
-      enabledModules.has("repair") ||
-      enabledModules.has("appointments");
+      enabledModules.has("repair");
     const accessibleTerminals = getAccessiblePosTerminals(user, subscription);
     const accessibleTerminalMap = new Map(accessibleTerminals.map((t) => [t.href, t]));
+    let storeSlug = (user as any)?.tenantSlug || (subscription as any)?.tenantSlug || "";
+    if (!storeSlug && typeof window !== "undefined") {
+      try {
+        const rawTenant = localStorage.getItem("blueoceans_tenant");
+        const parsedTenant = rawTenant ? JSON.parse(rawTenant) : null;
+        storeSlug = parsedTenant?.slug || parsedTenant?.id || "";
+      } catch {}
+    }
+    if (!storeSlug && user?.tenantId) {
+      storeSlug = String(user.tenantId);
+    }
+    const withStoreQuery = (url: string) => {
+      if (!storeSlug || !url.startsWith("http://localhost:3001")) return url;
+      const sep = url.includes("?") ? "&" : "?";
+      return `${url}${sep}store=${encodeURIComponent(storeSlug)}`;
+    };
 
-    return DEFAULT_MASTER_NAV.filter((group) => group.title !== "SaaS & Platform Core").map((group) => {
+    return DEFAULT_MASTER_NAV.filter((group) => group.title !== "SaaS & Platform Core")
+      .map((group) => {
       const groupRequiredTier = group.requiredPlan ? PLAN_TIER_RANK[group.requiredPlan] || 1 : 1;
       const groupAddonMissing =
         group.requiredAddon &&
@@ -902,6 +916,10 @@ export function useDynamicNav() {
       if (group.title === "Industry Solutions") {
         rawItems = group.items.filter((item) => {
           const addon = item.requiredAddon?.toLowerCase() || "";
+          // Retail/Grocery POS & Sales are already top-level in POS / Sales; hide redundant hub for single-vertical tenants
+          if ((addon === "retail" && userBusinessType === "RETAIL") || (addon === "grocery" && userBusinessType === "GROCERY")) {
+            return false;
+          }
           if (userBusinessType === "MANUFACTURING" && (addon === "bakery" || addon === "manufacturing")) {
             return true;
           }
@@ -942,12 +960,17 @@ export function useDynamicNav() {
         if (item.label === "All POS Terminals") {
           rawChildren = rawChildren.filter((c) => accessibleTerminalMap.has(c.href));
           if (rawChildren.length === 1) {
-            dynamicLabel = "POS Terminal";
+            dynamicLabel = rawChildren[0].label;
             dynamicHref = rawChildren[0].href;
             dynamicBadge = userBusinessType;
+            rawChildren = [];
           } else {
             dynamicBadge = `${rawChildren.length} Modes`;
           }
+        }
+
+        if (group.title === "Industry Solutions" && rawChildren.length === 1 && rawChildren[0].href === item.href) {
+          rawChildren = [];
         }
 
         if (item.label === "Held Carts & Kiosk Tools") {
@@ -975,6 +998,7 @@ export function useDynamicNav() {
 
           return {
             ...child,
+            href: withStoreQuery(child.href),
             isLocked: isChildLocked,
             lockReason: terminalRule?.lockReason
               ? terminalRule.lockReason
@@ -991,11 +1015,11 @@ export function useDynamicNav() {
         return {
           ...item,
           label: dynamicLabel,
-          href: dynamicHref,
+          href: withStoreQuery(dynamicHref),
           badge: dynamicBadge,
           isLocked,
           lockReason,
-          children,
+          children: children.length > 0 ? children : undefined,
         };
       });
 
@@ -1005,8 +1029,125 @@ export function useDynamicNav() {
         isLocked: groupLocked,
         lockReason: groupLockReason,
       };
-    });
+    })
+    .filter((group) => group.items.length > 0);
   }, [user, subscription]);
 
   return { navGroups, loading, error: null as string | null };
+}
+
+export interface NavUpgradeTarget {
+  featureName: string;
+  requiredPlan?: string;
+  requiredAddon?: string;
+  lockReason?: string;
+}
+
+function normalizeNavRoute(route: string): { path: string; query: string } {
+  if (!route) return { path: "", query: "" };
+  const [path, query] = route.split("?");
+  return { path: path.replace(/\/$/, ""), query: query || "" };
+}
+
+export function collectNavHrefs(navGroups: NavGroup[]): Set<string> {
+  const set = new Set<string>();
+  for (const group of navGroups) {
+    for (const mod of group.items) {
+      if (mod.href && mod.href !== "#") set.add(mod.href);
+      for (const child of mod.children ?? []) {
+        if (child.href && child.href !== "#") set.add(child.href);
+        for (const sub of child.children ?? []) {
+          if (sub.href && sub.href !== "#") set.add(sub.href);
+        }
+      }
+    }
+  }
+  return set;
+}
+
+export function isRouteActive(href: string, pathname: string, allHrefs: Set<string>): boolean {
+  if (!href || href === "#") return false;
+
+  const search = typeof window !== "undefined" ? window.location.search || "" : "";
+  const currentNorm = normalizeNavRoute(pathname + search);
+  const hrefNorm = normalizeNavRoute(href);
+
+  if (hrefNorm.query) {
+    return currentNorm.path === hrefNorm.path && currentNorm.query === hrefNorm.query;
+  }
+
+  if (currentNorm.path === hrefNorm.path) {
+    if (currentNorm.query) {
+      const exactQueryMatchExists = Array.from(allHrefs).some((other) => {
+        const otherNorm = normalizeNavRoute(other);
+        return (
+          otherNorm.path === currentNorm.path &&
+          Boolean(otherNorm.query) &&
+          otherNorm.query === currentNorm.query
+        );
+      });
+      if (exactQueryMatchExists) return false;
+    }
+    return true;
+  }
+
+  if (currentNorm.path.startsWith(hrefNorm.path + "/")) {
+    const exactOrLongerMatchExists = Array.from(allHrefs).some((other) => {
+      const otherNorm = normalizeNavRoute(other);
+      if (otherNorm.path === currentNorm.path) return true;
+      return (
+        otherNorm.path.startsWith(hrefNorm.path + "/") &&
+        currentNorm.path.startsWith(otherNorm.path + "/") &&
+        otherNorm.path.length > hrefNorm.path.length
+      );
+    });
+    return !exactOrLongerMatchExists;
+  }
+
+  return false;
+}
+
+export function isModuleActive(item: NavItem, pathname: string, allHrefs: Set<string>): boolean {
+  if (isRouteActive(item.href, pathname, allHrefs)) return true;
+  return (item.children ?? []).some(
+    (c) =>
+      isRouteActive(c.href, pathname, allHrefs) ||
+      (c.children ?? []).some((s) => isRouteActive(s.href, pathname, allHrefs))
+  );
+}
+
+export function isChildActive(child: NavChild, pathname: string, allHrefs: Set<string>): boolean {
+  if (isRouteActive(child.href, pathname, allHrefs)) return true;
+  return (child.children ?? []).some((s) => isRouteActive(s.href, pathname, allHrefs));
+}
+
+export function filterNavGroupsByQuery(navGroups: NavGroup[], query: string): NavGroup[] {
+  const q = query.toLowerCase().trim();
+  if (!q) return navGroups;
+
+  return navGroups
+    .map((group) => {
+      const matchingItems = group.items
+        .map((item) => {
+          const matchesItem = item.label.toLowerCase().includes(q);
+          const matchingChildren = (item.children ?? []).filter(
+            (c) =>
+              c.label.toLowerCase().includes(q) ||
+              (c.children ?? []).some((s) => s.label.toLowerCase().includes(q))
+          );
+
+          if (matchesItem || matchingChildren.length > 0) {
+            return {
+              ...item,
+              children:
+                matchingChildren.length > 0 ? matchingChildren : item.children,
+            };
+          }
+          return null;
+        })
+        .filter(Boolean) as NavItem[];
+
+      return { ...group, items: matchingItems };
+    })
+    .filter((g) => g.items.length > 0);
 }

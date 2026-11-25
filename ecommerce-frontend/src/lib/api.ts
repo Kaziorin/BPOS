@@ -11,10 +11,11 @@ export function getTenantSlug(): string {
     return process.env.NEXT_PUBLIC_DEFAULT_TENANT_SLUG || "demo-shop";
   }
 
-  // 1. Check URL query parameters (e.g. ?store=aarong)
+  // 1. Check URL query parameters (e.g. ?store=aarong or ?tenant=aarong)
   const params = new URLSearchParams(window.location.search);
-  const storeParam = params.get("store");
+  const storeParam = params.get("store") || params.get("tenant");
   if (storeParam) {
+    document.cookie = `current_tenant_slug=${encodeURIComponent(storeParam)}; path=/; max-age=604800`;
     return storeParam;
   }
 

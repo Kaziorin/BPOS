@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   LogOut,
   ChevronDown,
+  ArrowRight,
   ShoppingCart,
   Building2,
   Search,
@@ -31,6 +32,7 @@ import {
 export function Header() {
   const { user, subscription, logout } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [posModalOpen, setPosModalOpen] = useState(false);
@@ -44,6 +46,15 @@ export function Header() {
     accessibleTerminals.length === 1
       ? entCtx.businessType
       : `${accessibleTerminals.length} Modes`;
+
+  const handlePosTerminalClick = () => {
+    setOpen(false);
+    if (accessibleTerminals.length === 1 && accessibleTerminals[0]?.href) {
+      router.push(accessibleTerminals[0].href);
+    } else {
+      setPosModalOpen(true);
+    }
+  };
 
   useEffect(() => {
     const handleOpenPalette = () => setPaletteOpen(true);
@@ -72,6 +83,14 @@ export function Header() {
       ? "Dashboard"
       : pathname === "/retail-pos"
       ? "Retail POS"
+      : pathname === "/grocery/pos"
+      ? "Grocery POS"
+      : pathname === "/pos/holds" || pathname === "/retail-pos/holds"
+      ? "POS / Held Sales"
+      : pathname === "/pos/price-checker" || pathname === "/retail-pos/price-checker"
+      ? "POS / Price Checker"
+      : pathname === "/pos/self-checkout" || pathname === "/retail-pos/self-checkout"
+      ? "POS / Self Checkout"
       : pathname
           .split("/")
           .filter(Boolean)
@@ -234,10 +253,7 @@ export function Header() {
                     Dashboard
                   </Link>
                   <button
-                    onClick={() => {
-                      setOpen(false);
-                      setPosModalOpen(true);
-                    }}
+                    onClick={handlePosTerminalClick}
                     className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition cursor-pointer text-left"
                   >
                     <div className="flex items-center gap-2">
@@ -285,7 +301,7 @@ export function Header() {
                     className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition"
                   >
                     <Sparkles size={14} className="text-amber-500" />
-                    AI Copilot & Intelligence
+                    AI Agent & Intelligence
                   </Link>
                 </div>
 
@@ -358,14 +374,14 @@ export function Header() {
 
           {/* Right: Quick POS Terminal Button + User Profile Pill */}
           <div className="flex items-center gap-3 shrink-0">
-            {/* Quick AI Copilot Button */}
+            {/* Quick AI Agent Button */}
             <Link
               href="/ai"
               className="flex items-center gap-1.5 rounded-full bg-white/95 hover:bg-white text-slate-700 hover:text-sky-600 px-3.5 py-2 text-xs font-bold border border-brand-border/70 shadow-xs transition hover:shadow-md cursor-pointer shrink-0"
-              title="Open AI Business Copilot"
+              title="Open AI Business Agent"
             >
               <Sparkles size={14} className="text-amber-500 fill-amber-400/30" />
-              <span>AI Copilot</span>
+              <span>AI Agent</span>
               <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200">
                 AI
               </span>
@@ -373,13 +389,17 @@ export function Header() {
 
             {/* Quick POS Terminal Action Button */}
             <button
-              onClick={() => setPosModalOpen(true)}
+              onClick={handlePosTerminalClick}
               className="flex items-center gap-2 rounded-full bg-brand-gradient px-4.5 py-2 text-xs font-bold text-white shadow-brand-button transition hover:brightness-105 active:scale-95 cursor-pointer shrink-0 border border-white/25"
               title={accessibleTerminals.length === 1 ? accessibleTerminals[0].name : "Access POS Terminals"}
             >
               <ShoppingCart size={14} className="stroke-[2.5]" />
               <span>POS Terminal</span>
-              <ChevronDown size={13} className="opacity-80 ml-0.5 shrink-0" />
+              {accessibleTerminals.length === 1 ? (
+                <ArrowRight size={13} className="opacity-85 ml-0.5 shrink-0" />
+              ) : (
+                <ChevronDown size={13} className="opacity-80 ml-0.5 shrink-0" />
+              )}
             </button>
 
             {/* User Profile Pill Card */}
@@ -459,10 +479,7 @@ export function Header() {
                     </Link>
 
                     <button
-                      onClick={() => {
-                        setOpen(false);
-                        setPosModalOpen(true);
-                      }}
+                      onClick={handlePosTerminalClick}
                       className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition cursor-pointer text-left"
                     >
                       <div className="flex items-center gap-2.5">

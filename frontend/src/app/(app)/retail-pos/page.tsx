@@ -376,9 +376,9 @@ export default function PosPage() {
 
     const handleOnline = () => {
       setOnline(true);
-      syncManager.syncPending().then((res) => {
-        if (res.synced > 0) {
-          toast.success(`Online: Synced ${res.synced} offline transaction(s)!`);
+      syncManager.syncPending().then((syncedCount) => {
+        if (syncedCount > 0) {
+          toast.success(`Online: Synced ${syncedCount} offline transaction(s)!`);
           loadData();
         }
       }).catch(() => {});
@@ -399,20 +399,22 @@ export default function PosPage() {
       toast.warning("Cannot sync while offline. Please connect to internet.");
       return;
     }
-    toast.loading("Syncing offline sales to server...", { id: "sync-toast" });
+    const toastId = toast.loading("Syncing offline sales to server...");
     try {
-      const res = await syncManager.syncPending();
-      if (res.synced > 0) {
-        toast.success(`Successfully synced ${res.synced} offline sale(s)!`, { id: "sync-toast" });
+      const syncedCount = await syncManager.syncPending();
+      toast.dismiss(toastId);
+      if (syncedCount > 0) {
+        toast.success(`Successfully synced ${syncedCount} offline sale(s)!`);
         await loadData();
         fetchRecentOrders();
-      } else if (res.failed > 0) {
-        toast.error(`${res.failed} sale(s) failed to sync.`, { id: "sync-toast" });
+      } else if (syncStatus.failedCount > 0) {
+        toast.error(`${syncStatus.failedCount} sale(s) failed to sync.`);
       } else {
-        toast.info("Offline sales queue is clean. All sales synced.", { id: "sync-toast" });
+        toast.info("Offline sales queue is clean. All sales synced.");
       }
     } catch (err: any) {
-      toast.error(`Sync error: ${err.message || "Failed to sync"}`, { id: "sync-toast" });
+      toast.dismiss(toastId);
+      toast.error(`Sync error: ${err.message || "Failed to sync"}`);
     }
   };
 
@@ -428,7 +430,7 @@ export default function PosPage() {
           {
             entityType: "POS_RBAC",
             action: managerPinAction?.type || "PIN_OVERRIDE",
-            entityId: invoiceNo,
+            entityId: `POS-${Date.now()}`,
             newValues: JSON.stringify({
               cashier: cashierName,
               action: managerPinAction?.type,
@@ -2300,7 +2302,7 @@ export default function PosPage() {
         <div className="w-[440px] xl:w-[480px] shrink-0 flex items-stretch gap-2">
           {/* Today's Summary Card */}
           <div className="flex-1 p-2.5 rounded-sm bg-slate-50/80 border border-slate-200/80 flex flex-col justify-between shadow-2xs hover:border-violet-300 hover:shadow-xs transition-all duration-200">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Today's Summary</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Today&apos;s Summary</span>
             <div className="grid grid-cols-4 gap-1 mt-1 text-center">
               <div className="min-w-0">
                 <span className="text-[9px] text-slate-400 block font-medium">Sales</span>

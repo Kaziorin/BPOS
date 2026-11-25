@@ -49,6 +49,12 @@ coverage/
 backend/uploads/
 backend/image_storage/
 
+# AI Engine & Local LLM weights (never commit large model binaries)
+backend/ai_engine/models/
+**/ai_engine/models/
+*.gguf
+*.bin
+
 # Flutter / Dart (mobile-app-pos)
 .dart_tool/
 .flutter-plugins-dependencies
