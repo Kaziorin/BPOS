@@ -17,18 +17,21 @@ if str(BACKEND_DIR) not in sys.path:
 from app.core.config import settings
 from app.core.middleware import install_middleware
 from app.services.job_worker import start_worker, stop_worker
+from app.services.ai_engine_daemon import start_ai_engine, stop_ai_engine
 from app.api.v1.router import api_v1_router
 from app.api.v1.system.routers_system import record_latency
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan manager: starts background workers on startup."""
+    """Application lifespan manager: starts background workers and AI engine on startup."""
     worker_task = await start_worker()
+    start_ai_engine()
     try:
         yield
     finally:
         await stop_worker(worker_task)
+        stop_ai_engine()
 
 
 def create_app() -> FastAPI:

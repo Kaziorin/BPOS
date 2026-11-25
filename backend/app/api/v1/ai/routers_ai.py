@@ -655,6 +655,35 @@ async def ai_copilot(
                 "   কার কাছে কত বকেয়া পাওনা এবং সাপ্লায়ারকে কত দেনা আছে তা লেজার থেকে এক নজরে দেখা যায়।"
             )
 
+        # How Purchase / Procurement Works Intent
+        elif any(w in msg_lower for w in ["purchase ke vabe", "purchase kivabe", "how purchase", "পারচেজ কীভাবে", "পারচেজ কিভাবে", "পারচেজ কাজ", "কেনাকাটা কীভাবে", "ক্রয় কীভাবে", "সাপ্লায়ার থেকে কেনা"]):
+            supp_count = (await db.execute(text("SELECT COUNT(*) FROM suppliers WHERE tenantId=:t"), {"t": tenantId})).scalar() or 0
+            po_count = (await db.execute(text("SELECT COUNT(*) FROM purchase_orders WHERE tenantId=:t AND status IN ('PENDING', 'ORDERED')"), {"t": tenantId})).scalar() or 0
+            answer = (
+                "🛒 ব্লু ওশানস পিওএস-এ পারচেজ ও প্রকিউরমেন্ট (Purchase & Procurement) যেভাবে কাজ করে:\n\n"
+                "১. পারচেজ অর্ডার (Purchase Order - PO) তৈরি:\n"
+                "   লো-স্টক অ্যালার্ট বা এআই ডিমান্ড ফোরকাস্ট দেখে নির্বাচিত সাপ্লায়ারের নামে ক্রয়ের রিকুইজিশন বা PO ইস্যু করা হয়।\n\n"
+                "২. গুডস রিসিভড নোট (Goods Received Note - GRN):\n"
+                "   সাপ্লায়ার থেকে মালামাল ওয়্যারহাউসে পৌঁছালে চালানের সাথে গুনে মিলিয়ে GRN রিসিভ করা হয়। রিসিভ করার সাথে সাথে ওয়্যারহাউস ইনভেন্টরিতে স্বয়ংক্রিয় স্টক বৃদ্ধি পায় (Stock In)।\n\n"
+                "৩. ব্যাচ নম্বর ও কস্ট রেট এন্ট্রি:\n"
+                "   নতুন কেনা দামের ভিত্তিতে পণ্যের এভারেজ কস্ট (Moving Average Cost) আপডেট হয় এবং প্রতিটি চালানের এক্সপায়ারি ডেট ট্র্যাক হয়।\n\n"
+                "৪. অ্যাকাউন্টস পেয়াবল (AP) ও সাপ্লায়ার লেজার:\n"
+                "   বিল কনফার্ম হওয়ার সাথে সাথে ফিন্যান্সিয়াল অ্যাকাউন্টিংয়ে সাপ্লায়ারের বকেয়া লেজারে স্বয়ংক্রিয় এন্ট্রি পড়ে। ক্যাশ, ব্যাংক বা চেকে বিল পরিশোধের ভাউচার এন্ট্রি করা যায়।\n\n"
+                f"📊 আপনার বর্তমান অবস্থা: সিস্টেমে নিবন্ধিত সাপ্লায়ার {supp_count} জন এবং চলতি পেন্ডিং পারচেজ অর্ডার {po_count} টি।"
+            )
+
+        # How Customer / CRM Works Intent
+        elif any(w in msg_lower for w in ["customer ke vabe", "customer kivabe", "crm ke vabe", "কাস্টমার কীভাবে", "গ্রাহক কীভাবে"]):
+            answer = (
+                "👥 কাস্টমার রিলেশনশিপ ও লয়্যালটি মডিউলের কার্যপ্রণালী:\n\n"
+                "১. কাস্টমার প্রোফাইল ও ক্রয় ইতিহাস:\n"
+                "   প্রতিটি কাস্টমারের নাম, ফোন নম্বর, ঠিকানা এবং সর্বমোট অর্ডারের হিসাব সংরক্ষিত থাকে।\n\n"
+                "২. কাস্টমার বাকি ও কিস্তি (Credit & EMI):\n"
+                "   দোকানের বিশ্বস্ত কাস্টমারদের বাকির খাতা ও মাসিক কিস্তির রেকর্ড রাখা যায় এবং বকেয়া আদায়ের নোটিফিকেশন পাঠানো যায়।\n\n"
+                "৩. এআই আরএফএম (RFM) অ্যানালিটিক্স:\n"
+                "   কাস্টমারদের রিসেন্সি, ফ্রিকোয়েন্সি ও মোট খরচের ভিত্তিতে Champions, Loyal, At-Risk ক্যাটাগরিতে ভাগ করে প্রমোশন অফার তৈরি করা যায়।"
+            )
+
     # 2. Local Real-Time SQL Business Intelligence (Zero Cost / Offline / Bilingual)
     if not answer:
         # System Features & Capabilities Intent
@@ -791,40 +820,62 @@ async def ai_copilot(
 
         else:
             # 2. Open-Ended AI Generation (Ollama Local or Gemini Cloud)
+            from app.services.ai_engine_daemon import is_ollama_running, start_ai_engine
+            if not is_ollama_running(ollama_url):
+                start_ai_engine()
+
             if ollama_url:
                 try:
                     import httpx
-                    async with httpx.AsyncClient(timeout=10.0) as client:
-                        ollama_payload = {
-                            "model": ollama_model,
-                            "messages": [
-                                {"role": "system", "content": "You are Blue Oceans POS AI Assistant. Reply concisely in Bengali."},
-                                {"role": "user", "content": message}
-                            ],
-                            "stream": False,
-                            "options": {"temperature": 0.3}
-                        }
-                        resp = await client.post(f"{ollama_url}/api/chat", json=ollama_payload)
-                        if resp.status_code == 200:
-                            raw_ans = (resp.json().get("message", {}).get("content") or "").strip()
-                            if len(raw_ans) > 10:
-                                answer = raw_ans
+                    system_prompt = (
+                        "You are Blue Oceans POS Business AI Agent. You are an expert retail ERP & POS assistant. "
+                        "Help the user with business operations, point of sale, inventory, purchasing, accounting, and multi-branch management. "
+                        "Reply helpfully and concisely in natural Bengali (বাংলা) or English matching the user's question."
+                    )
+                    async with httpx.AsyncClient(timeout=12.0) as client:
+                        for m_name in [ollama_model, "qwen2.5:1.5b", "qwen2.5:0.5b"]:
+                            try:
+                                ollama_payload = {
+                                    "model": m_name,
+                                    "messages": [
+                                        {"role": "system", "content": system_prompt},
+                                        {"role": "user", "content": message}
+                                    ],
+                                    "stream": False,
+                                    "options": {"temperature": 0.3}
+                                }
+                                resp = await client.post(f"{ollama_url}/api/chat", json=ollama_payload)
+                                if resp.status_code == 200:
+                                    raw_ans = (resp.json().get("message", {}).get("content") or "").strip()
+                                    if len(raw_ans) > 10:
+                                        answer = raw_ans
+                                        break
+                            except Exception:
+                                continue
                 except Exception:
                     pass
 
             if not answer and is_bengali:
-                answer = ("আমি আপনার সেলস, প্রফিট, ইনভেন্টরি, কাস্টমার বাকি ও পারচেজ ডেটা বিশ্লেষণ করতে পারি। নিচের মতো করে প্রশ্ন করতে পারেন:\n"
-                          "• \"আজকের সেল কত?\"\n"
-                          "• \"চলতি মাসের প্রফিট কত?\"\n"
-                          "• \"স্টক কম এমন প্রোডাক্ট দেখাও\"\n"
-                          "• \"বকেয়া বাকির হিসাব দাও\"")
+                answer = (
+                    "🤖 ব্লু ওশানস পিওএস এআই সহকারী:\n\n"
+                    "আমি আপনার ব্যবসা পরিচালনা, পিওএস বিলিং, ইনভেন্টরি, পারচেজ ও ফিন্যান্সিয়াল অ্যাকাউন্টিংয়ের সকল হিসাব বিশ্লেষণে সাহায্য করতে পারি।\n\n"
+                    "আপনি যেকোনো বিষয়ে জানতে চাইতে পারেন:\n"
+                    "• \"আজকের মোট বিক্রি ও লাভ কত?\"\n"
+                    "• \"purchase ke vabe kaz kore\"\n"
+                    "• \"inventory ke vabe kaz kore\"\n"
+                    "• \"subscription gulo ke vabe kaz kore\"\n"
+                    "• \"কোন পণ্যের স্টক কম?\""
+                )
             elif not answer:
-                answer = ("I can assist with sales, profit, inventory stock, customer dues, and procurement.\n"
-                          "Try asking:\n"
-                          "• \"What were today's sales?\"\n"
-                          "• \"This month profit summary\"\n"
-                          "• \"Which products are low on stock?\"\n"
-                          "• \"Show total overdue balance\"")
+                answer = (
+                    "🤖 Blue Oceans POS Business AI Agent:\n\n"
+                    "I can assist with POS operations, inventory tracking, purchase orders, customer dues, and financial accounting.\n\n"
+                    "Try asking:\n"
+                    "• \"What were today's sales?\"\n"
+                    "• \"How does purchase workflow work?\"\n"
+                    "• \"How does inventory work?\"\n"
+                    "• \"Which products are low on stock?\""
+                )
 
     # Save assistant message
     await db.execute(text(
