@@ -368,21 +368,30 @@ export function Sidebar() {
 
         {/* Dynamic decorative backdrop wave */}
         <svg
-          className="absolute bottom-0 left-0 w-64 h-48 opacity-25"
+          className="absolute bottom-0 left-0 w-64 h-52 opacity-65 pointer-events-none z-0"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
           viewBox="0 0 256 120"
         >
-          <path
-            d="M -10 80 C 60 20, 140 100, 266 50 L 266 120 L -10 120 Z"
-            fill="url(#wave-sb-1)"
-          />
           <defs>
-            <linearGradient id="wave-sb-1" x1="0%" y1="50%" x2="100%" y2="50%">
-              <stop offset="0%" stopColor="var(--theme-primary-200, #BAE6FD)" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="var(--theme-primary-300, #7DD3FC)" stopOpacity="0.2" />
+            <linearGradient id="wave-sb-1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="var(--theme-primary-300, #7dd3fc)" stopOpacity="0.75" />
+              <stop offset="60%" stopColor="var(--theme-primary-400, #38bdf8)" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="var(--theme-primary-500, #0ea5e9)" stopOpacity="0.25" />
+            </linearGradient>
+            <linearGradient id="wave-sb-2" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="var(--theme-primary-200, #bae6fd)" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="var(--theme-primary-400, #38bdf8)" stopOpacity="0.3" />
             </linearGradient>
           </defs>
+          <path
+            d="M -10 65 C 50 15, 130 90, 266 40 L 266 120 L -10 120 Z"
+            fill="url(#wave-sb-2)"
+          />
+          <path
+            d="M -10 80 C 60 25, 140 100, 266 50 L 266 120 L -10 120 Z"
+            fill="url(#wave-sb-1)"
+          />
         </svg>
       </div>
 
@@ -464,7 +473,7 @@ export function Sidebar() {
         </nav>
 
         {/* Centered Footer (72px wide, 40px square logout icon centered with 16px margins) */}
-        <div className="flex h-14 shrink-0 items-center justify-center border-t border-brand-light bg-white p-2">
+        <div className="flex h-14 shrink-0 items-center justify-center border-t border-brand-light/80 bg-white/40 backdrop-blur-xs p-2">
           <button
             onClick={logout}
             title="Sign Out / Logout"
@@ -598,7 +607,7 @@ export function Sidebar() {
         </nav>
 
         {/* Sidebar Footer User Info & Logout */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-t border-brand-light px-2.5 bg-white">
+        <div className="flex h-14 shrink-0 items-center justify-between border-t border-brand-light/80 px-2.5 bg-white/40 backdrop-blur-xs">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-xs font-bold text-white shadow-2xs">
               {(user?.name || "A")[0].toUpperCase()}
