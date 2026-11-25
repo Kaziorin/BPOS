@@ -77,6 +77,9 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
   const { user, logout } = useAuth();
   const { navGroups, loading } = useDynamicNav();
   const [searchQuery, setSearchQuery] = useState("");
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
+    return new Set(["Overview", "Point of Sale (POS)"]);
+  });
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const Logo = siteConfig.logoIcon;
@@ -105,11 +108,13 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
   useEffect(() => {
     let activeMod: string | null = null;
     let activeItem: string | null = null;
+    let activeGroup: string | null = null;
 
     for (const group of navGroups) {
       for (const item of group.items) {
         if (isModuleActive(item, pathname, allHrefs)) {
           activeMod = item.label;
+          activeGroup = group.title;
           for (const child of item.children ?? []) {
             if (isChildActive(child, pathname, allHrefs)) {
               activeItem = child.label;
@@ -122,11 +127,35 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
       if (activeMod) break;
     }
 
+    if (activeGroup) {
+      setExpandedGroups((prev) => new Set([...prev, activeGroup!]));
+    }
+
     if (activeMod) {
       setExpandedModules(new Set([activeMod]));
       if (activeItem) setExpandedItems(new Set([activeItem]));
     }
   }, [pathname, navGroups, allHrefs]);
+
+  const toggleGroup = (title: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(title)) {
+        next.delete(title);
+      } else {
+        next.add(title);
+      }
+      return next;
+    });
+  };
+
+  const toggleAllGroups = () => {
+    if (expandedGroups.size === navGroups.length) {
+      setExpandedGroups(new Set());
+    } else {
+      setExpandedGroups(new Set(navGroups.map((g) => g.title)));
+    }
+  };
 
   // Toggle Module accordion: strictly only ONE module open at any time
   const toggleModule = (label: string) => {
@@ -278,10 +307,21 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                   </button>
                 )}
               </div>
+              {/* Quick Expand / Collapse All */}
+              <div className="flex items-center justify-between px-1 pt-2 pb-0.5 text-[10px] text-slate-400 select-none">
+                <span className="font-medium">{filteredNavGroups.length} Groups</span>
+                <button
+                  type="button"
+                  onClick={toggleAllGroups}
+                  className="text-brand-primary hover:text-brand-dark transition-colors cursor-pointer font-semibold"
+                >
+                  {expandedGroups.size === navGroups.length ? "Collapse All" : "Expand All"}
+                </button>
+              </div>
             </div>
 
             {/* Navigation Groups & Modules (Same flow as big screen sidebar) */}
-            <nav className="flex-1 overflow-y-auto px-2.5 py-2 space-y-1 no-scrollbar">
+            <nav className="flex-1 overflow-y-auto px-2.5 py-1.5 space-y-1.5 no-scrollbar">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
                   <Loader2 size={20} className="animate-spin text-brand-primary" />
@@ -292,10 +332,48 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                   No matching menus found.
                 </div>
               ) : (
-                filteredNavGroups.map((group) => (
-                  <div key={group.title} className="space-y-1">
-                    {/* Module Items */}
-                    {group.items.map((item, idx) => {
+                filteredNavGroups.map((group) => {
+                  const isGroupOpen = isSearching || expandedGroups.has(group.title);
+                  return (
+                    <div key={group.title} className="space-y-1">
+                      {group.title && (
+                        <button
+                          type="button"
+                          onClick={() => toggleGroup(group.title)}
+                          className={cn(
+                            "w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-[10.5px] font-bold uppercase tracking-wider transition cursor-pointer group select-none",
+                            isGroupOpen
+                              ? "text-brand-dark bg-sky-50/80 border border-sky-100 shadow-2xs"
+                              : "text-slate-500 hover:text-brand-dark hover:bg-slate-50 border border-transparent"
+                          )}
+                        >
+                          <span className="flex items-center gap-2 truncate">
+                            <span
+                              className={cn(
+                                "w-1.5 h-1.5 rounded-full shrink-0 transition-colors",
+                                isGroupOpen ? "bg-brand-primary" : "bg-slate-300 group-hover:bg-brand-primary"
+                              )}
+                            />
+                            <span className="truncate">{group.title}</span>
+                          </span>
+                          <span className="flex items-center gap-1.5 shrink-0">
+                            <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-white text-slate-500 border border-slate-200">
+                              {group.items.length}
+                            </span>
+                            <ChevronDown
+                              size={12}
+                              className={cn(
+                                "text-slate-400 transition-transform duration-200",
+                                isGroupOpen ? "transform rotate-0" : "transform -rotate-90"
+                              )}
+                            />
+                          </span>
+                        </button>
+                      )}
+                      {/* Module Items */}
+                      {isGroupOpen && (
+                        <div className="space-y-1 pl-1 pt-0.5">
+                          {group.items.map((item, idx) => {
                       const Icon = item.icon;
                       const hasChildren = !!item.children?.length;
                       const active = isModuleActive(item, pathname, allHrefs);
@@ -499,9 +577,12 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                       );
                     })}
                   </div>
-                ))
-              )}
-            </nav>
+                )}
+              </div>
+            );
+          })
+        )}
+      </nav>
 
             {/* Drawer Footer with Branch info & Direct Logout Button */}
             <div className="border-t border-brand-light bg-brand-50/60 p-3 space-y-2">
