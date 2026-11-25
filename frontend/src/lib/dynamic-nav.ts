@@ -876,6 +876,22 @@ export function useDynamicNav() {
       enabledModules.has("repair");
     const accessibleTerminals = getAccessiblePosTerminals(user, subscription);
     const accessibleTerminalMap = new Map(accessibleTerminals.map((t) => [t.href, t]));
+    let storeSlug = (user as any)?.tenantSlug || (subscription as any)?.tenantSlug || "";
+    if (!storeSlug && typeof window !== "undefined") {
+      try {
+        const rawTenant = localStorage.getItem("blueoceans_tenant");
+        const parsedTenant = rawTenant ? JSON.parse(rawTenant) : null;
+        storeSlug = parsedTenant?.slug || parsedTenant?.id || "";
+      } catch {}
+    }
+    if (!storeSlug && user?.tenantId) {
+      storeSlug = String(user.tenantId);
+    }
+    const withStoreQuery = (url: string) => {
+      if (!storeSlug || !url.startsWith("http://localhost:3001")) return url;
+      const sep = url.includes("?") ? "&" : "?";
+      return `${url}${sep}store=${encodeURIComponent(storeSlug)}`;
+    };
 
     return DEFAULT_MASTER_NAV.filter((group) => group.title !== "SaaS & Platform Core")
       .map((group) => {
@@ -982,6 +998,7 @@ export function useDynamicNav() {
 
           return {
             ...child,
+            href: withStoreQuery(child.href),
             isLocked: isChildLocked,
             lockReason: terminalRule?.lockReason
               ? terminalRule.lockReason
@@ -998,7 +1015,7 @@ export function useDynamicNav() {
         return {
           ...item,
           label: dynamicLabel,
-          href: dynamicHref,
+          href: withStoreQuery(dynamicHref),
           badge: dynamicBadge,
           isLocked,
           lockReason,
