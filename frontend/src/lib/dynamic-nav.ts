@@ -942,12 +942,17 @@ export function useDynamicNav() {
         if (item.label === "All POS Terminals") {
           rawChildren = rawChildren.filter((c) => accessibleTerminalMap.has(c.href));
           if (rawChildren.length === 1) {
-            dynamicLabel = "POS Terminal";
+            dynamicLabel = rawChildren[0].label;
             dynamicHref = rawChildren[0].href;
             dynamicBadge = userBusinessType;
+            rawChildren = [];
           } else {
             dynamicBadge = `${rawChildren.length} Modes`;
           }
+        }
+
+        if (group.title === "Industry Solutions" && rawChildren.length === 1 && rawChildren[0].href === item.href) {
+          rawChildren = [];
         }
 
         if (item.label === "Held Carts & Kiosk Tools") {
@@ -995,7 +1000,7 @@ export function useDynamicNav() {
           badge: dynamicBadge,
           isLocked,
           lockReason,
-          children,
+          children: children.length > 0 ? children : undefined,
         };
       });
 
@@ -1009,4 +1014,120 @@ export function useDynamicNav() {
   }, [user, subscription]);
 
   return { navGroups, loading, error: null as string | null };
+}
+
+export interface NavUpgradeTarget {
+  featureName: string;
+  requiredPlan?: string;
+  requiredAddon?: string;
+  lockReason?: string;
+}
+
+function normalizeNavRoute(route: string): { path: string; query: string } {
+  if (!route) return { path: "", query: "" };
+  const [path, query] = route.split("?");
+  return { path: path.replace(/\/$/, ""), query: query || "" };
+}
+
+export function collectNavHrefs(navGroups: NavGroup[]): Set<string> {
+  const set = new Set<string>();
+  for (const group of navGroups) {
+    for (const mod of group.items) {
+      if (mod.href && mod.href !== "#") set.add(mod.href);
+      for (const child of mod.children ?? []) {
+        if (child.href && child.href !== "#") set.add(child.href);
+        for (const sub of child.children ?? []) {
+          if (sub.href && sub.href !== "#") set.add(sub.href);
+        }
+      }
+    }
+  }
+  return set;
+}
+
+export function isRouteActive(href: string, pathname: string, allHrefs: Set<string>): boolean {
+  if (!href || href === "#") return false;
+
+  const search = typeof window !== "undefined" ? window.location.search || "" : "";
+  const currentNorm = normalizeNavRoute(pathname + search);
+  const hrefNorm = normalizeNavRoute(href);
+
+  if (hrefNorm.query) {
+    return currentNorm.path === hrefNorm.path && currentNorm.query === hrefNorm.query;
+  }
+
+  if (currentNorm.path === hrefNorm.path) {
+    if (currentNorm.query) {
+      const exactQueryMatchExists = Array.from(allHrefs).some((other) => {
+        const otherNorm = normalizeNavRoute(other);
+        return (
+          otherNorm.path === currentNorm.path &&
+          Boolean(otherNorm.query) &&
+          otherNorm.query === currentNorm.query
+        );
+      });
+      if (exactQueryMatchExists) return false;
+    }
+    return true;
+  }
+
+  if (currentNorm.path.startsWith(hrefNorm.path + "/")) {
+    const exactOrLongerMatchExists = Array.from(allHrefs).some((other) => {
+      const otherNorm = normalizeNavRoute(other);
+      if (otherNorm.path === currentNorm.path) return true;
+      return (
+        otherNorm.path.startsWith(hrefNorm.path + "/") &&
+        currentNorm.path.startsWith(otherNorm.path + "/") &&
+        otherNorm.path.length > hrefNorm.path.length
+      );
+    });
+    return !exactOrLongerMatchExists;
+  }
+
+  return false;
+}
+
+export function isModuleActive(item: NavItem, pathname: string, allHrefs: Set<string>): boolean {
+  if (isRouteActive(item.href, pathname, allHrefs)) return true;
+  return (item.children ?? []).some(
+    (c) =>
+      isRouteActive(c.href, pathname, allHrefs) ||
+      (c.children ?? []).some((s) => isRouteActive(s.href, pathname, allHrefs))
+  );
+}
+
+export function isChildActive(child: NavChild, pathname: string, allHrefs: Set<string>): boolean {
+  if (isRouteActive(child.href, pathname, allHrefs)) return true;
+  return (child.children ?? []).some((s) => isRouteActive(s.href, pathname, allHrefs));
+}
+
+export function filterNavGroupsByQuery(navGroups: NavGroup[], query: string): NavGroup[] {
+  const q = query.toLowerCase().trim();
+  if (!q) return navGroups;
+
+  return navGroups
+    .map((group) => {
+      const matchingItems = group.items
+        .map((item) => {
+          const matchesItem = item.label.toLowerCase().includes(q);
+          const matchingChildren = (item.children ?? []).filter(
+            (c) =>
+              c.label.toLowerCase().includes(q) ||
+              (c.children ?? []).some((s) => s.label.toLowerCase().includes(q))
+          );
+
+          if (matchesItem || matchingChildren.length > 0) {
+            return {
+              ...item,
+              children:
+                matchingChildren.length > 0 ? matchingChildren : item.children,
+            };
+          }
+          return null;
+        })
+        .filter(Boolean) as NavItem[];
+
+      return { ...group, items: matchingItems };
+    })
+    .filter((g) => g.items.length > 0);
 }
