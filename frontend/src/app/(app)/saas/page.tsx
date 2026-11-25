@@ -154,13 +154,24 @@ function SaaSContent() {
   const [newTicketDescription, setNewTicketDescription] = useState("");
 
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
-  const [newPlanName, setNewPlanName] = useState("");
-  const [newPlanCode, setNewPlanCode] = useState("");
-  const [newPlanMonthlyPrice, setNewPlanMonthlyPrice] = useState("4999");
-  const [newPlanYearlyPrice, setNewPlanYearlyPrice] = useState("49990");
-  const [newPlanMaxUsers, setNewPlanMaxUsers] = useState("10");
-  const [newPlanMaxBranches, setNewPlanMaxBranches] = useState("3");
-  const [newPlanMaxProducts, setNewPlanMaxProducts] = useState("5000");
+  const [editingPlan, setEditingPlan] = useState<any>(null);
+  const [savingPlan, setSavingPlan] = useState(false);
+  const [planModulesText, setPlanModulesText] = useState("");
+  const [planForm, setPlanForm] = useState({
+    name: "",
+    code: "",
+    description: "",
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    maxUsers: 5,
+    maxBranches: 1,
+    maxWarehouses: 1,
+    maxPOS: 1,
+    maxProducts: 1000,
+    maxStorageMB: 500,
+    maxAPICallsDaily: 10000,
+    maxAIQueriesDaily: 50,
+  });
 
   const showToast = (msg: string) => {
     setSaveToast(msg);
@@ -370,6 +381,58 @@ function SaaSContent() {
       loadData("tickets");
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const handleOpenEditPlan = (plan: any) => {
+    setEditingPlan(plan);
+    setPlanForm({
+      name: plan.name || "",
+      code: plan.code || "",
+      description: plan.description || "",
+      monthlyPrice: plan.monthlyPrice ?? 0,
+      yearlyPrice: plan.yearlyPrice ?? 0,
+      maxUsers: plan.maxUsers ?? 5,
+      maxBranches: plan.maxBranches ?? 1,
+      maxWarehouses: plan.maxWarehouses ?? 1,
+      maxPOS: plan.maxPOS ?? 1,
+      maxProducts: plan.maxProducts ?? 1000,
+      maxStorageMB: plan.maxStorageMB ?? 500,
+      maxAPICallsDaily: plan.maxAPICallsDaily ?? 10000,
+      maxAIQueriesDaily: plan.maxAIQueriesDaily ?? 50,
+    });
+    const mods = Array.isArray(plan.includedModules)
+      ? plan.includedModules.join("\n")
+      : typeof plan.includedModules === "string"
+      ? plan.includedModules
+      : "";
+    setPlanModulesText(mods);
+    setIsPlanModalOpen(true);
+  };
+
+  const handleSavePlan = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPlan?.id) return;
+    setSavingPlan(true);
+    try {
+      const includedModules = planModulesText
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      await api.put(`/api/v1/saas/plans/${editingPlan.id}`, {
+        ...planForm,
+        includedModules,
+      });
+      showToast(`Plan "${planForm.name}" updated successfully!`);
+      setIsPlanModalOpen(false);
+      setEditingPlan(null);
+      await loadData("plans");
+    } catch (err: any) {
+      console.error("Failed to update plan:", err);
+      showToast(err?.message || "Failed to update plan details");
+    } finally {
+      setSavingPlan(false);
     }
   };
 
@@ -750,71 +813,170 @@ function SaaSContent() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {plans.map((p: any) => (
-                    <div
-                      key={p.id}
-                      className="bg-white rounded-sm border border-slate-200 p-6 shadow-sm hover:shadow-md transition space-y-5 flex flex-col justify-between"
-                    >
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <span className="text-[10px] font-bold text-primary-600 uppercase tracking-widest font-mono">
-                              {p.code}
-                            </span>
-                            <h4 className="text-xl font-black text-gray-600">{p.name}</h4>
-                          </div>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-50 text-primary-700 border border-primary-200">
-                            Tier
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+                  {plans.map((p: any) => {
+                    const isEnterprise = p.code === "ENTERPRISE";
+                    const isBusiness = p.code === "BUSINESS";
+                    const modules: string[] = Array.isArray(p.includedModules)
+                      ? p.includedModules
+                      : typeof p.includedModules === "string"
+                      ? JSON.parse(p.includedModules || "[]")
+                      : [];
+                    const yearlySavings = Number(p.monthlyPrice) * 12 - Number(p.yearlyPrice);
+
+                    return (
+                      <div
+                        key={p.id}
+                        className={cn(
+                          "bg-white rounded-sm border transition p-6 flex flex-col justify-between shadow-2xs hover:shadow-sm space-y-6 relative",
+                          isBusiness ? "border-sky-300 ring-1 ring-sky-200" : "border-slate-200"
+                        )}
+                      >
+                        {isBusiness && (
+                          <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-600 text-white shadow-2xs">
+                            Most Popular &bull; Recommended
                           </span>
-                        </div>
+                        )}
 
-                        <div className="p-4 rounded-sm bg-slate-50 border border-slate-100 space-y-1.5">
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-black text-gray-600">{currency(p.monthlyPrice)}</span>
-                            <span className="text-slate-400 text-xs">/month</span>
+                        <div className="space-y-5">
+                          {/* Top Header */}
+                          <div className="flex justify-between items-start gap-3">
+                            <div className="space-y-1">
+                              <span className="text-[10px] font-black text-sky-600 uppercase tracking-widest font-mono">
+                                {p.code}
+                              </span>
+                              <h4 className="text-xl font-black text-slate-800">{p.name}</h4>
+                              <p className="text-[11px] text-slate-500 leading-relaxed">
+                                {p.description || "Configured commercial tier for platform operations"}
+                              </p>
+                            </div>
+                            <span
+                              className={cn(
+                                "px-2.5 py-0.5 rounded-full text-[10px] font-bold border shrink-0",
+                                isEnterprise
+                                  ? "bg-slate-900 text-white border-slate-900"
+                                  : isBusiness
+                                  ? "bg-sky-50 text-sky-700 border-sky-200"
+                                  : "bg-slate-100 text-slate-600 border-slate-200"
+                              )}
+                            >
+                              {isEnterprise ? "Enterprise" : isBusiness ? "Pro Growth" : "Starter"}
+                            </span>
                           </div>
-                          <p className="text-[11px] text-slate-500">
-                            Yearly Billing: <strong className="text-gray-600">{currency(p.yearlyPrice)}</strong> /yr
-                          </p>
+
+                          {/* Pricing Box */}
+                          <div className="p-4 rounded-sm bg-slate-50/80 border border-slate-100 space-y-1">
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-3xl font-black text-slate-900 tabular-nums">
+                                {currency(p.monthlyPrice)}
+                              </span>
+                              <span className="text-slate-400 text-xs font-semibold">/month</span>
+                            </div>
+                            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                              <span>
+                                Billed Annually: <strong className="text-slate-700 font-bold">{currency(p.yearlyPrice)}</strong>/yr
+                              </span>
+                              {yearlySavings > 0 && (
+                                <span className="font-bold text-emerald-600">Save {currency(yearlySavings)}</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Resource Limits (Clear & Meaningful) */}
+                          <div className="space-y-2 pt-2 border-t border-slate-100">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                              Capacity & Quotas
+                            </p>
+                            <ul className="space-y-2 text-xs text-slate-600 font-medium">
+                              <li className="flex items-center gap-2">
+                                <Building2 size={13} className="text-sky-600 shrink-0" />
+                                <span>
+                                  Store Outlets / Branches:{" "}
+                                  <strong className="text-slate-800">
+                                    {p.maxBranches >= 500 ? "Unlimited Branches" : `${p.maxBranches} Outlets`}
+                                  </strong>
+                                </span>
+                              </li>
+                              <li className="flex items-center gap-2">
+                                <Users size={13} className="text-sky-600 shrink-0" />
+                                <span>
+                                  Staff User Accounts:{" "}
+                                  <strong className="text-slate-800">
+                                    {p.maxUsers >= 500 ? "Unlimited Accounts" : `${p.maxUsers} Users`}
+                                  </strong>
+                                </span>
+                              </li>
+                              <li className="flex items-center gap-2">
+                                <Package size={13} className="text-sky-600 shrink-0" />
+                                <span>
+                                  Product Catalog Capacity:{" "}
+                                  <strong className="text-slate-800">
+                                    {p.maxProducts >= 500000 ? "Unlimited Catalog (500k+)" : `${p.maxProducts?.toLocaleString()} Products`}
+                                  </strong>
+                                </span>
+                              </li>
+                              <li className="flex items-center gap-2">
+                                <Server size={13} className="text-sky-600 shrink-0" />
+                                <span>
+                                  POS Terminals:{" "}
+                                  <strong className="text-slate-800">
+                                    {p.maxPOS >= 500 ? "Unlimited Terminals" : `${p.maxPOS} Terminals`}
+                                  </strong>
+                                </span>
+                              </li>
+                              <li className="flex items-center gap-2">
+                                <Sparkles size={13} className="text-amber-500 shrink-0" />
+                                <span>
+                                  AI Copilot:{" "}
+                                  <strong className="text-slate-800">
+                                    {p.maxAIQueriesDaily >= 1000 ? "Enterprise Custom AI Copilot" : `${p.maxAIQueriesDaily} Queries / day`}
+                                  </strong>
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
+
+                          {/* Core Modules Breakdown */}
+                          {modules.length > 0 && (
+                            <div className="space-y-2 pt-3 border-t border-slate-100">
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                Included Modules & Features
+                              </p>
+                              <ul className="space-y-1.5 text-[11px] text-slate-700">
+                                {modules.map((m: string, mIdx: number) => {
+                                  const isHeader = m.toLowerCase().includes("plus:") || m.toLowerCase().includes("starter,");
+                                  if (isHeader) {
+                                    return (
+                                      <li key={mIdx} className="font-bold text-sky-700 pt-1 text-[11px]">
+                                        {m}
+                                      </li>
+                                    );
+                                  }
+                                  return (
+                                    <li key={mIdx} className="flex items-start gap-2">
+                                      <CheckCircle2 size={13} className="text-emerald-500 shrink-0 mt-0.5" />
+                                      <span className="leading-tight">{m}</span>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          )}
                         </div>
 
-                        <div className="space-y-2 border-t border-slate-100 pt-3">
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Included Allowances</p>
-                          <ul className="space-y-1.5 text-slate-600 font-medium">
-                            <li className="flex items-center gap-2">
-                              <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                              <span>Max Staff Users: <strong>{p.maxUsers}</strong></span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                              <span>Store Outlets / Branches: <strong>{p.maxBranches}</strong></span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                              <span>Product Catalog Capacity: <strong>{p.maxProducts?.toLocaleString()}</strong></span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                              <span>POS Terminals: <strong>{p.maxPOS}</strong></span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                              <span>Daily API Rate Limit: <strong>{p.maxAPICallsDaily?.toLocaleString()}</strong></span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                              <span>AI Copilot Queries: <strong>{p.maxAIQueriesDaily} / day</strong></span>
-                            </li>
-                          </ul>
+                        {/* Action Button */}
+                        <div className="pt-4 border-t border-slate-100">
+                          <CustomButton
+                            variant={isBusiness ? "primary" : "outline"}
+                            className="w-full text-xs font-bold"
+                            onClick={() => handleOpenEditPlan(p)}
+                          >
+                            Edit Plan Details & Pricing
+                          </CustomButton>
                         </div>
                       </div>
-
-                      <CustomButton variant="outline" className="w-full">
-                        Edit Plan Details
-                      </CustomButton>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                   {plans.length === 0 && (
                     <div className="col-span-3 p-12 bg-white rounded-sm border border-slate-200 text-center text-slate-400">
@@ -1485,6 +1647,156 @@ function SaaSContent() {
             </CustomButton>
             <CustomButton type="submit" variant="primary">
               Submit Ticket
+            </CustomButton>
+          </div>
+        </form>
+      </CustomModal>
+
+      {/* ── Modal: Edit Plan Details ── */}
+      <CustomModal
+        isOpen={isPlanModalOpen}
+        onClose={() => {
+          setIsPlanModalOpen(false);
+          setEditingPlan(null);
+        }}
+        title={`Edit Plan Details: ${editingPlan?.name || "Tier"}`}
+        size="lg"
+      >
+        <form onSubmit={handleSavePlan} className="space-y-4 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <CustomInput
+              label="Plan Display Name"
+              value={planForm.name}
+              onChange={(e) => setPlanForm({ ...planForm, name: e.target.value })}
+              placeholder="e.g. Starter, Growth, Enterprise"
+              required
+            />
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 mb-1">Plan Code (Unique Key)</label>
+              <input
+                type="text"
+                disabled
+                value={planForm.code}
+                className="w-full px-3 py-2 text-xs rounded-sm bg-slate-100 border border-slate-200 text-slate-500 font-mono cursor-not-allowed"
+              />
+            </div>
+
+            <CustomInput
+              label="Monthly Subscription Price (BDT ৳)"
+              type="number"
+              value={planForm.monthlyPrice.toString()}
+              onChange={(e) => setPlanForm({ ...planForm, monthlyPrice: parseFloat(e.target.value) || 0 })}
+              required
+            />
+            <CustomInput
+              label="Yearly Subscription Price (BDT ৳)"
+              type="number"
+              value={planForm.yearlyPrice.toString()}
+              onChange={(e) => setPlanForm({ ...planForm, yearlyPrice: parseFloat(e.target.value) || 0 })}
+              required
+            />
+
+            <CustomInput
+              label="Max Staff Users"
+              type="number"
+              value={planForm.maxUsers.toString()}
+              onChange={(e) => setPlanForm({ ...planForm, maxUsers: parseInt(e.target.value, 10) || 1 })}
+              required
+            />
+            <CustomInput
+              label="Store Outlets / Branches"
+              type="number"
+              value={planForm.maxBranches.toString()}
+              onChange={(e) => setPlanForm({ ...planForm, maxBranches: parseInt(e.target.value, 10) || 1 })}
+              required
+            />
+
+            <CustomInput
+              label="Warehouses Allowed"
+              type="number"
+              value={planForm.maxWarehouses.toString()}
+              onChange={(e) => setPlanForm({ ...planForm, maxWarehouses: parseInt(e.target.value, 10) || 1 })}
+              required
+            />
+            <CustomInput
+              label="POS Terminals Allowed"
+              type="number"
+              value={planForm.maxPOS.toString()}
+              onChange={(e) => setPlanForm({ ...planForm, maxPOS: parseInt(e.target.value, 10) || 1 })}
+              required
+            />
+
+            <CustomInput
+              label="Product Catalog Capacity"
+              type="number"
+              value={planForm.maxProducts.toString()}
+              onChange={(e) => setPlanForm({ ...planForm, maxProducts: parseInt(e.target.value, 10) || 0 })}
+              required
+            />
+            <CustomInput
+              label="Daily API Calls Limit"
+              type="number"
+              value={planForm.maxAPICallsDaily.toString()}
+              onChange={(e) => setPlanForm({ ...planForm, maxAPICallsDaily: parseInt(e.target.value, 10) || 0 })}
+              required
+            />
+
+            <CustomInput
+              label="Daily AI Copilot Queries"
+              type="number"
+              value={planForm.maxAIQueriesDaily.toString()}
+              onChange={(e) => setPlanForm({ ...planForm, maxAIQueriesDaily: parseInt(e.target.value, 10) || 0 })}
+              required
+            />
+            <CustomInput
+              label="Storage Allocation (MB)"
+              type="number"
+              value={planForm.maxStorageMB.toString()}
+              onChange={(e) => setPlanForm({ ...planForm, maxStorageMB: parseInt(e.target.value, 10) || 0 })}
+              required
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-[11px] font-bold text-slate-700">Plan Description / Scope</label>
+            <textarea
+              value={planForm.description}
+              onChange={(e) => setPlanForm({ ...planForm, description: e.target.value })}
+              className="w-full px-3 py-2 text-xs rounded-sm border border-slate-200 focus:outline-none focus:border-sky-500 transition resize-none text-slate-700 bg-white"
+              rows={2}
+              placeholder="Features, target audience, limits summary..."
+            />
+          </div>
+
+          <div className="space-y-1">
+            <div className="flex justify-between items-center">
+              <label className="block text-[11px] font-bold text-slate-700">
+                Included Features & Modules (one per line)
+              </label>
+              <span className="text-[10px] text-slate-400">Enter each feature on a new line</span>
+            </div>
+            <textarea
+              value={planModulesText}
+              onChange={(e) => setPlanModulesText(e.target.value)}
+              className="w-full px-3 py-2 text-xs rounded-sm border border-slate-200 focus:outline-none focus:border-sky-500 transition text-slate-700 bg-white font-mono leading-relaxed"
+              rows={5}
+              placeholder="Point of Sale (Retail & Touch)&#10;Core Inventory & Low-Stock Alerts&#10;Customer Ledger & Invoicing"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
+            <CustomButton
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setIsPlanModalOpen(false);
+                setEditingPlan(null);
+              }}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton type="submit" variant="primary" loading={savingPlan}>
+              Save Plan Details
             </CustomButton>
           </div>
         </form>

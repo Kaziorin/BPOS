@@ -14,7 +14,7 @@ import json
 import uuid
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Body
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -58,6 +58,59 @@ async def get_plan(
     row = (await db.execute(text("SELECT * FROM saas_plans WHERE id=:id"), {"id": planId})).first()
     if not row: return err("Plan not found", 404)
     data = dict(row._mapping) if hasattr(row, '_mapping') else {}
+    if isinstance(data.get("includedModules"), str):
+        try: data["includedModules"] = json.loads(data["includedModules"])
+        except: pass
+    return ok(data)
+
+
+@router.put("/api/v1/saas/plans/{planId}")
+@router.patch("/api/v1/saas/plans/{planId}")
+async def update_plan(
+    planId: str,
+    body: dict = Body(...),
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    row = (await db.execute(text("SELECT id FROM saas_plans WHERE id=:id"), {"id": planId})).first()
+    if not row:
+        return err("Plan not found", 404)
+
+    fields, params = [], {"id": planId}
+    numeric_fields = [
+        "monthlyPrice", "yearlyPrice", "maxUsers", "maxBranches",
+        "maxWarehouses", "maxPOS", "maxProducts", "maxStorageMB",
+        "maxAPICallsDaily", "maxAIQueriesDaily", "isActive"
+    ]
+    for key in numeric_fields:
+        if key in body and body[key] is not None:
+            fields.append(f"{key}=:{key}")
+            try:
+                params[key] = float(body[key]) if "Price" in key else int(body[key])
+            except (ValueError, TypeError):
+                params[key] = body[key]
+
+    text_fields = ["name", "code", "description"]
+    for key in text_fields:
+        if key in body and body[key] is not None:
+            fields.append(f"{key}=:{key}")
+            params[key] = str(body[key])
+
+    if "includedModules" in body and body["includedModules"] is not None:
+        fields.append("includedModules=:includedModules")
+        mods = body["includedModules"]
+        params["includedModules"] = json.dumps(mods) if isinstance(mods, (list, dict)) else str(mods)
+
+    if not fields:
+        return err("No valid fields provided to update", 400)
+
+    sql = f"UPDATE saas_plans SET {', '.join(fields)} WHERE id=:id"
+    await db.execute(text(sql), params)
+    await db.commit()
+
+    updated = (await db.execute(text("SELECT * FROM saas_plans WHERE id=:id"), {"id": planId})).first()
+    data = dict(updated._mapping) if hasattr(updated, '_mapping') else {}
     if isinstance(data.get("includedModules"), str):
         try: data["includedModules"] = json.loads(data["includedModules"])
         except: pass
