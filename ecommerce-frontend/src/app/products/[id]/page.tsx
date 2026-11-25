@@ -57,7 +57,7 @@ export default function ProductDetailsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-[1600px] mx-auto px-4 py-16">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 animate-pulse">
           <div className="aspect-square bg-slate-200 rounded-3xl" />
           <div className="space-y-6">
@@ -73,7 +73,7 @@ export default function ProductDetailsPage() {
 
   if (!product) {
     return (
-      <div className="max-w-[1600px] mx-auto px-4 py-16 text-center space-y-4">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 py-16 text-center space-y-4">
         <h2 className="text-xl font-bold text-slate-800">Product Not Found</h2>
         <p className="text-xs text-slate-400">The product you are looking for might have been sold out or deactivated.</p>
         <Link href="/products" className="inline-block px-5 py-2.5 bg-sky-600 text-white rounded-xl text-xs font-semibold">
@@ -107,7 +107,7 @@ export default function ProductDetailsPage() {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+    <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
       
       {/* ── Breadcrumb Navigation ── */}
       <nav className="flex items-center gap-2 text-xs text-slate-500">

@@ -39,8 +39,8 @@ export default function TestimonialsSection({ section, isDarkMode = false }: Tes
   const reviews = settings.reviews || defaultReviews;
 
   return (
-    <section className={`py-12 px-4 sm:px-6 lg:px-8 transition-colors ${isDarkMode ? "bg-zinc-950 text-white" : "bg-slate-50 text-slate-900"}`}>
-      <div className="max-w-[1600px] mx-auto space-y-8">
+    <section className={`py-10 sm:py-14 px-4 sm:px-6 md:px-8 xl:px-12 transition-colors ${isDarkMode ? "bg-zinc-950 text-white" : "bg-slate-50 text-slate-900"}`}>
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto space-y-8">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2">
           {badge && (

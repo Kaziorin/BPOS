@@ -2736,7 +2736,7 @@ export default function SetupPage() {
                 ? "max-w-[400px] my-4 border-slate-700 ring-8 ring-slate-800"
                 : viewport === "tablet"
                 ? "max-w-[768px] my-4 border-slate-700 ring-8 ring-slate-800"
-                : "max-w-[1600px] border-slate-800"
+                : "max-w-[1720px] 2xl:max-w-[1800px] border-slate-800"
             } ${theme.isDarkMode ? "bg-zinc-950 text-white" : "bg-white text-slate-900"}`}
           >
             {/* Live Navbar Preview */}
@@ -2744,7 +2744,7 @@ export default function SetupPage() {
 
             {/* Sections Canvas */}
             {theme.headerStyle === "sidebar_integrated" ? (
-              <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex gap-6">
+              <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex gap-6">
                 <SidebarCategoryNav categories={categories} isDarkMode={theme.isDarkMode} />
                 <div className="flex-1 min-w-0 space-y-4">
                   {theme.sections.map((sec, idx) => {

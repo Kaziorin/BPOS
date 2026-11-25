@@ -20,7 +20,7 @@ export default function RestaurantStore({ config, products, categories }: Restau
     <div className="space-y-16 pb-20">
       {/* ── 1. RESTAURANT HERO BANNER ── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-amber-950 via-red-950 to-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-[1600px] mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+        <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-xs font-semibold backdrop-blur-md">
               <Flame className="w-3.5 h-3.5 text-orange-400" />
@@ -85,7 +85,7 @@ export default function RestaurantStore({ config, products, categories }: Restau
       </section>
 
       {/* ── 2. VALUE PROPS ── */}
-      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
@@ -119,7 +119,7 @@ export default function RestaurantStore({ config, products, categories }: Restau
 
       {/* ── 3. FOOD MENU CATEGORIES ── */}
       {categories.length > 0 && (
-        <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <section className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex items-end justify-between">
             <div>
               <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Menu Categories</h2>
@@ -152,7 +152,7 @@ export default function RestaurantStore({ config, products, categories }: Restau
       )}
 
       {/* ── 4. POPULAR DISHES ── */}
-      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <section className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="flex items-end justify-between">
           <div>
             <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Popular Dishes & Specials</h2>

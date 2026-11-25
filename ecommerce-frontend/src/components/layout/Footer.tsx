@@ -38,7 +38,7 @@ export default function Footer() {
   return (
     <footer className="bg-slate-950 text-slate-300 pt-14 pb-8 border-t border-slate-800/80">
       {/* Value Proposition Badges */}
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-12 border-b border-slate-800/80">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 pb-12 border-b border-slate-800/80">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center shrink-0">
@@ -83,7 +83,7 @@ export default function Footer() {
       </div>
 
       {/* Main Footer Content */}
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Store Info */}
           <div className="space-y-4 md:col-span-2">
@@ -242,7 +242,7 @@ export default function Footer() {
       </div>
 
       {/* Bottom Copyright */}
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
         <p>{copyright}</p>
         <p className="text-[11px] flex items-center gap-1">
           <span>Powered by</span>

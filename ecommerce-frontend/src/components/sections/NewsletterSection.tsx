@@ -27,7 +27,7 @@ export default function NewsletterSection({ section, isDarkMode }: Props) {
 
   return (
     <section className="py-8 sm:py-12">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12">
         <div
           className={`relative rounded-2xl overflow-hidden p-6 sm:p-10 shadow-sm border ${
             isDarkMode

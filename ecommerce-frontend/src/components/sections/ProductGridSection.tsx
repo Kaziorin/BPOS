@@ -105,35 +105,32 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
       case 3:
         return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
       case 5:
-        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6";
+        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5";
       case 6:
-        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6";
+        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6";
       case 4:
       default:
-        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6";
+        return "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4";
     }
   };
 
   return (
     <section className="py-6 sm:py-8">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12">
         
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
           <div>
             {badge && (
-              <span
-                className="text-[10px] font-semibold uppercase tracking-wider block mb-1"
-                style={{ color: primaryColor }}
-              >
+              <span className="text-[10px] font-semibold uppercase tracking-wider block mb-1 text-slate-500">
                 {badge}
               </span>
             )}
-            <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <h2 className={`text-xl sm:text-2xl font-bold tracking-tight ${isDarkMode ? "!text-white" : "!text-slate-900"}`}>
               {title || "Featured Products"}
             </h2>
             {subtitle && (
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{subtitle}</p>
+              <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
             )}
           </div>
 

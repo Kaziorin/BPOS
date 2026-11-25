@@ -62,7 +62,7 @@ export default function CuratedRecommendationsSection({ section, products, isDar
 
   return (
     <section className="py-6 sm:py-8">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="flex items-end justify-between mb-6">

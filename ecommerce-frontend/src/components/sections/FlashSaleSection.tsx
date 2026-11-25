@@ -53,12 +53,32 @@ export default function FlashSaleSection({ section, products, isDarkMode }: Prop
     }, 2000);
   };
 
+  const getProductImage = (p: ProductItem, idx: number) => {
+    if (p.imageUrl && !p.imageUrl.includes("photo-1523275335684-37898b6baf30")) return p.imageUrl;
+    const n = (p.name || "").toLowerCase();
+    if (n.includes("bread") || n.includes("wheat") || n.includes("loaf")) {
+      return "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80";
+    }
+    if (n.includes("chip") || n.includes("lays") || n.includes("snack")) {
+      return "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=600&auto=format&fit=crop&q=80";
+    }
+    if (n.includes("coca") || n.includes("cola") || n.includes("drink")) {
+      return "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&auto=format&fit=crop&q=80";
+    }
+    const generalCurated = [
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
+    ];
+    return generalCurated[idx % generalCurated.length];
+  };
+
   const limit = settings?.limit || 6;
   const displayProducts = products.slice(0, limit);
 
   return (
     <section className="py-6 sm:py-8">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Flash Sale Header Bar */}
         <div
@@ -131,7 +151,7 @@ export default function FlashSaleSection({ section, products, isDarkMode }: Prop
               >
                 {/* Discount Badge */}
                 <div className="absolute top-2.5 left-2.5 z-10">
-                  <span className="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-xs">
+                  <span className="bg-rose-600 text-white text-[10px] font-medium px-2 py-0.5 rounded shadow-2xs">
                     -{discountPct || 20}%
                   </span>
                 </div>
@@ -139,9 +159,9 @@ export default function FlashSaleSection({ section, products, isDarkMode }: Prop
                 {/* Product Image */}
                 <Link href={`/products/${p.id}`} className="block relative h-36 sm:h-40 rounded-xl overflow-hidden bg-slate-100 dark:bg-zinc-800 mb-3">
                   <img
-                    src={p.imageUrl || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80"}
+                    src={getProductImage(p, idx)}
                     alt={p.name}
-                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </Link>
 
@@ -149,22 +169,22 @@ export default function FlashSaleSection({ section, products, isDarkMode }: Prop
                 <div>
                   <div className="flex items-center gap-1 text-[11px] text-amber-500 mb-1">
                     <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                    <span className="font-bold">4.8</span>
+                    <span className="font-semibold tabular-nums">4.8</span>
                     <span className="text-slate-400 dark:text-zinc-500 text-[10px]">({120 + idx * 15})</span>
                   </div>
 
                   <Link href={`/products/${p.id}`}>
-                    <h3 className="text-xs sm:text-sm font-bold line-clamp-2 leading-tight group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
+                    <h3 className="text-xs sm:text-sm font-semibold line-clamp-2 leading-snug group-hover:text-sky-600 transition-colors">
                       {p.name}
                     </h3>
                   </Link>
 
                   {/* Price */}
                   <div className="mt-2 flex items-baseline gap-1.5">
-                    <span className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                    <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tabular-nums font-mono">
                       {formatPrice(p.sellingPrice)}
                     </span>
-                    <span className="text-[11px] text-slate-400 line-through">
+                    <span className="text-[11px] text-slate-400 line-through tabular-nums font-mono">
                       {formatPrice(originalPrice)}
                     </span>
                   </div>
@@ -174,10 +194,10 @@ export default function FlashSaleSection({ section, products, isDarkMode }: Prop
                 <button
                   type="button"
                   onClick={(e) => handleAdd(p, e)}
-                  className={`mt-3 w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-xs ${
+                  className={`mt-3 w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors active:scale-98 shadow-2xs ${
                     isAdded
                       ? "bg-emerald-600 text-white"
-                      : "bg-sky-600 hover:bg-sky-700 text-white shadow-sky-500/10"
+                      : "bg-slate-900 hover:bg-sky-600 text-white"
                   }`}
                 >
                   {isAdded ? (
@@ -188,7 +208,7 @@ export default function FlashSaleSection({ section, products, isDarkMode }: Prop
                   ) : (
                     <>
                       <ShoppingCart className="w-3.5 h-3.5" />
-                      <span>Add to Cart</span>
+                      <span>Add to cart</span>
                     </>
                   )}
                 </button>

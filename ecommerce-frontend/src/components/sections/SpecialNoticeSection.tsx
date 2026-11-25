@@ -21,7 +21,7 @@ export default function SpecialNoticeSection({ section, isDarkMode = false }: Sp
   return (
     <section className="py-3 px-4 sm:px-6 lg:px-8">
       <div
-        className={`max-w-[1600px] mx-auto rounded-xl p-4 sm:p-4.5 flex flex-col sm:flex-row items-center justify-between gap-4 border transition-all ${
+        className={`max-w-[1720px] 2xl:max-w-[1800px] mx-auto rounded-xl p-4 sm:p-4.5 flex flex-col sm:flex-row items-center justify-between gap-4 border transition-all ${
           isDarkMode
             ? "bg-zinc-900 border-zinc-800 text-white"
             : "bg-slate-50 border-slate-200 text-slate-900"

@@ -59,7 +59,7 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="max-w-[1600px] mx-auto px-4 py-16 space-y-8 animate-pulse">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 py-16 space-y-8 animate-pulse">
         <div className="h-96 bg-slate-200 dark:bg-zinc-800 rounded-3xl" />
         <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
           {[...Array(8)].map((_, i) => (
@@ -84,7 +84,7 @@ export default function HomePage() {
 
       {/* Main Content Area: Supports Sidebar Layout vs Standard Full-width */}
       {theme.headerStyle === "sidebar_integrated" ? (
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex gap-6">
+        <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 py-4 sm:py-6 flex gap-6">
           <SidebarCategoryNav categories={categories} isDarkMode={isDark} />
           <div className="flex-1 min-w-0 space-y-2">
             {theme.sections.map((sec) => {

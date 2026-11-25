@@ -36,9 +36,9 @@ export default function FeatureBadgesSection({ section, isDarkMode }: Props) {
 
   return (
     <section className="py-2 sm:py-3">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12">
         <div
-          className={`grid grid-cols-2 md:grid-cols-4 gap-4 p-4 sm:p-5 rounded-xl border shadow-2xs transition-colors ${
+          className={`grid grid-cols-2 md:grid-cols-4 gap-4 p-4 sm:p-5 rounded-2xl border shadow-2xs transition-colors ${
             isDarkMode
               ? "bg-zinc-900 border-zinc-800 text-white"
               : "bg-white border-slate-200 text-slate-800"

@@ -95,7 +95,7 @@ function ProductsContent() {
   const hasActiveFilters = search || selectedCategory || selectedBrand || inStockOnly;
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* ── Page Header ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
@@ -317,7 +317,7 @@ function ProductsContent() {
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={<div className="max-w-[1600px] mx-auto p-12 text-center text-slate-400">Loading catalog...</div>}>
+    <Suspense fallback={<div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto p-12 text-center text-slate-400">Loading catalog...</div>}>
       <ProductsContent />
     </Suspense>
   );
