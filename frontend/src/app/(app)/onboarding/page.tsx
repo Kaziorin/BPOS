@@ -62,7 +62,8 @@ export default function OnboardingPage() {
   const [provisionResult, setProvisionResult] = useState<any>(null);
 
   // Form states (Clean client-side state)
-  const [selectedBusinessType, setSelectedBusinessType] = useState<string>("GROCERY");
+  const [selectedBusinessType, setSelectedBusinessType] = useState<string>("RETAIL");
+  const [selectedPlan, setSelectedPlan] = useState<string>("STARTER");
   const [companyForm, setCompanyForm] = useState({
     name: "",
     legalName: "",
@@ -163,6 +164,7 @@ export default function OnboardingPage() {
     try {
       const payload = {
         businessType: selectedBusinessType,
+        planCode: selectedPlan,
         company: companyForm,
         branch: branchForm,
         warehouse: warehouseForm,
@@ -186,7 +188,8 @@ export default function OnboardingPage() {
   };
 
   const handleResetWizard = () => {
-    setSelectedBusinessType("GROCERY");
+    setSelectedBusinessType("RETAIL");
+    setSelectedPlan("STARTER");
     setCompanyForm({ name: "", legalName: "", phone: "", email: "", address: "", vatRegNo: "" });
     setBranchForm({ code: "MAIN", name: "Main Branch", phone: "", email: "", address: "" });
     setWarehouseForm({ code: "WH-MAIN", name: "Main Warehouse", type: "CENTRAL" });
@@ -199,7 +202,7 @@ export default function OnboardingPage() {
     setCurrentStep("business-type");
   };
 
-  const handleSwitchToNewTenant = (token: string, tenant: any, owner: any) => {
+  const handleSwitchToNewTenant = (token: string, tenant: any, owner: any, subscription?: any) => {
     if (typeof window !== "undefined") {
       try {
         localStorage.clear();
@@ -211,6 +214,9 @@ export default function OnboardingPage() {
           roleName: "Owner",
           businessType: tenant.businessType,
         }));
+        if (subscription) {
+          localStorage.setItem("modernpos_subscription", JSON.stringify(subscription));
+        }
         localStorage.setItem("blueoceans_tenant", JSON.stringify({
           id: tenant.id,
           slug: tenant.slug,
@@ -315,6 +321,8 @@ export default function OnboardingPage() {
           {currentStep === "business-type" && (
             <BusinessTypeStep
               selected={selectedBusinessType}
+              selectedPlan={selectedPlan}
+              onSelectPlan={setSelectedPlan}
               onSelect={(type) => {
                 setSelectedBusinessType(type);
                 setErrorMessage(null);
@@ -368,6 +376,7 @@ export default function OnboardingPage() {
             <CompleteStep
               provisionResult={provisionResult}
               businessType={selectedBusinessType}
+              planCode={selectedPlan}
               company={companyForm}
               branch={branchForm}
               warehouse={warehouseForm}
@@ -411,22 +420,32 @@ export default function OnboardingPage() {
     );
   }
 
+const PLAN_TIERS = [
+  { code: "STARTER", name: "Starter", desc: "POS, Sales, Inventory, Cash Register & Customers" },
+  { code: "BUSINESS", name: "Advance", desc: "Starter + Accounting, VAT, Purchasing, Reports & Credit" },
+  { code: "ENTERPRISE", name: "Enterprise", desc: "All Modules, Multi-Branch, RBAC, Workflows & AI Copilot" },
+];
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. Business Type Step
 // ─────────────────────────────────────────────────────────────────────────────
 function BusinessTypeStep({
   selected,
+  selectedPlan,
   onSelect,
+  onSelectPlan,
 }: {
   selected: string;
+  selectedPlan: string;
   onSelect: (type: string) => void;
+  onSelectPlan: (plan: string) => void;
 }) {
   return (
-    <div>
-      <div className="mb-6">
+    <div className="space-y-6">
+      <div>
         <h2 className="text-xl font-bold text-gray-600">What type of business are you operating?</h2>
         <p className="text-sm text-slate-500 mt-1">
-          Selecting your business type configures intelligent defaults, modules, and workflows specifically tailored for your vertical.
+          Selecting your business type configures intelligent defaults, POS terminal mode, and workflows specifically tailored for your vertical.
         </p>
       </div>
 
@@ -462,6 +481,38 @@ function BusinessTypeStep({
             </button>
           );
         })}
+      </div>
+
+      <div className="pt-4 border-t border-slate-100 space-y-3">
+        <div>
+          <h3 className="text-sm font-bold text-gray-600">Subscription Plan Tier</h3>
+          <p className="text-xs text-slate-500">
+            Choose the subscription tier to assign to this workspace.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {PLAN_TIERS.map((plan) => {
+            const active = selectedPlan === plan.code;
+            return (
+              <button
+                key={plan.code}
+                type="button"
+                onClick={() => onSelectPlan(plan.code)}
+                className={`p-3.5 rounded-sm border-2 text-left transition-all ${
+                  active
+                    ? "border-brand-primary bg-primary-50/50 ring-1 ring-brand-border"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs text-gray-700">{plan.name}</span>
+                  {active && <Check size={14} className="text-primary-600" />}
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">{plan.desc}</p>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -859,6 +910,7 @@ function OwnerSetupStep({
 function CompleteStep({
   provisionResult,
   businessType,
+  planCode,
   company,
   branch,
   warehouse,
@@ -871,6 +923,7 @@ function CompleteStep({
 }: {
   provisionResult: any;
   businessType: string;
+  planCode: string;
   company: any;
   branch: any;
   warehouse: any;
@@ -878,7 +931,7 @@ function CompleteStep({
   user: any;
   onProvision: () => void;
   onReset: () => void;
-  onSwitch: (token: string, tenant: any, owner: any) => void;
+  onSwitch: (token: string, tenant: any, owner: any, subscription?: any) => void;
   loading: boolean;
 }) {
   const [copied, setCopied] = useState(false);
@@ -954,7 +1007,7 @@ Login URL: ${window.location.origin}/login
 
             <CustomButton
               size="sm"
-              onClick={() => onSwitch(provisionResult.token, provisionResult.tenant, provisionResult.owner)}
+              onClick={() => onSwitch(provisionResult.token, provisionResult.tenant, provisionResult.owner, provisionResult.subscription)}
               className="bg-brand-primary hover:bg-brand-dark text-white text-xs py-1.5"
             >
               ⚡ Log In as Store Owner
@@ -990,7 +1043,7 @@ Login URL: ${window.location.origin}/login
         <div className="p-4 rounded-sm border border-slate-200 bg-slate-50 space-y-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Business &amp; Vertical</span>
           <div className="text-sm font-semibold text-gray-600">{company.name || "Untitled Business"}</div>
-          <div className="text-xs text-slate-600">Type: <span className="font-semibold text-brand-dark">{businessType}</span></div>
+          <div className="text-xs text-slate-600">Type: <span className="font-semibold text-brand-dark">{businessType}</span> • Plan: <span className="font-semibold text-brand-dark">{planCode}</span></div>
           {company.legalName && <div className="text-xs text-slate-600">Legal: {company.legalName}</div>}
           <div className="text-xs text-slate-600">Contact: {company.phone || "—"} | {company.email || "—"}</div>
         </div>

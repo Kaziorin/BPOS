@@ -88,6 +88,7 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
     title: string;
     requiredPlan?: string;
     requiredAddon?: string;
+    lockReason?: string;
   } | null>(null);
   const Logo = siteConfig.logoIcon;
 
@@ -458,10 +459,24 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                         <div key={`${group.title}-${item.label}-${idx}`} className="space-y-0.5">
                           <button
                             type="button"
-                            onClick={() => toggleModule(item.label)}
+                            onClick={() => {
+                              if (item.isLocked) {
+                                onOpenChange(false);
+                                setUpgradeTarget({
+                                  title: item.label,
+                                  requiredPlan: item.requiredPlan,
+                                  requiredAddon: item.requiredAddon,
+                                  lockReason: item.lockReason,
+                                });
+                                return;
+                              }
+                              toggleModule(item.label);
+                            }}
                             className={cn(
                               "group flex w-full items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-200 cursor-pointer",
-                              active
+                              item.isLocked
+                                ? "text-slate-400 hover:bg-amber-50 hover:text-amber-800"
+                                : active
                                 ? "bg-brand-gradient text-white font-bold"
                                 : moduleExpanded
                                 ? "text-brand-primary font-bold bg-brand-50"
@@ -473,13 +488,22 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                 size={16}
                                 className={cn(
                                   "shrink-0",
-                                  active ? "text-white" : "text-brand-primary"
+                                  item.isLocked
+                                    ? "text-slate-400"
+                                    : active
+                                    ? "text-white"
+                                    : "text-brand-primary"
                                 )}
                               />
                               <span className="truncate text-left">{item.label}</span>
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0">
-                              {item.badge && (
+                              {item.isLocked ? (
+                                <span className="flex items-center gap-1 text-[9px] font-bold text-amber-700 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded-sm">
+                                  <Lock size={9} />
+                                  <span>{item.lockReason || "Upgrade"}</span>
+                                </span>
+                              ) : item.badge ? (
                                 <span
                                   className={cn(
                                     "text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
@@ -490,12 +514,16 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
                                 >
                                   {item.badge}
                                 </span>
-                              )}
+                              ) : null}
                               <ChevronDown
                                 size={14}
                                 className={cn(
                                   "transition-transform duration-200",
-                                  active ? "text-white" : "text-brand-primary",
+                                  item.isLocked
+                                    ? "text-slate-400"
+                                    : active
+                                    ? "text-white"
+                                    : "text-brand-primary",
                                   moduleExpanded && "rotate-180"
                                 )}
                               />
@@ -684,9 +712,10 @@ export function MobileNav({ open, onOpenChange }: { open: boolean; onOpenChange:
         <UpgradeModal
           isOpen={!!upgradeTarget}
           onClose={() => setUpgradeTarget(null)}
-          featureTitle={upgradeTarget.title}
+          featureName={upgradeTarget.title}
           requiredPlan={upgradeTarget.requiredPlan}
           requiredAddon={upgradeTarget.requiredAddon}
+          lockReason={upgradeTarget.lockReason}
         />
       )}
     </>

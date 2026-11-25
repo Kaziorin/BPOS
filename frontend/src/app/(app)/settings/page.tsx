@@ -233,12 +233,12 @@ const SETTINGS_TABS: SettingsTabDef[] = [
   },
   {
     id: "subscription",
-    label: "SaaS Enterprise Quota",
+    label: "Subscription & Plan",
     category: "security",
     icon: Crown,
-    badge: "Enterprise",
+    badge: "Active Plan",
     badgeColor: "bg-amber-50 text-amber-700 border-amber-200",
-    description: "Tenant tier licensing, multi-branch quotas, and SLA guarantees",
+    description: "Active SaaS tier, resource quotas, enabled modules, and upgrade options",
   },
 ];
 
@@ -2249,36 +2249,160 @@ function AISettingsTab({ onSave }: { onSave: () => void }) {
 
 function SubscriptionSettingsTab({ tenantData }: { tenantData: any }) {
   const tenant = tenantData?.tenant || {};
+  const [sub, setSub] = useState<any>(null);
+  const [usage, setUsage] = useState<any>(null);
+  const [loadingSub, setLoadingSub] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    try {
+      const cached = localStorage.getItem("modernpos_subscription");
+      if (cached) setSub(JSON.parse(cached));
+    } catch {}
+
+    Promise.allSettled([
+      api.get<any>("/v1/saas/subscription"),
+      api.get<any>("/v1/saas/usage"),
+    ])
+      .then(([sRes, uRes]) => {
+        if (!active) return;
+        if (sRes.status === "fulfilled") {
+          const s = sRes.value?.data ?? sRes.value;
+          if (s) setSub(s);
+        }
+        if (uRes.status === "fulfilled") {
+          const u = uRes.value?.data ?? uRes.value;
+          if (u) setUsage(u);
+        }
+      })
+      .finally(() => {
+        if (active) setLoadingSub(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const planCode = (sub?.planCode || "STARTER").toUpperCase();
+  const planName = sub?.planName || (planCode === "BUSINESS" ? "Advance" : planCode === "ENTERPRISE" ? "Enterprise" : "Starter");
+  const status = sub?.status || tenant.status || "ACTIVE";
+  const businessType = sub?.businessType || tenant.businessType || "RETAIL";
+  const limits = sub?.limits || usage?.limits || {};
+  const enabledModules: string[] = Array.isArray(sub?.enabledModules) ? sub.enabledModules : [];
 
   return (
     <div className="space-y-6 text-xs">
-      <div className="p-6 rounded-sm bg-linear-to-tr from-slate-900 via-indigo-950 to-slate-950 text-white space-y-4 shadow-lg">
-        <div className="flex justify-between items-start">
+      <div className="p-6 rounded-sm bg-linear-to-tr from-slate-900 via-sky-950 to-slate-950 text-white space-y-4 shadow-lg">
+        <div className="flex flex-wrap justify-between items-start gap-3">
           <div>
-            <span className="text-[10px] font-bold text-primary-400 uppercase tracking-widest">Active Plan</span>
-            <h3 className="text-2xl font-black">ENTERPRISE PRO TIER</h3>
-            <p className="text-xs text-slate-300 mt-0.5">
-              Tenant Identifier: <span className="font-mono text-white font-bold">{tenant.slug || "main-tenant"}</span>
+            <span className="text-[10px] font-bold text-sky-300 uppercase tracking-widest">
+              Current Subscription Plan ({planCode})
+            </span>
+            <h3 className="text-2xl font-black mt-0.5">
+              {planName} Plan
+            </h3>
+            <p className="text-xs text-slate-300 mt-1">
+              Workspace: <span className="font-mono text-white font-bold">{tenant.slug || "workspace"}</span>
+              {" • "}Vertical: <span className="font-bold text-sky-300">{businessType}</span>
+              {sub?.billingCycle ? ` • ${sub.billingCycle}` : ""}
             </p>
           </div>
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500 text-gray-600 shadow-sm">
-            Active & Licensed
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500 text-slate-950 shadow-sm">
+              {status}
+            </span>
+            <Link
+              href="/saas?tab=plans"
+              className="px-3 py-1.5 rounded-sm bg-white/15 hover:bg-white/25 text-white font-bold text-xs transition border border-white/20"
+            >
+              View / Upgrade Plans →
+            </Link>
+          </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 pt-4 border-t border-white/10 text-center">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-white/10 text-center">
           <div>
-            <p className="text-xl font-bold">Unlimited</p>
-            <span className="text-[10px] text-slate-400">Branches / Outlets</span>
+            <p className="text-xl font-bold">
+              {usage?.branches ?? 1} / {limits.maxBranches ?? 1}
+            </p>
+            <span className="text-[10px] text-slate-300">Branches / Outlets</span>
           </div>
           <div>
-            <p className="text-xl font-bold">Unlimited</p>
-            <span className="text-[10px] text-slate-400">POS Terminals</span>
+            <p className="text-xl font-bold">
+              {usage?.pos ?? 0} / {limits.maxPOS ?? 2}
+            </p>
+            <span className="text-[10px] text-slate-300">POS Terminals</span>
           </div>
           <div>
-            <p className="text-xl font-bold text-emerald-400">99.99%</p>
-            <span className="text-[10px] text-slate-400">SLA Uptime Guarantee</span>
+            <p className="text-xl font-bold">
+              {usage?.users ?? 1} / {limits.maxUsers ?? 5}
+            </p>
+            <span className="text-[10px] text-slate-300">Staff Users</span>
           </div>
+          <div>
+            <p className="text-xl font-bold">
+              {usage?.products ?? 0} / {(limits.maxProducts ?? 1000).toLocaleString()}
+            </p>
+            <span className="text-[10px] text-slate-300">Product Catalog</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="rounded-sm border border-slate-200 bg-white p-4 space-y-2">
+          <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider">
+            Subscription Schedule & Quotas
+          </h4>
+          <div className="space-y-1.5 text-xs text-slate-600">
+            <div className="flex justify-between py-1 border-b border-slate-100">
+              <span>Period Start:</span>
+              <span className="font-mono font-semibold text-slate-800">
+                {sub?.currentPeriodStart ? String(sub.currentPeriodStart).slice(0, 10) : "Active"}
+              </span>
+            </div>
+            <div className="flex justify-between py-1 border-b border-slate-100">
+              <span>Next Renewal / Period End:</span>
+              <span className="font-mono font-semibold text-slate-800">
+                {sub?.currentPeriodEnd ? String(sub.currentPeriodEnd).slice(0, 10) : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between py-1 border-b border-slate-100">
+              <span>Trial Ends:</span>
+              <span className="font-mono font-semibold text-slate-800">
+                {sub?.trialEndsAt ? String(sub.trialEndsAt).slice(0, 10) : "N/A"}
+              </span>
+            </div>
+            <div className="flex justify-between py-1">
+              <span>Warehouses Allowed:</span>
+              <span className="font-mono font-semibold text-slate-800">
+                {limits.maxWarehouses ?? 1}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-sm border border-slate-200 bg-white p-4 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider">
+              Enabled Modules ({enabledModules.length})
+            </h4>
+            {loadingSub && <span className="text-[10px] text-slate-400">Syncing...</span>}
+          </div>
+          {enabledModules.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {enabledModules.map((mod) => (
+                <span
+                  key={mod}
+                  className="px-2 py-0.5 rounded bg-sky-50 border border-sky-200 text-sky-800 font-mono text-[10px] font-semibold"
+                >
+                  {mod}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-400 text-xs">Loading enabled modules...</p>
+          )}
         </div>
       </div>
     </div>

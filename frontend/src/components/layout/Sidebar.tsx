@@ -678,6 +678,34 @@ export function Sidebar() {
                 const childActive = isChildActive(child, pathname, allHrefs);
                 const hasSub = !!child.children?.length;
 
+                if (child.isLocked) {
+                  return (
+                    <button
+                      key={`${child.label}-${child.href}-${idx}`}
+                      type="button"
+                      onClick={() => {
+                        setActiveFlyout(null);
+                        setUpgradeTarget({
+                          featureName: child.label,
+                          requiredPlan: child.requiredPlan,
+                          requiredAddon: child.requiredAddon,
+                          lockReason: child.lockReason,
+                        });
+                      }}
+                      className="flex w-full items-center justify-between gap-2.5 px-3 py-2 text-xs rounded-sm text-slate-400 hover:bg-amber-50/60 hover:text-slate-600 transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <ChildIcon size={14} className="shrink-0 text-slate-400" />
+                        <span className="truncate">{child.label}</span>
+                      </div>
+                      <span className="flex items-center gap-1 text-[8.5px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+                        <Lock size={8} />
+                        <span>{child.lockReason || "Upgrade"}</span>
+                      </span>
+                    </button>
+                  );
+                }
+
                 return (
                   <div key={`${child.label}-${child.href}-${idx}`}>
                     <Link
@@ -702,6 +730,30 @@ export function Sidebar() {
                         {child.children!.map((sub, sIdx) => {
                           const SubIcon = sub.icon;
                           const subActive = isRouteActive(sub.href, pathname, allHrefs);
+                          if (sub.isLocked) {
+                            return (
+                              <button
+                                key={`${sub.label}-${sub.href}-${sIdx}`}
+                                type="button"
+                                onClick={() => {
+                                  setActiveFlyout(null);
+                                  setUpgradeTarget({
+                                    featureName: sub.label,
+                                    requiredPlan: sub.requiredPlan,
+                                    requiredAddon: sub.requiredAddon,
+                                    lockReason: sub.lockReason,
+                                  });
+                                }}
+                                className="flex w-full items-center justify-between gap-2 px-2 py-1.5 text-[11px] rounded-sm text-slate-400 hover:bg-amber-50/60 hover:text-slate-600 cursor-pointer"
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <SubIcon size={11} className="shrink-0 text-slate-400" />
+                                  <span className="truncate">{sub.label}</span>
+                                </div>
+                                <Lock size={9} className="text-amber-600 shrink-0" />
+                              </button>
+                            );
+                          }
                           return (
                             <Link
                               key={`${sub.label}-${sub.href}-${sIdx}`}

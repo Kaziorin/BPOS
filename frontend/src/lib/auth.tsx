@@ -6,10 +6,27 @@ import { api, ApiError, TENANT_STORAGE_KEY } from "./api";
 import { AuthUser } from "./types";
 
 export interface TenantSubscription {
+  id?: string | null;
   planCode: "STARTER" | "BUSINESS" | "ENTERPRISE" | string;
   planName: string;
   status: string;
+  billingCycle?: string;
   trialEndsAt?: string | null;
+  currentPeriodStart?: string | null;
+  currentPeriodEnd?: string | null;
+  monthlyPrice?: number;
+  yearlyPrice?: number;
+  businessType?: string;
+  limits?: {
+    maxUsers?: number;
+    maxBranches?: number;
+    maxWarehouses?: number;
+    maxPOS?: number;
+    maxProducts?: number;
+    maxStorageMB?: number;
+    maxAPICallsDaily?: number;
+    maxAIQueriesDaily?: number;
+  };
   enabledModules: string[];
 }
 
@@ -83,6 +100,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (norm) {
               localStorage.setItem("modernpos_user", JSON.stringify(norm));
             }
+            try {
+              const rawTenant = localStorage.getItem(TENANT_STORAGE_KEY);
+              if (rawTenant) {
+                const parsedT = JSON.parse(rawTenant);
+                if (u.businessType && parsedT.businessType !== u.businessType) {
+                  localStorage.setItem(
+                    TENANT_STORAGE_KEY,
+                    JSON.stringify({ ...parsedT, businessType: u.businessType })
+                  );
+                }
+              }
+            } catch (e) {}
           }
           if (sub) {
             setSubscription(sub);
@@ -155,7 +184,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       businessType: tenantInfo.businessType || res.user.businessType || "RETAIL",
     }));
 
-    setUser(res.user);
+    if (normUser) {
+      setUser(normUser);
+    }
     window.location.href = "/dashboard";
   }
 
@@ -192,11 +223,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (e) {}
     }
 
-    localStorage.setItem("modernpos_token", res.token);
-    localStorage.setItem("modernpos_user", JSON.stringify({
+    const normUser = normalizeAuthUser({
       ...res.user,
       role: res.user.roleName || res.user.role || "Owner",
-    }));
+    });
+    localStorage.setItem("modernpos_token", res.token);
+    if (normUser) {
+      localStorage.setItem("modernpos_user", JSON.stringify(normUser));
+    }
 
     if (res.subscription) {
       setSubscription(res.subscription);
@@ -217,7 +251,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       businessType: tenantInfo.businessType || data.businessType || "RETAIL",
     }));
 
-    setUser(res.user);
+    if (normUser) {
+      setUser(normUser);
+    }
     window.location.href = "/dashboard";
   }
 
