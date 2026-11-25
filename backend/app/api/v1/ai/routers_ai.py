@@ -547,77 +547,108 @@ async def ai_copilot(
     answer = ""
     suggestions = []
 
-    # Check for optional external LLM (OpenAI / Gemini)
+    # Check for local Ollama or optional external LLM (OpenAI / Gemini)
     import os
+    ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+    ollama_model = os.getenv("OLLAMA_MODEL", "qwen2.5:1.5b").strip()
     openai_key = os.getenv("OPENAI_API_KEY", "").strip()
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
 
     is_bengali = any('\u0980' <= char <= '\u09FF' for char in message) or any(
-        w in msg_lower for w in ["koto", "bikri", "lav", "baki", "kemon", "stock", "mal"]
+        w in msg_lower for w in ["koto", "bikri", "lav", "baki", "kemon", "stock", "mal", "ki", "ke", "kake", "kobe", "keno"]
     )
 
-    # 1. External LLM Path (if API key is configured)
-    if openai_key or gemini_key:
-        try:
-            import httpx
-            # Fetch essential business stats for context injection
-            stats_today = (await db.execute(text(
-                "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales WHERE tenantId=:t AND status='CONFIRMED' AND DATE(createdAt)=CURDATE()"),
-                {"t": tenantId})).first()
-            stats_month = (await db.execute(text(
-                "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales WHERE tenantId=:t AND status='CONFIRMED' AND createdAt >= DATE_FORMAT(NOW(), '%Y-%m-01')"),
-                {"t": tenantId})).first()
-            low_stock = (await db.execute(text(
-                "SELECT COUNT(*) FROM stock s JOIN products p ON p.id=s.productId WHERE s.tenantId=:t AND s.qtyOnHand <= COALESCE(p.reorderPoint, 10)"),
-                {"t": tenantId})).first()
-            due_total = (await db.execute(text(
-                "SELECT COUNT(*), COALESCE(SUM(total - paidTotal),0) FROM invoices WHERE tenantId=:t AND status NOT IN ('PAID','VOID')"),
-                {"t": tenantId})).first()
+    # 1. Local Ollama or External LLM Path
+    try:
+        import httpx
+        # Fetch essential business stats for context injection
+        stats_today = (await db.execute(text(
+            "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales WHERE tenantId=:t AND status='CONFIRMED' AND DATE(createdAt)=CURDATE()"),
+            {"t": tenantId})).first()
+        stats_month = (await db.execute(text(
+            "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales WHERE tenantId=:t AND status='CONFIRMED' AND createdAt >= DATE_FORMAT(NOW(), '%Y-%m-01')"),
+            {"t": tenantId})).first()
+        low_stock = (await db.execute(text(
+            "SELECT COUNT(*) FROM stock s JOIN products p ON p.id=s.productId WHERE s.tenantId=:t AND s.qtyOnHand <= COALESCE(p.reorderPoint, 10)"),
+            {"t": tenantId})).first()
+        due_total = (await db.execute(text(
+            "SELECT COUNT(*), COALESCE(SUM(total - paidTotal),0) FROM invoices WHERE tenantId=:t AND status NOT IN ('PAID','VOID')"),
+            {"t": tenantId})).first()
 
-            context_prompt = (
-                f"You are Blue Oceans POS Business Copilot. Answer user question accurately based on real store database context.\n"
-                f"Store Metrics:\n"
-                f"- Today's Sales: {stats_today[0]} orders, Total ৳{float(stats_today[1] or 0):,.2f}\n"
-                f"- This Month's Sales: {stats_month[0]} orders, Total ৳{float(stats_month[1] or 0):,.2f}\n"
-                f"- Low Stock Products Needing Reorder: {low_stock[0]} items\n"
-                f"- Total Outstanding Customer Due / AR: {due_total[0]} invoices, ৳{float(due_total[1] or 0):,.2f}\n"
-                f"Always reply in the same language as the user (Bengali if user asks in Bengali or Banglish, English if in English). Be concise, executive, and helpful.\n"
-                f"User: {message}"
-            )
+        system_instruction = (
+            "You are the dedicated internal Offline AI Agent for Blue Oceans POS (Enterprise Multi-Branch ERP & POS System).\n"
+            "STRICT OPERATIONAL RULES:\n"
+            "1. You ONLY answer questions related to Blue Oceans POS features, modules, navigation, sales, profit, inventory stock, customer dues, accounting, hardware (receipt printers, barcode scanners), and retail operations.\n"
+            "2. If the user asks anything unrelated to Blue Oceans POS or store management (such as movies, general knowledge, other coding, sports), politely decline in Bengali: 'আমি শুধুমাত্র ব্লু ওশানস পিওএস (Blue Oceans POS) এবং আপনার ব্যবসায়িক হিসাব-নিকাশ সম্পর্কিত প্রশ্নের উত্তর দিতে পারি।'\n"
+            "3. Answer in the same language as the user (Bengali if asked in Bengali or Banglish, English if in English). Keep answers practical, clear, and concise.\n"
+            f"\nLive Store Metrics Context:\n"
+            f"- Today's Sales: {stats_today[0]} orders, Total ৳{float(stats_today[1] or 0):,.2f}\n"
+            f"- This Month's Sales: {stats_month[0]} orders, Total ৳{float(stats_month[1] or 0):,.2f}\n"
+            f"- Low Stock Products Needing Reorder: {low_stock[0]} items\n"
+            f"- Total Outstanding Customer Due / AR: {due_total[0]} invoices, ৳{float(due_total[1] or 0):,.2f}\n"
+            "\nBlue Oceans POS Features Overview:\n"
+            "- Modules: Retail POS, Restaurant KOT & Dining Tables, Pharmacy (Rx & generic medicine), Grocery & Bakery (scales), Salon & Spa bookings, Wholesale B2B & RMA repair.\n"
+            "- Multi-Branch: Central warehouse, inter-branch stock transfers, franchise royalties.\n"
+            "- Accounts: Double-entry accounting, P&L, Balance Sheet, NBR VAT/Tax compliant, Customer EMI & Credit ledger.\n"
+            "- Offline Resilience: Full offline POS billing with automatic cloud sync on reconnect.\n"
+        )
 
-            if gemini_key:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
-                async with httpx.AsyncClient(timeout=10.0) as client:
-                    resp = await client.post(url, json={
-                        "contents": [{"parts": [{"text": context_prompt}]}]
-                    })
+        # 1A. Local Ollama LLM (Preferred Offline Agent)
+        if ollama_url and not answer:
+            try:
+                async with httpx.AsyncClient(timeout=45.0) as client:
+                    ollama_payload = {
+                        "model": ollama_model,
+                        "messages": [
+                            {"role": "system", "content": system_instruction},
+                            {"role": "user", "content": message}
+                        ],
+                        "stream": False,
+                        "options": {"temperature": 0.3}
+                    }
+                    resp = await client.post(f"{ollama_url}/api/chat", json=ollama_payload)
                     if resp.status_code == 200:
-                        gem_data = resp.json()
-                        candidates = gem_data.get("candidates") or []
-                        if candidates and "content" in candidates[0]:
-                            parts = candidates[0]["content"].get("parts") or []
-                            if parts:
-                                answer = parts[0].get("text", "").strip()
+                        ollama_res = resp.json()
+                        msg_obj = ollama_res.get("message") or {}
+                        answer = (msg_obj.get("content") or "").strip()
+            except Exception:
+                pass
 
-            elif openai_key and not answer:
-                url = "https://api.openai.com/v1/chat/completions"
-                headers = {"Authorization": f"Bearer {openai_key}", "Content-Type": "application/json"}
-                payload = {
-                    "model": "gpt-4o-mini",
-                    "messages": [
-                        {"role": "system", "content": "You are Blue Oceans POS Copilot. Respond concisely with exact figures."},
-                        {"role": "user", "content": context_prompt}
-                    ],
-                    "temperature": 0.3
-                }
-                async with httpx.AsyncClient(timeout=10.0) as client:
-                    resp = await client.post(url, headers=headers, json=payload)
-                    if resp.status_code == 200:
-                        openai_data = resp.json()
-                        answer = openai_data["choices"][0]["message"]["content"].strip()
-        except Exception as e:
-            # Fallback to local SQL intelligence on LLM error
-            pass
+        # 1B. External LLM Path (Gemini or OpenAI fallback if configured)
+        if not answer and gemini_key:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.post(url, json={
+                    "systemInstruction": {"parts": [{"text": system_instruction}]},
+                    "contents": [{"parts": [{"text": message}]}]
+                })
+                if resp.status_code == 200:
+                    gem_data = resp.json()
+                    candidates = gem_data.get("candidates") or []
+                    if candidates and "content" in candidates[0]:
+                        parts = candidates[0]["content"].get("parts") or []
+                        if parts:
+                            answer = parts[0].get("text", "").strip()
+
+        elif not answer and openai_key:
+            url = "https://api.openai.com/v1/chat/completions"
+            headers = {"Authorization": f"Bearer {openai_key}", "Content-Type": "application/json"}
+            payload = {
+                "model": "gpt-4o-mini",
+                "messages": [
+                    {"role": "system", "content": system_instruction},
+                    {"role": "user", "content": message}
+                ],
+                "temperature": 0.3
+            }
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.post(url, headers=headers, json=payload)
+                if resp.status_code == 200:
+                    openai_data = resp.json()
+                    answer = openai_data["choices"][0]["message"]["content"].strip()
+    except Exception:
+        # Fallback to local SQL intelligence on any error
+        pass
 
     # 2. Local Real-Time SQL Business Intelligence (Zero Cost / Offline / Bilingual)
     if not answer:
