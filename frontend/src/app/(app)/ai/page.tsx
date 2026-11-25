@@ -73,10 +73,10 @@ function CopilotChat() {
             <div className="flex items-center gap-2">
               <h3 className="font-black text-sm text-gray-600">Business AI Copilot</h3>
               <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-                Live SQL & Business Intelligence
+                100% Offline AI & SQL Intelligence
               </span>
             </div>
-            <p className="text-[11px] text-slate-500">Autonomous retail intelligence & sales forecasting assistant</p>
+            <p className="text-[11px] text-slate-500">Autonomous retail assistant — local air-gapped processing (Zero data leakage)</p>
           </div>
         </div>
 

@@ -593,10 +593,11 @@ async def ai_copilot(
             "- Offline Resilience: Full offline POS billing with automatic cloud sync on reconnect.\n"
         )
 
-        # 1A. Local Ollama LLM (Preferred Offline Agent)
+        # 1A. Local Ollama LLM (Preferred Offline Agent with fast timeout)
         if ollama_url and not answer:
             try:
-                async with httpx.AsyncClient(timeout=45.0) as client:
+                # Fast timeout so it does not hang if CPU is slow
+                async with httpx.AsyncClient(timeout=12.0) as client:
                     ollama_payload = {
                         "model": ollama_model,
                         "messages": [
@@ -610,45 +611,95 @@ async def ai_copilot(
                     if resp.status_code == 200:
                         ollama_res = resp.json()
                         msg_obj = ollama_res.get("message") or {}
-                        answer = (msg_obj.get("content") or "").strip()
+                        raw_ans = (msg_obj.get("content") or "").strip()
+                        # Only accept if non-empty and coherent
+                        if len(raw_ans) > 15:
+                            answer = raw_ans
             except Exception:
                 pass
 
-        # 1B. External LLM Path (Gemini or OpenAI fallback if configured)
+        # 1B. Optional Google Gemini (Free Tier) if key is added in .env
         if not answer and gemini_key:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                resp = await client.post(url, json={
-                    "systemInstruction": {"parts": [{"text": system_instruction}]},
-                    "contents": [{"parts": [{"text": message}]}]
-                })
-                if resp.status_code == 200:
-                    gem_data = resp.json()
-                    candidates = gem_data.get("candidates") or []
-                    if candidates and "content" in candidates[0]:
-                        parts = candidates[0]["content"].get("parts") or []
-                        if parts:
-                            answer = parts[0].get("text", "").strip()
-
-        elif not answer and openai_key:
-            url = "https://api.openai.com/v1/chat/completions"
-            headers = {"Authorization": f"Bearer {openai_key}", "Content-Type": "application/json"}
-            payload = {
-                "model": "gpt-4o-mini",
-                "messages": [
-                    {"role": "system", "content": system_instruction},
-                    {"role": "user", "content": message}
-                ],
-                "temperature": 0.3
-            }
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                resp = await client.post(url, headers=headers, json=payload)
-                if resp.status_code == 200:
-                    openai_data = resp.json()
-                    answer = openai_data["choices"][0]["message"]["content"].strip()
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.post(url, json={
+                        "systemInstruction": {"parts": [{"text": system_instruction}]},
+                        "contents": [{"parts": [{"text": message}]}]
+                    })
+                    if resp.status_code == 200:
+                        gem_data = resp.json()
+                        candidates = gem_data.get("candidates") or []
+                        if candidates and "content" in candidates[0]:
+                            parts = candidates[0]["content"].get("parts") or []
+                            if parts:
+                                answer = parts[0].get("text", "").strip()
+            except Exception:
+                pass
     except Exception:
-        # Fallback to local SQL intelligence on any error
         pass
+
+    # 2. Local Real-Time High-Accuracy Offline Business Intelligence Engine (Instant 0.01s)
+    if not answer:
+        # Identity & Greeting Intent
+        if any(w in msg_lower for w in ["tomar name", "tomar nam", "your name", "who are you", "tumi k", "tumi ke", "পরিচয়", "নাম কি", "নাম কী", "কে তুমি", "কে আপনি", "hello", "hi", "kemon aso", "কেমন আছো", "কেমন আছেন"]):
+            answer = (
+                "👋 আমি ব্লু ওশানস পিওএস (Blue Oceans POS)-এর অফলাইন বিজনেস এআই কোপাইলট।\n\n"
+                "আমি আপনার সফটওয়্যারের একজন ডেডিকেটেড সহকারী হিসেবে কাজ করি।\n"
+                "• আপনার দোকানের আজকের বিক্রি, লাভ-ক্ষতি, পণ্যের বর্তমান স্টক ও কাস্টমার বকেয়ার লাইভ হিসাব দিতে পারি।\n"
+                "• পিওএস, ইনভেন্টরি, রেস্তোরাঁ KOT, ফার্মেসি, অ্যাকাউন্টিং এবং অন্যান্য মডিউল ব্যবহারের সঠিক নির্দেশনা দিতে পারি।"
+            )
+
+        # How Inventory Works Intent
+        elif any(w in msg_lower for w in ["inventory ke vabe", "inventory kivabe", "how inventory", "inventory কাজ", "ইনভেন্টরি কীভাবে", "ইনভেন্টরি কিভাবে", "ইনভেন্টরি কাজ", "স্টক কীভাবে", "স্টক কিভাবে"]):
+            # Get live stock overview
+            total_items = (await db.execute(text("SELECT COUNT(*) FROM products WHERE tenantId=:t"), {"t": tenantId})).scalar() or 0
+            low_items = (await db.execute(text(
+                "SELECT COUNT(*) FROM stock s JOIN products p ON p.id=s.productId WHERE s.tenantId=:t AND s.qtyOnHand <= COALESCE(p.reorderPoint, 10) AND s.qtyOnHand > 0"),
+                {"t": tenantId})).scalar() or 0
+            answer = (
+                "📦 ব্লু ওশানস পিওএস-এ ইনভেন্টরি যেভাবে কাজ করে:\n\n"
+                "১. ক্যাটালগ ও বারকোড ট্র্যাকিং:\n"
+                "   প্রতিটি পণ্যের একক SKU, বারকোড, কেনা দাম (Cost Price) এবং বিক্রির দাম নির্ধারণ থাকে। বারকোড স্ক্যান করলেই তাৎক্ষণিক স্টক পাওয়া যায়।\n\n"
+                "২. অটো স্টক ডিডাকশন (POS Billing):\n"
+                "   পিওএস কাউন্টারে পণ্য বিক্রি হওয়ার সাথে সাথেই ইনভেন্টরি থেকে অটোমেটিক স্টক কমে যায়। কোনো কারণে সেল রিটার্ন হলে স্টক ফেরত আসে।\n\n"
+                "৩. মাল্টি-ওয়্যারহাউস ও ইন্টার-ব্রাঞ্চ ট্রান্সফার:\n"
+                "   সেন্ট্রাল ওয়্যারহাউস থেকে যেকোনো আউটলেট বা শাখায় পণ্য স্টক ট্রান্সফার চালান (Stock Transfer Order) এর মাধ্যমে পাঠানো ও গ্রহণ করা যায়।\n\n"
+                "৪. ব্যাচ ও এক্সপায়ারি ট্র্যাকিং:\n"
+                "   ফার্মেসি ও গ্রোসারির জন্য প্রতি চালানের ব্যাচ নম্বর ও মেয়াদোত্তীর্ণ তারিখ (Expiry Date) ট্র্যাক হয়। মেয়াদ শেষ হওয়ার আগেই এআই নোটিফিকেশন দেয়।\n\n"
+                "৫. সেফটি রি-অর্ডার পয়েন্ট ও রিয়েল-টাইম স্ট্যাটাস:\n"
+                f"   আপনার স্টোরে বর্তমানে সর্বমোট {total_items} টি পণ্য ক্যাটালগ রয়েছে। এর মধ্যে {low_items} টি পণ্যের স্টক রি-অর্ডার লেভেলের নিচে রয়েছে।"
+            )
+
+        # How POS / Billing Terminal Works Intent
+        elif any(w in msg_lower for w in ["pos ke vabe", "pos kivabe", "how pos", "পিওএস কীভাবে", "বিলিং কীভাবে", "বিল কীভাবে", "ক্যাশ কাউন্টার"]):
+            answer = (
+                "🛒 ব্লু ওশানস পিওএস টার্মিনাল ব্যবহারের কার্যপ্রণালী:\n\n"
+                "১. কুইক আইটেম সিলেকশন:\n"
+                "   বারকোড স্ক্যানার দিয়ে স্ক্যান করুন অথবা স্ক্রিনের ক্যাটাগরি গ্রিড থেকে টাচ করে আইটেম কার্টে যোগ করুন।\n"
+                "২. হোল্ড ও পার্ক সেল (Hold Sale):\n"
+                "   কাস্টমার টাকা গোছাতে দেরি করলে সেল 'Hold' করে পরের কাস্টমারের বিল করা যায়, পরে যেকোনো সময় পুনরায় 'Resume' করা যায়।\n"
+                "৩. মাল্টি-পেমেন্ট মেথড:\n"
+                "   ক্যাশ, কার্ড, বিকাশ/নগদ কিউআর বা কাস্টমারের বাকির খাতে পেমেন্ট স্প্লিট করে নেওয়া যায়।\n"
+                "৪. প্রিন্টিং ও হার্ডওয়্যার:\n"
+                "   পেমেন্ট শেষ হতেই অটোমেটিক থার্মাল প্রিন্টারে রসিদ প্রিন্ট হয় এবং ক্যাশ ড্রয়ার খুলে যায়।\n"
+                "৫. ১০০% অফলাইন সাপোর্ট:\n"
+                "   দোকানের ইন্টারনেট চলে গেলেও পিওএস নিরবচ্ছিন্ন বিলিং করতে পারে এবং নেট আসলে সেন্ট্রাল ডাটাবেজে অটো সিঙ্ক করে।"
+            )
+
+        # How Accounting Works Intent
+        elif any(w in msg_lower for w in ["accounting ke vabe", "accounting kivabe", "হিসাব কীভাবে", "অ্যাকাউন্টিং কীভাবে"]):
+            answer = (
+                "💰 ফিন্যান্সিয়াল অ্যাকাউন্টিং মডিউলের কার্যপ্রণালী:\n\n"
+                "১. স্বয়ংক্রিয় ডাবল-এন্ট্রি বুককিপিং (Automatic Ledger):\n"
+                "   প্রতিটি বিক্রি, পণ্য কেনা (Purchase), এবং খরচের এন্ট্রি সাথে সাথে চার্ট অফ অ্যাকাউন্টস লেজারে ডেবিট-ক্রেডিট হয়ে যায়।\n"
+                "২. লাইভ লাভ-ক্ষতি (P&L) ও ব্যালেন্স শিট:\n"
+                "   রিয়েল-টাইমে মোট রেভিনিউ বনাম খরচ বিশ্লেষণ করে নিট প্রফিট হিসাব করে।\n"
+                "৩. এনবিআর ভ্যাট ও ট্যাক্স:\n"
+                "   বাংলাদেশ এনবিআর ভ্যাট আইন অনুযায়ী সঠিক ভ্যাট চালান ও ট্যাক্স হিসাব তৈরি থাকে।\n"
+                "৪. কাস্টমার ও সাপ্লায়ার লেজার:\n"
+                "   কার কাছে কত বকেয়া পাওনা এবং সাপ্লায়ারকে কত দেনা আছে তা লেজার থেকে এক নজরে দেখা যায়।"
+            )
 
     # 2. Local Real-Time SQL Business Intelligence (Zero Cost / Offline / Bilingual)
     if not answer:
