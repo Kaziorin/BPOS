@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <linearGradient id="oceanBg" x1="16" y1="240" x2="240" y2="16" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0369A1"/>
+      <stop offset="50%" stop-color="#0284C7"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+    <linearGradient id="waveShade" x1="128" y1="165" x2="128" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C4A6E" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#0C4A6E" stop-opacity="0.35"/>
+    </linearGradient>
+    <clipPath id="squircle">
+      <rect x="16" y="16" width="224" height="224" rx="52"/>
+    </clipPath>
+  </defs>
+
+  <!-- Blue Oceans POS rounded badge -->
+  <rect x="16" y="16" width="224" height="224" rx="52" fill="url(#oceanBg)"/>
+
+  <!-- Subtle ocean depth & wave sheen -->
+  <g clip-path="url(#squircle)">
+    <rect x="16" y="150" width="224" height="90" fill="url(#waveShade)"/>
+    <path d="M16 186 C64 168, 108 202, 156 184 C194 170, 220 182, 240 176 L240 240 L16 240 Z" fill="#FFFFFF" fill-opacity="0.12"/>
+    <path d="M16 204 C72 190, 118 218, 174 200 C206 190, 224 198, 240 194 L240 240 L16 240 Z" fill="#FFFFFF" fill-opacity="0.10"/>
+    <rect x="17.5" y="17.5" width="221" height="221" rx="50.5" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="3"/>
+  </g>
+
+  <!-- Centered Blue Oceans POS Store emblem -->
+  <g transform="translate(56, 54) scale(6)" stroke="#FFFFFF" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5"/>
+    <path d="M17.774 10.31a1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.451 0 1.12 1.12 0 0 0-1.548 0 2.5 2.5 0 0 1-3.452 0 1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244"/>
+    <path d="M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05"/>
+  </g>
+</svg>

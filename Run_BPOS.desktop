@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Run Blue Oceans POS
+Comment=Start Blue Oceans POS Frontend (3000) & Backend (4000)
+Exec=/bin/bash "/home/wadi/BlueOcean/BPOS/run.sh"
+Icon=/home/wadi/BlueOcean/BPOS/bpos-logo.svg
+Path=/home/wadi/BlueOcean/BPOS
+Terminal=false
+StartupNotify=true
+Categories=Development;WebDevelopment;
