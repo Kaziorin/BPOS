@@ -60,7 +60,7 @@ export function buildEscPosBytes(data: ReceiptPrintData, paperWidth: "80mm" | "5
   add(0x1B, 0x61, 0x01); // Center align
   add(0x1B, 0x45, 0x01); // Bold on
   add(0x1D, 0x21, 0x11); // Double height & width
-  addLine(data.storeName || "BLUE OCEANS POS");
+  addLine(data.storeName || "SALEPAY");
   add(0x1D, 0x21, 0x00); // Normal size
   add(0x1B, 0x45, 0x00); // Bold off
 
@@ -135,7 +135,7 @@ export function buildEscPosBytes(data: ReceiptPrintData, paperWidth: "80mm" | "5
   // 6. Footer & Thank You
   add(0x1B, 0x61, 0x01); // Center align
   addLine(data.footerMessage || "Thank you for shopping with us!");
-  addLine("Software Powered by Blue Oceans POS");
+  addLine("Software Powered by SalePay");
   addLine("");
   addLine("");
 

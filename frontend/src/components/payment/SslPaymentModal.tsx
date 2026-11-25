@@ -168,7 +168,7 @@ export function SslPaymentModal({
         {/* ── Merchant & Order Banner ── */}
         <div className="bg-slate-50 border-b border-slate-200 p-3.5 flex items-center justify-between text-xs">
           <div>
-            <p className="font-bold text-slate-800 text-sm">Blue Oceans POS</p>
+            <p className="font-bold text-slate-800 text-sm">SalePay</p>
             <p className="text-[11px] text-slate-500 font-mono">Order ID: {orderId}</p>
           </div>
           <div className="text-right">

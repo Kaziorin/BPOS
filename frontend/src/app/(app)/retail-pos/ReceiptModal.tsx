@@ -103,7 +103,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
 
   const handleDirectPrint = async () => {
     const res = await printDirectThermal({
-      storeName: siteConfig.name || "Blue Oceans POS",
+      storeName: siteConfig.name || "SalePay",
       storeAddress: settings.address || "",
       storePhone: settings.phoneContact || "",
       binNumber: settings.vatBinNo || "",
@@ -178,7 +178,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
       >
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-base font-extrabold tracking-wider text-gray-600 uppercase">{siteConfig.name || "BLUE OCEANS POS"}</h2>
+          <h2 className="text-base font-extrabold tracking-wider text-gray-600 uppercase">{siteConfig.name || "SALEPAY"}</h2>
           <p className="text-[11px] text-gray-500 mt-1">Dhaka Flagship Outlet • Counter #POS-01</p>
           <p className="text-[10px] text-gray-500 mt-0.5">BIN / VAT Reg No: 002938194-0101 • Mushak-6.3</p>
         </div>
@@ -325,7 +325,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
           )}
           {settings.showWatermark && (
             <p className="text-[10px] text-gray-400 text-center font-mono mt-2">
-              Software by Blue Oceans POS
+              Software by SalePay
             </p>
           )}
         </div>

@@ -56,7 +56,7 @@ export const DEFAULT_INVOICE_SETTINGS: InvoiceSettings = {
   businessType: "retail",
   paperWidth: "80mm",
 
-  storeName: "BLUE OCEANS POS",
+  storeName: "SALEPAY",
   storeSubtitle: "Dhaka Flagship Outlet • Counter #POS-01",
   vatBinNo: "002938194-0101 • Mushak-6.3",
   phoneContact: "+880 1711-000000",

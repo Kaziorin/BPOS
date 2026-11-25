@@ -3,6 +3,7 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useAuth, ApiError } from "@/lib/auth";
 import {
@@ -35,7 +36,6 @@ import {
   Smartphone,
   Network,
   Layers,
-  Store,
   ShieldCheck,
   CreditCard,
   Clock,
@@ -46,7 +46,6 @@ import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { CustomModal } from "@/components/custom/CustomModal";
 import { SslPaymentModal, type SslPaymentSuccessData } from "@/components/payment/SslPaymentModal";
-import { siteConfig } from "@/config/site";
 
 // ─── Step Tabs Definition ─────────────────────────────────────────────
 const WIZARD_STEPS = [
@@ -510,20 +509,25 @@ export default function RegisterPage() {
       <div className="w-full max-w-[1680px] mx-auto space-y-5">
         {/* Top Header Bar */}
         <header className="border-b border-slate-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded bg-sky-600 text-white shadow-xs">
-              <Store size={20} />
-            </span>
-            <div>
+          <div className="flex flex-wrap items-center gap-3.5">
+            <Link href="/" className="shrink-0">
+              <Image
+                src="/logos/salepay-logo-blue.png"
+                alt="SalePay Enterprise"
+                width={200}
+                height={46}
+                priority
+                unoptimized
+                className="h-9 sm:h-10 w-auto object-contain"
+              />
+            </Link>
+            <div className="border-l border-slate-200 pl-3.5">
               <div className="flex items-center gap-2">
-                <span className="font-bold text-base tracking-tight text-slate-900">
-                  {siteConfig.name}
-                </span>
                 <span className="text-[10px] font-semibold text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded">
                   Self-Service Onboarding
                 </span>
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 mt-1">
                 Instant Cloud Store Provisioning • Official Enterprise POS Gateway Activation
               </p>
             </div>
@@ -606,7 +610,7 @@ export default function RegisterPage() {
                         Step 1: Choose Your Business Category
                       </h2>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        Blue Oceans POS adapts menus, order screens, and addons to your specific industry.
+                        SalePay adapts menus, order screens, and addons to your specific industry.
                       </p>
                     </div>
                     <span className="text-xs font-medium text-sky-700 bg-sky-50 border border-sky-200 px-2.5 py-1 rounded">
@@ -1229,7 +1233,7 @@ export default function RegisterPage() {
               </div>
               <h3 className="text-base font-bold text-slate-800">Trial Request Submitted!</h3>
               <p className="text-xs text-slate-600 leading-relaxed max-w-sm mx-auto">
-                Your request has been forwarded to Blue Oceans POS Administration. An administrator will review your store profile and assign your trial days.
+                Your request has been forwarded to SalePay Administration. An administrator will review your store profile and assign your trial days.
               </p>
               <div className="pt-2">
                 <Link

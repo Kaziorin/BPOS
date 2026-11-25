@@ -79,7 +79,7 @@ function PurchaseOrderSlipDocument({ po, warehouses }: { po: PO; warehouses: War
               BP
             </div>
             <div>
-              <h1 className="text-xl font-black text-slate-900 leading-none">Blue Ocean POS</h1>
+              <h1 className="text-xl font-black text-slate-900 leading-none">SalePay</h1>
               <p className="text-[11px] text-slate-500 font-medium mt-0.5">Enterprise Retail & Inventory Management</p>
             </div>
           </div>
@@ -263,7 +263,7 @@ function PurchaseOrderSlipDocument({ po, warehouses }: { po: PO; warehouses: War
 
       {/* Print Footer Note */}
       <div className="pt-4 text-center text-[10px] text-slate-400 border-t border-slate-100">
-        This is a computer-generated Purchase Order slip from Blue Ocean POS. Generated on {new Date().toLocaleDateString("en-GB")} {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.
+        This is a computer-generated Purchase Order slip from SalePay. Generated on {new Date().toLocaleDateString("en-GB")} {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.
       </div>
     </div>
   );

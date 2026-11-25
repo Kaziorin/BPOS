@@ -7,6 +7,8 @@ export interface SiteConfig {
   shortName: string;
   description: string;
   logoIcon: LucideIcon;
+  developerName: string;
+  developerUrl: string;
 }
 
 /**
@@ -14,8 +16,10 @@ export interface SiteConfig {
  * updates everywhere (sidebar, login page, browser tab, footer).
  */
 export const siteConfig: SiteConfig = {
-  name: "Blue Oceans POS",
-  shortName: "BOP",
+  name: "SalePay",
+  shortName: "SP",
   description: "Offline-first multi-tenant POS, ERP & CRM platform",
   logoIcon: Store,
+  developerName: "Blue Oceans Technologies Limited",
+  developerUrl: "https://blueoceanstech.com/",
 };

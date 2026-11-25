@@ -540,13 +540,13 @@ function CompanySetupStep({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <CustomInput
           label="Business / Trading Name *"
-          placeholder="e.g., Blue Ocean Superstore"
+          placeholder="e.g., SalePay Superstore"
           value={form.name}
           onChange={(e) => onChange("name", e.target.value)}
         />
         <CustomInput
           label="Legal Entity Name"
-          placeholder="e.g., Blue Ocean Trading Ltd."
+          placeholder="e.g., SalePay Trading Ltd."
           value={form.legalName}
           onChange={(e) => onChange("legalName", e.target.value)}
         />
@@ -720,7 +720,7 @@ function TaxSetupStep({
 
       <div className="rounded-sm border border-amber-200 bg-amber-50/70 p-4">
         <p className="text-xs leading-relaxed text-amber-900">
-          <strong>Tax Engine Notice:</strong> Blue Ocean POS supports configurable tax tiers, NBR Mushak-6.3 compliance, and zero-rated items. You can customize additional tax rules anytime from the Tax module.
+          <strong>Tax Engine Notice:</strong> SalePay supports configurable tax tiers, NBR Mushak-6.3 compliance, and zero-rated items. You can customize additional tax rules anytime from the Tax module.
         </p>
       </div>
 
@@ -938,7 +938,7 @@ function CompleteStep({
 
   const handleCopyCredentials = () => {
     if (!provisionResult) return;
-    const text = `=== Blue Oceans POS Client Tenant Credentials ===
+    const text = `=== SalePay Client Tenant Credentials ===
 Store Name: ${provisionResult.tenant?.name}
 Business Type: ${provisionResult.tenant?.businessType}
 Tenant ID: ${provisionResult.tenant?.id}

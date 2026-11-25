@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { siteConfig } from "@/config/site";
-import { Waves, Mail, Phone, MapPin, Store } from "lucide-react";
+import { Waves, Mail, Phone, MapPin } from "lucide-react";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -55,18 +56,37 @@ export function Footer() {
       {/* ── Main Footer Single-Line Bar (No Wrapping) ── */}
       <div className="relative z-10 w-full px-3.5 sm:px-6 py-1.5 sm:py-2">
         <div className="mx-auto flex items-center justify-between gap-3 text-xs flex-nowrap min-w-0">
-          {/* Left: Brand Icon + Name + Copyright */}
-          <div className="flex items-center gap-2 shrink-0 min-w-0">
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-primary text-white shadow-2xs">
-              <Store size={12} className="stroke-[2.5]" />
-            </div>
-            <span className="font-bold text-brand-primary text-xs sm:text-[13px] tracking-tight shrink-0">
-              {siteConfig.name}
-            </span>
+          {/* Left: SalePay Enterprise Blue Logo + Copyright + Developed By */}
+          <div className="flex items-center gap-2.5 shrink-0 min-w-0">
+            <Image
+              src="/logos/salepay-logo-blue.png"
+              alt="SalePay Enterprise"
+              width={132}
+              height={30}
+              unoptimized
+              className="h-5 sm:h-6 w-auto object-contain shrink-0"
+            />
             <span className="text-slate-300 hidden sm:inline text-xs">|</span>
-            <span className="text-slate-500 text-[11px] hidden sm:inline truncate font-normal">
-              &copy; {currentYear} {siteConfig.name}. All rights reserved.
+            <span className="text-slate-500 text-[11px] hidden md:inline truncate font-normal">
+              &copy; {currentYear} {siteConfig.name}.
             </span>
+            <a
+              href={siteConfig.developerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={`Developed by ${siteConfig.developerName}`}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-sky-100 bg-sky-50/60 px-2.5 py-0.5 hover:border-sky-300 hover:bg-sky-50 transition shrink-0"
+            >
+              <span className="text-[10px] font-medium text-slate-500">Developed by</span>
+              <Image
+                src="/logos/blue-oceans-tech-logo.png"
+                alt={siteConfig.developerName}
+                width={96}
+                height={24}
+                unoptimized
+                className="h-4 w-auto object-contain"
+              />
+            </a>
           </div>
 
           {/* Middle: Contact Info (Adapts smoothly, only on wider layouts to prevent cramped layout) */}

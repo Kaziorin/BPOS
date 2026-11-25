@@ -502,7 +502,7 @@ function SettingsContent() {
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2.5">
-              <span>{tenantObj.name || "Blue Ocean Enterprises"}</span>
+              <span>{tenantObj.name || "SalePay Enterprises"}</span>
               <span className="text-xs font-bold px-2.5 py-1 rounded-sm bg-white/15 text-white border border-white/20 font-mono">
                 {verticalDef.label}
               </span>
@@ -813,8 +813,8 @@ function CompanySettingsTab({
   const tenant = tenantData?.tenant || {};
   const company = tenantData?.company || {};
 
-  const [name, setName] = useState(tenant.name || "Blue Ocean Enterprises");
-  const [legalName, setLegalName] = useState(company.legalName || "Blue Ocean POS Retail Ltd.");
+  const [name, setName] = useState(tenant.name || "SalePay Enterprises");
+  const [legalName, setLegalName] = useState(company.legalName || "SalePay Retail Ltd.");
   const [address, setAddress] = useState(company.address || "Level 8, Concord Tower, Gulshan-1, Dhaka-1212");
   const [phone, setPhone] = useState(company.phone || "+880 1711-000000");
   const [email, setEmail] = useState(company.email || "admin@blueocean.com.bd");
@@ -950,7 +950,7 @@ function CompanySettingsTab({
           label="Company Trading Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="e.g. Blue Ocean Supermarket"
+          placeholder="e.g. SalePay Supermarket"
           required
         />
 
@@ -958,7 +958,7 @@ function CompanySettingsTab({
           label="Registered Legal Entity Name"
           value={legalName}
           onChange={(e) => setLegalName(e.target.value)}
-          placeholder="e.g. Blue Ocean POS Retail Ltd."
+          placeholder="e.g. SalePay Retail Ltd."
           required
         />
 
@@ -2207,7 +2207,7 @@ function AISettingsTab({ onSave }: { onSave: () => void }) {
       <div className="p-4 rounded-sm bg-violet-500/10 border border-violet-300/60 text-violet-950 space-y-1">
         <div className="flex items-center gap-1.5 font-bold">
           <Brain size={15} className="text-violet-700" />
-          <span>Blue Oceans Autonomous Business Copilot</span>
+          <span>SalePay Autonomous Business Copilot</span>
         </div>
         <p className="text-[11px] text-violet-900 leading-relaxed">
           Machine learning engine that predicts product demand surges (Eid, Ramadan, seasonality), auto-generates supplier purchase requisitions, and optimizes safety stock levels.

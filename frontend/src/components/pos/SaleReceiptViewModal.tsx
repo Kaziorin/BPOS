@@ -563,7 +563,7 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
             {settings.showStoreHeader && (
               <div className="text-center space-y-0.5">
                 <h2 className="text-base font-extrabold tracking-wider text-black uppercase">
-                  {settings.storeName || siteConfig.name || "BLUE OCEANS POS"}
+                  {settings.storeName || siteConfig.name || "SALEPAY"}
                 </h2>
                 {settings.showStoreSubtitle && (
                   <p className="text-[11px] text-gray-700 font-medium">
@@ -777,7 +777,7 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
               {/* Attribution watermark */}
               {settings.showWatermark && (
                 <p className="text-[10px] text-gray-400 text-center mt-2">
-                  Software by Blue Oceans POS
+                  Software by SalePay
                 </p>
               )}
             </div>

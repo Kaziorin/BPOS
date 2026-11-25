@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -19,7 +20,6 @@ import {
   Crown,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/cn";
 import { CommandPalette } from "./CommandPalette";
 import { PosTerminalModal } from "./PosTerminalModal";
@@ -38,7 +38,6 @@ export function Header() {
   const [posModalOpen, setPosModalOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const desktopMenuRef = useRef<HTMLDivElement>(null);
-  const Logo = siteConfig.logoIcon;
   const entCtx = getTenantEntitlementContext(user, subscription);
   const accessibleTerminals = getAccessiblePosTerminals(user, subscription);
   const canAccessReports = checkRouteEntitlement("/reports", user, subscription).allowed;
@@ -199,14 +198,16 @@ export function Header() {
             >
               <Menu size={16} className="stroke-[2.5]" />
             </button>
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-xl bg-white text-brand-primary border border-white/80 shadow-xs">
-                <Logo size={18} />
-              </div>
-              <div className="flex flex-col text-left">
-                <span className="font-bold text-white text-xs tracking-tight leading-tight">{siteConfig.name}</span>
-                <span className="text-[9px] text-white/90 leading-tight">Smart • Fast • All Industries</span>
-              </div>
+            <Link href="/dashboard" className="flex items-center shrink-0">
+              <Image
+                src="/logos/salepay-logo-white.png"
+                alt="SalePay Enterprise"
+                width={200}
+                height={46}
+                priority
+                unoptimized
+                className="h-8 sm:h-9 w-auto max-w-[165px] object-contain drop-shadow-xs"
+              />
             </Link>
           </div>
 
@@ -327,19 +328,17 @@ export function Header() {
         <div className="relative z-10 hidden w-full items-center justify-between gap-3 lg:flex">
           {/* Left: Brand Logo Block + Circle Toggle + Branch Pill */}
           <div className="flex min-w-0 items-center gap-3">
-            {/* Brand Logo & Tagline Block */}
-            <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0 mr-2 group">
-              <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-xl bg-white text-brand-primary border border-white/80 shadow-xs group-hover:scale-105 transition">
-                <Logo size={20} />
-              </div>
-              <div className="flex flex-col min-w-0 text-left">
-                <span className="font-bold text-white tracking-tight text-sm leading-tight drop-shadow-2xs">
-                  {siteConfig.name}
-                </span>
-                <span className="text-[10px] text-white/90 font-medium tracking-wide leading-tight">
-                  Smart &bull; Fast &bull; All Industries
-                </span>
-              </div>
+            {/* Brand Logo Block */}
+            <Link href="/dashboard" className="flex items-center shrink-0 mr-4 group">
+              <Image
+                src="/logos/salepay-logo-white.png"
+                alt="SalePay Enterprise"
+                width={230}
+                height={52}
+                priority
+                unoptimized
+                className="h-9 lg:h-10 w-auto object-contain drop-shadow-xs group-hover:scale-[1.02] transition-transform"
+              />
             </Link>
 
             {/* Circular Hamburger Toggle Button */}

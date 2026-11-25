@@ -175,14 +175,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const tenantInfo = res.tenant || {
       id: res.user.tenantId,
       slug: tenantSlug || res.user.tenantId,
-      name: "Blue Ocean POS",
+      name: "SalePay",
       businessType: res.user.businessType || "RETAIL",
     };
 
     localStorage.setItem(TENANT_STORAGE_KEY, JSON.stringify({
       id: tenantInfo.id || res.user.tenantId,
       slug: tenantInfo.slug || tenantInfo.id || res.user.tenantId,
-      name: tenantInfo.name || "Blue Ocean POS",
+      name: tenantInfo.name || "SalePay",
       businessType: tenantInfo.businessType || res.user.businessType || "RETAIL",
     }));
 
@@ -242,7 +242,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const tenantInfo = res.tenant || {
       id: res.user.tenantId,
       slug: res.user.tenantId,
-      name: data.businessName || "Blue Ocean POS",
+      name: data.businessName || "SalePay",
       businessType: data.businessType || "RETAIL",
     };
 

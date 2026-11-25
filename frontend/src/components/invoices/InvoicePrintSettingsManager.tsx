@@ -182,7 +182,7 @@ export function InvoicePrintSettingsManager({ onSaved }: Props) {
                 label="Store Header Name"
                 value={settings.storeName}
                 onChange={(e) => handleTextChange("storeName", e.target.value)}
-                placeholder="e.g. BLUE OCEANS POS"
+                placeholder="e.g. SALEPAY"
               />
               <CustomInput
                 label="Outlet Subtitle / Counter"
@@ -415,7 +415,7 @@ export function InvoicePrintSettingsManager({ onSaved }: Props) {
             {settings.showStoreHeader && (
               <div className="text-center space-y-0.5">
                 <h3 className="font-black text-sm tracking-wider text-black uppercase">
-                  {settings.storeName || "BLUE OCEANS POS"}
+                  {settings.storeName || "SALEPAY"}
                 </h3>
                 {settings.showStoreSubtitle && (
                   <p className="text-[11px] text-gray-700 font-medium">
@@ -615,7 +615,7 @@ export function InvoicePrintSettingsManager({ onSaved }: Props) {
 
               {settings.showWatermark && (
                 <p className="text-[10px] text-gray-400 text-center mt-2">
-                  Software by Blue Oceans POS
+                  Software by SalePay
                 </p>
               )}
             </div>

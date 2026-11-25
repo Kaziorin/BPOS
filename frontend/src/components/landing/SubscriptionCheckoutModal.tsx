@@ -316,7 +316,7 @@ export function SubscriptionCheckoutModal({
         size="5xl"
         themeColor="primary"
         icon={<CreditCard size={18} />}
-        title={`Subscribe to ${currentPlan?.name || "Blue Oceans"} Plan`}
+        title={`Subscribe to ${currentPlan?.name || "SalePay"} Plan`}
         subtitle="Configure your industry vertical, add-ons & activate your cloud workspace directly."
       >
         {trialSuccess ? (

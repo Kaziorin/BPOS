@@ -1585,7 +1585,7 @@ export default function GroceryPOSPage() {
                 <>
                   {/* Shop Header */}
                   <div className="text-center border-b border-dashed border-gray-300 pb-3 space-y-1">
-                    <p className="text-base font-extrabold text-gray-600 tracking-tight uppercase">Blue Oceans Superstore</p>
+                    <p className="text-base font-extrabold text-gray-600 tracking-tight uppercase">SalePay Superstore</p>
                     <p className="text-[11px] text-slate-500">Dhaka Main Outlet • POS Terminal-01</p>
                     <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Draft Cart Invoice</p>
                   </div>
@@ -1649,7 +1649,7 @@ export default function GroceryPOSPage() {
                   {/* Barcode & Footer */}
                   <div className="text-center border-t border-dashed border-gray-300 pt-3 space-y-1">
                     <p className="text-[10px] text-slate-400">Cart Preview Invoice</p>
-                    <p className="text-[9px] text-slate-400 uppercase tracking-widest font-black">Blue Oceans POS</p>
+                    <p className="text-[9px] text-slate-400 uppercase tracking-widest font-black">SalePay</p>
                   </div>
                 </>
               )}
@@ -2089,7 +2089,7 @@ export default function GroceryPOSPage() {
 
                   {/* Shop Header */}
                   <div className="text-center border-b border-dashed border-gray-300 pb-3 space-y-1">
-                    <p className="text-base font-extrabold text-gray-600 tracking-tight uppercase">Blue Oceans Superstore</p>
+                    <p className="text-base font-extrabold text-gray-600 tracking-tight uppercase">SalePay Superstore</p>
                     <p className="text-[11px] text-slate-500">Dhaka Main Outlet • POS Terminal-01</p>
                     <p className="text-[10px] text-slate-400">BIN: 002938194-0101 • Mushak-6.3 Tax Invoice</p>
                   </div>
@@ -2177,7 +2177,7 @@ export default function GroceryPOSPage() {
                       </div>
                     </div>
                     <p className="text-[10px] text-slate-400">Thank you for your business!</p>
-                    <p className="text-[9px] text-slate-400">Powered by Blue Oceans POS</p>
+                    <p className="text-[9px] text-slate-400">Powered by SalePay</p>
                   </div>
 
                 </div>

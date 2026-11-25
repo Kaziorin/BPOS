@@ -3,11 +3,13 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useAuth, ApiError } from "@/lib/auth";
-import { Mail, Lock, Eye, EyeOff, Store } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomButton } from "@/components/custom/CustomButton";
+import { siteConfig } from "@/config/site";
 
 const loginSchema = Yup.object({
   email: Yup.string().email("Enter a valid email").required("Email is required"),
@@ -124,10 +126,15 @@ export default function LoginPage() {
         >
           {/* Brand Logo & Header */}
           <div className="flex flex-col items-center text-center pb-1">
-            <div className="flex h-13 w-13 items-center justify-center rounded-sm bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-white shadow-md mb-2.5">
-              <Store size={26} />
-            </div>
-            <h1 className="text-lg font-bold tracking-tight text-gray-600">Blue Oceans POS</h1>
+            <Image
+              src="/logos/salepay-logo-blue.png"
+              alt="SalePay Enterprise"
+              width={220}
+              height={50}
+              priority
+              unoptimized
+              className="h-11 w-auto object-contain mb-2"
+            />
             <h2 className="mt-1 text-xs font-semibold text-sky-800">Sign In to Workspace</h2>
           </div>
 
@@ -216,11 +223,30 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Copyright text inside card with compact bottom padding & slightly larger text */}
-          <div className="pt-2 mt-1.5 border-t border-sky-100 text-center">
+          {/* Copyright & Developer Attribution */}
+          <div className="pt-2.5 mt-1.5 border-t border-sky-100 text-center space-y-1.5">
             <p className="text-xs font-semibold text-gray-500 tracking-wide">
-              © Blue Oceans {currentYear}. All rights reserved.
+              © {siteConfig.name} {currentYear}. All rights reserved.
             </p>
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-500">
+              <span>Developed by</span>
+              <a
+                href={siteConfig.developerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={siteConfig.developerName}
+                className="inline-flex items-center hover:opacity-85 transition"
+              >
+                <Image
+                  src="/logos/blue-oceans-tech-logo.png"
+                  alt={siteConfig.developerName}
+                  width={104}
+                  height={26}
+                  unoptimized
+                  className="h-4 w-auto object-contain"
+                />
+              </a>
+            </div>
           </div>
         </form>
       </div>

@@ -1108,7 +1108,7 @@ function BarcodeFooter({ invoiceNo, footerText }: { invoiceNo: string; footerTex
       </div>
       <p className="text-[10px] text-slate-400 font-mono">*{invoiceNo}*</p>
       {footerText && <p className="text-[11px] font-semibold text-gray-600 mt-1">{footerText}</p>}
-      <p className="text-[10px] text-slate-400">Software by Blue Oceans POS</p>
+      <p className="text-[10px] text-slate-400">Software by SalePay</p>
     </div>
   );
 }

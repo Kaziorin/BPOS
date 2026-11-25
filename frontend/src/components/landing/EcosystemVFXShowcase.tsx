@@ -115,7 +115,7 @@ const SYNC_STAGES: {
     kotStatus: "READY",
     kotProgress: 100,
     customerTitle: "Order Ready! Payment Confirmed",
-    customerSubtitle: "Thank you for choosing Blue Oceans",
+    customerSubtitle: "Thank you for choosing SalePay",
     paid: true,
   },
 ];

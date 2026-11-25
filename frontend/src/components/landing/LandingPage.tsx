@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -80,7 +81,6 @@ export function LandingPage() {
   };
 
   const isYearly = billingCycle === "YEARLY";
-  const BrandIcon = siteConfig.logoIcon;
 
   return (
     <div className="min-h-screen w-full bg-[#f4f9ff] text-slate-900 flex flex-col selection:bg-sky-200 selection:text-sky-950">
@@ -94,19 +94,17 @@ export function LandingPage() {
             : "bg-white/65 backdrop-blur-xl border-b border-sky-100/80"
         }`}
       >
-        <div className="mx-auto w-full max-w-[1680px] px-4 sm:px-8 lg:px-14 h-16 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-tr from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] text-white shadow-md shadow-sky-500/25 group-hover:scale-105 transition-transform">
-              <BrandIcon size={20} />
-            </div>
-            <div>
-              <span className="text-sm sm:text-base font-black tracking-tight block leading-none text-slate-900">
-                {siteConfig.name}
-              </span>
-              <span className="text-[10px] font-bold tracking-wider text-sky-600">
-                POS • KOT • MOBILE
-              </span>
-            </div>
+        <div className="mx-auto w-full max-w-[1680px] px-4 sm:px-8 lg:px-14 h-[72px] flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center shrink-0 group">
+            <Image
+              src="/logos/salepay-logo-blue.png"
+              alt="SalePay Enterprise"
+              width={240}
+              height={55}
+              priority
+              unoptimized
+              className="h-11 sm:h-12 w-auto object-contain group-hover:scale-[1.02] transition-transform"
+            />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8 text-xs font-bold text-slate-600">
@@ -561,11 +559,15 @@ export function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════════ */}
       <footer className="bg-white text-slate-600 border-t border-sky-200/80 py-8">
         <div className="mx-auto w-full max-w-[1680px] px-4 sm:px-8 lg:px-14 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded bg-gradient-to-tr from-[#0284C7] to-[#38BDF8] text-white">
-              <BrandIcon size={15} />
-            </div>
-            <span className="font-bold text-slate-900">{siteConfig.name}</span>
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logos/salepay-logo-blue.png"
+              alt="SalePay Enterprise"
+              width={180}
+              height={42}
+              unoptimized
+              className="h-9 w-auto object-contain"
+            />
             <span className="text-slate-300">•</span>
             <span>{siteConfig.description}</span>
           </div>
@@ -586,7 +588,24 @@ export function LandingPage() {
             <Link href="/login" className="text-sky-600 font-bold hover:text-sky-700 transition">
               Sign In
             </Link>
-            <span className="text-slate-400">© Blue Oceans {currentYear}</span>
+            <span className="text-slate-400">© {siteConfig.name} {currentYear}</span>
+            <a
+              href={siteConfig.developerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={`Developed by ${siteConfig.developerName}`}
+              className="inline-flex items-center gap-2 rounded-full border border-sky-100 bg-[#f6faff] px-3 py-1 hover:border-sky-300 hover:bg-sky-50 transition"
+            >
+              <span className="text-[11px] font-medium text-slate-500">Developed by</span>
+              <Image
+                src="/logos/blue-oceans-tech-logo.png"
+                alt={siteConfig.developerName}
+                width={108}
+                height={27}
+                unoptimized
+                className="h-5 w-auto object-contain"
+              />
+            </a>
           </div>
         </div>
       </footer>
