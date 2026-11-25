@@ -6,12 +6,13 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useAuth, ApiError } from "@/lib/auth";
 import {
-  Mail,
-  Lock,
   Building,
   User,
+  Mail,
   Phone,
+  Lock,
   ArrowRight,
+  ArrowLeft,
   ShoppingBag,
   Utensils,
   Pill,
@@ -23,36 +24,41 @@ import {
   Building2,
   Check,
   CheckCircle2,
-  Globe,
-  Smartphone,
-  Flame,
-  MessageSquare,
-  ShieldCheck,
   ChefHat,
   LayoutGrid,
   QrCode,
+  Globe,
   ScanBarcode,
   Gift,
   FileText,
+  MessageSquare,
+  Smartphone,
   Network,
-  Zap,
-  Info,
-  Calendar,
   Layers,
-  ArrowUpRight,
   Store,
+  ShieldCheck,
+  CreditCard,
 } from "lucide-react";
 import { CustomInput } from "@/components/custom/CustomInput";
 import { CustomButton } from "@/components/custom/CustomButton";
 import { siteConfig } from "@/config/site";
 
+// ─── Step Tabs Definition ─────────────────────────────────────────────
+const WIZARD_STEPS = [
+  { id: "category", label: "1. Business Type", icon: Building },
+  { id: "plan", label: "2. Plan Tier", icon: CreditCard },
+  { id: "addons", label: "3. Industry Add-ons", icon: Layers },
+  { id: "account", label: "4. Store Profile", icon: User },
+] as const;
+
+type WizardStepId = (typeof WIZARD_STEPS)[number]["id"];
+
 // ─── Business Categories ──────────────────────────────────────────────
 export interface BusinessCategory {
   id: string;
   name: string;
-  tagline: string;
+  description: string;
   icon: any;
-  color: string;
   primaryAddonsCategory: "RESTAURANT" | "RETAIL" | "PHARMACY" | "ALL";
 }
 
@@ -60,73 +66,64 @@ const BUSINESS_CATEGORIES: BusinessCategory[] = [
   {
     id: "RESTAURANT",
     name: "Restaurant & Cafe",
-    tagline: "KDS, Floor Plan & Dine-In",
+    description: "Dine-in tables, kitchen tickets & food counter",
     icon: Utensils,
-    color: "from-amber-500 to-orange-600",
     primaryAddonsCategory: "RESTAURANT",
   },
   {
     id: "RETAIL",
     name: "Retail & Apparel",
-    tagline: "Omnichannel & Barcode",
+    description: "Barcode scanning, variants & clothing retail",
     icon: ShoppingBag,
-    color: "from-blue-500 to-indigo-600",
     primaryAddonsCategory: "RETAIL",
   },
   {
     id: "GROCERY",
     name: "Grocery & Supermarket",
-    tagline: "Weight Scale & Fast Checkout",
+    description: "Scale integration, fast checkout & bulk stock",
     icon: ShoppingCart,
-    color: "from-emerald-500 to-teal-600",
     primaryAddonsCategory: "RETAIL",
   },
   {
     id: "PHARMACY",
-    name: "Pharmacy & Healthcare",
-    tagline: "FEFO Batch & Prescriptions",
+    name: "Pharmacy & Medicine",
+    description: "Batch expiry, DGDA compliance & prescriptions",
     icon: Pill,
-    color: "from-rose-500 to-pink-600",
     primaryAddonsCategory: "PHARMACY",
   },
   {
     id: "WHOLESALE",
-    name: "Wholesale & B2B",
-    tagline: "Tier Pricing & Credit Ledger",
+    name: "Wholesale & Distribution",
+    description: "Tiered pricing, carton packs & B2B credit ledger",
     icon: Truck,
-    color: "from-violet-500 to-purple-600",
     primaryAddonsCategory: "RETAIL",
   },
   {
     id: "SALON",
     name: "Salon & Spa",
-    tagline: "Staff Rosters & Chair Booking",
+    description: "Stylist commissions, chair bookings & service queue",
     icon: Sparkles,
-    color: "from-pink-500 to-rose-600",
     primaryAddonsCategory: "ALL",
   },
   {
     id: "REPAIR",
     name: "Repair & Service",
-    tagline: "Job Cards & Device Tracking",
+    description: "Job cards, service status tracking & spare parts",
     icon: Wrench,
-    color: "from-amber-600 to-yellow-600",
     primaryAddonsCategory: "ALL",
   },
   {
     id: "MANUFACTURING",
-    name: "Factory & Bakery",
-    tagline: "BOM Recipe & Raw Materials",
+    name: "Bakery & Production",
+    description: "Bill of materials, recipe costing & batches",
     icon: Factory,
-    color: "from-cyan-600 to-blue-700",
     primaryAddonsCategory: "ALL",
   },
   {
     id: "FRANCHISE",
-    name: "Franchise Store",
-    tagline: "Multi-Outlet Central Control",
+    name: "Franchise & Multi-Outlet",
+    description: "Centralized catalogue & branch audit oversight",
     icon: Building2,
-    color: "from-slate-700 to-slate-900",
     primaryAddonsCategory: "ALL",
   },
 ];
@@ -144,7 +141,6 @@ interface PlanItem {
   maxBranches?: number;
   maxPOS?: number;
   maxProducts?: number;
-  maxStorageMB?: number;
   features: string[];
 }
 
@@ -152,69 +148,65 @@ const FALLBACK_PLANS: PlanItem[] = [
   {
     code: "STARTER",
     name: "Starter",
-    description: "Ideal for single outlet retail stores, cafes and emerging boutiques.",
+    description: "For single-location stores, kiosks, and emerging shops.",
     monthlyPrice: 990,
     yearlyPrice: 9900,
     maxUsers: 5,
     maxBranches: 1,
     maxPOS: 2,
     maxProducts: 1000,
-    maxStorageMB: 500,
     features: [
-      "1 Store / Outlet Location",
-      "Up to 2 Active POS Registers",
-      "Sales, Invoices & Receipt Printing",
-      "Product Catalog (1,000 Items)",
-      "Daily Cash Register & Shift Closures",
-      "Customer Directory & Profiles",
+      "1 branch / store location",
+      "Up to 2 POS terminals",
+      "Sales, invoicing & receipt printing",
+      "Up to 1,000 product items",
+      "Daily cash register & shifts",
+      "Customer directory",
     ],
   },
   {
     code: "BUSINESS",
     name: "Advance",
     popular: true,
-    description: "Full ERP & Accounting power for scaling multi-branch retail and busy venues.",
+    description: "For growing multi-outlet businesses requiring accounting and controls.",
     monthlyPrice: 2990,
     yearlyPrice: 29900,
     maxUsers: 25,
     maxBranches: 5,
     maxPOS: 10,
     maxProducts: 10000,
-    maxStorageMB: 5000,
     features: [
-      "Up to 5 Outlets / Branches",
-      "Up to 10 High-Speed POS Counters",
-      "Full Double-Entry Accounting & Ledger",
-      "NBR VAT & Tax Computation (Mushak)",
-      "Purchase Orders (PO) & Receiving (GRN)",
-      "Customer Credit Ledger & Installments",
-      "Employee Permissions & Shift Audit",
+      "Up to 5 branch locations",
+      "Up to 10 POS terminals",
+      "Double-entry accounting & balance sheet",
+      "VAT calculation & Mushak reports",
+      "Purchase orders & supplier receiving",
+      "Customer credit ledger & installments",
+      "Staff role permissions & audit log",
     ],
   },
   {
     code: "ENTERPRISE",
     name: "Enterprise",
-    description: "Unlimited power, dedicated cloud infrastructure and custom integrations.",
+    description: "For enterprise scale operations, custom integrations, and high volumes.",
     monthlyPrice: 9990,
     yearlyPrice: 99900,
     maxUsers: 999,
     maxBranches: 999,
     maxPOS: 999,
     maxProducts: 999999,
-    maxStorageMB: 50000,
     features: [
-      "Unlimited Outlets & Warehouses",
-      "Unlimited POS Register Terminals",
-      "All 10 Industry Vertical Engines",
-      "Multi-Warehouse Inter-Stock Transfer",
-      "Automated Approval Workflow Engine",
-      "REST API & Custom Webhook Hooks",
-      "Dedicated High-Speed Database Cluster",
+      "Unlimited branches & warehouses",
+      "Unlimited POS terminals",
+      "All industry vertical modules",
+      "Inter-branch stock transfers",
+      "Approval workflow engine",
+      "REST API access",
+      "Dedicated database instance",
     ],
   },
 ];
 
-// ─── Add-on Icon Resolver ─────────────────────────────────────────────
 function resolveAddonIcon(iconName: string) {
   switch (iconName?.toLowerCase()) {
     case "chefhat":
@@ -242,8 +234,6 @@ function resolveAddonIcon(iconName: string) {
       return Smartphone;
     case "network":
       return Network;
-    case "flame":
-      return Flame;
     default:
       return Layers;
   }
@@ -264,10 +254,10 @@ interface AddonItem {
 }
 
 const registerSchema = Yup.object({
-  businessName: Yup.string().required("Business name is required"),
-  businessType: Yup.string().required("Please select a business category"),
-  name: Yup.string().required("Owner name is required"),
-  email: Yup.string().email("Enter a valid email").required("Email is required"),
+  businessName: Yup.string().required("Enter your business name"),
+  businessType: Yup.string().required("Select a business type"),
+  name: Yup.string().required("Enter owner or manager name"),
+  email: Yup.string().email("Enter a valid email address").required("Email is required"),
   password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
   phone: Yup.string().optional(),
 });
@@ -275,16 +265,17 @@ const registerSchema = Yup.object({
 export default function RegisterPage() {
   const { register } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState<WizardStepId>("category");
+  const [completedSteps, setCompletedSteps] = useState<Set<WizardStepId>>(new Set());
+
   const [billingCycle, setBillingCycle] = useState<"MONTHLY" | "YEARLY">("MONTHLY");
   const [selectedPlan, setSelectedPlan] = useState<string>("BUSINESS");
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
 
-  // Dynamic state from backend database
+  // Dynamic pricing state from MySQL database
   const [plans, setPlans] = useState<PlanItem[]>(FALLBACK_PLANS);
   const [addons, setAddons] = useState<AddonItem[]>([]);
-  const [loadingPricing, setLoadingPricing] = useState<boolean>(true);
 
-  // ─── Fetch Dynamic Plans & Add-ons from MySQL Database ────────────────
   useEffect(() => {
     async function loadPricing() {
       try {
@@ -308,12 +299,11 @@ export default function RegisterPage() {
                   maxBranches: p.maxBranches,
                   maxPOS: p.maxPOS,
                   maxProducts: p.maxProducts,
-                  maxStorageMB: p.maxStorageMB,
                   features: existing?.features || [
-                    `${p.maxBranches || 1} Branches / Outlets`,
-                    `${p.maxPOS || 2} POS Registers`,
-                    `${p.maxUsers || 5} User Accounts`,
-                    `${(p.maxProducts || 1000).toLocaleString()} Products Catalog`,
+                    `${p.maxBranches || 1} branches`,
+                    `${p.maxPOS || 2} POS terminals`,
+                    `${p.maxUsers || 5} staff users`,
+                    `${(p.maxProducts || 1000).toLocaleString()} products`,
                   ],
                 };
               })
@@ -338,9 +328,7 @@ export default function RegisterPage() {
           }
         }
       } catch (err) {
-        console.warn("Pricing endpoint load error, using default plans/addons:", err);
-      } finally {
-        setLoadingPricing(false);
+        console.warn("Pricing endpoint error, using defaults:", err);
       }
     }
     loadPricing();
@@ -365,7 +353,7 @@ export default function RegisterPage() {
           selectedAddons,
         });
       } catch (err) {
-        setError(err instanceof ApiError ? err.message : "Registration failed. Please try again.");
+        setError(err instanceof ApiError ? err.message : "Registration failed. Please check your credentials.");
       } finally {
         setSubmitting(false);
       }
@@ -379,9 +367,7 @@ export default function RegisterPage() {
     [formik.values.businessType]
   );
 
-  // ─── Filter Add-ons Strictly By Business Type ────────────────────────
-  // 1. Industry-specific addons (ONLY matches the selected industry)
-  // 2. Universal addons (available for everyone)
+  // Filter Add-ons Strictly by Selected Business Type
   const { industryAddons, universalAddons } = useMemo(() => {
     const primaryCat = selectedCategoryObj.primaryAddonsCategory;
 
@@ -396,7 +382,6 @@ export default function RegisterPage() {
     return { industryAddons: indList, universalAddons: uniList };
   }, [addons, selectedCategoryObj]);
 
-  // Clean up selected addons if business category changed to prevent incompatible addons
   const handleBusinessTypeChange = (newType: string) => {
     formik.setFieldValue("businessType", newType);
     const newCat = BUSINESS_CATEGORIES.find((b) => b.id === newType);
@@ -418,664 +403,741 @@ export default function RegisterPage() {
     );
   };
 
-  // ─── Live Calculation ────────────────────────────────────────────────
   const currentPlanObj = useMemo(
     () => plans.find((p) => p.code === selectedPlan) || plans[0] || FALLBACK_PLANS[0],
     [plans, selectedPlan]
   );
 
-  const planPrice = useMemo(() => {
-    if (billingCycle === "YEARLY") {
-      return Math.round(currentPlanObj.yearlyPrice / 12);
-    }
-    return currentPlanObj.monthlyPrice;
-  }, [currentPlanObj, billingCycle]);
+  const isYearly = billingCycle === "YEARLY";
+  const planPrice = isYearly ? currentPlanObj.yearlyPrice : currentPlanObj.monthlyPrice;
+
+  const selectedAddonsList = useMemo(() => {
+    return selectedAddons
+      .map((code) => addons.find((item) => item.code === code))
+      .filter(Boolean) as AddonItem[];
+  }, [selectedAddons, addons]);
 
   const addonsPriceTotal = useMemo(() => {
-    return selectedAddons.reduce((sum, code) => {
-      const a = addons.find((item) => item.code === code);
-      if (!a) return sum;
-      if (billingCycle === "YEARLY") {
-        return sum + Math.round(a.yearlyPrice / 12);
-      }
-      return sum + a.monthlyPrice;
+    return selectedAddonsList.reduce((sum, a) => {
+      const price = isYearly ? a.yearlyPrice : a.monthlyPrice;
+      return sum + price;
     }, 0);
-  }, [selectedAddons, addons, billingCycle]);
+  }, [selectedAddonsList, isYearly]);
 
-  const totalMonthlyEquivalent = planPrice + addonsPriceTotal;
+  const totalPrice = planPrice + addonsPriceTotal;
 
-  // Store Subdomain slug preview
+  // Subdomain Slug Preview
   const storeSlug = useMemo(() => {
-    const raw = formik.values.businessName || "my-brand";
-    return raw
+    const raw = formik.values.businessName || "store";
+    const cleaned = raw
       .toLowerCase()
+      .trim()
       .replace(/[^a-z0-9]/g, "-")
       .replace(/-+/g, "-")
-      .slice(0, 30);
+      .replace(/^-|-$/g, "");
+    return cleaned || "store";
   }, [formik.values.businessName]);
 
+  // Step Navigation Logic (Like Onboarding)
+  const currentStepIndex = WIZARD_STEPS.findIndex((s) => s.id === currentStep);
+
+  const goToNextStep = () => {
+    setError(null);
+    if (currentStep === "category") {
+      setCompletedSteps((prev) => new Set([...prev, "category"]));
+      setCurrentStep("plan");
+    } else if (currentStep === "plan") {
+      setCompletedSteps((prev) => new Set([...prev, "plan"]));
+      setCurrentStep("addons");
+    } else if (currentStep === "addons") {
+      setCompletedSteps((prev) => new Set([...prev, "addons"]));
+      setCurrentStep("account");
+    }
+  };
+
+  const goToPrevStep = () => {
+    setError(null);
+    if (currentStepIndex > 0) {
+      setCurrentStep(WIZARD_STEPS[currentStepIndex - 1].id);
+    }
+  };
+
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center justify-start bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8 overflow-x-hidden select-none">
-      {/* Dynamic Background Mesh Gradient */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(14,165,233,0.18)_0%,transparent_60%)]" />
-      <div className="pointer-events-none absolute -top-40 -right-40 h-96 w-96 rounded-full bg-cyan-600/10 blur-3xl" />
-      <div className="pointer-events-none absolute top-1/3 -left-40 h-96 w-96 rounded-full bg-blue-600/10 blur-3xl" />
-
-      {/* Main Container */}
-      <div className="relative z-10 w-full max-w-5xl">
-        {/* Brand Top Header */}
-        <div className="flex flex-col items-center text-center mb-8">
-          <Link
-            href="/"
-            className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-sky-400 hover:bg-white/10 transition mb-4 shadow-sm"
-          >
-            <siteConfig.logoIcon size={16} />
-            <span>Blue Oceans Cloud POS & Omnichannel SaaS</span>
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-              Live Production
+    <div className="min-h-screen w-full bg-[#f4f7fb] text-slate-800 flex flex-col py-6 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 2xl:px-20">
+      {/* Expanded Container — Fully Fills Widescreen Monitors Without Massive Side Empty Gaps */}
+      <div className="w-full max-w-[1680px] mx-auto space-y-5">
+        {/* Top Header Bar */}
+        <header className="border-b border-slate-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded bg-sky-600 text-white shadow-xs">
+              <Store size={20} />
             </span>
-          </Link>
-
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
-            Launch Your Store with a 14-Day Free Trial
-          </h1>
-          <p className="mt-2 text-sm text-slate-400 max-w-xl">
-            Choose your industry vertical, select your scale tier, and customize with modular add-ons.
-            Zero setup fees. No credit card required.
-          </p>
-        </div>
-
-        {/* Step Progression Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-8 bg-slate-900/60 p-2 rounded-xl border border-slate-800 backdrop-blur-md">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-sky-500/10 border border-sky-500/30 text-sky-400">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-sky-500 text-slate-950 font-bold text-[10px]">
-              1
-            </span>
-            <span className="text-xs font-bold truncate">Business Type</span>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/5 text-slate-300">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-800 text-slate-300 font-bold text-[10px]">
-              2
-            </span>
-            <span className="text-xs font-bold truncate">Subscription Tier</span>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/5 text-slate-300">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-800 text-slate-300 font-bold text-[10px]">
-              3
-            </span>
-            <span className="text-xs font-bold truncate">Industry Add-ons</span>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/5 text-slate-300">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-800 text-slate-300 font-bold text-[10px]">
-              4
-            </span>
-            <span className="text-xs font-bold truncate">Account & Launch</span>
-          </div>
-        </div>
-
-        {/* The Form */}
-        <form onSubmit={formik.handleSubmit} className="space-y-8">
-          {/* ══════════════════════════════════════════════════════════════
-              SECTION 1: BUSINESS CATEGORY SELECTION
-             ══════════════════════════════════════════════════════════════ */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-xl p-5 sm:p-7 shadow-xl">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
-              <div>
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-md bg-sky-500 text-slate-950 text-xs font-black">
-                    1
-                  </span>
-                  Select Your Business Vertical
-                </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  The system automatically adapts POS screens, workflow engines, and relevant add-ons.
-                </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-base tracking-tight text-slate-900">
+                  {siteConfig.name}
+                </span>
+                <span className="text-[10px] font-semibold text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded">
+                  Self-Service Onboarding
+                </span>
               </div>
-              <span className="self-start sm:self-auto text-[11px] font-semibold text-sky-400 bg-sky-950/60 border border-sky-800/60 px-2.5 py-1 rounded-full">
-                {selectedCategoryObj.name} Selected
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3">
-              {BUSINESS_CATEGORIES.map((cat) => {
-                const Icon = cat.icon;
-                const isSelected = formik.values.businessType === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => handleBusinessTypeChange(cat.id)}
-                    className={`group relative flex flex-col p-3.5 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
-                      isSelected
-                        ? "border-sky-500 bg-sky-500/10 shadow-lg shadow-sky-500/5 ring-1 ring-sky-500/50"
-                        : "border-slate-800 bg-slate-950/40 hover:border-slate-700 hover:bg-slate-800/40"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div
-                        className={`flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br ${cat.color} text-white shadow-sm`}
-                      >
-                        <Icon size={18} />
-                      </div>
-                      <div
-                        className={`h-4 w-4 rounded-full border flex items-center justify-center transition ${
-                          isSelected
-                            ? "border-sky-400 bg-sky-500 text-slate-950"
-                            : "border-slate-700 group-hover:border-slate-500"
-                        }`}
-                      >
-                        {isSelected && <Check size={10} strokeWidth={3} />}
-                      </div>
-                    </div>
-                    <span className="text-xs font-bold text-white group-hover:text-sky-300 transition">
-                      {cat.name}
-                    </span>
-                    <span className="text-[10px] text-slate-400 leading-tight mt-0.5 line-clamp-1">
-                      {cat.tagline}
-                    </span>
-                  </button>
-                );
-              })}
+              <p className="text-xs text-slate-500">
+                14-day full commercial free trial on all plans • Instant provisioning
+              </p>
             </div>
           </div>
 
-          {/* ══════════════════════════════════════════════════════════════
-              SECTION 2: DYNAMIC SUBSCRIPTION PLANS (FROM DATABASE)
-             ══════════════════════════════════════════════════════════════ */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-xl p-5 sm:p-7 shadow-xl">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <div>
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-md bg-sky-500 text-slate-950 text-xs font-black">
-                    2
-                  </span>
-                  Choose Subscription Plan
-                </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Real-time database pricing. Free 14-day trial included on every tier.
-                </p>
-              </div>
+          <div className="flex items-center gap-4 text-xs text-slate-500">
+            <span>Already have an account?</span>
+            <Link
+              href="/login"
+              className="text-sky-600 hover:text-sky-700 font-semibold px-3 py-1.5 rounded border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+            >
+              Sign in
+            </Link>
+          </div>
+        </header>
 
-              {/* Billing Cycle Toggle */}
-              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-950/80 border border-slate-800 self-start sm:self-auto">
+        {/* ── Stepper Navigation Tabs (Like /onboarding) ── */}
+        <div className="rounded-lg border border-slate-200 bg-white p-2.5 shadow-2xs">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {WIZARD_STEPS.map((step, idx) => {
+              const isCurrent = currentStep === step.id;
+              const isCompleted = completedSteps.has(step.id);
+
+              // Helpful context subtitle for each tab
+              let subLabel = "";
+              if (step.id === "category") subLabel = selectedCategoryObj.name;
+              else if (step.id === "plan") subLabel = `${currentPlanObj.name} (৳${planPrice.toLocaleString()})`;
+              else if (step.id === "addons") subLabel = `${selectedAddons.length} addons chosen`;
+              else if (step.id === "account") subLabel = formik.values.businessName ? "Ready" : "Pending";
+
+              return (
                 <button
+                  key={step.id}
                   type="button"
-                  onClick={() => setBillingCycle("MONTHLY")}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
-                    billingCycle === "MONTHLY"
-                      ? "bg-sky-500 text-slate-950 shadow-sm"
-                      : "text-slate-400 hover:text-white"
+                  onClick={() => setCurrentStep(step.id)}
+                  className={`flex items-center gap-2.5 px-3.5 py-2 rounded-md text-left transition-colors cursor-pointer ${
+                    isCurrent
+                      ? "border border-sky-500 bg-sky-50/80 text-sky-950 font-semibold shadow-2xs ring-1 ring-sky-500/20"
+                      : isCompleted
+                      ? "border border-slate-200 bg-slate-50/80 text-slate-700 hover:bg-slate-100"
+                      : "border border-transparent bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600"
                   }`}
                 >
-                  Monthly
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setBillingCycle("YEARLY")}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
-                    billingCycle === "YEARLY"
-                      ? "bg-sky-500 text-slate-950 shadow-sm"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  <span>Yearly</span>
-                  <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                    Save 17%
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            {/* Plan Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {plans.map((plan) => {
-                const isSelected = selectedPlan === plan.code;
-                const displayPrice =
-                  billingCycle === "YEARLY"
-                    ? Math.round(plan.yearlyPrice / 12)
-                    : plan.monthlyPrice;
-
-                return (
                   <div
-                    key={plan.code}
-                    onClick={() => setSelectedPlan(plan.code)}
-                    className={`relative flex flex-col justify-between rounded-xl border p-5 transition-all duration-200 cursor-pointer ${
-                      isSelected
-                        ? "border-sky-500 bg-slate-950/90 shadow-xl shadow-sky-500/10 ring-2 ring-sky-500/50"
-                        : "border-slate-800 bg-slate-950/40 hover:border-slate-700 hover:bg-slate-900/40"
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0 ${
+                      isCurrent
+                        ? "bg-sky-600 text-white"
+                        : isCompleted
+                        ? "bg-emerald-600 text-white"
+                        : "bg-slate-200 text-slate-600"
                     }`}
                   >
-                    {plan.popular && (
-                      <span className="absolute -top-3 right-4 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-sky-500 to-cyan-400 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-sm">
-                        Most Popular
-                      </span>
-                    )}
+                    {isCompleted ? <Check size={12} strokeWidth={3} /> : idx + 1}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs font-bold block truncate">
+                      {step.label}
+                    </span>
+                    <span className="text-[10px] text-slate-400 block truncate font-normal">
+                      {subLabel}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
+        {/* ── Main Two-Column Stage Layout ── */}
+        <form onSubmit={formik.handleSubmit}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* ══ LEFT STAGE: Current Active Tab Content (7 or 8 columns) ══ */}
+            <div className="lg:col-span-8 space-y-6">
+              {/* TAB 1: BUSINESS CATEGORY */}
+              {currentStep === "category" && (
+                <section className="bg-white border border-slate-200 rounded-lg p-6 shadow-2xs space-y-4">
+                  <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                     <div>
-                      {/* Plan Header */}
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-extrabold uppercase tracking-wider text-white">
-                          {plan.name}
-                        </span>
-                        <div
-                          className={`h-4 w-4 rounded-full border flex items-center justify-center ${
+                      <h2 className="text-base font-bold text-slate-900">
+                        Step 1: Choose Your Business Category
+                      </h2>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Blue Oceans POS adapts menus, order screens, and addons to your specific industry.
+                      </p>
+                    </div>
+                    <span className="text-xs font-medium text-sky-700 bg-sky-50 border border-sky-200 px-2.5 py-1 rounded">
+                      {selectedCategoryObj.name}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {BUSINESS_CATEGORIES.map((cat) => {
+                      const Icon = cat.icon;
+                      const isSelected = formik.values.businessType === cat.id;
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => handleBusinessTypeChange(cat.id)}
+                          className={`flex flex-col p-3.5 rounded-md border text-left transition-colors cursor-pointer ${
                             isSelected
-                              ? "border-sky-400 bg-sky-500 text-slate-950"
-                              : "border-slate-700"
+                              ? "border-sky-600 bg-sky-50/70 text-slate-900 ring-1 ring-sky-600/30 shadow-2xs"
+                              : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                           }`}
                         >
-                          {isSelected && <Check size={10} strokeWidth={3} />}
-                        </div>
-                      </div>
-
-                      {/* Pricing */}
-                      <div className="mb-4">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black text-white">
-                            ৳{displayPrice.toLocaleString()}
-                          </span>
-                          <span className="text-xs text-slate-400 font-semibold">/ month</span>
-                        </div>
-                        {billingCycle === "YEARLY" && (
-                          <p className="text-[10px] text-emerald-400 font-medium mt-0.5">
-                            Billed ৳{plan.yearlyPrice.toLocaleString()} yearly (2 months free)
-                          </p>
-                        )}
-                      </div>
-
-                      <p className="text-xs text-slate-400 mb-4 line-clamp-2">
-                        {plan.description}
-                      </p>
-
-                      {/* Quotas Chips */}
-                      <div className="grid grid-cols-2 gap-1.5 mb-4 p-2 rounded-lg bg-slate-900/80 border border-slate-800 text-[10px] text-slate-300">
-                        <div>
-                          <span className="text-slate-500 block">Outlets:</span>
-                          <span className="font-bold text-white">
-                            {plan.maxBranches === 999 ? "Unlimited" : plan.maxBranches || 1}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-slate-500 block">POS Counters:</span>
-                          <span className="font-bold text-white">
-                            {plan.maxPOS === 999 ? "Unlimited" : plan.maxPOS || 2}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-slate-500 block">Users:</span>
-                          <span className="font-bold text-white">
-                            {plan.maxUsers === 999 ? "Unlimited" : plan.maxUsers || 5}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-slate-500 block">Products:</span>
-                          <span className="font-bold text-white">
-                            {plan.maxProducts === 999999
-                              ? "Unlimited"
-                              : (plan.maxProducts || 1000).toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Features */}
-                      <ul className="space-y-2 text-xs text-slate-300">
-                        {plan.features.map((feat, i) => (
-                          <li key={i} className="flex items-start gap-2 leading-tight">
-                            <CheckCircle2 size={13} className="text-sky-400 shrink-0 mt-0.5" />
-                            <span>{feat}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="mt-5 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-                      <span>14-Day Free Access</span>
-                      <span className="font-bold text-sky-400">৳0 Due Today</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* ══════════════════════════════════════════════════════════════
-              SECTION 3: INDUSTRY-SPECIFIC & UNIVERSAL ADD-ONS
-             ══════════════════════════════════════════════════════════════ */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-xl p-5 sm:p-7 shadow-xl">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
-              <div>
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-md bg-sky-500 text-slate-950 text-xs font-black">
-                    3
-                  </span>
-                  Select Add-on Modules for {selectedCategoryObj.name}
-                </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Modular extensions. Only relevant tools for your business category are displayed.
-                </p>
-              </div>
-              <span className="self-start sm:self-auto text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2.5 py-1 rounded-full">
-                {selectedAddons.length} Selected
-              </span>
-            </div>
-
-            {/* 3A: Industry Specific Add-ons */}
-            {industryAddons.length > 0 && (
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-amber-400">
-                    Recommended Exclusively for {selectedCategoryObj.name}
-                  </h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {industryAddons.map((addon) => {
-                    const isSelected = selectedAddons.includes(addon.code);
-                    const Icon = resolveAddonIcon(addon.icon || "Layers");
-                    const displayAddonPrice =
-                      billingCycle === "YEARLY"
-                        ? Math.round(addon.yearlyPrice / 12)
-                        : addon.monthlyPrice;
-
-                    return (
-                      <div
-                        key={addon.code}
-                        onClick={() => toggleAddon(addon.code)}
-                        className={`group relative flex flex-col justify-between p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
-                          isSelected
-                            ? "border-amber-500 bg-slate-950/90 shadow-md ring-1 ring-amber-500/40"
-                            : "border-slate-800 bg-slate-950/40 hover:border-slate-700 hover:bg-slate-900/50"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-3 mb-2">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`p-2 rounded-lg ${
-                                isSelected
-                                  ? "bg-amber-500 text-slate-950 font-bold"
-                                  : "bg-slate-800 text-amber-400"
+                          <div className="flex items-center justify-between mb-2">
+                            <span
+                              className={`p-2 rounded ${
+                                isSelected ? "bg-sky-600 text-white" : "bg-slate-100 text-slate-500"
                               }`}
                             >
                               <Icon size={18} />
+                            </span>
+                            {isSelected && <Check size={16} className="text-sky-600" />}
+                          </div>
+                          <span className="text-xs font-bold text-slate-900">{cat.name}</span>
+                          <span className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                            {cat.description}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={goToNextStep}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs transition-colors cursor-pointer shadow-xs"
+                    >
+                      <span>Continue to Plan Tier</span>
+                      <ArrowRight size={14} />
+                    </button>
+                  </div>
+                </section>
+              )}
+
+              {/* TAB 2: SUBSCRIPTION PLAN */}
+              {currentStep === "plan" && (
+                <section className="bg-white border border-slate-200 rounded-lg p-6 shadow-2xs space-y-4">
+                  <div className="border-b border-slate-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-base font-bold text-slate-900">
+                        Step 2: Choose Subscription Tier
+                      </h2>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Plans scale with your outlets, registers, and inventory. 14 days free trial.
+                      </p>
+                    </div>
+
+                    {/* Monthly vs Yearly Switcher */}
+                    <div className="flex items-center gap-1 p-0.5 rounded bg-slate-100 border border-slate-200 self-start sm:self-auto text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setBillingCycle("MONTHLY")}
+                        className={`px-3 py-1 rounded transition-colors cursor-pointer ${
+                          billingCycle === "MONTHLY"
+                            ? "bg-white text-slate-900 font-semibold shadow-2xs"
+                            : "text-slate-500 hover:text-slate-900"
+                        }`}
+                      >
+                        Monthly
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBillingCycle("YEARLY")}
+                        className={`px-3 py-1 rounded transition-colors cursor-pointer flex items-center gap-1.5 ${
+                          billingCycle === "YEARLY"
+                            ? "bg-white text-slate-900 font-semibold shadow-2xs"
+                            : "text-slate-500 hover:text-slate-900"
+                        }`}
+                      >
+                        <span>Yearly</span>
+                        <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1 py-0.2 rounded font-medium">
+                          Save 2 Months Free
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                    {plans.map((plan) => {
+                      const isSelected = selectedPlan === plan.code;
+                      const displayPrice = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+                      const unitLabel = isYearly ? "/ year" : "/ month";
+                      const yearlySavings = plan.monthlyPrice * 12 - plan.yearlyPrice;
+
+                      return (
+                        <div
+                          key={plan.code}
+                          onClick={() => setSelectedPlan(plan.code)}
+                          className={`flex flex-col justify-between p-4 rounded-md border transition-colors cursor-pointer ${
+                            isSelected
+                              ? "border-sky-600 bg-sky-50/40 text-slate-900 ring-1 ring-sky-600/30 shadow-2xs"
+                              : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-bold text-slate-900">{plan.name}</span>
+                              {isSelected ? (
+                                <span className="text-sky-700 text-xs font-semibold bg-sky-100/70 border border-sky-200 px-1.5 py-0.2 rounded">
+                                  Active
+                                </span>
+                              ) : plan.popular ? (
+                                <span className="text-[10px] text-slate-600 bg-slate-100 border border-slate-200 px-1.5 py-0.2 rounded font-medium">
+                                  Recommended
+                                </span>
+                              ) : null}
+                            </div>
+
+                            <div className="flex items-baseline gap-1 mt-2 mb-0.5">
+                              <span className="text-2xl font-bold tabular-nums text-slate-900">
+                                ৳{displayPrice.toLocaleString()}
+                              </span>
+                              <span className="text-xs text-slate-500 font-medium">{unitLabel}</span>
+                            </div>
+
+                            {isYearly ? (
+                              <p className="text-[11px] text-emerald-700 font-medium mb-3">
+                                12 months access (Save ৳{yearlySavings.toLocaleString()})
+                              </p>
+                            ) : (
+                              <p className="text-[11px] text-slate-500 mb-3">
+                                Billed monthly • Cancel anytime
+                              </p>
+                            )}
+
+                            <p className="text-xs text-slate-500 mb-3 leading-relaxed">
+                              {plan.description}
+                            </p>
+
+                            <ul className="space-y-1.5 border-t border-slate-100 pt-3 text-xs text-slate-600">
+                              {plan.features.map((feat, i) => (
+                                <li key={i} className="flex items-center gap-2">
+                                  <Check size={13} className="text-emerald-600 shrink-0" />
+                                  <span>{feat}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
+                            <span>14 days trial</span>
+                            <span className="text-slate-700 font-semibold">৳0 today</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={goToPrevStep}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium text-xs transition-colors cursor-pointer"
+                    >
+                      <ArrowLeft size={14} />
+                      <span>Back</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goToNextStep}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs transition-colors cursor-pointer shadow-xs"
+                    >
+                      <span>Continue to Add-ons</span>
+                      <ArrowRight size={14} />
+                    </button>
+                  </div>
+                </section>
+              )}
+
+              {/* TAB 3: ADD-ON MODULES */}
+              {currentStep === "addons" && (
+                <section className="bg-white border border-slate-200 rounded-lg p-6 shadow-2xs space-y-4">
+                  <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                    <div>
+                      <h2 className="text-base font-bold text-slate-900">
+                        Step 3: Add-ons for {selectedCategoryObj.name}
+                      </h2>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Only relevant extensions for your category are shown. Can be toggled on/off anytime.
+                      </p>
+                    </div>
+                    <span className="text-xs font-medium text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded">
+                      {selectedAddons.length} selected
+                    </span>
+                  </div>
+
+                  {/* Industry Extensions */}
+                  {industryAddons.length > 0 && (
+                    <div className="space-y-2">
+                      <span className="text-xs font-semibold text-slate-800 block">
+                        Industry extensions for {selectedCategoryObj.name}:
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {industryAddons.map((addon) => {
+                          const isSelected = selectedAddons.includes(addon.code);
+                          const Icon = resolveAddonIcon(addon.icon || "Layers");
+                          const price = isYearly ? addon.yearlyPrice : addon.monthlyPrice;
+                          const unit = isYearly ? "/yr" : "/mo";
+
+                          return (
+                            <div
+                              key={addon.code}
+                              onClick={() => toggleAddon(addon.code)}
+                              className={`p-3.5 rounded-md border flex items-start justify-between gap-3 transition-colors cursor-pointer ${
+                                isSelected
+                                  ? "border-sky-600 bg-sky-50/60 ring-1 ring-sky-600/30 shadow-2xs"
+                                  : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                              }`}
+                            >
+                              <div className="flex items-start gap-3 min-w-0">
+                                <span className={`p-2 rounded shrink-0 mt-0.5 ${
+                                  isSelected ? "bg-sky-600 text-white" : "bg-slate-100 text-slate-500"
+                                }`}>
+                                  <Icon size={16} />
+                                </span>
+                                <div className="min-w-0">
+                                  <span className="text-xs font-bold text-slate-900 block">
+                                    {addon.name}
+                                  </span>
+                                  <span className="text-[11px] text-slate-500 mt-1 block line-clamp-2 leading-relaxed">
+                                    {addon.description}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="flex flex-col items-end shrink-0 pl-2">
+                                <span className="text-xs font-bold tabular-nums text-slate-800">
+                                  +৳{price.toLocaleString()}
+                                </span>
+                                <span className="text-[10px] text-slate-400 font-mono">{unit}</span>
+                                <div
+                                  className={`mt-1.5 h-4 w-4 rounded border flex items-center justify-center ${
+                                    isSelected
+                                      ? "border-sky-600 bg-sky-600 text-white"
+                                      : "border-slate-300 bg-white"
+                                  }`}
+                                >
+                                  {isSelected && <Check size={11} strokeWidth={3} />}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* General / Universal Add-ons */}
+                  <div className="space-y-2 pt-3 border-t border-slate-100">
+                    <span className="text-xs font-semibold text-slate-800 block">
+                      Universal tools (all store types):
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {universalAddons.map((addon) => {
+                        const isSelected = selectedAddons.includes(addon.code);
+                        const Icon = resolveAddonIcon(addon.icon || "Layers");
+                        const price = isYearly ? addon.yearlyPrice : addon.monthlyPrice;
+                        const unit = isYearly ? "/yr" : "/mo";
+
+                        return (
+                          <div
+                            key={addon.code}
+                            onClick={() => toggleAddon(addon.code)}
+                            className={`p-3 rounded-md border flex flex-col justify-between transition-colors cursor-pointer ${
+                              isSelected
+                                ? "border-sky-600 bg-sky-50/60 ring-1 ring-sky-600/30 shadow-2xs"
+                                : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <Icon size={16} className={isSelected ? "text-sky-600" : "text-slate-400"} />
+                              <span className="text-xs font-bold tabular-nums text-slate-800">
+                                +৳{price.toLocaleString()}{unit}
+                              </span>
                             </div>
                             <div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-white group-hover:text-amber-300 transition">
-                                  {addon.name}
-                                </span>
-                                {addon.badge && (
-                                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                                    {addon.badge}
-                                  </span>
-                                )}
-                              </div>
-                              <span className="text-[11px] text-slate-400 leading-tight block mt-0.5">
+                              <span className="text-xs font-bold text-slate-900 block">
+                                {addon.name}
+                              </span>
+                              <span className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
                                 {addon.description}
                               </span>
                             </div>
                           </div>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-                          <div className="flex flex-col items-end shrink-0">
-                            <span className="text-xs font-black text-white">
-                              +৳{displayAddonPrice.toLocaleString()}
-                            </span>
-                            <span className="text-[9px] text-slate-400">/mo</span>
-                            <div
-                              className={`mt-1.5 h-4 w-4 rounded border flex items-center justify-center ${
-                                isSelected
-                                  ? "border-amber-400 bg-amber-500 text-slate-950"
-                                  : "border-slate-700"
-                              }`}
-                            >
-                              {isSelected && <Check size={10} strokeWidth={3} />}
-                            </div>
-                          </div>
-                        </div>
+                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={goToPrevStep}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium text-xs transition-colors cursor-pointer"
+                    >
+                      <ArrowLeft size={14} />
+                      <span>Back</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goToNextStep}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs transition-colors cursor-pointer shadow-xs"
+                    >
+                      <span>Continue to Store Profile</span>
+                      <ArrowRight size={14} />
+                    </button>
+                  </div>
+                </section>
+              )}
 
-                        {addon.features && addon.features.length > 0 && (
-                          <div className="mt-2 pt-2 border-t border-slate-800/60 flex flex-wrap gap-1.5">
-                            {addon.features.map((f, i) => (
-                              <span
-                                key={i}
-                                className="text-[10px] text-slate-300 px-2 py-0.5 rounded bg-slate-900 border border-slate-800"
-                              >
-                                ✓ {f}
-                              </span>
-                            ))}
-                          </div>
-                        )}
+              {/* TAB 4: STORE & OWNER DETAILS */}
+              {currentStep === "account" && (
+                <section className="bg-white border border-slate-200 rounded-lg p-6 shadow-2xs space-y-4">
+                  <div className="border-b border-slate-100 pb-3">
+                    <h2 className="text-base font-bold text-slate-900">
+                      Step 4: Store and Administrator Login
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Your master credentials for accessing POS and executive backoffice.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <CustomInput
+                        label="Store / Business Name *"
+                        name="businessName"
+                        darkMode={false}
+                        rounded="sm"
+                        value={formik.values.businessName}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        error={formik.touched.businessName ? formik.errors.businessName : undefined}
+                        placeholder="e.g. Mughal Kitchen"
+                        leftIcon={<Building size={15} />}
+                      />
+                      <div className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500 font-mono">
+                        <span>Workspace URL:</span>
+                        <span className="text-sky-700 font-semibold">{storeSlug}.blueoceanspos.com</span>
+                      </div>
+                    </div>
+
+                    <CustomInput
+                      label="Owner / Manager Name *"
+                      name="name"
+                      darkMode={false}
+                      rounded="sm"
+                      value={formik.values.name}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.name ? formik.errors.name : undefined}
+                      placeholder="e.g. Kazi Orin"
+                      leftIcon={<User size={15} />}
+                    />
+
+                    <CustomInput
+                      label="Login Email Address *"
+                      name="email"
+                      type="email"
+                      darkMode={false}
+                      rounded="sm"
+                      value={formik.values.email}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.email ? formik.errors.email : undefined}
+                      placeholder="owner@domain.com"
+                      leftIcon={<Mail size={15} />}
+                    />
+
+                    <CustomInput
+                      label="Official Contact Phone"
+                      name="phone"
+                      darkMode={false}
+                      rounded="sm"
+                      value={formik.values.phone}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.phone ? formik.errors.phone : undefined}
+                      placeholder="+8801700000000"
+                      leftIcon={<Phone size={15} />}
+                    />
+                  </div>
+
+                  <div>
+                    <CustomInput
+                      label="Master Account Password *"
+                      name="password"
+                      type="password"
+                      darkMode={false}
+                      rounded="sm"
+                      value={formik.values.password}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.password ? formik.errors.password : undefined}
+                      placeholder="At least 6 characters"
+                      leftIcon={<Lock size={15} />}
+                    />
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={goToPrevStep}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium text-xs transition-colors cursor-pointer"
+                    >
+                      <ArrowLeft size={14} />
+                      <span>Back</span>
+                    </button>
+                    <CustomButton
+                      type="submit"
+                      loading={formik.isSubmitting}
+                      size="md"
+                      variant="primary"
+                      className="font-bold px-6 py-2.5 text-xs rounded bg-sky-600 hover:bg-sky-700 text-white cursor-pointer shadow-xs"
+                    >
+                      {formik.isSubmitting ? "Provisioning Database..." : "Launch Store (14-Day Free Trial)"}
+                      <ArrowRight size={14} className="ml-1.5 inline" />
+                    </CustomButton>
+                  </div>
+                </section>
+              )}
+            </div>
+
+            {/* ══ RIGHT SIDEBAR: Live Order & Trial Receipt (4 columns) ══ */}
+            <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-6">
+              <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-2xs space-y-4">
+                <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck size={18} className="text-sky-600" />
+                    <h3 className="text-sm font-bold text-slate-900">Subscription Summary</h3>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                    14 Days Free
+                  </span>
+                </div>
+
+                {/* Selected Details */}
+                <div className="space-y-2.5 text-xs">
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span className="text-slate-500">Business Type:</span>
+                    <span className="font-semibold text-slate-900">{selectedCategoryObj.name}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span className="text-slate-500">Workspace Slug:</span>
+                    <span className="font-mono text-sky-700 font-semibold">{storeSlug}</span>
+                  </div>
+
+                  <div className="border-t border-slate-100 pt-2 flex justify-between items-center text-slate-700 font-medium">
+                    <span>{currentPlanObj.name} Plan ({isYearly ? "Yearly" : "Monthly"})</span>
+                    <span className="font-bold text-slate-900 tabular-nums">
+                      ৳{planPrice.toLocaleString()}{isYearly ? "/yr" : "/mo"}
+                    </span>
+                  </div>
+
+                  {selectedAddonsList.map((a) => {
+                    const price = isYearly ? a.yearlyPrice : a.monthlyPrice;
+                    const unit = isYearly ? "/yr" : "/mo";
+                    return (
+                      <div key={a.code} className="flex justify-between items-center text-slate-500 pl-2">
+                        <span>+ {a.name}</span>
+                        <span className="tabular-nums font-medium text-slate-700">
+                          ৳{price.toLocaleString()}{unit}
+                        </span>
                       </div>
                     );
                   })}
                 </div>
-              </div>
-            )}
 
-            {/* 3B: Universal Power-Up Add-ons */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="h-2 w-2 rounded-full bg-sky-400" />
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-sky-400">
-                  Universal Scale & Growth Tools (Available for All Outlets)
-                </h3>
-              </div>
+                {/* Total Line */}
+                <div className="border-t border-slate-200 pt-3 flex items-baseline justify-between">
+                  <div>
+                    <span className="text-xs text-slate-500 block">Rate after trial</span>
+                    <span className="text-lg font-bold tabular-nums text-slate-900">
+                      ৳{totalPrice.toLocaleString()}
+                    </span>
+                    <span className="text-xs text-slate-500 font-normal ml-1">
+                      {isYearly ? "/ year" : "/ month"}
+                    </span>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {universalAddons.map((addon) => {
-                  const isSelected = selectedAddons.includes(addon.code);
-                  const Icon = resolveAddonIcon(addon.icon || "Layers");
-                  const displayAddonPrice =
-                    billingCycle === "YEARLY"
-                      ? Math.round(addon.yearlyPrice / 12)
-                      : addon.monthlyPrice;
-
-                  return (
-                    <div
-                      key={addon.code}
-                      onClick={() => toggleAddon(addon.code)}
-                      className={`group relative flex flex-col justify-between p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
-                        isSelected
-                          ? "border-sky-500 bg-slate-950/90 shadow-md ring-1 ring-sky-500/40"
-                          : "border-slate-800 bg-slate-950/40 hover:border-slate-700 hover:bg-slate-900/50"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div
-                          className={`p-2 rounded-lg shrink-0 ${
-                            isSelected
-                              ? "bg-sky-500 text-slate-950 font-bold"
-                              : "bg-slate-800 text-sky-400"
-                          }`}
-                        >
-                          <Icon size={16} />
-                        </div>
-                        <div className="flex flex-col items-end">
-                          <span className="text-xs font-black text-white">
-                            +৳{displayAddonPrice.toLocaleString()}
-                          </span>
-                          <span className="text-[9px] text-slate-400">/mo</span>
-                          <div
-                            className={`mt-1 h-3.5 w-3.5 rounded border flex items-center justify-center ${
-                              isSelected
-                                ? "border-sky-400 bg-sky-500 text-slate-950"
-                                : "border-slate-700"
-                            }`}
-                          >
-                            {isSelected && <Check size={9} strokeWidth={3} />}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <span className="text-xs font-bold text-white group-hover:text-sky-300 transition block leading-tight">
-                          {addon.name}
-                        </span>
-                        <p className="text-[10px] text-slate-400 leading-tight mt-1 line-clamp-2">
-                          {addon.description}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* ══════════════════════════════════════════════════════════════
-              SECTION 4: OWNER CREDENTIALS & STORE SETUP
-             ══════════════════════════════════════════════════════════════ */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-xl p-5 sm:p-7 shadow-xl">
-            <div className="mb-5">
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-sky-500 text-slate-950 text-xs font-black">
-                  4
-                </span>
-                Store Profile & Admin Login Credentials
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Set up your primary workspace URL and root administrator password.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <CustomInput
-                  label="Store / Business Name *"
-                  name="businessName"
-                  rounded="lg"
-                  value={formik.values.businessName}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.businessName ? formik.errors.businessName : undefined}
-                  placeholder="e.g. Sultan's Dine & Kitchen"
-                  leftIcon={<Building size={16} />}
-                />
-                {/* Live Subdomain Preview */}
-                <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-slate-400">
-                  <span className="text-slate-500">Workspace URL:</span>
-                  <span className="font-mono text-sky-400 font-semibold bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
-                    https://{storeSlug}.blueoceanspos.com
-                  </span>
+                  <div className="text-right">
+                    <span className="text-xs text-slate-500 block">Due today</span>
+                    <span className="text-base font-bold text-emerald-600 font-mono">
+                      ৳0.00
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <CustomInput
-                label="Owner / Managing Director Name *"
-                name="name"
-                rounded="lg"
-                value={formik.values.name}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.name ? formik.errors.name : undefined}
-                placeholder="e.g. Kazi Orin"
-                leftIcon={<User size={16} />}
-              />
+                {isYearly && (
+                  <div className="rounded bg-emerald-50 border border-emerald-200 p-2 text-[11px] text-emerald-800 font-medium">
+                    ✓ Annual plan includes 2 months completely free.
+                  </div>
+                )}
 
-              <CustomInput
-                label="Root Admin Email Address *"
-                name="email"
-                type="email"
-                rounded="lg"
-                value={formik.values.email}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.email ? formik.errors.email : undefined}
-                placeholder="owner@sultansdine.com"
-                leftIcon={<Mail size={16} />}
-              />
+                {error && (
+                  <div className="p-3 rounded bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+                    {error}
+                  </div>
+                )}
 
-              <CustomInput
-                label="Official Phone / Mobile"
-                name="phone"
-                rounded="lg"
-                value={formik.values.phone}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.phone ? formik.errors.phone : undefined}
-                placeholder="+8801700000000"
-                leftIcon={<Phone size={16} />}
-              />
-            </div>
+                {/* Dynamic Step-Aware Action Button (Cannot prematurely launch before Step 4) */}
+                {currentStep === "category" && (
+                  <button
+                    type="button"
+                    onClick={goToNextStep}
+                    className="w-full flex items-center justify-center gap-2 font-bold py-3 text-xs rounded bg-sky-600 hover:bg-sky-700 text-white cursor-pointer shadow-xs transition-colors"
+                  >
+                    <span>Next: Choose Plan Tier</span>
+                    <ArrowRight size={15} />
+                  </button>
+                )}
 
-            <div className="mt-4">
-              <CustomInput
-                label="Master Security Password *"
-                name="password"
-                type="password"
-                rounded="lg"
-                value={formik.values.password}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.password ? formik.errors.password : undefined}
-                placeholder="At least 6 characters"
-                leftIcon={<Lock size={16} />}
-              />
-            </div>
-          </div>
+                {currentStep === "plan" && (
+                  <button
+                    type="button"
+                    onClick={goToNextStep}
+                    className="w-full flex items-center justify-center gap-2 font-bold py-3 text-xs rounded bg-sky-600 hover:bg-sky-700 text-white cursor-pointer shadow-xs transition-colors"
+                  >
+                    <span>Next: Select Add-ons</span>
+                    <ArrowRight size={15} />
+                  </button>
+                )}
 
-          {/* ══════════════════════════════════════════════════════════════
-              SECTION 5: LIVE ORDER BREAKDOWN & TRIAL GUARANTEE
-             ══════════════════════════════════════════════════════════════ */}
-          <div className="rounded-2xl border border-sky-500/40 bg-gradient-to-br from-slate-900 to-sky-950/60 p-5 sm:p-6 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-start gap-3.5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500 text-slate-950 shrink-0 shadow-lg shadow-sky-500/20">
-                <ShieldCheck size={24} />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-extrabold text-white">
-                    14-Day Full Commercial Free Trial
-                  </h3>
-                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                    ৳0 Due Today
-                  </span>
-                </div>
-                <p className="text-xs text-slate-300 mt-1 max-w-md">
-                  Active Tier: <span className="font-bold text-white">{currentPlanObj.name}</span> • Vertical:{" "}
-                  <span className="font-bold text-white">{selectedCategoryObj.name}</span> • Add-ons:{" "}
-                  <span className="font-bold text-white">{selectedAddons.length} chosen</span>. Cancel anytime.
+                {currentStep === "addons" && (
+                  <button
+                    type="button"
+                    onClick={goToNextStep}
+                    className="w-full flex items-center justify-center gap-2 font-bold py-3 text-xs rounded bg-sky-600 hover:bg-sky-700 text-white cursor-pointer shadow-xs transition-colors"
+                  >
+                    <span>Next: Store Profile & Login</span>
+                    <ArrowRight size={15} />
+                  </button>
+                )}
+
+                {currentStep === "account" && (
+                  <CustomButton
+                    type="submit"
+                    loading={formik.isSubmitting}
+                    size="lg"
+                    variant="primary"
+                    className="w-full font-bold py-3 text-xs rounded bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-xs transition-colors"
+                  >
+                    {formik.isSubmitting ? "Provisioning Database..." : "Launch Store (14-Day Free Trial)"}
+                    <ArrowRight size={15} className="ml-1.5 inline" />
+                  </CustomButton>
+                )}
+
+                <p className="text-[11px] text-slate-400 text-center leading-normal">
+                  Step {currentStepIndex + 1} of 4 • Complete all sections to activate your workspace.
                 </p>
               </div>
             </div>
-
-            <div className="flex flex-col items-center md:items-end shrink-0 w-full md:w-auto">
-              <div className="text-center md:text-right">
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
-                  Standard Rate After 14 Days
-                </span>
-                <div className="flex items-baseline gap-1 justify-center md:justify-end">
-                  <span className="text-2xl font-black text-white">
-                    ৳{totalMonthlyEquivalent.toLocaleString()}
-                  </span>
-                  <span className="text-xs text-slate-400 font-semibold">/ month</span>
-                </div>
-              </div>
-
-              <CustomButton
-                type="submit"
-                loading={formik.isSubmitting}
-                size="lg"
-                variant="primary"
-                className="mt-3 w-full md:w-auto font-black px-8 py-3.5 rounded-xl shadow-lg shadow-sky-500/20 bg-gradient-to-r from-sky-500 to-cyan-400 text-slate-950 hover:brightness-110 cursor-pointer"
-              >
-                {formik.isSubmitting ? "Provisioning Database Workspace..." : "Start Free Trial Now"}
-                <ArrowRight size={16} className="ml-2 inline" />
-              </CustomButton>
-            </div>
-          </div>
-
-          {error && (
-            <div className="rounded-xl border border-rose-500/40 bg-rose-950/40 p-4 text-xs text-rose-300 font-semibold text-center">
-              {error}
-            </div>
-          )}
-
-          <div className="text-center pb-8">
-            <span className="text-xs text-slate-400">Already registered your business workspace? </span>
-            <Link href="/login" className="text-xs font-bold text-sky-400 hover:text-sky-300 underline underline-offset-2">
-              Sign In to Terminal
-            </Link>
           </div>
         </form>
       </div>
