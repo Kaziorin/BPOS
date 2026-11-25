@@ -1,16 +1,34 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Search, ShoppingCart } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  ShoppingCart,
+  Barcode,
+  RotateCcw,
+  Plus,
+  Minus,
+  Trash2,
+  CreditCard,
+  Banknote,
+  Smartphone,
+  AlertCircle,
+  HelpCircle,
+  ArrowRight,
+  Store,
+  QrCode,
+  ShieldAlert,
+} from "lucide-react";
 import { api } from "@/lib/api";
-import { CustomInput } from "@/components/custom/CustomInput";
-import { CustomButton } from "@/components/custom/CustomButton";
-import { CartPanel } from "../CartPanel";
-import { PaymentPanel } from "../PaymentPanel";
+import { CustomBreadcrumb, CustomButton, CustomModal } from "@/components/custom";
 import { ReceiptModal } from "../ReceiptModal";
 import type { CartItem, PaymentLine, SaleResult } from "../pos-types";
 import { toast } from "react-toastify";
-import { useBarcodeScanner, playScanErrorBeep } from "@/lib/useBarcodeScanner";
+import {
+  useBarcodeScanner,
+  playScanSuccessBeep,
+  playScanErrorBeep,
+} from "@/lib/useBarcodeScanner";
 
 interface Product {
   id: string;
@@ -22,7 +40,7 @@ interface Product {
 }
 
 interface TenantInfo {
-  branch: { id: string } | null;
+  branch: { id: string; name?: string } | null;
   warehouse: { id: string } | null;
 }
 
@@ -30,38 +48,88 @@ function calcLine(item: CartItem): CartItem {
   return { ...item, lineTotal: item.qty * item.unitPrice - item.discountAmount };
 }
 
+function formatMoney(amount: number): string {
+  return `৳${amount.toLocaleString("en-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function unwrapProducts(res: unknown): Product[] {
+  const obj = res as { data?: unknown } | unknown[];
+  const list = Array.isArray(obj)
+    ? obj
+    : (obj as { data?: { data?: unknown[] } })?.data?.data ||
+      (obj as { data?: unknown[] })?.data ||
+      [];
+  if (!Array.isArray(list)) return [];
+  return list.map((raw) => {
+    const item = raw as Record<string, unknown>;
+    const unitRaw = item.unit;
+    const unitStr =
+      typeof unitRaw === "string"
+        ? unitRaw
+        : ((unitRaw as { name?: string } | null)?.name ?? "pcs");
+    return {
+      id: String(item.id || ""),
+      name: String(item.name || "Unnamed Product"),
+      sku: String(item.sku || ""),
+      barcode: item.barcode ? String(item.barcode) : null,
+      sellingPrice: String(item.sellingPrice ?? item.selling_price ?? item.price ?? 0),
+      unit: unitStr,
+    };
+  });
+}
+
 export default function SelfCheckoutPage() {
+  const router = useRouter();
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [payments, setPayments] = useState<PaymentLine[]>([{ method: "CASH", amount: 0 }]);
+  const [selectedMethod, setSelectedMethod] = useState<"CASH" | "CARD" | "BKASH" | "NAGAD">("CASH");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SaleResult | null>(null);
+  const [showHelpModal, setShowHelpModal] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    api.get<TenantInfo>("/api/v1/tenant").then(setTenantInfo).catch(() => {});
+    api
+      .get<Record<string, unknown>>("/api/v1/tenant")
+      .then((res) => {
+        const payload = ((res?.data as Record<string, unknown>) || res) as {
+          branch?: { id: string; name?: string };
+          branches?: { id: string; name?: string }[];
+          warehouse?: { id: string };
+          warehouses?: { id: string }[];
+        };
+        setTenantInfo({
+          branch: payload?.branch || payload?.branches?.[0] || null,
+          warehouse: payload?.warehouse || payload?.warehouses?.[0] || null,
+        });
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
+    const trimmed = search.trim();
     const t = setTimeout(() => {
-      if (!search) { setProducts([]); return; }
+      if (!trimmed) {
+        setProducts([]);
+        return;
+      }
       api
-        .get<Product[]>(`/products?search=${encodeURIComponent(search)}`)
-        .then(setProducts)
+        .get<unknown>(`/api/v1/products?search=${encodeURIComponent(trimmed)}&limit=12`)
+        .then((res) => setProducts(unwrapProducts(res)))
         .catch(() => {});
     }, 200);
     return () => clearTimeout(t);
   }, [search]);
 
-  const total = useMemo(() => cart.reduce((s, i) => s + i.lineTotal, 0), [cart]);
-
-  useEffect(() => {
-    if (payments.length === 1) setPayments([{ ...payments[0], amount: total }]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [total]);
+  const subtotal = useMemo(() => cart.reduce((s, i) => s + i.lineTotal, 0), [cart]);
+  const total = subtotal;
+  const payments: PaymentLine[] = useMemo(
+    () => [{ method: selectedMethod, amount: total }],
+    [selectedMethod, total]
+  );
 
   function addProduct(p: Product) {
     setCart((prev) => {
@@ -71,21 +139,37 @@ export default function SelfCheckoutPage() {
         updated[idx] = calcLine({ ...updated[idx], qty: updated[idx].qty + 1 });
         return updated;
       }
-      return [...prev, calcLine({
-        productId: p.id, variantId: null, name: p.name,
-        qty: 1, unitPrice: Number(p.sellingPrice), discountAmount: 0, lineTotal: 0,
-      })];
+      return [
+        ...prev,
+        calcLine({
+          productId: p.id,
+          variantId: null,
+          name: p.name,
+          qty: 1,
+          unitPrice: Number(p.sellingPrice),
+          discountAmount: 0,
+          lineTotal: 0,
+          sku: p.sku,
+        }),
+      ];
     });
     setSearch("");
+    setProducts([]);
     searchRef.current?.focus();
+    playScanSuccessBeep();
   }
 
   function handleSearchKey(e: React.KeyboardEvent) {
     if (e.key === "Enter" && search.trim()) {
       const match = products.find(
-        (p) => p.barcode === search.trim() || p.sku === search.trim(),
+        (p) =>
+          p.barcode === search.trim() ||
+          p.sku === search.trim() ||
+          p.name.toLowerCase().includes(search.toLowerCase().trim())
       );
-      if (match) addProduct(match);
+      if (match) {
+        addProduct(match);
+      }
     }
   }
 
@@ -106,44 +190,58 @@ export default function SelfCheckoutPage() {
       }
 
       try {
-        const res: any = await api.get(`/api/v1/products?search=${encodeURIComponent(code.trim())}&limit=1`);
-        const item = res?.data?.data?.[0] || res?.data?.[0] || (Array.isArray(res) ? res[0] : null);
-        if (item) {
-          const mapped: Product = {
-            id: item.id,
-            name: item.name,
-            sku: item.sku || "",
-            barcode: item.barcode || null,
-            sellingPrice: String(item.sellingPrice || item.selling_price || item.price || 0),
-            unit: item.unit || "pcs",
-          };
-          addProduct(mapped);
-          toast.success(`Scanned: ${mapped.name}`);
+        const res = await api.get<unknown>(`/api/v1/products?search=${encodeURIComponent(code.trim())}&limit=1`);
+        const first = unwrapProducts(res)[0];
+        if (first) {
+          addProduct(first);
+          toast.success(`Scanned: ${first.name}`);
           return;
         }
       } catch {}
 
       playScanErrorBeep();
-      toast.error(`No product found for barcode: ${code}`);
+      toast.error(`Barcode not recognized: ${code}`);
     },
     enabled: true,
   });
+
+  const updateQty = (idx: number, delta: number) => {
+    setCart((prev) => {
+      const item = prev[idx];
+      if (!item) return prev;
+      const newQty = item.qty + delta;
+      if (newQty <= 0) {
+        return prev.filter((_, i) => i !== idx);
+      }
+      const updated = [...prev];
+      updated[idx] = calcLine({ ...item, qty: newQty });
+      return updated;
+    });
+  };
+
+  const removeItem = (idx: number) => {
+    setCart((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   async function confirmSale() {
     if (cart.length === 0) return;
     setError(null);
     setSubmitting(true);
     try {
-      const res = await api.post<SaleResult>("/api/v1/pos/confirm", {
+      const rawRes = await api.post<Record<string, unknown>>("/api/v1/pos/confirm", {
         branchId: tenantInfo?.branch?.id,
         warehouseId: tenantInfo?.warehouse?.id,
         items: cart,
         payments,
         selfCheckout: true,
       });
-      setResult(res);
-    } catch (err: any) {
-      setError(err.message);
+      const saleData = ((rawRes?.data as SaleResult) || rawRes) as SaleResult;
+      setResult(saleData);
+      playScanSuccessBeep();
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message;
+      setError(msg || "Checkout transaction failed. Please request attendant assistance.");
+      playScanErrorBeep();
     } finally {
       setSubmitting(false);
     }
@@ -151,89 +249,368 @@ export default function SelfCheckoutPage() {
 
   function resetSale() {
     setCart([]);
-    setPayments([{ method: "CASH", amount: 0 }]);
+    setSelectedMethod("CASH");
     setResult(null);
     setError(null);
+    searchRef.current?.focus();
   }
 
   if (result) {
     return (
-      <div className="mx-auto max-w-md">
-        <ReceiptModal result={result} onNewSale={resetSale} />
+      <div className="w-full max-w-xl mx-auto py-6 animate-in fade-in">
+        <ReceiptModal
+          result={result}
+          cart={cart}
+          payments={payments}
+          cashierName="Self-Service Kiosk #01"
+          customerName="Self-Checkout Walk-in"
+          onNewSale={resetSale}
+        />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
-      <div className="rounded-sm border border-primary-200 bg-primary-50 px-4 py-3 text-sm text-primary-700 font-medium">
-        Self Checkout — Scan your items and pay
-      </div>
-
-      <CustomInput
-        ref={searchRef}
-        autoFocus
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        onKeyDown={handleSearchKey}
-        placeholder="Scan barcode or search product…"
-        leftIcon={<Search size={15} />}
+    <div className="w-full space-y-6 animate-in fade-in duration-200">
+      <CustomBreadcrumb
+        title="Self-Service Express Checkout"
+        description="Autonomous customer kiosk — scan items, verify totals, and complete digital or cash payment"
+        icon={<Store size={15} />}
+        items={[
+          { label: "Retail", href: "/retail-pos" },
+          { label: "POS Terminal", href: "/retail-pos" },
+          { label: "Self Checkout Kiosk" },
+        ]}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <CustomButton
+              variant="outline"
+              size="sm"
+              icon={HelpCircle}
+              onClick={() => setShowHelpModal(true)}
+            >
+              Call Attendant
+            </CustomButton>
+            <CustomButton
+              variant="outline"
+              size="sm"
+              icon={RotateCcw}
+              onClick={resetSale}
+              disabled={cart.length === 0}
+            >
+              Start Over
+            </CustomButton>
+            <CustomButton
+              variant="primary"
+              size="sm"
+              onClick={() => router.push("/retail-pos")}
+            >
+              Staff POS
+            </CustomButton>
+          </div>
+        }
       />
 
-      {products.length > 0 && (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {products.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => addProduct(p)}
-              className="rounded-sm border border-gray-100 bg-white p-3 text-left hover:border-primary-300 hover:shadow-sm"
-            >
-              <p className="text-sm font-medium text-gray-600 line-clamp-2">{p.name}</p>
-              <p className="mt-1 text-sm font-bold text-primary-600 tabular-nums">
-                {Number(p.sellingPrice).toFixed(2)}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <div className="lg:col-span-7 space-y-4">
+          <div className="bg-white p-5 rounded-sm border border-brand-border shadow-2xs space-y-2">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              Kiosk Barcode Scanner
+            </label>
+            <div className="relative">
+              <Barcode className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-primary" />
+              <input
+                ref={searchRef}
+                autoFocus
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleSearchKey}
+                placeholder="Scan item barcode or search catalog..."
+                className="w-full pl-10 pr-4 py-2.5 text-sm rounded-sm border border-brand-border focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-border/40 transition text-slate-800 placeholder:text-slate-400 bg-white"
+              />
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Hold barcode 2 inches from laser reader
+              </span>
+              <span>Fast audio chime enabled</span>
+            </div>
+          </div>
+
+          {products.length > 0 && (
+            <div className="bg-white p-4 rounded-sm border border-brand-border shadow-2xs space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Matching Catalog Products
               </p>
-            </button>
-          ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {products.map((p) => (
+                  <button
+                    type="button"
+                    key={p.id}
+                    onClick={() => addProduct(p)}
+                    className="p-3 rounded-sm border border-slate-200 hover:border-brand-primary hover:bg-brand-50/50 text-left transition flex items-center justify-between gap-2 cursor-pointer bg-white"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-slate-800 truncate">{p.name}</p>
+                      <p className="text-[10px] text-slate-400 font-mono">{p.sku}</p>
+                    </div>
+                    <span className="text-xs font-black text-brand-dark shrink-0 tabular-nums">
+                      {formatMoney(Number(p.sellingPrice))}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="bg-white rounded-sm border border-brand-border shadow-2xs overflow-hidden">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <ShoppingCart size={16} className="text-brand-primary" />
+                <h3 className="text-sm font-bold text-brand-dark">Scanned Items</h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-50 text-brand-dark border border-brand-border">
+                  {cart.length} unique &bull; {cart.reduce((a, b) => a + b.qty, 0)} units
+                </span>
+              </div>
+              {cart.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setCart([])}
+                  className="text-[11px] font-semibold text-rose-600 hover:text-rose-700 transition cursor-pointer"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+
+            {cart.length === 0 ? (
+              <div className="p-10 sm:p-12 text-center space-y-3 text-slate-400">
+                <div className="w-14 h-14 rounded-sm bg-brand-50 border border-brand-border flex items-center justify-center mx-auto text-brand-primary">
+                  <Barcode size={28} />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-slate-600">Your basket is currently empty</p>
+                  <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
+                    Scan any product barcode or search above to begin your self-checkout session.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100 max-h-[420px] overflow-y-auto">
+                {cart.map((item, idx) => (
+                  <div
+                    key={item.productId || idx}
+                    className="p-3.5 sm:p-4 flex items-center justify-between gap-3 hover:bg-slate-50/60 transition"
+                  >
+                    <div className="min-w-0 flex-1 space-y-0.5">
+                      <p className="text-xs font-bold text-slate-800 truncate">{item.name}</p>
+                      <p className="text-[11px] text-slate-400">
+                        {formatMoney(item.unitPrice)} each
+                        {item.sku && ` · SKU: ${item.sku}`}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center border border-slate-200 rounded-sm bg-slate-50 overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => updateQty(idx, -1)}
+                          className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition cursor-pointer"
+                          aria-label="Decrease quantity"
+                        >
+                          <Minus size={12} />
+                        </button>
+                        <span className="w-8 text-center text-xs font-bold text-slate-800 tabular-nums">
+                          {item.qty}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => updateQty(idx, 1)}
+                          className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition cursor-pointer"
+                          aria-label="Increase quantity"
+                        >
+                          <Plus size={12} />
+                        </button>
+                      </div>
+
+                      <span className="text-xs font-black text-slate-800 tabular-nums w-20 text-right">
+                        {formatMoney(item.lineTotal)}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => removeItem(idx)}
+                        className="p-1.5 rounded-sm text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                        title="Remove item"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      )}
 
-      <div className="rounded-sm border border-gray-200 bg-white p-4 space-y-3">
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-600">
-          <ShoppingCart size={15} />
-          Your Cart ({cart.length} items)
+        <div className="lg:col-span-5 lg:sticky lg:top-2 space-y-4">
+          <div className="bg-white p-5 sm:p-6 rounded-sm border border-brand-border shadow-2xs space-y-5">
+            <h3 className="text-sm font-bold text-brand-dark uppercase tracking-wider">
+              Payment Summary
+            </h3>
+
+            <div className="space-y-2 border-b border-slate-100 pb-4 text-xs text-slate-600">
+              <div className="flex justify-between">
+                <span>Subtotal ({cart.reduce((a, b) => a + b.qty, 0)} items)</span>
+                <span className="font-semibold tabular-nums">{formatMoney(subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-slate-500">
+                <span>Estimated VAT / Tax (Inclusive)</span>
+                <span className="tabular-nums">৳0.00</span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-sm bg-brand-50/70 border border-brand-border space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-primary">
+                Total Amount Due
+              </span>
+              <div className="text-3xl font-black text-brand-dark tabular-nums">
+                {formatMoney(total)}
+              </div>
+              <p className="text-[11px] text-slate-500">All prices in Bangladeshi Taka (BDT)</p>
+            </div>
+
+            <div className="space-y-2.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                Choose Payment Method
+              </label>
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setSelectedMethod("CASH")}
+                  className={`p-3 rounded-sm border text-left transition flex flex-col justify-between min-h-[84px] cursor-pointer ${
+                    selectedMethod === "CASH"
+                      ? "border-brand-primary bg-brand-50/70 shadow-2xs"
+                      : "border-slate-200 hover:border-brand-border bg-white"
+                  }`}
+                >
+                  <Banknote size={18} className={selectedMethod === "CASH" ? "text-brand-primary" : "text-slate-400"} />
+                  <div>
+                    <p className="text-xs font-bold text-slate-800">Cash Tender</p>
+                    <p className="text-[10px] text-slate-400">Pay at kiosk / desk</p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedMethod("BKASH")}
+                  className={`p-3 rounded-sm border text-left transition flex flex-col justify-between min-h-[84px] cursor-pointer ${
+                    selectedMethod === "BKASH"
+                      ? "border-pink-500 bg-pink-50/60 shadow-2xs"
+                      : "border-slate-200 hover:border-slate-300 bg-white"
+                  }`}
+                >
+                  <Smartphone size={18} className={selectedMethod === "BKASH" ? "text-pink-600" : "text-slate-400"} />
+                  <div>
+                    <p className="text-xs font-bold text-slate-800">bKash QR</p>
+                    <p className="text-[10px] text-slate-400">Scan &amp; pay mobile</p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedMethod("CARD")}
+                  className={`p-3 rounded-sm border text-left transition flex flex-col justify-between min-h-[84px] cursor-pointer ${
+                    selectedMethod === "CARD"
+                      ? "border-brand-primary bg-brand-50/70 shadow-2xs"
+                      : "border-slate-200 hover:border-brand-border bg-white"
+                  }`}
+                >
+                  <CreditCard size={18} className={selectedMethod === "CARD" ? "text-brand-primary" : "text-slate-400"} />
+                  <div>
+                    <p className="text-xs font-bold text-slate-800">Debit / Card</p>
+                    <p className="text-[10px] text-slate-400">Tap / chip terminal</p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedMethod("NAGAD")}
+                  className={`p-3 rounded-sm border text-left transition flex flex-col justify-between min-h-[84px] cursor-pointer ${
+                    selectedMethod === "NAGAD"
+                      ? "border-orange-500 bg-orange-50/60 shadow-2xs"
+                      : "border-slate-200 hover:border-slate-300 bg-white"
+                  }`}
+                >
+                  <QrCode size={18} className={selectedMethod === "NAGAD" ? "text-orange-600" : "text-slate-400"} />
+                  <div>
+                    <p className="text-xs font-bold text-slate-800">Nagad Pay</p>
+                    <p className="text-[10px] text-slate-400">Post payment OTP</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <div className="p-3 rounded-sm bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                <AlertCircle size={14} className="text-rose-600 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <CustomButton
+              variant="primary"
+              size="lg"
+              className="w-full text-sm font-black py-3.5 shadow-sm"
+              loading={submitting}
+              disabled={cart.length === 0}
+              icon={ArrowRight}
+              onClick={confirmSale}
+            >
+              Complete Payment &bull; {formatMoney(total)}
+            </CustomButton>
+
+            <p className="text-[11px] text-slate-400 text-center">
+              Receipt will automatically print upon successful payment.
+            </p>
+          </div>
         </div>
-
-        {/* selfCheckout=true disables discount/price-override inputs */}
-        <CartPanel
-          items={cart}
-          selfCheckout
-          onQtyChange={(idx, qty) => {
-            if (qty <= 0) setCart((p) => p.filter((_, i) => i !== idx));
-            else setCart((p) => p.map((item, i) => i === idx ? calcLine({ ...item, qty }) : item));
-          }}
-          onRemove={(idx) => setCart((p) => p.filter((_, i) => i !== idx))}
-          onDiscountChange={() => {}}
-          onPriceOverride={() => {}}
-        />
-
-        <div className="flex justify-between border-t border-gray-100 pt-2 font-bold text-gray-600">
-          <span>Total</span>
-          <span className="tabular-nums">{total.toFixed(2)}</span>
-        </div>
-
-        <PaymentPanel total={total} payments={payments} onChange={setPayments} />
-
-        {error && <p className="text-xs text-red-600">{error}</p>}
-
-        <CustomButton
-          fullWidth size="lg"
-          loading={submitting}
-          disabled={cart.length === 0}
-          onClick={confirmSale}
-        >
-          Pay Now
-        </CustomButton>
       </div>
+
+      <CustomModal
+        isOpen={showHelpModal}
+        onClose={() => setShowHelpModal(false)}
+        title="Attendant Assistance Requested"
+        size="md"
+      >
+        <div className="space-y-4 text-xs">
+          <div className="p-4 rounded-sm bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-3">
+            <ShieldAlert size={20} className="text-amber-600 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-bold text-sm">Store Associate Dispatched</p>
+              <p>
+                An attendant has been notified to assist you at Self-Checkout Terminal #01. Please remain at the kiosk.
+              </p>
+            </div>
+          </div>
+          <div className="space-y-1.5 text-slate-600">
+            <p className="font-semibold">Common assistance topics:</p>
+            <ul className="list-disc pl-5 space-y-1 text-slate-500">
+              <li>Item barcode not scanning or damaged label</li>
+              <li>Price verification / promotion inquiry</li>
+              <li>Age-restricted item approval</li>
+              <li>Voiding an accidental item entry</li>
+            </ul>
+          </div>
+          <div className="flex justify-end pt-3 border-t border-slate-100">
+            <CustomButton variant="outline" size="sm" onClick={() => setShowHelpModal(false)}>
+              Dismiss Notification
+            </CustomButton>
+          </div>
+        </div>
+      </CustomModal>
     </div>
   );
 }

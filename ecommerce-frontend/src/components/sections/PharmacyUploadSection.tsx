@@ -29,7 +29,7 @@ export default function PharmacyUploadSection({ section, isDarkMode = false }: P
 
   return (
     <section className="py-10 px-4 sm:px-6 lg:px-8">
-      <div className={`max-w-7xl mx-auto rounded-3xl p-8 sm:p-10 border transition-all ${
+      <div className={`max-w-[1720px] 2xl:max-w-[1800px] mx-auto rounded-3xl p-8 sm:p-10 border transition-all ${
         isDarkMode
           ? "bg-emerald-950/40 border-emerald-800/60 text-white"
           : "bg-gradient-to-br from-emerald-50 via-teal-50/70 to-cyan-50 border-emerald-200 text-slate-900 shadow-lg"

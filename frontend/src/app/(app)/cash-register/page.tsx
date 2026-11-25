@@ -1432,7 +1432,7 @@ export default function CashRegisterPage() {
         size="3xl"
       >
         {detail && (
-          <div className="space-y-5">
+          <div id="printable-slip" className="printable-document space-y-5">
             {/* Shift Header Meta */}
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm bg-brand-50/60 p-4 border border-brand-border/60">
               <div>
@@ -1451,7 +1451,7 @@ export default function CashRegisterPage() {
               <CustomButton
                 variant="outline"
                 size="sm"
-                className="text-gray-600 border-brand-border hover:bg-brand-50 font-semibold"
+                className="text-gray-600 border-brand-border hover:bg-brand-50 font-semibold print:hidden"
                 icon={<Printer className="w-4 h-4 text-brand-primary" />}
                 onClick={handlePrintZReport}
               >

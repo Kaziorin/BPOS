@@ -10,7 +10,6 @@ import {
   Building2,
   DollarSign,
   Landmark,
-  RotateCcw,
   Sparkles,
   ArrowRight,
   Shield,
@@ -28,6 +27,8 @@ import {
   Monitor,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { useAuth } from "@/lib/auth";
+import { checkRouteEntitlement } from "@/lib/pos-terminals";
 
 interface CommandItem {
   id: string;
@@ -84,6 +85,7 @@ const COMMANDS: CommandItem[] = [
 ];
 
 export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { user, subscription } = useAuth();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const router = useRouter();
@@ -92,7 +94,11 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        isOpen ? onClose() : window.dispatchEvent(new Event("omni:open-command-palette"));
+        if (isOpen) {
+          onClose();
+        } else {
+          window.dispatchEvent(new Event("omni:open-command-palette"));
+        }
       }
       if (e.key === "Escape" && isOpen) {
         onClose();
@@ -102,7 +108,11 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  const filtered = COMMANDS.filter((cmd) => {
+  const accessibleCommands = COMMANDS.filter(
+    (cmd) => checkRouteEntitlement(cmd.href, user, subscription).allowed
+  );
+
+  const filtered = accessibleCommands.filter((cmd) => {
     if (!query.trim()) return true;
     const q = query.toLowerCase();
     return (
@@ -136,7 +146,7 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
             autoFocus
             type="text"
             className="w-full bg-transparent text-sm font-medium text-gray-600 placeholder:text-slate-400 outline-none"
-            placeholder="Search pages, items, actions... (e.g. 'pos', 'bakery', 'stock', 'tax')"
+            placeholder="Search accessible pages, items, actions... (e.g. 'pos', 'holds', 'stock', 'sales')"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);

@@ -10,13 +10,25 @@ from sqlalchemy import MetaData, create_engine, text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-# Load backend/.env (DATABASE_URL, JWT_SECRET, ...) before any module reads env vars.
-load_dotenv(Path(__file__).resolve().parent / ".env")
+# 1. Load backend/.env
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
 
-RAW = os.getenv(
-    "DATABASE_URL",
-    "mysql://root:Blue%401234@192.168.181.104:3306/blue_oceans_pos",
-)
+# 2. Load profile-specific .env.<APP_ENV> (default: "local")
+APP_ENV = os.getenv("APP_ENV", "local").strip().lower()
+profile_env = BASE_DIR / f".env.{APP_ENV}"
+if profile_env.exists():
+    load_dotenv(profile_env, override=True)
+
+if raw_env := os.getenv("DATABASE_URL"):
+    RAW = raw_env
+else:
+    db_host = os.getenv("DB_HOST", "localhost")
+    db_port = os.getenv("DB_PORT", "3306")
+    db_user = os.getenv("DB_USER", "root")
+    db_pass = quote_plus(os.getenv("DB_PASSWORD", "korin@145666"))
+    db_name = os.getenv("DB_NAME", "blue_oceans_pos")
+    RAW = f"mysql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}?charset=utf8mb4"
 # mysql://user:pass@host:port/db  ->  mysql+asyncmy://...
 ASYNC_URL = RAW.replace("mysql://", "mysql+asyncmy://", 1)
 if "+asyncmy" not in ASYNC_URL:

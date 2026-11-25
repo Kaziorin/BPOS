@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useMemo } from "react";
 import {
-  ChevronDown, LogOut, Loader2, Search, X,
+  ChevronDown, LogOut, Loader2, Search, X, Lock,
 } from "lucide-react";
+import { UpgradeModal } from "./UpgradeModal";
 import { useDynamicNav, type NavItem, type NavChild } from "@/lib/dynamic-nav";
 import { siteConfig } from "@/config/site";
 import { useAuth } from "@/lib/auth";
@@ -100,6 +101,15 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [upgradeTarget, setUpgradeTarget] = useState<{
+    featureName: string;
+    requiredPlan?: string;
+    requiredAddon?: string;
+    lockReason?: string;
+  } | null>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
+    return new Set(["Overview", "Point of Sale (POS)", "SaaS & Platform Core"]);
+  });
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [activeFlyout, setActiveFlyout] = useState<{
@@ -165,11 +175,13 @@ export function Sidebar() {
 
     let activeMod: string | null = null;
     let activeItem: string | null = null;
+    let activeGroup: string | null = null;
 
     for (const group of navGroups) {
       for (const mod of group.items) {
         if (isModuleActive(mod, pathname, allHrefs)) {
           activeMod = mod.label;
+          activeGroup = group.title;
           for (const child of mod.children ?? []) {
             if (isChildActive(child, pathname, allHrefs) && child.children?.length) {
               activeItem = child.href;
@@ -180,6 +192,10 @@ export function Sidebar() {
         }
       }
       if (activeMod) break;
+    }
+
+    if (activeGroup) {
+      setExpandedGroups((prev) => new Set([...prev, activeGroup!]));
     }
 
     if (activeMod) {
@@ -223,6 +239,26 @@ export function Sidebar() {
       persist(expandedModules, next);
       return next;
     });
+  }
+
+  function toggleGroup(title: string) {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(title)) {
+        next.delete(title);
+      } else {
+        next.add(title);
+      }
+      return next;
+    });
+  }
+
+  function toggleAllGroups() {
+    if (expandedGroups.size === navGroups.length) {
+      setExpandedGroups(new Set());
+    } else {
+      setExpandedGroups(new Set(navGroups.map((g) => g.title)));
+    }
   }
 
   function toggleCollapse() {
@@ -332,21 +368,30 @@ export function Sidebar() {
 
         {/* Dynamic decorative backdrop wave */}
         <svg
-          className="absolute bottom-0 left-0 w-64 h-48 opacity-25"
+          className="absolute bottom-0 left-0 w-64 h-52 opacity-65 pointer-events-none z-0"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
           viewBox="0 0 256 120"
         >
-          <path
-            d="M -10 80 C 60 20, 140 100, 266 50 L 266 120 L -10 120 Z"
-            fill="url(#wave-sb-1)"
-          />
           <defs>
-            <linearGradient id="wave-sb-1" x1="0%" y1="50%" x2="100%" y2="50%">
-              <stop offset="0%" stopColor="var(--theme-primary-200, #BAE6FD)" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="var(--theme-primary-300, #7DD3FC)" stopOpacity="0.2" />
+            <linearGradient id="wave-sb-1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="var(--theme-primary-300, #7dd3fc)" stopOpacity="0.75" />
+              <stop offset="60%" stopColor="var(--theme-primary-400, #38bdf8)" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="var(--theme-primary-500, #0ea5e9)" stopOpacity="0.25" />
+            </linearGradient>
+            <linearGradient id="wave-sb-2" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="var(--theme-primary-200, #bae6fd)" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="var(--theme-primary-400, #38bdf8)" stopOpacity="0.3" />
             </linearGradient>
           </defs>
+          <path
+            d="M -10 65 C 50 15, 130 90, 266 40 L 266 120 L -10 120 Z"
+            fill="url(#wave-sb-2)"
+          />
+          <path
+            d="M -10 80 C 60 25, 140 100, 266 50 L 266 120 L -10 120 Z"
+            fill="url(#wave-sb-1)"
+          />
         </svg>
       </div>
 
@@ -428,7 +473,7 @@ export function Sidebar() {
         </nav>
 
         {/* Centered Footer (72px wide, 40px square logout icon centered with 16px margins) */}
-        <div className="flex h-14 shrink-0 items-center justify-center border-t border-brand-light bg-white p-2">
+        <div className="flex h-14 shrink-0 items-center justify-center border-t border-brand-light/80 bg-white/40 backdrop-blur-xs p-2">
           <button
             onClick={logout}
             title="Sign Out / Logout"
@@ -471,12 +516,23 @@ export function Sidebar() {
               </button>
             )}
           </div>
+          {/* Quick Expand / Collapse All */}
+          <div className="flex items-center justify-between px-1 pt-2 pb-0.5 text-[10px] text-slate-400 select-none">
+            <span className="font-medium">{filteredNavGroups.length} Groups</span>
+            <button
+              type="button"
+              onClick={toggleAllGroups}
+              className="text-brand-primary hover:text-brand-dark transition-colors cursor-pointer font-semibold"
+            >
+              {expandedGroups.size === navGroups.length ? "Collapse All" : "Expand All"}
+            </button>
+          </div>
         </div>
 
         {/* Main Navigation List */}
         <nav
           ref={expandedNavRef}
-          className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-1 custom-scrollbar"
+          className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-1.5 space-y-1.5 custom-scrollbar"
         >
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
@@ -488,28 +544,70 @@ export function Sidebar() {
               No matching menus found.
             </div>
           ) : (
-            filteredNavGroups.map((group) => (
-              <div key={group.title} className="space-y-1">
-                {group.items.map((item, idx) => (
-                  <ExpandedModuleRow
-                    key={`exp-${group.title}-${item.label}-${idx}`}
-                    item={item}
-                    pathname={pathname}
-                    allHrefs={allHrefs}
-                    moduleExpanded={isSearching || expandedModules.has(item.label)}
-                    expandedItems={expandedItems}
-                    onToggleModule={() => toggleModule(item.label)}
-                    onToggleItem={toggleItem}
-                    isSearching={isSearching}
-                  />
-                ))}
-              </div>
-            ))
+            filteredNavGroups.map((group) => {
+              const isGroupOpen = isSearching || expandedGroups.has(group.title);
+              return (
+                <div key={group.title} className="space-y-1">
+                  {group.title && (
+                    <button
+                      type="button"
+                      onClick={() => toggleGroup(group.title)}
+                      className={cn(
+                        "w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-[10.5px] font-bold uppercase tracking-wider transition cursor-pointer group select-none",
+                        isGroupOpen
+                          ? "text-brand-dark bg-sky-50/80 border border-sky-100 shadow-2xs"
+                          : "text-slate-500 hover:text-brand-dark hover:bg-slate-50 border border-transparent"
+                      )}
+                    >
+                      <span className="flex items-center gap-2 truncate">
+                        <span
+                          className={cn(
+                            "w-1.5 h-1.5 rounded-full shrink-0 transition-colors",
+                            isGroupOpen ? "bg-brand-primary" : "bg-slate-300 group-hover:bg-brand-primary"
+                          )}
+                        />
+                        <span className="truncate">{group.title}</span>
+                      </span>
+                      <span className="flex items-center gap-1.5 shrink-0">
+                        <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-white text-slate-500 border border-slate-200">
+                          {group.items.length}
+                        </span>
+                        <ChevronDown
+                          size={12}
+                          className={cn(
+                            "text-slate-400 transition-transform duration-200",
+                            isGroupOpen ? "transform rotate-0" : "transform -rotate-90"
+                          )}
+                        />
+                      </span>
+                    </button>
+                  )}
+                  {isGroupOpen && (
+                    <div className="space-y-1 pl-1 pt-0.5">
+                      {group.items.map((item, idx) => (
+                        <ExpandedModuleRow
+                          key={`exp-${group.title}-${item.label}-${idx}`}
+                          item={item}
+                          pathname={pathname}
+                          allHrefs={allHrefs}
+                          moduleExpanded={isSearching || expandedModules.has(item.label)}
+                          expandedItems={expandedItems}
+                          onToggleModule={() => toggleModule(item.label)}
+                          onToggleItem={toggleItem}
+                          isSearching={isSearching}
+                          onShowUpgrade={setUpgradeTarget}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
         </nav>
 
         {/* Sidebar Footer User Info & Logout */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-t border-brand-light px-2.5 bg-white">
+        <div className="flex h-14 shrink-0 items-center justify-between border-t border-brand-light/80 px-2.5 bg-white/40 backdrop-blur-xs">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-brand-gradient text-xs font-bold text-white shadow-2xs">
               {(user?.name || "A")[0].toUpperCase()}
@@ -580,6 +678,34 @@ export function Sidebar() {
                 const childActive = isChildActive(child, pathname, allHrefs);
                 const hasSub = !!child.children?.length;
 
+                if (child.isLocked) {
+                  return (
+                    <button
+                      key={`${child.label}-${child.href}-${idx}`}
+                      type="button"
+                      onClick={() => {
+                        setActiveFlyout(null);
+                        setUpgradeTarget({
+                          featureName: child.label,
+                          requiredPlan: child.requiredPlan,
+                          requiredAddon: child.requiredAddon,
+                          lockReason: child.lockReason,
+                        });
+                      }}
+                      className="flex w-full items-center justify-between gap-2.5 px-3 py-2 text-xs rounded-sm text-slate-400 hover:bg-amber-50/60 hover:text-slate-600 transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <ChildIcon size={14} className="shrink-0 text-slate-400" />
+                        <span className="truncate">{child.label}</span>
+                      </div>
+                      <span className="flex items-center gap-1 text-[8.5px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+                        <Lock size={8} />
+                        <span>{child.lockReason || "Upgrade"}</span>
+                      </span>
+                    </button>
+                  );
+                }
+
                 return (
                   <div key={`${child.label}-${child.href}-${idx}`}>
                     <Link
@@ -604,6 +730,30 @@ export function Sidebar() {
                         {child.children!.map((sub, sIdx) => {
                           const SubIcon = sub.icon;
                           const subActive = isRouteActive(sub.href, pathname, allHrefs);
+                          if (sub.isLocked) {
+                            return (
+                              <button
+                                key={`${sub.label}-${sub.href}-${sIdx}`}
+                                type="button"
+                                onClick={() => {
+                                  setActiveFlyout(null);
+                                  setUpgradeTarget({
+                                    featureName: sub.label,
+                                    requiredPlan: sub.requiredPlan,
+                                    requiredAddon: sub.requiredAddon,
+                                    lockReason: sub.lockReason,
+                                  });
+                                }}
+                                className="flex w-full items-center justify-between gap-2 px-2 py-1.5 text-[11px] rounded-sm text-slate-400 hover:bg-amber-50/60 hover:text-slate-600 cursor-pointer"
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <SubIcon size={11} className="shrink-0 text-slate-400" />
+                                  <span className="truncate">{sub.label}</span>
+                                </div>
+                                <Lock size={9} className="text-amber-600 shrink-0" />
+                              </button>
+                            );
+                          }
                           return (
                             <Link
                               key={`${sub.label}-${sub.href}-${sIdx}`}
@@ -630,6 +780,17 @@ export function Sidebar() {
           </div>
         </div>
       )}
+      {/* Upgrade / Add-on Modal */}
+      {upgradeTarget && (
+        <UpgradeModal
+          isOpen={!!upgradeTarget}
+          onClose={() => setUpgradeTarget(null)}
+          featureName={upgradeTarget.featureName}
+          requiredPlan={upgradeTarget.requiredPlan}
+          requiredAddon={upgradeTarget.requiredAddon}
+          lockReason={upgradeTarget.lockReason}
+        />
+      )}
     </aside>
   );
 }
@@ -645,6 +806,7 @@ interface ExpandedModuleRowProps {
   onToggleModule: () => void;
   onToggleItem: (href: string) => void;
   isSearching?: boolean;
+  onShowUpgrade: (target: any) => void;
 }
 
 function ExpandedModuleRow({
@@ -656,6 +818,7 @@ function ExpandedModuleRow({
   onToggleModule,
   onToggleItem,
   isSearching,
+  onShowUpgrade,
 }: ExpandedModuleRowProps) {
   const Icon = item.icon;
   const hasChildren = !!item.children?.length;
@@ -663,6 +826,32 @@ function ExpandedModuleRow({
 
   // Direct Single Link (no sub-children)
   if (!hasChildren) {
+    if (item.isLocked) {
+      return (
+        <button
+          type="button"
+          onClick={() =>
+            onShowUpgrade({
+              featureName: item.label,
+              requiredPlan: item.requiredPlan,
+              requiredAddon: item.requiredAddon,
+              lockReason: item.lockReason,
+            })
+          }
+          className="group flex w-full items-center justify-between rounded-sm px-3 py-2 text-xs transition-all duration-150 text-slate-400 hover:bg-amber-50/60 hover:text-slate-600 cursor-pointer"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Icon size={16} className="text-slate-400 shrink-0" />
+            <span className="truncate">{item.label}</span>
+          </div>
+          <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+            <Lock size={9} />
+            <span>{item.lockReason || "Upgrade"}</span>
+          </span>
+        </button>
+      );
+    }
+
     return (
       <Link
         href={item.href}
@@ -719,14 +908,19 @@ function ExpandedModuleRow({
           />
           <span className="truncate text-left">{item.label}</span>
         </div>
-        {item.badge && (
+        {item.isLocked ? (
+          <span className="flex items-center gap-1 mr-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+            <Lock size={9} />
+            <span>{item.lockReason || "Upgrade"}</span>
+          </span>
+        ) : item.badge ? (
           <span className={cn(
             "shrink-0 mr-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-sm",
             active ? "bg-white/20 text-white" : "bg-brand-100 text-brand-primary border border-brand-border"
           )}>
             {item.badge}
           </span>
-        )}
+        ) : null}
         <ChevronDown
           size={13}
           className={cn(
@@ -748,6 +942,7 @@ function ExpandedModuleRow({
               allHrefs={allHrefs}
               itemExpanded={isSearching || expandedItems.has(child.href)}
               onToggle={() => onToggleItem(child.href)}
+              onShowUpgrade={onShowUpgrade}
             />
           ))}
         </div>
@@ -764,9 +959,10 @@ interface MenuItemRowProps {
   allHrefs: Set<string>;
   itemExpanded: boolean;
   onToggle: () => void;
+  onShowUpgrade: (target: any) => void;
 }
 
-function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: MenuItemRowProps) {
+function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle, onShowUpgrade }: MenuItemRowProps) {
   const ChildIcon = child.icon;
   const hasSubChildren = !!child.children?.length;
   const active = isChildActive(child, pathname, allHrefs);
@@ -791,14 +987,20 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
             <ChildIcon size={13} className={cn("shrink-0", active ? "text-white" : "text-brand-primary group-hover:text-brand-dark")} />
             <span className="truncate text-left">{child.label}</span>
           </div>
-          <ChevronDown
-            size={12}
-            className={cn(
-              "shrink-0 transition-transform duration-200",
-              active ? "text-white" : "text-brand-primary group-hover:text-brand-dark",
-              itemExpanded && "rotate-180",
-            )}
-          />
+          {child.isLocked ? (
+            <span className="flex items-center gap-1 text-[8.5px] font-bold px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+              <Lock size={8} />
+            </span>
+          ) : (
+            <ChevronDown
+              size={12}
+              className={cn(
+                "shrink-0 transition-transform duration-200",
+                active ? "text-white" : "text-brand-primary group-hover:text-brand-dark",
+                itemExpanded && "rotate-180",
+              )}
+            />
+          )}
         </button>
 
         {/* Render ONLY sub-children cleanly with border guide line */}
@@ -807,6 +1009,31 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
             {child.children!.map((sub, idx) => {
               const SubIcon = sub.icon;
               const subActive = isRouteActive(sub.href, pathname, allHrefs);
+
+              if (sub.isLocked) {
+                return (
+                  <button
+                    key={`${sub.label}-${sub.href}-${idx}`}
+                    type="button"
+                    onClick={() =>
+                      onShowUpgrade({
+                        featureName: sub.label,
+                        requiredPlan: sub.requiredPlan,
+                        requiredAddon: sub.requiredAddon,
+                        lockReason: sub.lockReason,
+                      })
+                    }
+                    className="flex w-full items-center justify-between px-2 py-1.5 text-[11px] rounded-sm text-slate-400 hover:bg-amber-50/60 hover:text-slate-600 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <SubIcon size={11} className="shrink-0 text-slate-400" />
+                      <span className="truncate">{sub.label}</span>
+                    </div>
+                    <Lock size={9} className="text-amber-600 shrink-0" />
+                  </button>
+                );
+              }
+
               return (
                 <Link
                   key={`${sub.label}-${sub.href}-${idx}`}
@@ -832,6 +1059,32 @@ function MenuItemRow({ child, pathname, allHrefs, itemExpanded, onToggle }: Menu
   }
 
   // Regular 2nd-level submenu item
+  if (child.isLocked) {
+    return (
+      <button
+        type="button"
+        onClick={() =>
+          onShowUpgrade({
+            featureName: child.label,
+            requiredPlan: child.requiredPlan,
+            requiredAddon: child.requiredAddon,
+            lockReason: child.lockReason,
+          })
+        }
+        className="group flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-xs text-slate-400 hover:bg-amber-50/60 hover:text-slate-600 transition cursor-pointer"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <ChildIcon size={13} className="shrink-0 text-slate-400" />
+          <span className="truncate">{child.label}</span>
+        </div>
+        <span className="flex items-center gap-1 text-[8.5px] font-bold px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+          <Lock size={8} />
+          <span>{child.lockReason || "Upgrade"}</span>
+        </span>
+      </button>
+    );
+  }
+
   return (
     <Link
       href={child.href}

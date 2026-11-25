@@ -53,6 +53,11 @@ interface SaleSummary {
   subTotal?: number;
   discountTotal?: number;
   taxTotal?: number;
+  serviceCharge?: number;
+  tendered?: number;
+  tenderedAmount?: number;
+  changeReturn?: number;
+  change?: number;
   paidTotal: number;
   dueTotal: number;
   paymentStatus: string;
@@ -234,8 +239,11 @@ export default function SalesPage() {
       subTotal: Number(s.subTotal || s.total || 0),
       discountTotal: Number(s.discountTotal || 0),
       taxTotal: Number(s.taxTotal || 0),
+      serviceCharge: Number(s.serviceCharge || 0),
       grandTotal: Number(s.total || 0),
       paidTotal: Number(s.paidTotal || 0),
+      tenderedAmount: Number(s.tenderedAmount ?? s.tendered ?? 0),
+      changeReturn: Number(s.changeReturn ?? s.change ?? 0),
       dueTotal: Number(s.dueTotal || 0),
       paymentMethod: s.paymentMethod || "CASH",
       vertical: vert,

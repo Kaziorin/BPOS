@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Stop Blue Oceans POS
+Comment=Stop Blue Oceans POS Frontend (3000) & Backend (4000)
+Exec=/bin/bash "/home/wadi/BlueOcean/BPOS/stop.sh"
+Icon=process-stop
+Path=/home/wadi/BlueOcean/BPOS
+Terminal=false
+StartupNotify=true
+Categories=Development;

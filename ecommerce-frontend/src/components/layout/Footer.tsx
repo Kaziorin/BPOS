@@ -38,55 +38,52 @@ export default function Footer() {
   return (
     <footer className="bg-slate-950 text-slate-300 pt-14 pb-8 border-t border-slate-800/80">
       {/* Value Proposition Badges */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 border-b border-slate-800/80">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 pb-12 border-b border-slate-800/80">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="flex items-center gap-3.5">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner"
-              style={{ backgroundColor: `${theme.primaryColor || "#2563eb"}15`, color: theme.primaryColor || "#2563eb" }}
-            >
-              <Truck className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center shrink-0">
+              <Truck className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">Fast Store Delivery</h4>
+              <h4 className="text-xs sm:text-sm font-semibold text-white">Fast Store Delivery</h4>
               <p className="text-xs text-slate-400">Directly dispatched to you</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 shadow-inner">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">100% Authentic</h4>
+              <h4 className="text-xs sm:text-sm font-semibold text-white">100% Authentic</h4>
               <p className="text-xs text-slate-400">Directly verified stock</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0 shadow-inner">
-              <RefreshCw className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center shrink-0">
+              <RefreshCw className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">Direct Store Pickup</h4>
+              <h4 className="text-xs sm:text-sm font-semibold text-white">Direct Store Pickup</h4>
               <p className="text-xs text-slate-400">Click & Collect available</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0 shadow-inner">
-              <Headphones className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center shrink-0">
+              <Headphones className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">24/7 Support</h4>
-              <p className="text-xs text-slate-400">Call or chat directly</p>
+              <h4 className="text-xs sm:text-sm font-semibold text-white">Customer Support</h4>
+              <p className="text-xs text-slate-400">Dedicated assistance</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Store Info */}
           <div className="space-y-4 md:col-span-2">
@@ -245,7 +242,7 @@ export default function Footer() {
       </div>
 
       {/* Bottom Copyright */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
         <p>{copyright}</p>
         <p className="text-[11px] flex items-center gap-1">
           <span>Powered by</span>

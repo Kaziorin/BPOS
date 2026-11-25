@@ -25,7 +25,7 @@ export default function AppDownloadSection({ section, isDarkMode = false }: AppD
 
   return (
     <section className="py-10 px-4 sm:px-6 lg:px-8">
-      <div className={`max-w-7xl mx-auto rounded-3xl overflow-hidden p-8 sm:p-12 relative bg-gradient-to-r ${
+      <div className={`max-w-[1720px] 2xl:max-w-[1800px] mx-auto rounded-3xl overflow-hidden p-8 sm:p-12 relative bg-gradient-to-r ${
         isDarkMode
           ? "from-slate-900 via-indigo-950 to-slate-900 border border-zinc-800 text-white"
           : "from-sky-900 via-blue-900 to-indigo-900 text-white shadow-xl"

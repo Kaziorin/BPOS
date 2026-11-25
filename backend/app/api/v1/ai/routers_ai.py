@@ -547,99 +547,226 @@ async def ai_copilot(
     answer = ""
     suggestions = []
 
-    # Intent detection (keyword-based — production would use NLU)
-    if any(w in msg_lower for w in ["sale", "revenue", "today", "how much"]):
-        r = (await db.execute(text(
-            "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales "
-            "WHERE tenantId=:t AND status='CONFIRMED' AND DATE(createdAt)=CURDATE()"),
-            {"t": tenantId})).first()
-        answer = f"Today: {r[0]} sales totaling ৳{float(r[1] or 0):,.0f}."
+    # Check for optional external LLM (OpenAI / Gemini)
+    import os
+    openai_key = os.getenv("OPENAI_API_KEY", "").strip()
+    gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
 
-    elif any(w in msg_lower for w in ["profit", "margin", "loss"]):
-        if not has_profit:
-            answer = "⛔ You don't have permission to view profit data. Contact your manager."
-            await _log_ai_permission(db, tenantId, user.id, message, False, "reports.view required", "reports.view")
-        else:
+    is_bengali = any('\u0980' <= char <= '\u09FF' for char in message) or any(
+        w in msg_lower for w in ["koto", "bikri", "lav", "baki", "kemon", "stock", "mal"]
+    )
+
+    # 1. External LLM Path (if API key is configured)
+    if openai_key or gemini_key:
+        try:
+            import httpx
+            # Fetch essential business stats for context injection
+            stats_today = (await db.execute(text(
+                "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales WHERE tenantId=:t AND status='CONFIRMED' AND DATE(createdAt)=CURDATE()"),
+                {"t": tenantId})).first()
+            stats_month = (await db.execute(text(
+                "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales WHERE tenantId=:t AND status='CONFIRMED' AND createdAt >= DATE_FORMAT(NOW(), '%Y-%m-01')"),
+                {"t": tenantId})).first()
+            low_stock = (await db.execute(text(
+                "SELECT COUNT(*) FROM stock s JOIN products p ON p.id=s.productId WHERE s.tenantId=:t AND s.qtyOnHand <= COALESCE(p.reorderPoint, 10)"),
+                {"t": tenantId})).first()
+            due_total = (await db.execute(text(
+                "SELECT COUNT(*), COALESCE(SUM(total - paidTotal),0) FROM invoices WHERE tenantId=:t AND status NOT IN ('PAID','VOID')"),
+                {"t": tenantId})).first()
+
+            context_prompt = (
+                f"You are Blue Oceans POS Business Copilot. Answer user question accurately based on real store database context.\n"
+                f"Store Metrics:\n"
+                f"- Today's Sales: {stats_today[0]} orders, Total ৳{float(stats_today[1] or 0):,.2f}\n"
+                f"- This Month's Sales: {stats_month[0]} orders, Total ৳{float(stats_month[1] or 0):,.2f}\n"
+                f"- Low Stock Products Needing Reorder: {low_stock[0]} items\n"
+                f"- Total Outstanding Customer Due / AR: {due_total[0]} invoices, ৳{float(due_total[1] or 0):,.2f}\n"
+                f"Always reply in the same language as the user (Bengali if user asks in Bengali or Banglish, English if in English). Be concise, executive, and helpful.\n"
+                f"User: {message}"
+            )
+
+            if gemini_key:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.post(url, json={
+                        "contents": [{"parts": [{"text": context_prompt}]}]
+                    })
+                    if resp.status_code == 200:
+                        gem_data = resp.json()
+                        candidates = gem_data.get("candidates") or []
+                        if candidates and "content" in candidates[0]:
+                            parts = candidates[0]["content"].get("parts") or []
+                            if parts:
+                                answer = parts[0].get("text", "").strip()
+
+            elif openai_key and not answer:
+                url = "https://api.openai.com/v1/chat/completions"
+                headers = {"Authorization": f"Bearer {openai_key}", "Content-Type": "application/json"}
+                payload = {
+                    "model": "gpt-4o-mini",
+                    "messages": [
+                        {"role": "system", "content": "You are Blue Oceans POS Copilot. Respond concisely with exact figures."},
+                        {"role": "user", "content": context_prompt}
+                    ],
+                    "temperature": 0.3
+                }
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.post(url, headers=headers, json=payload)
+                    if resp.status_code == 200:
+                        openai_data = resp.json()
+                        answer = openai_data["choices"][0]["message"]["content"].strip()
+        except Exception as e:
+            # Fallback to local SQL intelligence on LLM error
+            pass
+
+    # 2. Local Real-Time SQL Business Intelligence (Zero Cost / Offline / Bilingual)
+    if not answer:
+        # System Features & Capabilities Intent
+        if any(w in msg_lower for w in ["feature", "ke ke feature", "ki ki feature", "ফিচার", "সুবিধা", "মডিউল", "module", "system", "ব্যবহার", "কি কি আছে", "কী কী আছে", "ক্যাপাসিটি", "কি কি"]):
+            if is_bengali:
+                answer = (
+                    "ব্লু ওশানস পিওএস (Blue Oceans POS)-এ অন্তর্ভুক্ত প্রধান ফিচার ও মডিউলসমূহ:\n\n"
+                    "১. 🛒 মাল্টি-ইন্ডাস্ট্রি পিওএস টার্মিনাল:\n"
+                    "   • রিটেইল পিওএস (বারকোড রিডার, টাচ সেল, কুইক বিলিং)\n"
+                    "   • রেস্তোরাঁ ও কিচেন (ডাইন-ইন, টেবিল মেট্রিক্স, KOT ও কিচেন ডিসপ্লে)\n"
+                    "   • ফার্মেসি পিওএস (প্রেসক্রিপশন আপলোড, জেনেরিক ও ড্রাগ ইন্টারেকশন)\n"
+                    "   • গ্রোসারি ও বেকারি (ওয়েট স্কেল ইন্টিগ্রেশন, দ্রুত চেকআউট)\n"
+                    "   • স্যালন ও স্পা (অ্যাপয়েন্টমেন্ট ও সার্ভিস বুকিং)\n"
+                    "   • হোলসেল ও রিপেয়ার মোড (B2B কোটেশন, RMA ট্র্যাকিং)\n\n"
+                    "২. 📦 ইনভেন্টরি ও ওয়্যারহাউস:\n"
+                    "   • রিয়েল-টাইম স্টক লেভেল ও লো-স্টক নোটিফিকেশন\n"
+                    "   • ব্যাচ নম্বর ও এক্সপায়ারি ডেট ট্র্যাকিং\n"
+                    "   • একাধিক সেন্ট্রাল ওয়্যারহাউস ও ইন্টার-ব্রাঞ্চ স্টক ট্রান্সফার\n\n"
+                    "৩. 💰 ফিন্যান্সিয়াল অ্যাকাউন্টিং:\n"
+                    "   • ফুল ডাবল-এন্ট্রি বুককিপিং, লেজার ও চার্ট অফ অ্যাকাউন্টস\n"
+                    "   • প্রফিট অ্যান্ড লস (P&L), ব্যালেন্স শিট ও ট্রায়াল ব্যালেন্স\n"
+                    "   • এনবিআর ভ্যাট ও ট্যাক্স হিসাব, কাস্টমার বাকির খাতা ও কিস্তি (EMI)\n\n"
+                    "৪. ⚡ অফলাইন রেজিলিয়েন্স ও হার্ডওয়্যার:\n"
+                    "   • ইন্টারনেট চলে গেলেও নিরবচ্ছিন্ন অফলাইন সেল ও অটো ক্লাউড সিঙ্ক\n"
+                    "   • থার্মাল প্রিন্টার (ESC/POS), ক্যাশ ড্রয়ার ও কাস্টমার ডিসপ্লে পোল\n\n"
+                    "৫. 🏢 মাল্টি-ব্রাঞ্চ ও ফ্র্যাঞ্চাইজি:\n"
+                    "   • সেন্ট্রাল পারচেজিং, মাল্টি-আউটলেট মনিটরিং ও ফ্র্যাঞ্চাইজি রয়্যালটি\n\n"
+                    "৬. 🌐 ই-কমার্স ও লয়্যালটি:\n"
+                    "   • অনলাইন শপ ইন্টিগ্রেশন, কাস্টমার ক্যাশব্যাক লয়্যালটি ও SMS ইনভয়েস।"
+                )
+            else:
+                answer = (
+                    "Blue Oceans POS Enterprise Features & Capabilities:\n\n"
+                    "1. Multi-Mode POS Terminals: Retail, Restaurant KOT/Tables, Pharmacy Rx, Grocery, Bakery, Salon, Wholesale & Repair POS.\n"
+                    "2. Inventory & Warehouses: Real-time stock, batch & expiry tracking, barcode printing, and inter-branch transfers.\n"
+                    "3. Financial Accounting: Double-entry ledger, PnL, Balance Sheet, NBR VAT reports, customer credit & EMI installments.\n"
+                    "4. Multi-Branch & Franchise: Central purchasing, multi-outlet management, and franchise royalty tracking.\n"
+                    "5. Offline Resilience: Offline sales mode with automatic cloud sync and hardware integration.\n"
+                    "6. eCommerce & Loyalty: Integrated webstore, customer loyalty points, and SMS invoice receipts."
+                )
+
+        # Sales & Revenue Intent
+        elif any(w in msg_lower for w in ["sale", "sales", "revenue", "today", "how much", "বিক্রি", "সেল", "আজকের", "টাকা", "বেচাকেনা", "মোট"]):
             r = (await db.execute(text(
-                "SELECT COALESCE(SUM(subtotal - discountTotal),0) FROM sales "
-                "WHERE tenantId=:t AND status='CONFIRMED' "
-                "AND createdAt >= DATE_FORMAT(NOW(), '%Y-%m-01')"),
+                "SELECT COUNT(*), COALESCE(SUM(total),0) FROM sales "
+                "WHERE tenantId=:t AND status='CONFIRMED' AND DATE(createdAt)=CURDATE()"),
                 {"t": tenantId})).first()
-            e = (await db.execute(text(
-                "SELECT COALESCE(SUM(amount),0) FROM expenses "
-                "WHERE tenantId=:t AND status IN ('APPROVED','PAID') "
-                "AND expenseDate >= DATE_FORMAT(NOW(), '%Y-%m-01')"),
+            if is_bengali:
+                answer = f"আজকের বিক্রয় হিসাব: মোট {r[0]} টি অর্ডারে সর্বমোট ৳{float(r[1] or 0):,.2f} টাকা বিক্রি হয়েছে।"
+            else:
+                answer = f"Today's Sales: {r[0]} orders totaling ৳{float(r[1] or 0):,.2f}."
+
+        # Profit & Margin Intent
+        elif any(w in msg_lower for w in ["profit", "margin", "loss", "লাভ", "মার্জিন", "লস", "লোকসান"]):
+            if not has_profit:
+                answer = "⛔ দুঃখিত, আপনার রোলে লাভ-ক্ষতির ডেটা দেখার অনুমতি (reports.view) নেই।" if is_bengali else "⛔ You don't have permission to view profit data."
+                await _log_ai_permission(db, tenantId, user.id, message, False, "reports.view required", "reports.view")
+            else:
+                r = (await db.execute(text(
+                    "SELECT COALESCE(SUM(subtotal - discountTotal),0) FROM sales "
+                    "WHERE tenantId=:t AND status='CONFIRMED' "
+                    "AND createdAt >= DATE_FORMAT(NOW(), '%Y-%m-01')"),
+                    {"t": tenantId})).first()
+                e = (await db.execute(text(
+                    "SELECT COALESCE(SUM(amount),0) FROM expenses "
+                    "WHERE tenantId=:t AND status IN ('APPROVED','PAID') "
+                    "AND expenseDate >= DATE_FORMAT(NOW(), '%Y-%m-01')"),
+                    {"t": tenantId})).first()
+                rev = float(r[0] or 0)
+                exp = float(e[0] or 0)
+                profit = rev - exp
+                margin = (profit / rev * 100) if rev > 0 else 0
+                if is_bengali:
+                    answer = f"চলতি মাসের রিপোর্ট: সর্বমোট রেভিনিউ ৳{rev:,.0f}, খরচ ৳{exp:,.0f}, এবং আনুমানিক নিট প্রফিট ৳{profit:,.0f} ({margin:.1f}% মার্জিন)।"
+                else:
+                    answer = f"This Month: Revenue ৳{rev:,.0f}, Expenses ৳{exp:,.0f}, Net Profit ৳{profit:,.0f} ({margin:.1f}% margin)."
+
+        # Overdue / Customer Due Intent
+        elif any(w in msg_lower for w in ["overdue", "due", "unpaid", "outstanding", "বাকি", "বকেয়া", "পাওনা", "দেনাদার"]):
+            r = (await db.execute(text(
+                "SELECT COUNT(*), COALESCE(SUM(total - paidTotal),0) FROM invoices "
+                "WHERE tenantId=:t AND status NOT IN ('PAID', 'VOID')"),
                 {"t": tenantId})).first()
-            rev = float(r[0] or 0)
-            exp = float(e[0] or 0)
-            profit = rev - exp
-            margin = (profit / rev * 100) if rev > 0 else 0
-            answer = f"This month: Revenue ৳{rev:,.0f}, Expenses ৳{exp:,.0f}, Profit ৳{profit:,.0f} ({margin:.1f}% margin)."
+            if is_bengali:
+                answer = f"বকেয়া বাকির হিসাব: সর্বমোট {r[0]} টি ইনভয়েসে মোট ৳{float(r[1] or 0):,.2f} টাকা বকেয়া পাওনা রয়েছে।"
+            else:
+                answer = f"Outstanding Customer AR: {r[0]} invoices, ৳{float(r[1] or 0):,.2f} total due."
 
-    elif any(w in msg_lower for w in ["overdue", "due", "unpaid", "outstanding"]):
-        r = (await db.execute(text(
-            "SELECT COUNT(*), COALESCE(SUM(total - paidTotal),0) FROM invoices "
-            "WHERE tenantId=:t AND status != 'PAID' AND status != 'VOID'"),
-            {"t": tenantId})).first()
-        answer = f"Outstanding AR: {r[0]} invoices, ৳{float(r[1] or 0):,.0f} total due."
+        # Stock / Inventory Intent
+        elif any(w in msg_lower for w in ["low stock", "stock", "inventory", "স্টক", "মালামাল", "পণ্য", "মাল", "মজুদ", "শেষ"]):
+            r = (await db.execute(text(
+                "SELECT COUNT(*) FROM stock s JOIN products p ON p.id=s.productId "
+                "WHERE s.tenantId=:t AND s.qtyOnHand <= COALESCE(p.reorderPoint, 10) AND s.qtyOnHand > 0"),
+                {"t": tenantId})).first()
+            if is_bengali:
+                answer = f"ইনভেন্টরি সতর্কতা: বর্তমানে {r[0]} টি পণ্যের স্টক রি-অর্ডার লেভেলের নিচে নেমে গেছে।"
+                suggestions.append("ইনভেন্টরি এআই দেখুন → /ai?tab=inventory")
+            else:
+                answer = f"Inventory Alert: {r[0]} products are below their safety reorder point."
+                suggestions.append("View Inventory AI → /ai?tab=inventory")
 
-    elif any(w in msg_lower for w in ["low stock", "stock", "inventory"]):
-        r = (await db.execute(text(
-            "SELECT COUNT(*) FROM stock s JOIN products p ON p.id=s.productId "
-            "WHERE s.tenantId=:t AND s.qtyOnHand <= COALESCE(p.reorderPoint, 10) AND s.qtyOnHand > 0"),
-            {"t": tenantId})).first()
-        answer = f"Low stock items: {r[0]} products need attention."
-        suggestions.append("View Inventory AI → /ai?tab=inventory")
+        # Top Customers Intent
+        elif any(w in msg_lower for w in ["customer", "top customer", "best customer", "কাস্টমার", "গ্রাহক"]):
+            r = rows_to_dicts((await db.execute(text(
+                "SELECT c.name, COUNT(s.id) AS orders, SUM(s.total) AS spend "
+                "FROM customers c JOIN sales s ON s.customerId=c.id "
+                "WHERE c.tenantId=:t AND s.status='CONFIRMED' "
+                "GROUP BY c.id, c.name ORDER BY spend DESC LIMIT 5"), {"t": tenantId})).fetchall())
+            if r:
+                lines = [f"{i+1}. {c['name']}: ৳{float(c['spend'] or 0):,.0f} ({c['orders']} orders)"
+                         for i, c in enumerate(r)]
+                answer = ("টপ কাস্টমারদের তালিকা:\n" if is_bengali else "Top Customers by Revenue:\n") + "\n".join(lines)
+            else:
+                answer = "এখনও পর্যাপ্ত কাস্টমার ট্রানজ্যাকশন রেকর্ড নেই।" if is_bengali else "No customer sales data yet."
 
-    elif any(w in msg_lower for w in ["customer", "top customer", "best customer"]):
-        r = rows_to_dicts((await db.execute(text(
-            "SELECT c.name, COUNT(s.id) AS orders, SUM(s.total) AS spend "
-            "FROM customers c JOIN sales s ON s.customerId=c.id "
-            "WHERE c.tenantId=:t AND s.status='CONFIRMED' "
-            "GROUP BY c.id, c.name ORDER BY spend DESC LIMIT 5"), {"t": tenantId})).fetchall())
-        if r:
-            lines = [f"{i+1}. {c['name']}: ৳{float(c['spend'] or 0):,.0f} ({c['orders']} orders)"
-                     for i, c in enumerate(r)]
-            answer = "Top customers:\n" + "\n".join(lines)
+        # Greetings & General Help
+        elif any(w in msg_lower for w in ["hi", "hello", "help", "সালাম", "হাই", "হ্যালো", "কেমন", "সাহায্য"]):
+            if is_bengali:
+                answer = ("হ্যালো! আমি আপনার ব্লু ওশানস পিওএস বিজনেস কোপাইলট।\n"
+                          "আপনি আমাকে আপনার ব্যবসার যেকোনো হিসাব জিজ্ঞেস করতে পারেন:\n"
+                          "• \"আজকের মোট বিক্রি কত?\"\n"
+                          "• \"চলতি মাসের লাভ কত?\"\n"
+                          "• \"কোন কোন পণ্যের স্টক কম?\"\n"
+                          "• \"বকেয়া বাকির পরিমাণ কত?\"\n"
+                          "• \"সেরা কাস্টমার কারা?\"")
+            else:
+                answer = ("Hello! I am your Blue Oceans POS Business Copilot.\n"
+                          "You can ask me questions about your store data:\n"
+                          "• \"What are today's sales?\"\n"
+                          "• \"How much profit this month?\"\n"
+                          "• \"Which products need reorder?\"\n"
+                          "• \"Show outstanding customer dues\"\n"
+                          "• \"Who are my top customers?\"")
+
         else:
-            answer = "No customer sales data yet."
-
-    elif any(w in msg_lower for w in ["worst", "performing", "branch"]):
-        r = rows_to_dicts((await db.execute(text(
-            "SELECT b.name, COUNT(s.id) AS orders, COALESCE(SUM(s.total),0) AS revenue "
-            "FROM branches b LEFT JOIN sales s ON s.branchId=b.id AND s.status='CONFIRMED' "
-            "AND s.createdAt >= DATE_FORMAT(NOW(), '%Y-%m-01') "
-            "WHERE b.tenantId=:t GROUP BY b.id, b.name ORDER BY revenue ASC LIMIT 5"),
-            {"t": tenantId})).fetchall())
-        if r:
-            lines = [f"{c['name']}: ৳{float(c['revenue'] or 0):,.0f} ({c['orders']} orders)"
-                     for c in r]
-            answer = "Branch performance (lowest first):\n" + "\n".join(lines)
-        else:
-            answer = "Not enough data to compare branches."
-
-    elif any(w in msg_lower for w in ["purchase", "buy", "reorder", "procurement"]):
-        r = (await db.execute(text(
-            "SELECT COUNT(*) FROM stock s JOIN products p ON p.id=s.productId "
-            "WHERE s.tenantId=:t AND s.qtyOnHand <= COALESCE(p.reorderPoint, 10)"),
-            {"t": tenantId})).first()
-        answer = f"{r[0]} products need reorder. Check the Procurement AI for recommendations."
-        suggestions.append("View Procurement AI → /ai?tab=procurement")
-
-    elif any(w in msg_lower for w in ["installment", "emi"]):
-        r = (await db.execute(text(
-            "SELECT COUNT(*), COALESCE(SUM(amount - paidAmount),0) FROM installment_schedules "
-            "WHERE tenantId=:t AND status='OVERDUE'"), {"t": tenantId})).first()
-        answer = f"Overdue installments: {r[0]} schedules, ৳{float(r[1] or 0):,.0f} outstanding."
-
-    else:
-        answer = ("I can help with: sales, profit, inventory, customers, branches, "
-                  "installments, and procurement. Try asking:\n"
-                  "• \"What were today's sales?\"\n"
-                  "• \"Why is profit down?\"\n"
-                  "• \"Which products need reorder?\"\n"
-                  "• \"Show overdue installments\"\n"
-                  "• \"Which branch is performing worst?\"")
+            if is_bengali:
+                answer = ("আমি আপনার সেলস, প্রফিট, ইনভেন্টরি, কাস্টমার বাকি ও পারচেজ ডেটা বিশ্লেষণ করতে পারি। নিচের মতো করে প্রশ্ন করতে পারেন:\n"
+                          "• \"আজকের সেল কত?\"\n"
+                          "• \"চলতি মাসের প্রফিট কত?\"\n"
+                          "• \"স্টক কম এমন প্রোডাক্ট দেখাও\"\n"
+                          "• \"বকেয়া বাকির হিসাব দাও\"")
+            else:
+                answer = ("I can assist with sales, profit, inventory stock, customer dues, and procurement.\n"
+                          "Try asking:\n"
+                          "• \"What were today's sales?\"\n"
+                          "• \"This month profit summary\"\n"
+                          "• \"Which products are low on stock?\"\n"
+                          "• \"Show total overdue balance\"")
 
     # Save assistant message
     await db.execute(text(

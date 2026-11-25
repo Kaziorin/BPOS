@@ -62,7 +62,8 @@ export default function OnboardingPage() {
   const [provisionResult, setProvisionResult] = useState<any>(null);
 
   // Form states (Clean client-side state)
-  const [selectedBusinessType, setSelectedBusinessType] = useState<string>("GROCERY");
+  const [selectedBusinessType, setSelectedBusinessType] = useState<string>("RETAIL");
+  const [selectedPlan, setSelectedPlan] = useState<string>("STARTER");
   const [companyForm, setCompanyForm] = useState({
     name: "",
     legalName: "",
@@ -163,6 +164,7 @@ export default function OnboardingPage() {
     try {
       const payload = {
         businessType: selectedBusinessType,
+        planCode: selectedPlan,
         company: companyForm,
         branch: branchForm,
         warehouse: warehouseForm,
@@ -175,7 +177,7 @@ export default function OnboardingPage() {
       const data = res?.data || res;
       setProvisionResult(data);
       setCompletedSteps((prev) => new Set([...prev, "complete"]));
-      setSuccessMessage("🎉 New Isolated Tenant Store Successfully Provisioned!");
+      setSuccessMessage("New isolated tenant store successfully provisioned.");
     } catch (error: any) {
       const msg = error.message || error.error || "Failed to provision tenant store. Please verify email and input.";
       setErrorMessage(msg);
@@ -186,7 +188,8 @@ export default function OnboardingPage() {
   };
 
   const handleResetWizard = () => {
-    setSelectedBusinessType("GROCERY");
+    setSelectedBusinessType("RETAIL");
+    setSelectedPlan("STARTER");
     setCompanyForm({ name: "", legalName: "", phone: "", email: "", address: "", vatRegNo: "" });
     setBranchForm({ code: "MAIN", name: "Main Branch", phone: "", email: "", address: "" });
     setWarehouseForm({ code: "WH-MAIN", name: "Main Warehouse", type: "CENTRAL" });
@@ -199,7 +202,7 @@ export default function OnboardingPage() {
     setCurrentStep("business-type");
   };
 
-  const handleSwitchToNewTenant = (token: string, tenant: any, owner: any) => {
+  const handleSwitchToNewTenant = (token: string, tenant: any, owner: any, subscription?: any) => {
     if (typeof window !== "undefined") {
       try {
         localStorage.clear();
@@ -211,6 +214,9 @@ export default function OnboardingPage() {
           roleName: "Owner",
           businessType: tenant.businessType,
         }));
+        if (subscription) {
+          localStorage.setItem("modernpos_subscription", JSON.stringify(subscription));
+        }
         localStorage.setItem("blueoceans_tenant", JSON.stringify({
           id: tenant.id,
           slug: tenant.slug,
@@ -223,97 +229,100 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-border text-brand-dark text-xs font-bold uppercase tracking-wider mb-2">
-            ✨ Client Provisioning Wizard
+    <div className="w-full space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-brand-light pb-4">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 border border-brand-border text-brand-dark text-xs font-bold uppercase tracking-wider mb-1.5">
+            Client Provisioning Wizard
           </div>
-          <h1 className="text-3xl font-extrabold text-gray-600">Single Tenant Onboarding</h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <h1 className="text-2xl font-bold tracking-tight text-brand-dark">Single Tenant Onboarding</h1>
+          <p className="mt-0.5 text-xs text-slate-500">
             Provision a brand new isolated business client with its own dedicated store, branch, warehouse, and owner credentials.
           </p>
         </div>
+      </div>
 
-        {/* Stepper Navigation */}
-        <div className="mb-8 rounded-sm border border-slate-200 bg-white p-4 shadow-xs">
-          <div className="flex items-center justify-between overflow-x-auto pb-2 scrollbar-none">
-            {STEPS.map((step, index) => {
-              const isCompleted = completedSteps.has(step.id);
-              const isCurrent = currentStep === step.id;
-              const Icon = step.icon;
+      {/* Stepper Navigation — Full Fluid Width */}
+      <div className="rounded-xl border border-brand-border/70 bg-brand-50/30 p-3 sm:p-4 shadow-2xs">
+        <div className="flex items-center justify-between overflow-x-auto pb-1 scrollbar-none gap-2">
+          {STEPS.map((step, index) => {
+            const isCompleted = completedSteps.has(step.id);
+            const isCurrent = currentStep === step.id;
+            const Icon = step.icon;
 
-              return (
-                <div key={step.id} className="flex items-center flex-1 min-w-[75px]">
+            return (
+              <div key={step.id} className="flex items-center flex-1 min-w-[85px]">
+                <div
+                  onClick={() => {
+                    if (isCompleted || index <= currentStepIndex) {
+                      setCurrentStep(step.id);
+                    }
+                  }}
+                  className={`flex flex-col items-center cursor-pointer transition w-full ${
+                    isCurrent ? "scale-105" : "hover:opacity-85"
+                  }`}
+                >
                   <div
-                    onClick={() => {
-                      if (isCompleted || index <= currentStepIndex) {
-                        setCurrentStep(step.id);
-                      }
-                    }}
-                    className={`flex flex-col items-center cursor-pointer transition ${
-                      isCurrent ? "scale-105" : "hover:opacity-80"
+                    className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all duration-200 shadow-2xs ${
+                      isCompleted
+                        ? "border-emerald-600 bg-emerald-600 text-white shadow-emerald-200"
+                        : isCurrent
+                        ? "border-brand-primary bg-brand-gradient text-white shadow-sm ring-4 ring-brand-border/50"
+                        : "border-slate-300 bg-white text-slate-400"
                     }`}
                   >
-                    <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all duration-200 shadow-xs ${
-                        isCompleted
-                          ? "border-emerald-600 bg-emerald-600 text-white shadow-emerald-200"
-                          : isCurrent
-                          ? "border-brand-primary bg-brand-gradient text-white shadow-2xs shadow-sm ring-4 ring-brand-border"
-                          : "border-slate-300 bg-slate-50 text-slate-400"
-                      }`}
-                    >
-                      {isCompleted ? <Check size={18} /> : <Icon size={16} />}
-                    </div>
-                    <span
-                      className={`mt-1.5 text-[11px] font-medium text-center whitespace-nowrap ${
-                        isCurrent
-                          ? "text-primary-700 font-semibold"
-                          : isCompleted
-                          ? "text-emerald-700"
-                          : "text-slate-500"
-                      }`}
-                    >
-                      {step.title}
-                    </span>
+                    {isCompleted ? <Check size={18} /> : <Icon size={16} />}
                   </div>
-                  {index < STEPS.length - 1 && (
-                    <div
-                      className={`flex-1 h-0.5 mx-2 min-w-[15px] transition-colors ${
-                        isCompleted || completedSteps.has(STEPS[index + 1].id)
-                          ? "bg-emerald-500"
-                          : "bg-slate-200"
-                      }`}
-                    />
-                  )}
+                  <span
+                    className={`mt-1.5 text-[11px] font-medium text-center whitespace-nowrap ${
+                      isCurrent
+                        ? "text-brand-dark font-bold"
+                        : isCompleted
+                        ? "text-emerald-700 font-semibold"
+                        : "text-slate-500"
+                    }`}
+                  >
+                    {step.title}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
+                {index < STEPS.length - 1 && (
+                  <div
+                    className={`flex-1 h-0.5 mx-1.5 min-w-[15px] transition-colors ${
+                      isCompleted || completedSteps.has(STEPS[index + 1].id)
+                        ? "bg-emerald-500"
+                        : "bg-slate-200"
+                    }`}
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
+      </div>
 
-        {/* Error / Success Alerts */}
-        {errorMessage && (
-          <div className="mb-6 flex items-center gap-3 rounded-sm border border-red-200 bg-red-50 p-4 text-sm text-red-700 animate-fadeIn">
-            <AlertCircle size={18} className="shrink-0 text-red-600" />
-            <span>{errorMessage}</span>
-          </div>
-        )}
+      {/* Error / Success Alerts */}
+      {errorMessage && (
+        <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-3.5 text-xs font-medium text-red-700 animate-fadeIn">
+          <AlertCircle size={17} className="shrink-0 text-red-600" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
-        {successMessage && (
-          <div className="mb-6 flex items-center gap-3 rounded-sm border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700 animate-fadeIn">
-            <CheckCircle size={18} className="shrink-0 text-emerald-600" />
-            <span>{successMessage}</span>
-          </div>
-        )}
+      {successMessage && (
+        <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3.5 text-xs font-medium text-emerald-700 animate-fadeIn">
+          <CheckCircle size={17} className="shrink-0 text-emerald-600" />
+          <span>{successMessage}</span>
+        </div>
+      )}
 
-        {/* Main Card Content */}
-        <div className="rounded-sm border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      {/* Main Step Content Container — Fluid Width Without Blank Side Margins */}
+      <div className="rounded-xl border border-brand-border/60 bg-white p-5 sm:p-7 shadow-xs">
           {currentStep === "business-type" && (
             <BusinessTypeStep
               selected={selectedBusinessType}
+              selectedPlan={selectedPlan}
+              onSelectPlan={setSelectedPlan}
               onSelect={(type) => {
                 setSelectedBusinessType(type);
                 setErrorMessage(null);
@@ -367,6 +376,7 @@ export default function OnboardingPage() {
             <CompleteStep
               provisionResult={provisionResult}
               businessType={selectedBusinessType}
+              planCode={selectedPlan}
               company={companyForm}
               branch={branchForm}
               warehouse={warehouseForm}
@@ -407,26 +417,35 @@ export default function OnboardingPage() {
           )}
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+
+const PLAN_TIERS = [
+  { code: "STARTER", name: "Starter", desc: "POS, Sales, Inventory, Cash Register & Customers" },
+  { code: "BUSINESS", name: "Advance", desc: "Starter + Accounting, VAT, Purchasing, Reports & Credit" },
+  { code: "ENTERPRISE", name: "Enterprise", desc: "All Modules, Multi-Branch, RBAC, Workflows & AI Copilot" },
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. Business Type Step
 // ─────────────────────────────────────────────────────────────────────────────
 function BusinessTypeStep({
   selected,
+  selectedPlan,
   onSelect,
+  onSelectPlan,
 }: {
   selected: string;
+  selectedPlan: string;
   onSelect: (type: string) => void;
+  onSelectPlan: (plan: string) => void;
 }) {
   return (
-    <div>
-      <div className="mb-6">
+    <div className="space-y-6">
+      <div>
         <h2 className="text-xl font-bold text-gray-600">What type of business are you operating?</h2>
         <p className="text-sm text-slate-500 mt-1">
-          Selecting your business type configures intelligent defaults, modules, and workflows specifically tailored for your vertical.
+          Selecting your business type configures intelligent defaults, POS terminal mode, and workflows specifically tailored for your vertical.
         </p>
       </div>
 
@@ -462,6 +481,38 @@ function BusinessTypeStep({
             </button>
           );
         })}
+      </div>
+
+      <div className="pt-4 border-t border-slate-100 space-y-3">
+        <div>
+          <h3 className="text-sm font-bold text-gray-600">Subscription Plan Tier</h3>
+          <p className="text-xs text-slate-500">
+            Choose the subscription tier to assign to this workspace.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {PLAN_TIERS.map((plan) => {
+            const active = selectedPlan === plan.code;
+            return (
+              <button
+                key={plan.code}
+                type="button"
+                onClick={() => onSelectPlan(plan.code)}
+                className={`p-3.5 rounded-sm border-2 text-left transition-all ${
+                  active
+                    ? "border-brand-primary bg-primary-50/50 ring-1 ring-brand-border"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs text-gray-700">{plan.name}</span>
+                  {active && <Check size={14} className="text-primary-600" />}
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">{plan.desc}</p>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -859,6 +910,7 @@ function OwnerSetupStep({
 function CompleteStep({
   provisionResult,
   businessType,
+  planCode,
   company,
   branch,
   warehouse,
@@ -871,6 +923,7 @@ function CompleteStep({
 }: {
   provisionResult: any;
   businessType: string;
+  planCode: string;
   company: any;
   branch: any;
   warehouse: any;
@@ -878,7 +931,7 @@ function CompleteStep({
   user: any;
   onProvision: () => void;
   onReset: () => void;
-  onSwitch: (token: string, tenant: any, owner: any) => void;
+  onSwitch: (token: string, tenant: any, owner: any, subscription?: any) => void;
   loading: boolean;
 }) {
   const [copied, setCopied] = useState(false);
@@ -954,7 +1007,7 @@ Login URL: ${window.location.origin}/login
 
             <CustomButton
               size="sm"
-              onClick={() => onSwitch(provisionResult.token, provisionResult.tenant, provisionResult.owner)}
+              onClick={() => onSwitch(provisionResult.token, provisionResult.tenant, provisionResult.owner, provisionResult.subscription)}
               className="bg-brand-primary hover:bg-brand-dark text-white text-xs py-1.5"
             >
               ⚡ Log In as Store Owner
@@ -990,7 +1043,7 @@ Login URL: ${window.location.origin}/login
         <div className="p-4 rounded-sm border border-slate-200 bg-slate-50 space-y-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Business &amp; Vertical</span>
           <div className="text-sm font-semibold text-gray-600">{company.name || "Untitled Business"}</div>
-          <div className="text-xs text-slate-600">Type: <span className="font-semibold text-brand-dark">{businessType}</span></div>
+          <div className="text-xs text-slate-600">Type: <span className="font-semibold text-brand-dark">{businessType}</span> • Plan: <span className="font-semibold text-brand-dark">{planCode}</span></div>
           {company.legalName && <div className="text-xs text-slate-600">Legal: {company.legalName}</div>}
           <div className="text-xs text-slate-600">Contact: {company.phone || "—"} | {company.email || "—"}</div>
         </div>

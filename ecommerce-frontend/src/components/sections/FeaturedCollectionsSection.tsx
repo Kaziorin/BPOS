@@ -42,28 +42,28 @@ export default function FeaturedCollectionsSection({ section, isDarkMode }: Prop
 
   return (
     <section className="py-6 sm:py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="flex items-end justify-between mb-6">
           <div>
             {badge && (
-              <span className="text-[11px] font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400 block mb-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-sky-600 dark:text-sky-400 block mb-1">
                 {badge}
               </span>
             )}
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
               {title || "Featured Collections"}
             </h2>
             {subtitle && (
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-1">{subtitle}</p>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{subtitle}</p>
             )}
           </div>
           <Link
             href="/products"
-            className="inline-flex items-center gap-1 text-xs font-bold text-sky-600 hover:text-sky-700 dark:text-sky-400 transition-colors"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-sky-600 hover:text-sky-700 dark:text-sky-400 transition-colors"
           >
-            <span>View All</span>
+            <span>View all</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -78,22 +78,22 @@ export default function FeaturedCollectionsSection({ section, isDarkMode }: Prop
             <Link
               key={idx}
               href={c.link || "/products"}
-              className="group relative rounded-3xl overflow-hidden p-6 sm:p-7 flex flex-col justify-between shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-1.5"
+              className="group relative rounded-2xl overflow-hidden p-6 sm:p-7 flex flex-col justify-between shadow-2xs hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 border border-slate-200/50"
               style={{ minHeight: "220px" }}
             >
               {/* Background image & gradient overlay */}
               <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
                 style={{ backgroundImage: `url('${c.image}')` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/20 group-hover:from-black/90 transition-colors" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
 
               {/* Top info */}
               <div className="relative z-10">
-                <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-amber-300 bg-black/40 backdrop-blur-md px-2.5 py-0.5 rounded-full mb-2">
+                <span className="inline-block text-[10px] font-semibold tracking-wide text-white/90 bg-white/20 backdrop-blur-xs px-2.5 py-0.5 rounded mb-2">
                   Collection
                 </span>
-                <h3 className="text-xl sm:text-2xl font-black text-white group-hover:text-amber-200 transition-colors">
+                <h3 className="text-lg sm:text-xl font-bold text-white transition-colors">
                   {c.title}
                 </h3>
                 <p className="text-xs text-slate-300 mt-1 line-clamp-1">{c.subtitle}</p>
@@ -101,9 +101,9 @@ export default function FeaturedCollectionsSection({ section, isDarkMode }: Prop
 
               {/* Bottom CTA */}
               <div className="relative z-10 pt-4">
-                <span className="inline-flex items-center gap-2 text-xs font-bold text-white group-hover:text-amber-300 transition-colors">
-                  <span>{c.cta || "Shop Now"}</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform" />
+                <span className="inline-flex items-center gap-2 text-xs font-semibold text-white group-hover:text-sky-300 transition-colors">
+                  <span>{c.cta || "Shop now"}</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </span>
               </div>
             </Link>

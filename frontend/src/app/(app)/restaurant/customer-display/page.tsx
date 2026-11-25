@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, useRef, useCallback } from "react";
 import {
   Utensils,
@@ -12,70 +13,27 @@ import {
   CreditCard,
   ShoppingBag,
   Scale,
-  Award,
   SmilePlus,
-  Flame,
-  Clock,
-  Sparkles,
   PlusCircle,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
 import {
   subscribeRestaurantCart,
   readRestaurantCart,
   publishRestaurantCart,
+  fmtDisplayMoney,
+  playDisplayScanSound,
+  playDisplaySuccessChime,
+  buildQrSvg,
+  formatDisplayClock,
   type DisplayCart,
-  type DisplayLine,
 } from "@/lib/customer-display";
 import { isOnline } from "@/lib/offline/db";
 import { cn } from "@/lib/cn";
 
-// ── Currency Formatter ──
-function fmt(n: number): string {
-  return `৳${Number(n || 0).toLocaleString("en-BD", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-}
-
-// ── Audio Feedback ──
-function playScanSound() {
-  try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    gain.gain.setValueAtTime(0.12, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.12);
-  } catch {}
-}
-
-function playSuccessChime() {
-  try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const now = ctx.currentTime;
-    [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(freq, now + i * 0.08);
-      gain.gain.setValueAtTime(0.18, now + i * 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.28);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now + i * 0.08);
-      osc.stop(now + i * 0.08 + 0.28);
-    });
-  } catch {}
-}
-
-// ── Food Emoji Mapper ──
 const FOOD_EMOJIS = ["🍛", "🍜", "🥘", "🍗", "🥩", "🍱", "🥗", "🍲", "🍔", "🍕", "🧆", "🥙", "🍣", "🥞"];
+
 function getFoodEmoji(name: string, idx: number): string {
   const n = (name || "").toLowerCase();
   if (n.includes("pizza")) return "🍕";
@@ -92,77 +50,44 @@ function getFoodEmoji(name: string, idx: number): string {
   return FOOD_EMOJIS[idx % FOOD_EMOJIS.length];
 }
 
-// ── High-Fidelity QR Code Generator ──
-function qrSvg(payload: string, size = 165, dark = "#1e293b"): string {
-  let seed = 0;
-  for (const ch of payload) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
-  const n = 21;
-  const cells: boolean[][] = [];
-  for (let y = 0; y < n; y++) {
-    const row: boolean[] = [];
-    for (let x = 0; x < n; x++) {
-      seed = (seed * 1103515245 + 12345) >>> 0;
-      const f = (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7);
-      if (f) {
-        const b =
-          x === 0 ||
-          x === 6 ||
-          y === 0 ||
-          y === 6 ||
-          (x >= n - 7 && (x === n - 7 || x === n - 1)) ||
-          (y >= n - 7 && (y === n - 7 || y === n - 1));
-        const c =
-          (x >= 2 && x <= 4 && y >= 2 && y <= 4) ||
-          (x >= n - 5 && x <= n - 3 && y >= 2 && y <= 4) ||
-          (x >= 2 && x <= 4 && y >= n - 5 && y <= n - 3);
-        row.push(b || c);
-      } else row.push((seed & 1) === 1);
-    }
-    cells.push(row);
-  }
-  const cell = size / n;
-  const rects = cells.flatMap((row, y) =>
-    row.map((on, x) =>
-      on
-        ? `<rect x="${(x * cell).toFixed(1)}" y="${(y * cell).toFixed(1)}" width="${cell.toFixed(
-            1
-          )}" height="${cell.toFixed(1)}" rx="1.5"/>`
-        : ""
-    )
-  ).join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" fill="#ffffff" rx="14"/><g fill="${dark}">${rects}</g></svg>`;
-}
+const PAYMENT_HINTS: Record<"cash" | "card" | "qr" | "wallet" | "split", { title: string; subtitle: string }> = {
+  cash: { title: "Pay Cash at Counter / Table", subtitle: "Server will bring change & printed bill" },
+  card: { title: "Card Terminal Available", subtitle: "Visa, Mastercard & Contactless accepted" },
+  qr: { title: "Scan to Pay with bKash / Nagad", subtitle: "Instant & Secure Payment" },
+  wallet: { title: "Pay via Dining Wallet", subtitle: "Apply loyalty points or member balance" },
+  split: { title: "Split Bill Equally", subtitle: "Split across guests or payment methods" },
+};
 
-// ── Live Clock Capsule Widget (Restaurant Theme) ──
 function LiveClockCapsule() {
-  const [t, setT] = useState(new Date());
+  const [clock, setClock] = useState<{ hh: string; mm: string; ss: string; ap: string; day: string } | null>(null);
+
   useEffect(() => {
-    const id = setInterval(() => setT(new Date()), 1000);
-    return () => clearInterval(id);
+    const update = () => setClock(formatDisplayClock(new Date()));
+    const init = window.setTimeout(update, 0);
+    const id = window.setInterval(update, 1000);
+    return () => {
+      window.clearTimeout(init);
+      window.clearInterval(id);
+    };
   }, []);
-  const hh = String(t.getHours() % 12 || 12).padStart(2, "0");
-  const mm = String(t.getMinutes()).padStart(2, "0");
-  const ss = String(t.getSeconds()).padStart(2, "0");
-  const ap = t.getHours() >= 12 ? "pm" : "am";
-  const day = t
-    .toLocaleDateString("en-BD", {
-      weekday: "short",
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    })
-    .toUpperCase();
 
   return (
-    <div className="flex items-center gap-2.5 px-4 py-1.5 rounded-sm border bg-orange-50/80 border-orange-200/90 text-gray-600 shadow-2xs">
+    <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-sm border bg-orange-50/80 border-orange-200/90 text-gray-700 shadow-xs">
       <div className="flex h-7 w-7 items-center justify-center rounded-sm bg-orange-100 text-orange-600 text-sm">
-        <Scale size={15} />
+        <Scale size={14} />
       </div>
-      <div className="text-left leading-tight">
-        <div className="text-[13px] font-black tracking-tight text-gray-600">
-          {hh}:{mm}:{ss} <span className="text-xs font-bold text-orange-600">{ap}</span>
+      <div className="text-left leading-tight min-w-[110px]">
+        <div className="text-[13px] font-black tracking-tight text-gray-700 tabular-nums">
+          {clock ? (
+            <>
+              {clock.hh}:{clock.mm}:{clock.ss}{" "}
+              <span className="text-xs font-bold text-orange-600 uppercase">{clock.ap}</span>
+            </>
+          ) : (
+            "--:--:--"
+          )}
         </div>
-        <div className="text-[9px] text-gray-500 font-bold uppercase tracking-wider">{day}</div>
+        <div className="text-[9px] text-gray-500 font-bold uppercase tracking-wider">{clock?.day || "READY"}</div>
       </div>
     </div>
   );
@@ -177,43 +102,46 @@ export default function RestaurantCustomerDisplayPage() {
   const [selectedPayment, setSelectedPayment] = useState<"cash" | "card" | "qr" | "wallet" | "split">("qr");
 
   const soundRef = useRef(soundOn);
-  soundRef.current = soundOn;
+  useEffect(() => {
+    soundRef.current = soundOn;
+  }, [soundOn]);
   const paidRef = useRef(false);
 
-  // Network check
   useEffect(() => {
-    const check = async () => setOnline(await isOnline());
-    check();
-    const id = setInterval(check, 5000);
-    return () => clearInterval(id);
+    const syncNetwork = () => setOnline(isOnline());
+    const init = window.setTimeout(syncNetwork, 0);
+    const id = window.setInterval(syncNetwork, 5000);
+    return () => {
+      window.clearTimeout(init);
+      window.clearInterval(id);
+    };
   }, []);
 
-  // Subscribe to real-time cart updates from Restaurant POS
   useEffect(() => {
-    const initial = readRestaurantCart();
-    setCart(initial);
-
+    const init = window.setTimeout(() => setCart(readRestaurantCart()), 0);
     const unsub = subscribeRestaurantCart((data) => {
       setCart((prev) => {
         const prevLen = prev?.lines?.length ?? 0;
         const nextLen = data?.lines?.length ?? 0;
-        if (nextLen > prevLen && soundRef.current) playScanSound();
+        if (nextLen > prevLen && soundRef.current) playDisplayScanSound(880);
 
         const wasPaid = paidRef.current;
         const isPaid = data?.status === "PAID";
         if (!wasPaid && isPaid) {
-          if (soundRef.current) playSuccessChime();
+          if (soundRef.current) playDisplaySuccessChime();
           setShowThankYou(true);
-          setTimeout(() => setShowThankYou(false), 9000);
+          window.setTimeout(() => setShowThankYou(false), 9000);
         }
         paidRef.current = isPaid;
         return data;
       });
     });
-    return () => unsub?.();
+    return () => {
+      window.clearTimeout(init);
+      unsub?.();
+    };
   }, []);
 
-  // Fullscreen toggle
   const toggleFs = useCallback(() => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen?.().catch(() => {});
@@ -224,7 +152,6 @@ export default function RestaurantCustomerDisplayPage() {
     }
   }, []);
 
-  // Dynamic values directly from real-time cart
   const lines = cart?.lines || [];
   const hasItems = lines.length > 0;
   const subtotal = cart?.subtotal || (hasItems ? lines.reduce((s, l) => s + l.unitPrice * l.qty, 0) : 0);
@@ -241,9 +168,9 @@ export default function RestaurantCustomerDisplayPage() {
   const tableNo = cart?.tableNo || (cart?.orderType ? cart.orderType.replace("_", " ") : "TABLE 01");
   const merchantName = cart?.merchantName || "BPOS Restaurant";
   const cashierName = cart?.cashierName || "Waiter";
-  const qrPayload = `bpos-restaurant-bill-${Date.now()}-${Math.round(total)}`;
+  const qrPayload = `bpos-restaurant-bill-${cart?.updatedAt || "standby"}-${Math.round(total)}`;
+  const activePaymentHint = PAYMENT_HINTS[selectedPayment];
 
-  // Quick helper to populate demo food items if user wants to test immediately
   const handleQuickDemo = () => {
     const demoCart: DisplayCart = {
       updatedAt: Date.now(),
@@ -289,95 +216,77 @@ export default function RestaurantCustomerDisplayPage() {
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
-        *, *::before, *::after { font-family: 'Plus Jakarta Sans', sans-serif; box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #fed7aa; border-radius: 4px; }
-      `}</style>
-
-      {/* ── THANK YOU OVERLAY ── */}
       {showThankYou && (
         <div
           className="fixed inset-0 flex flex-col items-center justify-center z-50 overflow-hidden"
-          style={{
-            background: "linear-gradient(135deg, #c2410c 0%, #ea580c 45%, #dc2626 100%)",
-          }}
+          style={{ background: "linear-gradient(135deg, #c2410c 0%, #ea580c 45%, #dc2626 100%)" }}
         >
-          <div className="flex flex-col items-center gap-5 text-center px-8 text-white animate-in zoom-in-95 duration-300">
-            <div className="text-8xl leading-none animate-bounce">🙏</div>
-            <h1 className="text-6xl font-black tracking-tight" style={{ textShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
-              Thank You!
-            </h1>
-            <p className="text-2xl font-bold opacity-95">
+          <div className="flex flex-col items-center gap-4 text-center px-6 sm:px-8 text-white animate-in zoom-in-95 duration-300">
+            <div className="text-7xl sm:text-8xl leading-none animate-bounce">🙏</div>
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight">Thank You!</h1>
+            <p className="text-xl sm:text-2xl font-bold opacity-95">
               {customerName ? `ধন্যবাদ, ${customerName}!` : "Payment Successful!"}
             </p>
-            <p className="text-lg opacity-85">Thank you for dining with us! Enjoy your meal.</p>
-            <div className="mt-4 px-6 py-2.5 rounded-full bg-white/20 border border-white/30 backdrop-blur font-bold text-sm">
-              {tableNo} • Total Paid: {fmt(total)}
+            <p className="text-base sm:text-lg opacity-85">Thank you for dining with us! Enjoy your meal.</p>
+            <div className="mt-2 px-6 py-2.5 rounded-full bg-white/20 border border-white/30 backdrop-blur font-bold text-sm">
+              {tableNo} • Total Paid: {fmtDisplayMoney(total)}
             </div>
           </div>
         </div>
       )}
 
-      {/* ══ FULLSCREEN CONTAINER WITH RESTAURANT COLOR PATTERN (#ea580c / #ffedd5 / #fff7ed) ══ */}
       <div
         id="restaurant-customer-display"
-        className="fixed inset-0 flex flex-col justify-between overflow-hidden p-5 select-none"
-        style={{
-          background: "linear-gradient(180deg, #ffedd5 0%, #fff7ed 15%, #f8fafc 100%)",
-        }}
+        className="min-h-screen lg:h-screen w-full flex flex-col justify-between overflow-y-auto lg:overflow-hidden p-3 sm:p-4 select-none"
+        style={{ background: "linear-gradient(180deg, #ffedd5 0%, #fff7ed 15%, #f8fafc 100%)" }}
       >
-        <div className="flex flex-col gap-3 flex-1 min-h-0 max-w-[1700px] w-full mx-auto">
-          {/* ══ 1. TOP HEADER (White rounded-sm floating card matching reference layout) ══ */}
-          <header className="rounded-sm border border-orange-200/80 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
-            {/* Left: Brand Icon + Title + Table/Lane + Subtitle */}
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-sm border shrink-0 bg-orange-50 border-orange-200 text-orange-600 shadow-2xs">
-                <Utensils size={22} />
+        <div className="flex flex-col gap-2.5 sm:gap-3 flex-1 min-h-0 max-w-[1700px] w-full mx-auto">
+          <header className="rounded-sm border border-orange-200/80 bg-white shadow-xs px-4 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2.5 shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-10 w-10 items-center justify-center rounded-sm border shrink-0 bg-orange-50 border-orange-200 text-orange-600 shadow-xs">
+                <Utensils size={20} />
               </div>
 
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-gray-600 text-lg leading-tight tracking-tight">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-extrabold text-gray-700 text-base sm:text-lg leading-tight tracking-tight truncate">
                     {merchantName}
                   </span>
-                  <span className="px-2 py-0.5 rounded-sm text-[11px] font-black uppercase tracking-wider text-white bg-orange-600 shadow-2xs">
+                  <span className="px-2 py-0.5 rounded-sm text-[11px] font-black uppercase tracking-wider text-white bg-orange-600 shadow-xs">
                     {tableNo}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 mt-0.5">
+                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                   <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                     CUSTOMER DISPLAY TERMINAL
                   </span>
-                  <span className="text-gray-300">•</span>
-                  <span
-                    className={cn(
-                      "flex items-center gap-1 text-[11px] font-bold",
-                      online ? "text-orange-600" : "text-rose-500"
-                    )}
-                  >
-                    <Wifi size={12} />
+                  <span className="text-gray-300 hidden sm:inline">•</span>
+                  <span className={cn("flex items-center gap-1 text-[11px] font-bold", online ? "text-orange-600" : "text-rose-500")}>
+                    {online ? <Wifi size={12} /> : <WifiOff size={12} />}
                     {online ? (hasItems ? "POS Live Synced" : "POS Connected • Live") : "POS Offline"}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Center: Live Clock Capsule */}
-            <div className="hidden md:flex items-center">
+            <div className="hidden lg:flex items-center">
               <LiveClockCapsule />
             </div>
 
-            {/* Right: Quick Demo + Sound + Fullscreen */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0 flex-wrap">
+              <Link
+                href="/restaurant/pos"
+                className="flex items-center gap-1.5 h-9 px-3 rounded-sm border border-slate-200 bg-white text-gray-600 hover:text-orange-600 hover:border-orange-200 text-xs font-bold transition shadow-xs cursor-pointer"
+                title="Back to Restaurant POS"
+              >
+                <ArrowLeft size={14} />
+                <span className="hidden sm:inline">Back to POS</span>
+              </Link>
+
               {hasItems ? (
                 <button
                   onClick={handleClearCart}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold transition shadow-2xs cursor-pointer"
+                  className="flex items-center gap-1.5 h-9 px-3 rounded-sm border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold transition shadow-xs cursor-pointer"
                   title="Clear Cart"
                 >
                   <Trash2 size={13} />
@@ -386,7 +295,7 @@ export default function RestaurantCustomerDisplayPage() {
               ) : (
                 <button
                   onClick={handleQuickDemo}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 text-xs font-bold transition shadow-2xs cursor-pointer"
+                  className="flex items-center gap-1.5 h-9 px-3 rounded-sm border border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 text-xs font-bold transition shadow-xs cursor-pointer"
                   title="Load sample restaurant order"
                 >
                   <PlusCircle size={13} className="text-orange-600" />
@@ -397,40 +306,39 @@ export default function RestaurantCustomerDisplayPage() {
               <button
                 id="cdisp-sound"
                 onClick={() => setSoundOn((v) => !v)}
-                className="flex h-10 w-10 items-center justify-center rounded-sm border border-slate-200 bg-white text-gray-600 hover:text-orange-600 hover:border-orange-300 transition shadow-2xs cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center rounded-sm border border-slate-200 bg-white text-gray-600 hover:text-orange-600 hover:border-orange-300 transition shadow-xs cursor-pointer"
                 title={soundOn ? "Mute" : "Enable sound"}
               >
-                {soundOn ? <Volume2 size={17} /> : <VolumeX size={17} />}
+                {soundOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
               </button>
 
               <button
                 id="cdisp-fullscreen"
                 onClick={toggleFs}
-                className="flex h-10 w-10 items-center justify-center rounded-sm bg-orange-600 hover:bg-orange-700 text-white transition shadow-2xs cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center rounded-sm bg-orange-600 hover:bg-orange-700 text-white transition shadow-xs cursor-pointer"
                 title="Toggle fullscreen"
               >
-                {fullscreen ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
+                {fullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
               </button>
             </div>
           </header>
 
-          {/* ══ 2. WELCOME BANNER (White rounded-sm card with Restaurant Orange Accent) ══ */}
-          <div className="rounded-sm border border-orange-100 bg-white shadow-xs px-6 py-3 flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-3.5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full font-black text-lg shadow-2xs shrink-0 bg-orange-100 text-orange-700 border border-orange-200">
+          <div className="rounded-sm border border-orange-100 bg-white shadow-xs px-4 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2.5 shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full font-black text-base shadow-xs shrink-0 bg-orange-100 text-orange-700 border border-orange-200">
                 {(customerName || tableNo || "G").charAt(0).toUpperCase()}
               </div>
 
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-gray-600 text-base">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-extrabold text-gray-700 text-sm sm:text-base truncate">
                     {customerName ? `Welcome back, ${customerName}!` : `Welcome to ${tableNo}!`}
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-50 text-orange-700 border border-orange-200">
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-orange-50 text-orange-700 border border-orange-200">
                     {customerTier}
                   </span>
                 </div>
-                <div className="text-xs text-gray-400 font-medium mt-0.5 flex items-center gap-2">
+                <div className="text-xs text-gray-500 font-medium mt-0.5 flex items-center gap-2 flex-wrap">
                   <span>Loyalty Balance: {customerPoints} Pts</span>
                   <span>•</span>
                   <span>Server: {cashierName}</span>
@@ -439,40 +347,34 @@ export default function RestaurantCustomerDisplayPage() {
             </div>
 
             {hasItems ? (
-              <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-orange-50 text-orange-700 border border-orange-200">
+              <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-orange-50 text-orange-700 border border-orange-200 shrink-0">
                 🟢 Live Order Active
               </span>
             ) : (
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-gray-500 border border-slate-200">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-gray-500 border border-slate-200 shrink-0">
                 Waiting for order scan…
               </span>
             )}
           </div>
 
-          {/* ══ 3. TWO-PANEL MAIN CONTENT (Exact 2-column layout from image) ══ */}
-          <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
-            {/* ── LEFT PANEL: Basket Items (~58% width, col-span-7) ── */}
-            <div className="col-span-12 lg:col-span-7 rounded-sm border border-orange-100 bg-white shadow-xs p-5 flex flex-col min-h-0 overflow-hidden">
-              {/* Header */}
-              <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 shrink-0">
+          <div className="grid grid-cols-12 gap-3 sm:gap-4 flex-1 min-h-0">
+            <div className="col-span-12 lg:col-span-7 rounded-sm border border-orange-100 bg-white shadow-xs p-4 flex flex-col min-h-[300px] lg:min-h-0 overflow-hidden">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-sm border shrink-0 bg-orange-50 border-orange-200 text-orange-600 shadow-2xs">
-                    <ShoppingBag size={18} />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-sm border shrink-0 bg-orange-50 border-orange-200 text-orange-600 shadow-xs">
+                    <ShoppingBag size={17} />
                   </div>
                   <div>
-                    <h2 className="font-extrabold text-gray-600 text-base leading-none">
-                      Basket Items
-                    </h2>
+                    <h2 className="font-extrabold text-gray-700 text-sm sm:text-base leading-none">Basket Items</h2>
                     <p className="text-xs text-gray-400 font-medium mt-1">Live scan itemization</p>
                   </div>
                 </div>
-                <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-orange-50 text-orange-700 border border-orange-200">
+                <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-orange-50 text-orange-700 border border-orange-200">
                   {lines.reduce((s, l) => s + l.qty, 0)} {lines.reduce((s, l) => s + l.qty, 0) === 1 ? "Item" : "Items"}
                 </span>
               </div>
 
-              {/* Scrollable Item Rows */}
-              <div className="flex-1 overflow-y-auto pt-3.5 pr-1 space-y-3">
+              <div className="flex-1 overflow-y-auto pt-2.5 pr-1 space-y-2">
                 {hasItems ? (
                   lines.map((line, idx) => {
                     const lineTotal = (line.unitPrice - (line.discountAmount ?? 0)) * line.qty;
@@ -480,35 +382,22 @@ export default function RestaurantCustomerDisplayPage() {
                     return (
                       <div
                         key={line.sku || `${line.name}-${idx}`}
-                        className="flex items-center justify-between p-3.5 rounded-sm border border-slate-100 bg-white shadow-2xs hover:border-orange-200 transition"
+                        className="flex items-center justify-between p-2.5 sm:p-3 rounded-sm border border-slate-100 bg-white shadow-xs hover:border-orange-200 transition"
                       >
-                        {/* Left: Food Emoji/Image + Name + Qty */}
-                        <div className="flex items-center gap-3.5 min-w-0 flex-1 pr-4">
-                          {line.image ? (
-                            <img
-                              src={line.image}
-                              alt={line.name}
-                              className="h-14 w-14 rounded-sm object-cover border border-slate-200 shrink-0"
-                            />
-                          ) : (
-                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-sm border border-orange-200 bg-orange-50 text-2xl shadow-2xs">
-                              {getFoodEmoji(line.name, idx)}
-                            </div>
-                          )}
+                        <div className="flex items-center gap-3 min-w-0 flex-1 pr-3">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border border-orange-200 bg-orange-50 text-xl shadow-xs">
+                            {getFoodEmoji(line.name, idx)}
+                          </div>
 
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
                               <span className="px-2 py-0.5 rounded-sm bg-slate-900 text-white font-black text-xs shrink-0">
                                 {line.qty}x
                               </span>
-                              <h3 className="font-bold text-gray-600 text-sm leading-tight truncate">
-                                {line.name}
-                              </h3>
+                              <h3 className="font-bold text-gray-700 text-sm leading-tight truncate">{line.name}</h3>
                             </div>
                             <div className="flex flex-wrap items-center gap-2 mt-1">
-                              <span className="text-xs text-gray-400 font-medium">
-                                {fmt(line.unitPrice)} / unit
-                              </span>
+                              <span className="text-xs text-gray-400 font-medium">{fmtDisplayMoney(line.unitPrice)} / unit</span>
                               {line.category && (
                                 <span className="text-[10px] px-2 py-0.5 rounded-sm bg-orange-50 text-orange-700 font-semibold border border-orange-100">
                                   {line.category}
@@ -523,23 +412,19 @@ export default function RestaurantCustomerDisplayPage() {
                           </div>
                         </div>
 
-                        {/* Right: Line Total + TOTAL caption */}
                         <div className="flex flex-col items-end shrink-0">
-                          <span className="font-black text-base text-gray-600 tracking-tight">
-                            {fmt(lineTotal)}
+                          <span className="font-black text-sm sm:text-base text-gray-700 tracking-tight tabular-nums">
+                            {fmtDisplayMoney(lineTotal)}
                           </span>
-                          <span className="text-[9px] font-black text-gray-400 tracking-widest uppercase mt-0.5">
-                            TOTAL
-                          </span>
+                          <span className="text-[9px] font-black text-gray-400 tracking-widest uppercase mt-0.5">TOTAL</span>
                         </div>
                       </div>
                     );
                   })
                 ) : (
-                  /* Empty state when no items in POS */
-                  <div className="flex flex-col items-center justify-center h-full min-h-[260px] text-center p-6 text-gray-400">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-sm bg-orange-50 border border-orange-200 text-orange-500 mb-3 shadow-2xs">
-                      <Utensils size={30} />
+                  <div className="flex flex-col items-center justify-center h-full min-h-[220px] text-center p-6 text-gray-400">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-sm bg-orange-50 border border-orange-200 text-orange-500 mb-3 shadow-xs">
+                      <Utensils size={28} />
                     </div>
                     <h3 className="font-extrabold text-gray-600 text-base">Your Basket is Empty</h3>
                     <p className="text-xs text-gray-400 mt-1 max-w-xs leading-relaxed">
@@ -554,55 +439,50 @@ export default function RestaurantCustomerDisplayPage() {
               </div>
             </div>
 
-            {/* ── RIGHT PANEL: Order Summary & Amount Due (~42% width, col-span-5) ── */}
-            <div className="col-span-12 lg:col-span-5 rounded-sm border border-orange-100 bg-white shadow-xs p-5 flex flex-col justify-between min-h-0 overflow-y-auto">
+            <div className="col-span-12 lg:col-span-5 rounded-sm border border-orange-100 bg-white shadow-xs p-4 flex flex-col justify-between min-h-0 lg:overflow-y-auto">
               <div>
-                {/* Header */}
-                <div className="flex items-center gap-2 pb-3.5 border-b border-slate-100">
-                  <CreditCard size={16} className="text-orange-600" />
-                  <span className="text-xs font-black text-gray-500 uppercase tracking-wider">
-                    ORDER SUMMARY
-                  </span>
+                <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100">
+                  <CreditCard size={15} className="text-orange-600" />
+                  <span className="text-xs font-black text-gray-500 uppercase tracking-wider">ORDER SUMMARY</span>
                 </div>
 
-                {/* Subtotal / Tax rows */}
-                <div className="py-3.5 space-y-2.5">
+                <div className="py-2.5 space-y-1.5">
                   {inclusiveTax > 0 ? (
                     <>
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-gray-500 font-medium">Base Price (Net)</span>
-                        <span className="font-bold text-gray-600">
-                          {fmt(taxableBase !== undefined ? taxableBase : Math.max(0, subtotal - inclusiveTax))}
+                        <span className="font-bold text-gray-700 tabular-nums">
+                          {fmtDisplayMoney(taxableBase !== undefined ? taxableBase : Math.max(0, subtotal - inclusiveTax))}
                         </span>
                       </div>
                       {discount > 0 && (
                         <div className="flex justify-between items-center text-sm">
                           <span className="text-emerald-600 font-semibold">🎁 Discount</span>
-                          <span className="font-bold text-emerald-600">−{fmt(discount)}</span>
+                          <span className="font-bold text-emerald-600 tabular-nums">−{fmtDisplayMoney(discount)}</span>
                         </div>
                       )}
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-gray-500 font-medium">
                           VAT / Tax <span className="text-xs text-emerald-600 font-semibold">(Incl.)</span>
                         </span>
-                        <span className="font-bold text-emerald-600">+{fmt(tax)}</span>
+                        <span className="font-bold text-emerald-600 tabular-nums">+{fmtDisplayMoney(tax)}</span>
                       </div>
                     </>
                   ) : (
                     <>
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-gray-500 font-medium">Subtotal</span>
-                        <span className="font-bold text-gray-600">{fmt(subtotal)}</span>
+                        <span className="font-bold text-gray-700 tabular-nums">{fmtDisplayMoney(subtotal)}</span>
                       </div>
                       {discount > 0 && (
                         <div className="flex justify-between items-center text-sm">
                           <span className="text-emerald-600 font-semibold">🎁 Discount</span>
-                          <span className="font-bold text-emerald-600">−{fmt(discount)}</span>
+                          <span className="font-bold text-emerald-600 tabular-nums">−{fmtDisplayMoney(discount)}</span>
                         </div>
                       )}
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-gray-500 font-medium">VAT / Tax</span>
-                        <span className="font-bold text-gray-600">+{fmt(tax)}</span>
+                        <span className="font-bold text-gray-700 tabular-nums">+{fmtDisplayMoney(tax)}</span>
                       </div>
                     </>
                   )}
@@ -610,51 +490,37 @@ export default function RestaurantCustomerDisplayPage() {
                   {serviceCharge > 0 && (
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-gray-500 font-medium">Service Charge</span>
-                      <span className="font-bold text-gray-600">+{fmt(serviceCharge)}</span>
+                      <span className="font-bold text-gray-700 tabular-nums">+{fmtDisplayMoney(serviceCharge)}</span>
                     </div>
                   )}
                 </div>
 
-                {/* ── HERO AMOUNT DUE CARD (Rich Restaurant Orange Theme) ── */}
-                <div
-                  className="rounded-sm p-5 text-white shadow-md my-2"
-                  style={{
-                    backgroundColor: "#ea580c",
-                  }}
-                >
+                <div className="rounded-sm p-3.5 sm:p-4 text-white shadow-md my-1.5 bg-orange-600">
                   <div className="flex justify-between items-center">
                     <div>
-                      <span className="text-xs font-black uppercase tracking-widest text-orange-100 block">
-                        AMOUNT DUE
-                      </span>
+                      <span className="text-xs font-black uppercase tracking-widest text-orange-100 block">AMOUNT DUE</span>
                       {inclusiveTax > 0 && (
                         <span className="text-[11px] font-medium text-white/90">
-                          (Includes {fmt(inclusiveTax)} VAT)
+                          (Includes {fmtDisplayMoney(inclusiveTax)} VAT)
                         </span>
                       )}
                     </div>
-                    <span className="text-xs font-bold text-orange-100">
-                      BDT (৳)
-                    </span>
+                    <span className="text-xs font-bold text-orange-100">BDT (৳)</span>
                   </div>
-                  <div className="text-5xl font-black text-white tracking-tight leading-none mt-2">
-                    {fmt(total)}
+                  <div className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none mt-1.5 tabular-nums">
+                    {fmtDisplayMoney(total)}
                   </div>
                 </div>
 
-                {/* ── PAYMENT OPTIONS (5 button tabs matching image) ── */}
-                <div className="mt-4">
-                  <div className="flex items-center justify-between mb-2.5">
-                    <span className="text-xs font-black text-gray-500 uppercase tracking-wider">
-                      PAYMENT OPTIONS
-                    </span>
+                <div className="mt-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-black text-gray-500 uppercase tracking-wider">PAYMENT OPTIONS</span>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-sm bg-orange-50 text-orange-700 border border-orange-200">
                       POS Checkout
                     </span>
                   </div>
 
-                  {/* 5 Tab buttons */}
-                  <div className="grid grid-cols-5 gap-1.5 mb-3">
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 mb-2.5">
                     {(
                       [
                         { key: "cash", label: "Cash" },
@@ -671,7 +537,7 @@ export default function RestaurantCustomerDisplayPage() {
                           id={`cdisp-tab-${m.key}`}
                           onClick={() => setSelectedPayment(m.key)}
                           className={cn(
-                            "py-2 rounded-sm text-xs font-bold transition-all text-center cursor-pointer border",
+                            "py-1.5 rounded-sm text-xs font-bold transition-all text-center cursor-pointer border",
                             isActive
                               ? "bg-orange-600 text-white border-transparent shadow-xs"
                               : "bg-slate-50 text-gray-600 border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200"
@@ -683,20 +549,18 @@ export default function RestaurantCustomerDisplayPage() {
                     })}
                   </div>
 
-                  {/* Clean QR Code Card matching reference image */}
-                  <div className="flex flex-col items-center justify-center p-4 rounded-sm border border-orange-100 bg-orange-50/40">
+                  <div className="flex flex-col items-center justify-center p-3 rounded-sm border border-orange-100 bg-orange-50/40">
                     <div
-                      className="rounded-sm border border-slate-200/90 bg-white p-3 shadow-xs"
-                      dangerouslySetInnerHTML={{ __html: qrSvg(qrPayload, 155) }}
+                      className="rounded-sm border border-slate-200/90 bg-white p-2 shadow-xs"
+                      dangerouslySetInnerHTML={{ __html: buildQrSvg(qrPayload, 124, "#ea580c") }}
                     />
-                    <p className="text-xs font-bold text-gray-600 mt-2.5">Scan to Pay with bKash / Nagad</p>
-                    <p className="text-[10px] text-gray-400 font-medium">Instant & Secure Payment</p>
+                    <p className="text-xs font-bold text-gray-700 mt-2">{activePaymentHint.title}</p>
+                    <p className="text-[10px] text-gray-500 font-medium">{activePaymentHint.subtitle}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Bottom micro notice */}
-              <div className="flex items-center justify-center gap-1.5 pt-3 text-gray-400 text-xs font-medium border-t border-slate-100">
+              <div className="flex items-center justify-center gap-1.5 pt-2.5 text-gray-400 text-xs font-medium border-t border-slate-100 mt-2.5">
                 <SmilePlus size={14} className="text-orange-500" />
                 <span>Thank you for dining with us!</span>
               </div>

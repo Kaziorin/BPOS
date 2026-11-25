@@ -77,21 +77,21 @@ export interface ThemeConfig {
 export const DEFAULT_VIBRANT_THEME: ThemeConfig = {
   themePreset: "shopease-vibrant",
   headerStyle: "standard",
-  primaryColor: "#2563eb",
+  primaryColor: "#0284c7",
   accentColor: "#f59e0b",
   isDarkMode: false,
   fontFamily: "Inter, system-ui, sans-serif",
   showAnnouncement: true,
-  announcementText: "🎉 Super Spring Sale! Free Shipping on orders over $50 / ৳500 with code FREESHIP",
+  announcementText: "Super Spring Sale: Free shipping on orders over ৳500 with code FREESHIP",
   sections: [
     {
       id: "sec-notice-1",
       type: "special_notice",
-      title: "⚡ Weekend Mega Flash Sale: Up to 60% OFF Across All Trending Collections!",
+      title: "Weekend Flash Sale: Up to 60% off across trending collections",
       subtitle: "Use voucher code SHOP2026 for instant checkout discounts.",
-      badge: "HOT OFFER",
+      badge: "Offer",
       enabled: true,
-      settings: { ctaText: "Shop Deals", ctaLink: "/products", themeStyle: "gradient" },
+      settings: { ctaText: "Shop deals", ctaLink: "/products", themeStyle: "gradient" },
     },
     {
       id: "sec-hero-1",
@@ -255,7 +255,7 @@ export const DEFAULT_SIDEBAR_THEME: ThemeConfig = {
   isDarkMode: false,
   fontFamily: "Inter, system-ui, sans-serif",
   showAnnouncement: true,
-  announcementText: "🥬 100% Farm Fresh Groceries Delivered in 2 Hours! Free Delivery over ৳500",
+  announcementText: "100% farm-fresh groceries delivered to your door. Free delivery on orders over ৳500.",
   sections: [
     {
       id: "sec-hero-sidebar",
@@ -350,7 +350,7 @@ export const DEFAULT_DARK_LUXURY_THEME: ThemeConfig = {
   isDarkMode: true,
   fontFamily: "Outfit, system-ui, sans-serif",
   showAnnouncement: true,
-  announcementText: "✨ Private VIP Drop Now Live — Complimentary White Glove Courier on All Luxury Orders",
+  announcementText: "Private VIP collection now available. Complimentary white-glove courier on all luxury orders.",
   sections: [
     {
       id: "sec-hero-dark",
@@ -458,7 +458,7 @@ export const DEFAULT_ELECTRONICS_THEME: ThemeConfig = {
   isDarkMode: true,
   fontFamily: "Inter, system-ui, sans-serif",
   showAnnouncement: true,
-  announcementText: "🚀 Next-Gen Tech Drops! Official Brand Warranty on All Smartphones, Laptops & Audio Devices",
+  announcementText: "Official brand warranty & express same-day dispatch on all smartphones, laptops and audio.",
   sections: [
     {
       id: "sec-hero-tech",
@@ -559,12 +559,12 @@ export const DEFAULT_ELECTRONICS_THEME: ThemeConfig = {
 export const DEFAULT_FASHION_THEME: ThemeConfig = {
   themePreset: "shopease-fashion",
   headerStyle: "standard",
-  primaryColor: "#e11d48",
+  primaryColor: "#0f172a",
   accentColor: "#f43f5e",
   isDarkMode: false,
   fontFamily: "Outfit, system-ui, sans-serif",
   showAnnouncement: true,
-  announcementText: "👗 Summer Lookbook 2026 is LIVE! Enjoy Flat 20% OFF on all dresses with code SUMMER20",
+  announcementText: "Curated seasonal collection is live. Enjoy 20% off selected apparel with code SUMMER20.",
   sections: [
     {
       id: "sec-hero-fashion",
@@ -671,7 +671,7 @@ export const DEFAULT_PHARMACY_THEME: ThemeConfig = {
   isDarkMode: false,
   fontFamily: "Inter, system-ui, sans-serif",
   showAnnouncement: true,
-  announcementText: "💊 24/7 Registered Pharmacist On-Call & Urgent Prescription Delivery in 2 Hours",
+  announcementText: "24/7 registered pharmacist consultations and urgent prescription delivery in 2 hours.",
   sections: [
     {
       id: "sec-hero-pharmacy",
@@ -754,12 +754,12 @@ export const DEFAULT_PHARMACY_THEME: ThemeConfig = {
 export const DEFAULT_RESTAURANT_THEME: ThemeConfig = {
   themePreset: "shopease-restaurant",
   headerStyle: "standard",
-  primaryColor: "#ea580c",
+  primaryColor: "#c2410c",
   accentColor: "#f97316",
   isDarkMode: false,
   fontFamily: "Outfit, system-ui, sans-serif",
   showAnnouncement: true,
-  announcementText: "🍕 Hot & Fresh Food Delivered in 30 Minutes! Free Drink with every Platter",
+  announcementText: "Freshly prepared chef specialties delivered to your table or doorstep in 30 minutes.",
   sections: [
     {
       id: "sec-hero-food",
@@ -842,12 +842,12 @@ export const DEFAULT_RESTAURANT_THEME: ThemeConfig = {
 export const DEFAULT_BEAUTY_THEME: ThemeConfig = {
   themePreset: "shopease-beauty",
   headerStyle: "standard",
-  primaryColor: "#db2777",
+  primaryColor: "#be185d",
   accentColor: "#f472b6",
   isDarkMode: false,
   fontFamily: "Outfit, system-ui, sans-serif",
   showAnnouncement: true,
-  announcementText: "💄 100% Authentic Korean & Global Skincare Brands! Free Beauty Samples with every order",
+  announcementText: "100% authentic skincare & luxury beauty essentials. Complimentary samples with every order.",
   sections: [
     {
       id: "sec-hero-beauty",

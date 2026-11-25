@@ -21,7 +21,7 @@ export default function GeneralStore({ config, products, categories }: GeneralSt
       {/* ── 1. GENERAL HERO BANNER ── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-sky-950 to-slate-900 text-white py-16 md:py-20 px-4 sm:px-6 lg:px-8">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(14,165,233,0.15),transparent_60%)]" />
-        <div className="max-w-7xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+        <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/20 border border-sky-400/30 text-sky-300 text-xs font-semibold backdrop-blur-md">
               <Sparkles className="w-3.5 h-3.5" />
@@ -71,7 +71,7 @@ export default function GeneralStore({ config, products, categories }: GeneralSt
       </section>
 
       {/* ── 2. VALUE PROPS ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
@@ -105,7 +105,7 @@ export default function GeneralStore({ config, products, categories }: GeneralSt
 
       {/* ── 3. STORE CATEGORIES ── */}
       {categories.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <section className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex items-end justify-between">
             <div>
               <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Shop By Category</h2>
@@ -138,7 +138,7 @@ export default function GeneralStore({ config, products, categories }: GeneralSt
       )}
 
       {/* ── 4. PRODUCTS LIST ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <section className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="flex items-end justify-between">
           <div>
             <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Featured Products</h2>

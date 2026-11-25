@@ -182,9 +182,14 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
     discountTotal = float(body.get("discountTotal", 0) or 0)
 
     # §10.21 — Server-side VAT calculation (replace client-submitted taxTotal)
+    client_tax = float(body.get("taxTotal") or body.get("taxAmount") or 0.0) if ("taxTotal" in body or "taxAmount" in body) else None
     tax_rule = await tax_engine.resolve_tax_rate(db, tenant, appliesTo="SALE")
     exclusive_tax_total = 0.0
-    if tax_rule and tax_rule["rate"] > 0:
+    if client_tax is not None and str(body.get("source", "")).upper() == "RESTAURANT":
+        # Respect restaurant POS cart calculations (with service charge, item tax rules & portions)
+        taxTotal = tax_engine.round_half_up(client_tax, 2)
+        exclusive_tax_total = taxTotal
+    elif tax_rule and tax_rule["rate"] > 0:
         tax_calc = tax_engine.calculate_tax(
             subtotal - discountTotal,
             tax_rule["rate"],
@@ -205,8 +210,13 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                 taxTotal += tc["taxAmount"]
                 if not tr["taxInclusive"]:
                     exclusive_tax_total += tc["taxAmount"]
-        taxTotal = round(taxTotal, 2)
-        exclusive_tax_total = round(exclusive_tax_total, 2)
+        taxTotal = tax_engine.round_half_up(taxTotal, 2)
+        exclusive_tax_total = tax_engine.round_half_up(exclusive_tax_total, 2)
+
+    # Fallback to client-submitted tax if DB had no explicit tax rules configured
+    if exclusive_tax_total == 0.0 and client_tax is not None and client_tax > 0:
+        taxTotal = tax_engine.round_half_up(client_tax, 2)
+        exclusive_tax_total = tax_engine.round_half_up(client_tax, 2)
 
     service = float(body.get("serviceCharge", 0) or 0)
     delivery = float(body.get("deliveryFee", 0) or 0)
@@ -305,17 +315,29 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
             # stock leaves FEFO — soonest-expiry batch first — and both the
             # batches and stock_batches mirrors stay in lock-step.
             b_rows = (await db.execute(text(
-                "SELECT id, batchNo, qty FROM batches WHERE tenantId=:t AND warehouseId=:w "
+                "SELECT id, batchNo, qty, expiryDate FROM batches WHERE tenantId=:t AND warehouseId=:w "
                 "AND productId=:p AND qty > 0 ORDER BY COALESCE(expiryDate, DATE_ADD(NOW(), INTERVAL 100 YEAR)), createdAt"),
                 {"t": tenant, "w": warehouseId, "p": it["productId"]})).fetchall()
             if b_rows:
+                # Batch Expiry Validation: Reject sales of expired stock
+                now_date = _dt.utcnow().date()
+                if it.get("batchNo"):
+                    matched_exp = [r for r in b_rows if r[1] == it.get("batchNo")]
+                    if matched_exp and matched_exp[0][3] and matched_exp[0][3] < now_date:
+                        return err(f"Batch '{it.get('batchNo')}' expired on {matched_exp[0][3]}. Expired items cannot be sold.", 400)
+                else:
+                    valid_batches = [r for r in b_rows if not (r[3] and r[3] < now_date)]
+                    if not valid_batches and any(r[3] and r[3] < now_date for r in b_rows):
+                        return err(f"Available batch for item '{it.get('name') or it.get('productId')}' has expired. Cannot sell expired inventory.", 400)
+                    b_rows = valid_batches or b_rows
+
                 need = qty
                 # honour an explicit register batch choice first
                 if it.get("batchNo"):
                     chosen = [r for r in b_rows if r[1] == it.get("batchNo")]
                     if chosen:
                         b_rows = chosen + [r for r in b_rows if r[1] != it.get("batchNo")]
-                for bid, _bno, bqty in b_rows:
+                for bid, _bno, bqty, _exp in b_rows:
                     if need <= 0:
                         break
                     take = min(need, float(bqty))
@@ -485,6 +507,18 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                 await db.commit()
         except Exception:
             pass  # receipts never break a confirmed sale
+
+    # RBAC & Audit Trail Logging (§10.21)
+    try:
+        import json as _json
+        await db.execute(text(
+            "INSERT INTO audit_logs (id, tenantId, userId, entityType, action, entityId, newValues, createdAt) "
+            "VALUES (UUID(), :t, :u, 'SALE', 'CONFIRMED', :sid, :data, NOW())"),
+            {"t": tenant, "u": user_id, "sid": saleId, "data": _json.dumps({"invoiceNo": invoiceNo, "total": total, "itemsCount": len(items)})})
+        await db.commit()
+    except Exception:
+        pass
+
     cache_mod.invalidate_namespace("products", tenant)
     return ok({"saleId": saleId, "invoiceNo": invoiceNo, "invoiceId": invoiceId,
                "total": total, "subtotal": subtotal, "taxTotal": taxTotal,
@@ -602,7 +636,8 @@ async def pos_sales(
     sort_direction = "ASC" if sortDir.lower() == "asc" else "DESC"
 
     rows = rows_to_dicts((await db.execute(text(
-        f"SELECT s.id, s.invoiceNo, s.subtotal, s.discountTotal, s.taxTotal, s.serviceCharge, s.total, s.paidTotal, s.dueTotal, s.status, s.createdAt, "
+        f"SELECT s.id, s.invoiceNo, s.source, s.note, s.subtotal, s.discountTotal, s.taxTotal, s.serviceCharge, s.total, s.paidTotal, s.dueTotal, s.status, s.createdAt, "
+        f"s.tenderedAmount AS saleTenderedAmount, s.changeAmount AS saleChangeAmount, "
         f"s.userId AS cashierId, u.name AS cashierName, "
         f"c.id AS customerId, c.name AS customerName, c.phone AS customerPhone, c.email AS customerEmail, c.loyaltyPoints AS customerPoints, "
         f"(SELECT method FROM payments WHERE saleId = s.id LIMIT 1) AS paymentMethod "
@@ -663,6 +698,20 @@ async def pos_sales(
             r["items"] = items_by_sale.get(r["id"], [])
             r["itemsCount"] = len(r["items"])
 
+            # Detect vertical & metadata (e.g. Table, Waiter) from note or source
+            note_str = str(r.get("note") or "")
+            src_str = str(r.get("source") or "")
+            if src_str.upper() == "RESTAURANT" or "Table:" in note_str:
+                r["vertical"] = "restaurant"
+                # Parse Table: T-XX
+                import re
+                t_match = re.search(r"Table:\s*([^|,\n]+)", note_str)
+                if t_match:
+                    r["tableNo"] = t_match.group(1).strip()
+                w_match = re.search(r"Waiter:\s*([^|,\n]+)", note_str)
+                if w_match:
+                    r["serverName"] = w_match.group(1).strip()
+
     return ok(rows, extra={"pagination": {"page": page, "limit": lim, "total": total, "totalPages": (total + lim - 1) // lim if lim else 1}})
 
 
@@ -713,7 +762,7 @@ async def pos_list_holds(tenantId: str = Depends(resolve_tenant), db: AsyncSessi
                          user: AuthUser = Depends(require_auth)):
     try:
         rows = rows_to_dicts((await db.execute(text(
-            "SELECT id, holdNo, cartSnapshot, note, createdAt FROM held_sales WHERE tenantId=:t ORDER BY createdAt DESC LIMIT 50"),
+            "SELECT id, holdNo, cartSnapshot, note, createdAt, customerId, branchId, terminalId FROM held_sales WHERE tenantId=:t ORDER BY createdAt DESC LIMIT 50"),
             {"t": tenantId})).fetchall())
         return ok(rows)
     except Exception:
@@ -912,7 +961,8 @@ async def shift_detail(shiftId: str, tenantId: str = Depends(resolve_tenant), db
     txns = rows_to_dicts((await db.execute(text(
         "SELECT * FROM shift_txns WHERE shiftId=:id ORDER BY createdAt"), {"id": shiftId})).fetchall())
     summary = await _shift_summary(tenantId, shiftId, db)
-    return ok({"shift": sh, "txns": txns, "summary": summary})
+    sh_dict = dict(sh._mapping) if hasattr(sh, "_mapping") else sh
+    return ok({"shift": sh_dict, "txns": txns, "summary": summary})
 
 
 @router.get("/api/v1/pos/stats/today")

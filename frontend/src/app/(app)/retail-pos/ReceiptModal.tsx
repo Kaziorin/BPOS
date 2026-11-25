@@ -1,10 +1,12 @@
 "use client";
 
-import { CheckCircle2, Printer, RotateCcw } from "lucide-react";
+import { CheckCircle2, Printer, RotateCcw, Cpu, DollarSign } from "lucide-react";
 import type { SaleResult } from "./pos-types";
 import { siteConfig } from "@/config/site";
 import { CustomButton } from "@/components/custom";
 import { getInvoiceSettings } from "@/lib/invoiceSettings";
+import { printDirectThermal, kickCashDrawerDirect } from "@/lib/escpos";
+import { toast } from "react-toastify";
 
 interface CartItem {
   id?: string;
@@ -70,7 +72,23 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
     ? passedTax
     : (result.total > subtotal ? result.total - subtotal : subtotal * 0.15);
   const vatAmount = Math.max(0, rawVat);
-  const vatRatePct = subtotal > 0 && vatAmount > 0 ? Math.round((vatAmount / subtotal) * 100) : 15;
+  const { vatLabel, isItemizedVat } = (() => {
+    if (!cart || cart.length === 0) {
+      const pct = subtotal > 0 && vatAmount > 0 ? Math.round((vatAmount / subtotal) * 100) : 15;
+      return { vatLabel: `VAT (Mushak 6.3 - ${pct}%)`, isItemizedVat: false };
+    }
+    const rates = cart
+      .map((i: any) => i.taxRate !== undefined && i.taxRate !== null && !isNaN(Number(i.taxRate)) ? Number(i.taxRate) : null)
+      .filter((r): r is number => r !== null);
+    
+    if (rates.length === cart.length && rates.length > 0) {
+      const allSame = rates.every((r) => r === rates[0]);
+      if (allSame) {
+        return { vatLabel: `VAT (Mushak 6.3 - ${rates[0]}%)`, isItemizedVat: false };
+      }
+    }
+    return { vatLabel: `VAT (Mushak 6.3 - Itemized)`, isItemizedVat: true };
+  })();
   const shippingAmount = Number(
     shipping ??
     (result as any).shipping ??
@@ -82,6 +100,46 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
 
   // Primary payment method text
   const primaryMethod = payments && payments.length > 0 ? payments[0].method.toUpperCase() : "CASH";
+
+  const handleDirectPrint = async () => {
+    const res = await printDirectThermal({
+      storeName: siteConfig.name || "Blue Oceans POS",
+      storeAddress: settings.address || "",
+      storePhone: settings.phone || "",
+      binNumber: settings.vatNumber || "",
+      invoiceNo: result.invoiceNo,
+      dateStr: currentDate,
+      cashierName,
+      customerName,
+      items: (cart || []).map((c) => ({
+        name: c.name,
+        qty: c.qty,
+        unitPrice: c.unitPrice,
+        lineTotal: c.lineTotal,
+      })),
+      subtotal,
+      vatAmount,
+      discountTotal: Number((result as any).discountTotal || 0),
+      netPayable,
+      paidAmount: Number((result as any).paidTotal || netPayable),
+      changeAmount: Number((result as any).changeAmount || 0),
+      paymentMethod: primaryMethod,
+      footerMessage,
+      autoKickDrawer: true,
+    });
+    if (res.success) {
+      toast.success("Printed to thermal hardware successfully!");
+    } else {
+      toast.warn(res.message || "Serial printer prompt cancelled. Use browser print.");
+      window.print();
+    }
+  };
+
+  const handleKickDrawer = async () => {
+    const kicked = await kickCashDrawerDirect();
+    if (kicked) toast.success("Cash drawer kicked!");
+    else toast.info("Drawer kick pulse sent.");
+  };
 
   const rawTendered = Number(
     (result as any).tenderedAmount ??
@@ -191,7 +249,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
             <span className="font-mono text-gray-600">৳{subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-gray-500">
-            <span>VAT (Mushak 6.3 - {vatRatePct}%):</span>
+            <span>{vatLabel}:</span>
             <span className="font-mono">৳{vatAmount.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-gray-500">
@@ -274,23 +332,46 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
       </div>
 
       {/* Modal Actions */}
-      <div className="flex w-full gap-2.5 mt-1">
-        <CustomButton
-          variant="outline"
-          onClick={() => window.print()}
-          className="flex-1 h-10 gap-1.5 border-brand-border bg-white text-xs font-bold text-gray-600 hover:bg-brand-50"
-        >
-          <Printer size={15} />
-          Print Thermal (80mm)
-        </CustomButton>
-        <CustomButton
-          themeColor="teal"
-          onClick={onNewSale}
-          className="flex-1 h-10 gap-1.5 text-xs font-bold"
-        >
-          <RotateCcw size={15} />
-          New Sale
-        </CustomButton>
+      <div className="flex flex-col w-full gap-2 mt-2">
+        <div className="flex w-full gap-2">
+          <CustomButton
+            variant="solid"
+            themeColor="primary"
+            onClick={handleDirectPrint}
+            className="flex-1 h-10 gap-1.5 text-xs font-bold"
+          >
+            <Cpu size={15} />
+            Direct ESC/POS
+          </CustomButton>
+          <CustomButton
+            variant="outline"
+            onClick={() => window.print()}
+            className="flex-1 h-10 gap-1.5 border-brand-border bg-white text-xs font-bold text-gray-700 hover:bg-brand-50"
+          >
+            <Printer size={15} />
+            Browser Print
+          </CustomButton>
+        </div>
+
+        <div className="flex w-full gap-2">
+          <CustomButton
+            variant="outline"
+            onClick={handleKickDrawer}
+            className="h-10 px-4 gap-1.5 border-amber-200 bg-amber-50 text-xs font-bold text-amber-800 hover:bg-amber-100"
+            title="Open Cash Drawer"
+          >
+            <DollarSign size={15} />
+            Drawer
+          </CustomButton>
+          <CustomButton
+            themeColor="teal"
+            onClick={onNewSale}
+            className="flex-1 h-10 gap-1.5 text-xs font-bold"
+          >
+            <RotateCcw size={15} />
+            New Sale (F1)
+          </CustomButton>
+        </div>
       </div>
     </div>
   );

@@ -14,15 +14,22 @@ import {
   FileText,
   ShieldCheck,
   Menu,
+  Sparkles,
+  Crown,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/cn";
 import { CommandPalette } from "./CommandPalette";
 import { PosTerminalModal } from "./PosTerminalModal";
+import {
+  checkRouteEntitlement,
+  getAccessiblePosTerminals,
+  getTenantEntitlementContext,
+} from "@/lib/pos-terminals";
 
 export function Header() {
-  const { user, logout } = useAuth();
+  const { user, subscription, logout } = useAuth();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -30,6 +37,13 @@ export function Header() {
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const desktopMenuRef = useRef<HTMLDivElement>(null);
   const Logo = siteConfig.logoIcon;
+  const entCtx = getTenantEntitlementContext(user, subscription);
+  const accessibleTerminals = getAccessiblePosTerminals(user, subscription);
+  const canAccessReports = checkRouteEntitlement("/reports", user, subscription).allowed;
+  const terminalBadge =
+    accessibleTerminals.length === 1
+      ? entCtx.businessType
+      : `${accessibleTerminals.length} Modes`;
 
   useEffect(() => {
     const handleOpenPalette = () => setPaletteOpen(true);
@@ -197,10 +211,14 @@ export function Header() {
                   <div className="flex-1 min-w-0">
                     <p className="truncate text-xs font-bold text-slate-800">{displayName}</p>
                     <p className="truncate text-[10.5px] text-brand-primary font-medium">{user?.email || ""}</p>
-                    <div className="mt-0.5">
+                    <div className="mt-0.5 flex flex-wrap items-center gap-1">
                       <span className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[9px] font-bold text-brand-primary border border-brand-border shadow-2xs">
                         <ShieldCheck size={10} className="mr-1 text-emerald-600" />
                         {displayRole}
+                      </span>
+                      <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-bold text-amber-700 border border-amber-200">
+                        <Crown size={9} className="mr-1 text-amber-600" />
+                        {entCtx.planName} • {entCtx.businessType}
                       </span>
                     </div>
                   </div>
@@ -224,12 +242,25 @@ export function Header() {
                   >
                     <div className="flex items-center gap-2">
                       <ShoppingCart size={14} className="text-brand-primary" />
-                      <span>All POS Terminals</span>
+                      <span>{accessibleTerminals.length === 1 ? "POS Terminal" : "All POS Terminals"}</span>
                     </div>
                     <span className="rounded-full bg-brand-50 border border-brand-border px-2 py-0.5 text-[9px] font-bold text-brand-primary">
-                      9 Modes
+                      {terminalBadge}
                     </span>
                   </button>
+                  <Link
+                    href="/settings?tab=subscription"
+                    onClick={() => setOpen(false)}
+                    className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Crown size={14} className="text-amber-500" />
+                      <span>My Subscription</span>
+                    </div>
+                    <span className="rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[9px] font-bold text-amber-700">
+                      {entCtx.planName}
+                    </span>
+                  </Link>
                   <Link
                     href="/settings"
                     onClick={() => setOpen(false)}
@@ -238,13 +269,23 @@ export function Header() {
                     <Settings size={14} className="text-brand-primary" />
                     Store Settings
                   </Link>
+                  {canAccessReports && (
+                    <Link
+                      href="/reports"
+                      onClick={() => setOpen(false)}
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition"
+                    >
+                      <FileText size={14} className="text-brand-primary" />
+                      Reports & Analytics
+                    </Link>
+                  )}
                   <Link
-                    href="/reports"
+                    href="/ai"
                     onClick={() => setOpen(false)}
                     className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition"
                   >
-                    <FileText size={14} className="text-brand-primary" />
-                    Reports & Analytics
+                    <Sparkles size={14} className="text-amber-500" />
+                    AI Copilot & Intelligence
                   </Link>
                 </div>
 
@@ -317,11 +358,24 @@ export function Header() {
 
           {/* Right: Quick POS Terminal Button + User Profile Pill */}
           <div className="flex items-center gap-3 shrink-0">
+            {/* Quick AI Copilot Button */}
+            <Link
+              href="/ai"
+              className="flex items-center gap-1.5 rounded-full bg-white/95 hover:bg-white text-slate-700 hover:text-sky-600 px-3.5 py-2 text-xs font-bold border border-brand-border/70 shadow-xs transition hover:shadow-md cursor-pointer shrink-0"
+              title="Open AI Business Copilot"
+            >
+              <Sparkles size={14} className="text-amber-500 fill-amber-400/30" />
+              <span>AI Copilot</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200">
+                AI
+              </span>
+            </Link>
+
             {/* Quick POS Terminal Action Button */}
             <button
               onClick={() => setPosModalOpen(true)}
               className="flex items-center gap-2 rounded-full bg-brand-gradient px-4.5 py-2 text-xs font-bold text-white shadow-brand-button transition hover:brightness-105 active:scale-95 cursor-pointer shrink-0 border border-white/25"
-              title="Access All POS Terminals"
+              title={accessibleTerminals.length === 1 ? accessibleTerminals[0].name : "Access POS Terminals"}
             >
               <ShoppingCart size={14} className="stroke-[2.5]" />
               <span>POS Terminal</span>
@@ -374,10 +428,14 @@ export function Header() {
                     <div className="flex-1 min-w-0">
                       <p className="truncate text-xs font-bold text-slate-800">{displayName}</p>
                       <p className="truncate text-[11px] text-brand-primary font-medium">{user?.email || ""}</p>
-                      <div className="mt-1 flex items-center gap-1.5">
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
                         <span className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[9.5px] font-bold text-brand-primary border border-brand-border shadow-2xs">
                           <ShieldCheck size={10} className="mr-1 text-emerald-600" />
                           {displayRole}
+                        </span>
+                        <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-[9.5px] font-bold text-amber-700 border border-amber-200">
+                          <Crown size={9} className="mr-1 text-amber-600" />
+                          {entCtx.planName} • {entCtx.businessType}
                         </span>
                       </div>
                     </div>
@@ -409,12 +467,26 @@ export function Header() {
                     >
                       <div className="flex items-center gap-2.5">
                         <ShoppingCart size={14} className="text-brand-primary" />
-                        <span>All POS Terminals</span>
+                        <span>{accessibleTerminals.length === 1 ? "POS Terminal" : "All POS Terminals"}</span>
                       </div>
                       <span className="rounded-full bg-brand-50 border border-brand-border px-2 py-0.5 text-[9px] font-bold text-brand-primary">
-                        9 Modes
+                        {terminalBadge}
                       </span>
                     </button>
+
+                    <Link
+                      href="/settings?tab=subscription"
+                      onClick={() => setOpen(false)}
+                      className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Crown size={14} className="text-amber-500" />
+                        <span>My Subscription</span>
+                      </div>
+                      <span className="rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[9px] font-bold text-amber-700">
+                        {entCtx.planName}
+                      </span>
+                    </Link>
 
                     <Link
                       href="/settings"
@@ -425,14 +497,16 @@ export function Header() {
                       Store Settings
                     </Link>
 
-                    <Link
-                      href="/reports"
-                      onClick={() => setOpen(false)}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition"
-                    >
-                      <FileText size={14} className="text-brand-primary" />
-                      Reports & Analytics
-                    </Link>
+                    {canAccessReports && (
+                      <Link
+                        href="/reports"
+                        onClick={() => setOpen(false)}
+                        className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-primary transition"
+                      >
+                        <FileText size={14} className="text-brand-primary" />
+                        Reports & Analytics
+                      </Link>
+                    )}
 
                     <button
                       onClick={() => {

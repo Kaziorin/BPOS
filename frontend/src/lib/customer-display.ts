@@ -231,3 +231,118 @@ export function subscribeRestaurantCart(cb: (cart: DisplayCart) => void): () => 
   };
 }
 
+export function fmtDisplayMoney(n: number): string {
+  const value = Number.isFinite(Number(n)) ? Number(n) : 0;
+  return `৳${value.toLocaleString("en-BD", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+export function playDisplayScanSound(freq = 1046.5): void {
+  if (typeof window === "undefined") return;
+  try {
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.11);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.11);
+  } catch {
+    /* audio unavailable */
+  }
+}
+
+export function playDisplaySuccessChime(): void {
+  if (typeof window === "undefined") return;
+  try {
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+    [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, now + i * 0.08);
+      gain.gain.setValueAtTime(0.18, now + i * 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.28);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + i * 0.08);
+      osc.stop(now + i * 0.08 + 0.28);
+    });
+  } catch {
+    /* audio unavailable */
+  }
+}
+
+export function buildQrSvg(payload: string, size = 140, dark = "#1e293b"): string {
+  let seed = 0;
+  for (const ch of payload) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+  const n = 21;
+  const cells: boolean[][] = [];
+  for (let y = 0; y < n; y++) {
+    const row: boolean[] = [];
+    for (let x = 0; x < n; x++) {
+      seed = (seed * 1103515245 + 12345) >>> 0;
+      const f = (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7);
+      if (f) {
+        const b =
+          x === 0 ||
+          x === 6 ||
+          y === 0 ||
+          y === 6 ||
+          (x >= n - 7 && (x === n - 7 || x === n - 1)) ||
+          (y >= n - 7 && (y === n - 7 || y === n - 1));
+        const c =
+          (x >= 2 && x <= 4 && y >= 2 && y <= 4) ||
+          (x >= n - 5 && x <= n - 3 && y >= 2 && y <= 4) ||
+          (x >= 2 && x <= 4 && y >= n - 5 && y <= n - 3);
+        row.push(b || c);
+      } else {
+        row.push((seed & 1) === 1);
+      }
+    }
+    cells.push(row);
+  }
+  const cell = size / n;
+  const rects = cells
+    .flatMap((row, y) =>
+      row.map((on, x) =>
+        on
+          ? `<rect x="${(x * cell).toFixed(1)}" y="${(y * cell).toFixed(1)}" width="${cell.toFixed(1)}" height="${cell.toFixed(1)}" rx="1.5"/>`
+          : ""
+      )
+    )
+    .join("");
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" fill="#ffffff" rx="12"/><g fill="${dark}">${rects}</g></svg>`;
+}
+
+export function formatDisplayClock(t: Date): { hh: string; mm: string; ss: string; ap: string; day: string } {
+  const hh = String(t.getHours() % 12 || 12).padStart(2, "0");
+  const mm = String(t.getMinutes()).padStart(2, "0");
+  const ss = String(t.getSeconds()).padStart(2, "0");
+  const ap = t.getHours() >= 12 ? "pm" : "am";
+  const day = t
+    .toLocaleDateString("en-BD", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+    .toUpperCase();
+  return { hh, mm, ss, ap, day };
+}
+

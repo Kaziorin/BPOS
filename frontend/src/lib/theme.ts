@@ -213,11 +213,11 @@ export const VERTICAL_THEMES: Record<VerticalThemeId, VerticalThemeConfig> = {
   retail: {
     id: "retail",
     name: "Retail & Apparel",
-    primaryHex: "#3b82f6", // Royal Blue
-    accentHex: "#8b5cf6",
-    badgeBg: "bg-blue-500/10 border-blue-500/30",
-    badgeText: "text-blue-400",
-    description: "Modern retail blue theme with variant matrix & checkout kiosk.",
+    primaryHex: "#7c3aed", // Vibrant Violet / Purple
+    accentHex: "#a78bfa",
+    badgeBg: "bg-violet-500/10 border-violet-500/30",
+    badgeText: "text-violet-500",
+    description: "Modern retail violet theme with variant matrix & checkout kiosk.",
   },
   wholesale: {
     id: "wholesale",

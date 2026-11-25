@@ -39,31 +39,31 @@ export default function TestimonialsSection({ section, isDarkMode = false }: Tes
   const reviews = settings.reviews || defaultReviews;
 
   return (
-    <section className={`py-12 px-4 sm:px-6 lg:px-8 transition-colors ${isDarkMode ? "bg-zinc-950 text-white" : "bg-slate-50 text-slate-900"}`}>
-      <div className="max-w-7xl mx-auto space-y-8">
+    <section className={`py-10 sm:py-14 px-4 sm:px-6 md:px-8 xl:px-12 transition-colors ${isDarkMode ? "bg-zinc-950 text-white" : "bg-slate-50 text-slate-900"}`}>
+      <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto space-y-8">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2">
           {badge && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20">
-              <Star className="w-3 h-3 fill-amber-500" />
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-semibold tracking-wide uppercase bg-slate-100 text-slate-700 dark:bg-zinc-800 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
+              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
               <span>{badge}</span>
             </span>
           )}
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight">{title}</h2>
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{title}</h2>
           {subtitle && (
-            <p className={`text-sm ${isDarkMode ? "text-zinc-400" : "text-slate-600"}`}>{subtitle}</p>
+            <p className={`text-xs sm:text-sm ${isDarkMode ? "text-zinc-400" : "text-slate-500"}`}>{subtitle}</p>
           )}
         </div>
 
         {/* Reviews Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {reviews.map((rev: any, idx: number) => (
             <div
               key={idx}
-              className={`p-6 rounded-3xl border transition-all duration-300 relative hover:-translate-y-1 shadow-sm hover:shadow-xl ${
+              className={`p-5 sm:p-6 rounded-2xl border transition-all duration-200 relative shadow-2xs hover:shadow-md ${
                 isDarkMode
-                  ? "bg-zinc-900/70 border-zinc-800 hover:border-amber-500/40 text-white"
-                  : "bg-white border-slate-200/80 hover:border-sky-400 text-slate-800"
+                  ? "bg-zinc-900 border-zinc-800 text-white"
+                  : "bg-white border-slate-200 text-slate-800"
               }`}
             >
               <Quote className="w-8 h-8 text-sky-500/20 dark:text-amber-400/20 absolute top-5 right-5" />

@@ -39,6 +39,8 @@ def encode(o: Any) -> Any:
         return str(o)
     if isinstance(o, bytes):
         return o.decode()
+    if hasattr(o, "_mapping"):
+        return {k: encode_if_needed(v) for k, v in o._mapping.items()}
     raise TypeError(f"not JSON serializable: {type(o)}")
 
 
