@@ -484,103 +484,74 @@ function SaaSContent() {
         }
       />
 
-      {/* ── Hero Executive Glow Banner ── */}
-      <div className="relative overflow-hidden rounded-sm bg-linear-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/20 text-white p-6 sm:p-8 shadow-xl">
-        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 -mb-8 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-                <Sparkles size={13} className="text-indigo-400" /> Platform Infrastructure v2.4
-              </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                <Server size={13} /> 99.99% Uptime SLA
-              </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                <Zap size={13} /> Multi-Tenant Active
-              </span>
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2.5">
-              <span>Cloud Enterprise Platform Core</span>
-              <span className="text-xs font-bold px-2.5 py-1 rounded-sm bg-white/10 text-slate-300 border border-white/10 font-mono">
-                SaaS Control Plane
-              </span>
-            </h1>
-
-            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              Global tenant management, tier pricing plans, dynamic feature toggles, custom entity schemas,
-              infrastructure diagnostic latency checks, and customer support queues.
-            </p>
+      {/* ── Executive Clean Light Theme Metrics (Blue Oceans Theme) ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="p-4 rounded-sm bg-white border border-slate-200/90 shadow-2xs space-y-1">
+          <div className="flex items-center justify-between text-slate-500">
+            <span className="text-[10px] font-bold uppercase tracking-wider">Total Tenants</span>
+            <Building2 size={15} className="text-sky-600" />
           </div>
-
-          {/* Banner Metric Gauges */}
-          <div className="flex flex-wrap sm:flex-nowrap gap-3 shrink-0">
-            <div className="px-4 py-3 rounded-sm bg-white/5 border border-white/10 backdrop-blur-md min-w-[130px]">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Tenants</span>
-              <div className="text-lg font-black text-white mt-0.5">
-                {overview?.totalTenants ?? platformTenants.length ?? 0}
-              </div>
-              <span className="text-[10px] text-emerald-400 font-medium">
-                {overview?.activeTenants ?? platformTenants.filter((x: any) => x.status === "ACTIVE").length} Active
-              </span>
-            </div>
-
-            <div className="px-4 py-3 rounded-sm bg-white/5 border border-white/10 backdrop-blur-md min-w-[130px]">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Platform Users</span>
-              <div className="text-lg font-black text-indigo-300 mt-0.5">
-                {overview?.totalUsers ?? 48}
-              </div>
-              <span className="text-[10px] text-slate-400 font-medium">Across Outlets</span>
-            </div>
-
-            <div className="px-4 py-3 rounded-sm bg-white/5 border border-white/10 backdrop-blur-md min-w-[140px]">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Monthly MRR</span>
-              <div className="text-lg font-black text-amber-300 mt-0.5">
-                {currency(overview?.monthlySubscriptionRevenue || 148500)}
-              </div>
-              <span className="text-[10px] text-slate-400 font-medium">Recurring</span>
-            </div>
+          <div className="text-2xl font-black text-slate-800 tabular-nums">
+            {overview?.totalTenants ?? platformTenants.length ?? 0}
           </div>
+          <p className="text-[11px] font-semibold text-emerald-600">
+            {overview?.activeTenants ?? platformTenants.filter((x: any) => x.status === "ACTIVE").length} Active Stores
+          </p>
+        </div>
+
+        <div className="p-4 rounded-sm bg-white border border-slate-200/90 shadow-2xs space-y-1">
+          <div className="flex items-center justify-between text-slate-500">
+            <span className="text-[10px] font-bold uppercase tracking-wider">Platform Users</span>
+            <Users size={15} className="text-indigo-600" />
+          </div>
+          <div className="text-2xl font-black text-slate-800 tabular-nums">
+            {overview?.totalUsers ?? 48}
+          </div>
+          <p className="text-[11px] text-slate-500">Across All Outlets</p>
+        </div>
+
+        <div className="p-4 rounded-sm bg-white border border-slate-200/90 shadow-2xs space-y-1">
+          <div className="flex items-center justify-between text-slate-500">
+            <span className="text-[10px] font-bold uppercase tracking-wider">Monthly MRR</span>
+            <CreditCard size={15} className="text-emerald-600" />
+          </div>
+          <div className="text-2xl font-black text-slate-800 tabular-nums">
+            {currency(overview?.monthlySubscriptionRevenue || 148500)}
+          </div>
+          <p className="text-[11px] text-slate-500">Subscription Invoiced</p>
+        </div>
+
+        <div className="p-4 rounded-sm bg-white border border-slate-200/90 shadow-2xs space-y-1">
+          <div className="flex items-center justify-between text-slate-500">
+            <span className="text-[10px] font-bold uppercase tracking-wider">Pending Trials</span>
+            <Clock size={15} className="text-amber-600" />
+          </div>
+          <div className="text-2xl font-black text-slate-800 tabular-nums">
+            {trialRequests.length}
+          </div>
+          <p className="text-[11px] text-amber-700 font-semibold">
+            {trialRequests.length > 0 ? "Awaiting Admin Review" : "All Processed"}
+          </p>
         </div>
       </div>
 
-      {/* ── Segmented Master Tabs Navigation Bar ── */}
-      <div className="bg-white rounded-sm border border-slate-200 p-2 shadow-sm">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
-          {TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isAct = activeTab === tab.id;
-
-            return (
-              <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id)}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-2.5 rounded-sm text-xs font-bold transition whitespace-nowrap shrink-0",
-                  isAct
-                    ? "bg-brand-gradient text-white shadow-2xs shadow-md shadow-sm"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-gray-600"
-                )}
-              >
-                <Icon size={15} className={isAct ? "text-white" : "text-slate-400"} />
-                <span>{tab.label}</span>
-                {tab.badge && (
-                  <span
-                    className={cn(
-                      "text-[9px] px-1.5 py-0.5 rounded-sm font-bold",
-                      isAct ? "bg-white/20 text-white" : "bg-primary-50 text-primary-700"
-                    )}
-                  >
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+      {/* ── Active Section Header Banner ── */}
+      <div className="bg-white border border-slate-200/90 rounded-sm px-5 py-3.5 shadow-2xs flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-sm bg-sky-50 text-sky-700 border border-sky-100 flex items-center justify-center shrink-0">
+            <CurrentIcon size={16} />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-slate-900">{CurrentTabDef.label}</h2>
+            <p className="text-[11px] text-slate-500">
+              Manage and configure {CurrentTabDef.label.toLowerCase()} across your multi-tenant POS platform.
+            </p>
+          </div>
         </div>
+
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 uppercase font-mono">
+          {activeTab}
+        </span>
       </div>
 
       {/* ── Master Tab Content Area ── */}

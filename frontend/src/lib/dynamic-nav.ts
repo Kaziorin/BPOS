@@ -772,13 +772,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         requiredPlan: "ENTERPRISE",
       },
       {
-        label: "Platform & SaaS Management",
-        href: "/saas",
-        icon: Shield,
-        badge: "SaaS",
-        requiredPlan: "ENTERPRISE",
-      },
-      {
         label: "Onboarding Wizard",
         href: "/onboarding",
         icon: Sparkles,
@@ -788,6 +781,62 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         href: "/system/performance",
         icon: Cpu,
         requiredPlan: "ENTERPRISE",
+      },
+    ],
+  },
+  {
+    title: "SaaS & Platform Core",
+    items: [
+      {
+        label: "Platform Overview",
+        href: "/saas?tab=overview",
+        icon: LayoutDashboard,
+      },
+      {
+        label: "Trial Requests & Approvals",
+        href: "/saas?tab=trials",
+        icon: Clock,
+        badge: "Admin",
+      },
+      {
+        label: "Pricing Plans & Tiers",
+        href: "/saas?tab=plans",
+        icon: Sparkles,
+      },
+      {
+        label: "Tenant Subscriptions",
+        href: "/saas?tab=subscription",
+        icon: CreditCard,
+      },
+      {
+        label: "Resource Quotas & Limits",
+        href: "/saas?tab=usage",
+        icon: BarChart3,
+      },
+      {
+        label: "Feature Flags",
+        href: "/saas?tab=features",
+        icon: Zap,
+      },
+      {
+        label: "Custom Field Schemas",
+        href: "/saas?tab=fields",
+        icon: Layers,
+      },
+      {
+        label: "Form Templates",
+        href: "/saas?tab=forms",
+        icon: FileText,
+      },
+      {
+        label: "System Diagnostics",
+        href: "/saas?tab=health",
+        icon: Activity,
+      },
+      {
+        label: "Support & Escalations",
+        href: "/saas?tab=tickets",
+        icon: Shield,
       },
     ],
   },

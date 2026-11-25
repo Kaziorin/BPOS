@@ -108,7 +108,7 @@ export function Sidebar() {
     lockReason?: string;
   } | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
-    return new Set(["Overview", "Point of Sale (POS)"]);
+    return new Set(["Overview", "Point of Sale (POS)", "SaaS & Platform Core"]);
   });
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());

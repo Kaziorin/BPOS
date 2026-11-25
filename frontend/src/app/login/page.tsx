@@ -211,7 +211,7 @@ export default function LoginPage() {
             <div className="text-center pt-2">
               <span className="text-xs text-slate-500">Need a new store? </span>
               <Link href="/register" className="text-xs font-bold text-sky-600 hover:text-sky-800 hover:underline">
-                Start 14-Day Free Trial
+                Create & Activate Store
               </Link>
             </div>
           </div>
