@@ -74,20 +74,21 @@ async def get_subscription(
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
-    row = (await db.execute(text(
-        "SELECT s.*, p.name AS planName, p.code AS planCode, "
-        "p.maxUsers, p.maxBranches, p.maxWarehouses, p.maxPOS, p.maxProducts, "
-        "p.maxStorageMB, p.maxAPICallsDaily, p.maxAIQueriesDaily, p.includedModules "
-        "FROM saas_subscriptions s JOIN saas_plans p ON p.id=s.planId "
-        "WHERE s.tenantId=:t ORDER BY s.createdAt DESC LIMIT 1"), {"t": tenantId})).first()
-    if not row:
-        return ok(None)
-    data = dict(row._mapping) if hasattr(row, '_mapping') else {}
-    for col in ("includedModules",):
-        if isinstance(data.get(col), str):
-            try: data[col] = json.loads(data[col])
-            except: pass
-    return ok(data)
+    from app.api.v1.saas.entitlements import get_tenant_subscription_payload
+
+    data = await get_tenant_subscription_payload(db, tenantId, user.businessType or "RETAIL")
+    limits = data.get("limits") or {}
+    return ok({
+        **data,
+        "maxUsers": limits.get("maxUsers"),
+        "maxBranches": limits.get("maxBranches"),
+        "maxWarehouses": limits.get("maxWarehouses"),
+        "maxPOS": limits.get("maxPOS"),
+        "maxProducts": limits.get("maxProducts"),
+        "maxStorageMB": limits.get("maxStorageMB"),
+        "maxAPICallsDaily": limits.get("maxAPICallsDaily"),
+        "maxAIQueriesDaily": limits.get("maxAIQueriesDaily"),
+    })
 
 
 @router.post("/api/v1/saas/subscription")
@@ -124,6 +125,13 @@ async def create_subscription(
         "VALUES (:id, :t, :s, :a, 'PENDING', :bp)"),
         {"id": invoice_id, "t": tenantId, "s": sub_id,
          "a": float(plan[5] if isinstance(plan, tuple) else 0), "bp": cycle})
+    # Sync tenant modules to the newly selected plan
+    from app.api.v1.saas.entitlements import sync_tenant_modules
+
+    t_row = (await db.execute(text("SELECT businessType FROM tenants WHERE id=:t"), {"t": tenantId})).first()
+    plan_code = plan.code if hasattr(plan, "code") else "STARTER"
+    await sync_tenant_modules(db, tenantId, (t_row[0] if t_row and t_row[0] else "RETAIL"), plan_code)
+
     await db.commit()
     return ok({"id": sub_id, "status": "TRIAL", "trialEndsAt": str(now + timedelta(days=trial_days))}, 201)
 
@@ -154,6 +162,15 @@ async def update_subscription(
 
     await db.execute(text(
         f"UPDATE saas_subscriptions SET {', '.join(fields)} WHERE tenantId=:t ORDER BY createdAt DESC LIMIT 1"), params)
+
+    if "planId" in body:
+        from app.api.v1.saas.entitlements import sync_tenant_modules
+
+        plan_row = (await db.execute(text("SELECT code FROM saas_plans WHERE id=:id"), {"id": body["planId"]})).first()
+        t_row = (await db.execute(text("SELECT businessType FROM tenants WHERE id=:t"), {"t": tenantId})).first()
+        if plan_row:
+            await sync_tenant_modules(db, tenantId, (t_row[0] if t_row and t_row[0] else "RETAIL"), plan_row[0])
+
     await db.commit()
     return ok({"updated": True})
 
@@ -1030,7 +1047,18 @@ async def provision_new_tenant(
     db: AsyncSession = Depends(get_db),
 ):
     """Provisions a brand new isolated tenant/store from the onboarding wizard."""
+    from app.api.v1.saas.entitlements import (
+        get_tenant_subscription_payload,
+        normalize_plan_code,
+        sync_tenant_modules,
+    )
+
     business_type = (body.get("businessType") or "RETAIL").strip().upper()
+    plan_code = normalize_plan_code(body.get("planCode"))
+    billing_cycle = (body.get("billingCycle") or "MONTHLY").strip().upper()
+    if billing_cycle not in ("MONTHLY", "YEARLY"):
+        billing_cycle = "MONTHLY"
+    selected_addons = [str(a).strip().lower() for a in (body.get("selectedAddons") or []) if a]
     company = body.get("company") or {}
     branch = body.get("branch") or {}
     warehouse = body.get("warehouse") or {}
@@ -1129,13 +1157,28 @@ async def provision_new_tenant(
             "e": owner_email, "p": phone, "ph": hash_password(owner_password), "r": owner_role_id
         })
 
-        # 8. Enable SaaS Modules
-        mods = (await db.execute(text("SELECT id FROM modules"))).fetchall()
-        for m in mods:
+        # 8. Create Subscription Record (default STARTER unless chosen otherwise)
+        plan_row = (await db.execute(
+            text("SELECT id FROM saas_plans WHERE code = :c LIMIT 1"), {"c": plan_code}
+        )).first()
+        if not plan_row:
+            plan_row = (await db.execute(
+                text("SELECT id FROM saas_plans WHERE code = 'STARTER' LIMIT 1")
+            )).first()
+        if plan_row:
+            sub_id = str(uuid.uuid4())
+            period_days = 365 if billing_cycle == "YEARLY" else 30
             await db.execute(text("""
-                INSERT INTO tenant_modules (id, tenantId, moduleId, isEnabled, createdAt)
-                VALUES (UUID(), :t, :m, 1, NOW())
-            """), {"t": tenant_id, "m": m[0]})
+                INSERT INTO saas_subscriptions
+                    (id, tenantId, planId, billingCycle, status, trialEndsAt, currentPeriodStart, currentPeriodEnd, createdAt, updatedAt)
+                VALUES
+                    (:id, :t, :p, :bc, 'ACTIVE', NULL, NOW(), DATE_ADD(NOW(), INTERVAL :days DAY), NOW(), NOW())
+            """), {"id": sub_id, "t": tenant_id, "p": plan_row[0], "bc": billing_cycle, "days": period_days})
+
+        # 9. Sync Tenant Modules strictly to Business Type, Plan Tier, and Add-ons
+        await sync_tenant_modules(db, tenant_id, business_type, plan_code, selected_addons)
+
+    subscription_payload = await get_tenant_subscription_payload(db, tenant_id, business_type)
 
     token = sign_token({
         "id": user_id,
@@ -1161,7 +1204,9 @@ async def provision_new_tenant(
             "name": owner_name,
             "email": owner_email,
             "role": "Owner",
+            "businessType": business_type,
         },
+        "subscription": subscription_payload,
         "token": token,
     }, 201)
 
@@ -1172,11 +1217,15 @@ async def onboarding_business_type(
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
+    from app.api.v1.saas.entitlements import get_tenant_subscription_payload, sync_tenant_modules
+
     btype = (body.get("businessType") or "RETAIL").upper()
     await db.execute(
         text("UPDATE tenants SET businessType = :bt, updatedAt = NOW() WHERE id = :t"),
         {"bt": btype, "t": tenantId},
     )
+    cur_sub = await get_tenant_subscription_payload(db, tenantId, btype)
+    await sync_tenant_modules(db, tenantId, btype, cur_sub.get("planCode", "STARTER"))
     await db.commit()
     return ok({
         "businessType": btype,

@@ -834,10 +834,13 @@ function SaaSContent() {
                   <div className="space-y-6">
                     <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-sm bg-linear-to-r from-slate-900 via-indigo-950 to-slate-900 text-white">
                       <div>
-                        <span className="text-[10px] font-bold text-primary-400 uppercase tracking-widest">Active Plan</span>
-                        <h3 className="text-2xl font-black">{subscription.planName || "Enterprise Pro Plan"}</h3>
+                        <span className="text-[10px] font-bold text-primary-400 uppercase tracking-widest">
+                          Active Plan ({subscription.planCode || "STARTER"})
+                        </span>
+                        <h3 className="text-2xl font-black">{subscription.planName || "Starter"} Plan</h3>
                         <p className="text-slate-300 text-xs mt-0.5">
-                          Billing Cycle: <strong className="text-white">{subscription.billingCycle}</strong>
+                          Billing Cycle: <strong className="text-white">{subscription.billingCycle || "MONTHLY"}</strong>
+                          {subscription.businessType ? ` • Vertical: ${subscription.businessType}` : ""}
                         </p>
                       </div>
 
@@ -888,7 +891,8 @@ function SaaSContent() {
                       <button
                         type="button"
                         onClick={() => {
-                          setSslModalAmount(2999);
+                          const amt = Number(subscription.monthlyPrice || 990);
+                          setSslModalAmount(amt > 0 ? amt : 990);
                           setShowSslModal(true);
                         }}
                         className="px-4 py-2 rounded-lg bg-[#e92929] hover:bg-[#d42020] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition"

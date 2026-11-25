@@ -51,30 +51,11 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
             "businessType": row.businessType or "",
         }
     )
-    # Fetch subscription & enabled modules for the tenant
-    sub_row = (await db.execute(text("""
-        SELECT s.id, s.status, s.trialEndsAt, p.code as planCode, p.name as planName
-        FROM saas_subscriptions s
-        JOIN saas_plans p ON p.id = s.planId
-        WHERE s.tenantId = :t
-        ORDER BY s.createdAt DESC LIMIT 1
-    """), {"t": row.tenantId})).first()
+    # Fetch unified subscription & enabled modules for the tenant
+    from app.api.v1.saas.entitlements import get_tenant_subscription_payload
 
-    mod_rows = (await db.execute(text("""
-        SELECT m.code
-        FROM tenant_modules tm
-        JOIN modules m ON m.id = tm.moduleId
-        WHERE tm.tenantId = :t AND tm.isEnabled = 1
-    """), {"t": row.tenantId})).fetchall()
-    enabled_mods = [m[0].lower() for m in mod_rows] if mod_rows else []
-
-    sub_data = {
-        "planCode": sub_row.planCode if sub_row else "STARTER",
-        "planName": sub_row.planName if sub_row else "Starter",
-        "status": sub_row.status if sub_row else "ACTIVE",
-        "trialEndsAt": str(sub_row.trialEndsAt) if sub_row and sub_row.trialEndsAt else None,
-        "enabledModules": enabled_mods,
-    }
+    sub_data = await get_tenant_subscription_payload(db, row.tenantId, row.businessType or "RETAIL")
+    bt = sub_data.get("businessType") or row.businessType or "RETAIL"
 
     return ApiJSONResponse(
         {
@@ -88,13 +69,13 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
                 "roleId": row.roleId,
                 "role": role_name,
                 "roleName": role_name,
-                "businessType": row.businessType or "RETAIL",
+                "businessType": bt,
             },
             "tenant": {
                 "id": row.tenantId,
                 "slug": row.tenantSlug or "default",
                 "name": row.tenantName or "Default Store",
-                "businessType": row.businessType or "RETAIL",
+                "businessType": bt,
             },
             "subscription": sub_data,
         }
@@ -104,31 +85,11 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
 @router.get("/api/auth/me")
 @router.get("/api/v1/auth/me")
 async def get_me(user: AuthUser = Depends(require_auth), db: AsyncSession = Depends(get_db)):
+    from app.api.v1.saas.entitlements import get_tenant_subscription_payload
+
     role = user.roleName or user.role or ""
-
-    sub_row = (await db.execute(text("""
-        SELECT s.id, s.status, s.trialEndsAt, p.code as planCode, p.name as planName
-        FROM saas_subscriptions s
-        JOIN saas_plans p ON p.id = s.planId
-        WHERE s.tenantId = :t
-        ORDER BY s.createdAt DESC LIMIT 1
-    """), {"t": user.tenantId})).first()
-
-    mod_rows = (await db.execute(text("""
-        SELECT m.code
-        FROM tenant_modules tm
-        JOIN modules m ON m.id = tm.moduleId
-        WHERE tm.tenantId = :t AND tm.isEnabled = 1
-    """), {"t": user.tenantId})).fetchall()
-    enabled_mods = [m[0].lower() for m in mod_rows] if mod_rows else []
-
-    sub_data = {
-        "planCode": sub_row.planCode if sub_row else "STARTER",
-        "planName": sub_row.planName if sub_row else "Starter",
-        "status": sub_row.status if sub_row else "ACTIVE",
-        "trialEndsAt": str(sub_row.trialEndsAt) if sub_row and sub_row.trialEndsAt else None,
-        "enabledModules": enabled_mods,
-    }
+    sub_data = await get_tenant_subscription_payload(db, user.tenantId, user.businessType or "RETAIL")
+    bt = sub_data.get("businessType") or user.businessType or "RETAIL"
 
     return ok({
         "user": {
@@ -139,7 +100,7 @@ async def get_me(user: AuthUser = Depends(require_auth), db: AsyncSession = Depe
             "branchId": user.branchId,
             "role": role,
             "roleName": role,
-            "businessType": user.businessType,
+            "businessType": bt,
         },
         "subscription": sub_data,
     })
@@ -263,40 +224,13 @@ async def register(body: dict, db: AsyncSession = Depends(get_db)):
             """), {"id": inv_id, "t": tenant_id, "s": sub_id, "a": float(payment_details.get("amount") or 0)})
 
         # 7. Configure Tenant Modules based on Plan & Selected Add-ons
-        starter_mods = {'dashboard', 'pos', 'sales', 'products', 'inventory', 'cashregister', 'customers', 'invoices', 'payments', 'settings', business_type.lower()}
-        advance_mods = starter_mods | {'accounting', 'vat', 'purchasing', 'suppliers', 'credit', 'installments', 'returns', 'promotions', 'commission', 'targets', 'expenses', 'reports', 'delivery', 'appointments'}
+        from app.api.v1.saas.entitlements import sync_tenant_modules, get_tenant_subscription_payload
 
-        if plan_code in ('BUSINESS', 'ADVANCE'):
-            enabled_set = set(advance_mods)
-        elif plan_code == 'ENTERPRISE':
-            all_m_codes = {m[1].lower() for m in (await db.execute(text("SELECT id, code FROM modules"))).fetchall()}
-            enabled_set = set(all_m_codes)
-        else:
-            enabled_set = set(starter_mods)
+        enabled_set = await sync_tenant_modules(
+            db, tenant_id, business_type, plan_code, selected_addons
+        )
 
-        # Include selected add-ons with smart module mapping
-        for a in selected_addons:
-            a_low = str(a).lower()
-            enabled_set.add(a_low)
-            if any(k in a_low for k in ('restaurant', 'kds', 'kitchen', 'table', 'qr_menu')):
-                enabled_set.add('restaurant')
-            if 'ecommerce' in a_low:
-                enabled_set.add('ecommerce')
-            if any(k in a_low for k in ('pharmacy', 'prescription', 'rx')):
-                enabled_set.add('pharmacy')
-            if any(k in a_low for k in ('loyalty', 'cashback')):
-                enabled_set.add('loyalty')
-            if 'hardware' in a_low or 'barcode' in a_low:
-                enabled_set.add('inventory')
-
-        mods = (await db.execute(text("SELECT id, code FROM modules"))).fetchall()
-        for m in mods:
-            m_code = m[1].lower()
-            is_en = 1 if (m_code in enabled_set or plan_code == 'ENTERPRISE') else 0
-            await db.execute(text("""
-                INSERT INTO tenant_modules (id, tenantId, moduleId, isEnabled, createdAt)
-                VALUES (UUID(), :t, :m, :en, NOW())
-            """), {"t": tenant_id, "m": m[0], "en": is_en})
+    sub_payload = await get_tenant_subscription_payload(db, tenant_id, business_type)
 
     token = sign_token({
         "id": user_id,
@@ -328,13 +262,7 @@ async def register(body: dict, db: AsyncSession = Depends(get_db)):
             "name": business_name,
             "businessType": business_type,
         },
-        "subscription": {
-            "planCode": plan_row.code if plan_row else "STARTER",
-            "planName": plan_row.name if plan_row else "Starter",
-            "status": sub_status,
-            "trialEndsAt": str(trial_ends) if trial_ends else None,
-            "enabledModules": list(enabled_set),
-        }
+        "subscription": sub_payload,
     }, 201)
 
 
@@ -512,6 +440,12 @@ async def update_tenant(
         if updates:
             sql = f"UPDATE tenants SET {', '.join(updates)}, updatedAt = NOW() WHERE id = :t"
             await db.execute(text(sql), params)
+
+        if mapped_bt:
+            from app.api.v1.saas.entitlements import get_tenant_subscription_payload, sync_tenant_modules
+
+            cur_sub = await get_tenant_subscription_payload(db, tenantId, mapped_bt)
+            await sync_tenant_modules(db, tenantId, mapped_bt, cur_sub.get("planCode", "STARTER"))
 
         # Update company
         comp = (await db.execute(text("SELECT id FROM companies WHERE tenantId = :t LIMIT 1"), {"t": tenantId})).first()

@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
+import { useAuth } from "./auth";
+import {
+  getAccessiblePosTerminals,
+  getTenantEntitlementContext,
+  PLAN_TIER_RANK,
+} from "./pos-terminals";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -308,7 +314,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
           { label: "Pharmacy Rx POS", href: "/pharmacy/pos", icon: Pill, requiredAddon: "pharmacy" },
           { label: "Restaurant & Cafe POS", href: "/restaurant/pos", icon: UtensilsCrossed, requiredAddon: "restaurant" },
           { label: "Bakery & Confectionery POS", href: "/bakery/pos", icon: Croissant, requiredAddon: "bakery" },
-          { label: "Grocery & Supermarket POS", href: "/grocery/pos", icon: ShoppingBag },
+          { label: "Grocery & Supermarket POS", href: "/grocery/pos", icon: ShoppingBag, requiredAddon: "grocery" },
           { label: "Repair & Service POS", href: "/repair/pos", icon: Wrench, requiredAddon: "repair" },
           { label: "Salon & Spa POS", href: "/salon/pos", icon: Scissors, requiredAddon: "salon" },
           { label: "Franchise & Outlet POS", href: "/franchise/pos", icon: Building2, requiredPlan: "ENTERPRISE" },
@@ -610,6 +616,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Retail & Superstore",
         href: "/retail",
         icon: ShoppingBag,
+        requiredAddon: "retail",
         children: [
           { label: "Retail Operations Hub", href: "/retail", icon: ShoppingBag },
         ],
@@ -618,6 +625,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         label: "Grocery & Supermarket",
         href: "/grocery",
         icon: Scale,
+        requiredAddon: "grocery",
         children: [
           { label: "Grocery Hub", href: "/grocery", icon: Scale },
         ],
@@ -843,48 +851,33 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
 ];
 
 export function useDynamicNav() {
-  const [navGroups, setNavGroups] = useState<NavGroup[]>(DEFAULT_MASTER_NAV);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { user, subscription, loading } = useAuth();
 
-  useEffect(() => {
-    let sub: any = null;
-    let user: any = null;
-    try {
-      const storedSub = typeof window !== "undefined" ? localStorage.getItem("modernpos_subscription") : null;
-      if (storedSub) sub = JSON.parse(storedSub);
-      const storedUser = typeof window !== "undefined" ? localStorage.getItem("modernpos_user") : null;
-      if (storedUser) user = JSON.parse(storedUser);
-    } catch (e) {}
-
-    const isSuperAdmin = user?.email === "admin@gmail.com" || user?.roleName === "Super Administrator";
-
-    if (isSuperAdmin || !sub) {
-      // Super admin or fresh login: everything unlocked
-      setNavGroups(DEFAULT_MASTER_NAV);
-      return;
+  const navGroups = useMemo(() => {
+    const ctx = getTenantEntitlementContext(user, subscription);
+    if (ctx.isSuperAdmin) {
+      return DEFAULT_MASTER_NAV;
     }
 
-    const currentPlan = (sub.planCode || "STARTER").toUpperCase();
-    const planTier: Record<string, number> = {
-      STARTER: 1,
-      ADVANCE: 2,
-      BUSINESS: 2,
-      PRO: 2,
-      ENTERPRISE: 3,
-    };
-    const userTier = planTier[currentPlan] || 1;
-    const enabledModules = new Set<string>((sub.enabledModules || []).map((m: string) => m.toLowerCase()));
-    const userBusinessType = (user?.businessType || sub?.businessType || "").toUpperCase();
-    const hasRestaurant = userBusinessType === "RESTAURANT" || enabledModules.has("restaurant") || enabledModules.has("restaurant_kds");
+    const userTier = ctx.userTier;
+    const enabledModules = ctx.enabledModules;
+    const userBusinessType = ctx.businessType;
+    const hasRestaurant =
+      userBusinessType === "RESTAURANT" ||
+      enabledModules.has("restaurant") ||
+      enabledModules.has("restaurant_kds");
+    const accessibleTerminals = getAccessiblePosTerminals(user, subscription);
+    const accessibleTerminalMap = new Map(accessibleTerminals.map((t) => [t.href, t]));
 
-    const gated = DEFAULT_MASTER_NAV.map((group) => {
-      const groupRequiredTier = group.requiredPlan ? planTier[group.requiredPlan] || 1 : 1;
+    return DEFAULT_MASTER_NAV.map((group) => {
+      const groupRequiredTier = group.requiredPlan ? PLAN_TIER_RANK[group.requiredPlan] || 1 : 1;
       const groupAddonMissing =
-        group.requiredAddon && !enabledModules.has(group.requiredAddon.toLowerCase()) && userTier < 3;
+        group.requiredAddon &&
+        !enabledModules.has(group.requiredAddon.toLowerCase()) &&
+        userTier < 3;
       const groupPlanMissing = userTier < groupRequiredTier;
 
-      const groupLocked = groupPlanMissing || groupAddonMissing;
+      const groupLocked = Boolean(groupPlanMissing || groupAddonMissing);
       const groupLockReason = groupAddonMissing
         ? `${group.title} Add-on`
         : groupPlanMissing
@@ -893,33 +886,33 @@ export function useDynamicNav() {
           : "Advance Plan"
         : undefined;
 
-      // Filter or prioritize items based on tenant business vertical
+      // Strictly filter Industry Solutions to the tenant's business vertical + enabled add-ons
       let rawItems = group.items;
       if (group.title === "Industry Solutions") {
         rawItems = group.items.filter((item) => {
-          // If tenant is Restaurant, hide irrelevant retail/pharmacy clutter
-          if (userBusinessType === "RESTAURANT") {
-            return (
-              item.href.includes("restaurant") ||
-              item.requiredAddon === "restaurant" ||
-              enabledModules.has(item.requiredAddon?.toLowerCase() || "")
-            );
+          const addon = item.requiredAddon?.toLowerCase() || "";
+          if (userBusinessType === "MANUFACTURING" && (addon === "bakery" || addon === "manufacturing")) {
+            return true;
           }
-          // If tenant is not restaurant and has no restaurant addon, hide restaurant/kitchen
-          if (!hasRestaurant && (item.href.includes("restaurant") || item.requiredAddon === "restaurant")) {
-            return false;
+          if (userBusinessType === "FRANCHISE" && item.href === "/franchise") {
+            return true;
           }
-          return true;
+          if (addon && (addon === userBusinessType.toLowerCase() || enabledModules.has(addon))) {
+            return true;
+          }
+          return false;
         });
       }
 
       const items = rawItems.map((item) => {
-        const itemRequiredTier = item.requiredPlan ? planTier[item.requiredPlan] || 1 : 1;
+        const itemRequiredTier = item.requiredPlan ? PLAN_TIER_RANK[item.requiredPlan] || 1 : 1;
         const itemAddonMissing =
-          item.requiredAddon && !enabledModules.has(item.requiredAddon.toLowerCase()) && userTier < 3;
+          item.requiredAddon &&
+          !enabledModules.has(item.requiredAddon.toLowerCase()) &&
+          userTier < 3;
         const itemPlanMissing = userTier < itemRequiredTier;
 
-        const isLocked = groupLocked || itemPlanMissing || itemAddonMissing;
+        const isLocked = Boolean(groupLocked || itemPlanMissing || itemAddonMissing);
         const lockReason = itemAddonMissing
           ? `${item.label} Add-on`
           : itemPlanMissing
@@ -928,33 +921,66 @@ export function useDynamicNav() {
             : "Advance Plan"
           : groupLockReason;
 
-        // Also check children
         let rawChildren = item.children || [];
-        if (item.label === "All POS Terminals" && hasRestaurant) {
-          // Promote Restaurant & Cafe POS to top for restaurant tenants
-          rawChildren = [
-            ...rawChildren.filter((c) => c.href.includes("restaurant")),
-            ...rawChildren.filter((c) => !c.href.includes("restaurant")),
-          ];
+        let dynamicLabel = item.label;
+        let dynamicBadge = item.badge;
+        let dynamicHref = item.href;
+
+        if (item.label === "All POS Terminals") {
+          rawChildren = rawChildren.filter((c) => accessibleTerminalMap.has(c.href));
+          if (rawChildren.length === 1) {
+            dynamicLabel = "POS Terminal";
+            dynamicHref = rawChildren[0].href;
+            dynamicBadge = userBusinessType;
+          } else {
+            dynamicBadge = `${rawChildren.length} Modes`;
+          }
+        }
+
+        if (item.label === "Held Carts & Kiosk Tools") {
+          rawChildren = rawChildren.map((c) =>
+            c.label === "Customer Display Screen" && !hasRestaurant
+              ? { ...c, href: "/retail-pos/customer-display" }
+              : c
+          );
         }
 
         const children = rawChildren.map((child) => {
-          const childRequiredTier = child.requiredPlan ? planTier[child.requiredPlan] || 1 : 1;
+          const childRequiredTier = child.requiredPlan ? PLAN_TIER_RANK[child.requiredPlan] || 1 : 1;
+          const isLoyaltyUnlockedByAddon =
+            child.href === "/loyalty" &&
+            (enabledModules.has("loyalty") || enabledModules.has("customer_loyalty"));
           const childAddonMissing =
-            child.requiredAddon && !enabledModules.has(child.requiredAddon.toLowerCase()) && userTier < 3;
-          const childPlanMissing = userTier < childRequiredTier;
-          const isChildLocked = isLocked || childPlanMissing || childAddonMissing;
+            child.requiredAddon &&
+            !enabledModules.has(child.requiredAddon.toLowerCase()) &&
+            userTier < 3;
+          const childPlanMissing = userTier < childRequiredTier && !isLoyaltyUnlockedByAddon;
+          const terminalRule = accessibleTerminalMap.get(child.href);
+          const isChildLocked = Boolean(
+            isLocked || childPlanMissing || childAddonMissing || terminalRule?.isLocked
+          );
 
           return {
             ...child,
-            isLocked: !!isChildLocked,
-            lockReason: childAddonMissing ? "Add-on" : childPlanMissing ? "Upgrade" : lockReason,
+            isLocked: isChildLocked,
+            lockReason: terminalRule?.lockReason
+              ? terminalRule.lockReason
+              : childAddonMissing
+              ? "Add-on"
+              : childPlanMissing
+              ? child.requiredPlan === "ENTERPRISE"
+                ? "Enterprise"
+                : "Upgrade"
+              : lockReason,
           };
         });
 
         return {
           ...item,
-          isLocked: !!isLocked,
+          label: dynamicLabel,
+          href: dynamicHref,
+          badge: dynamicBadge,
+          isLocked,
           lockReason,
           children,
         };
@@ -963,13 +989,11 @@ export function useDynamicNav() {
       return {
         ...group,
         items,
-        isLocked: !!groupLocked,
+        isLocked: groupLocked,
         lockReason: groupLockReason,
       };
     });
+  }, [user, subscription]);
 
-    setNavGroups(gated);
-  }, []);
-
-  return { navGroups, loading, error };
+  return { navGroups, loading, error: null as string | null };
 }
