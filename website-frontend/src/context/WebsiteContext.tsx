@@ -106,6 +106,7 @@ interface WebsiteContextValue {
   isSuperAdmin: boolean;
   adminOpen: boolean;
   setAdminOpen: (open: boolean) => void;
+  setPreviewDraft: (draft: WebsiteConfig | null) => void;
   setIndustryPreview: (industry: string) => void;
   adminLogin: (email: string, password: string) => Promise<boolean>;
   adminLogout: () => void;
@@ -149,6 +150,7 @@ function checkIsSuperAdmin(token: string): boolean {
 
 export function WebsiteProvider({ children }: { children: React.ReactNode }) {
   const [savedConfig, setSavedConfig] = useState<WebsiteConfig>({});
+  const [previewDraft, setPreviewDraft] = useState<WebsiteConfig | null>(null);
   const [tenantMeta, setTenantMeta] = useState<Record<string, string>>({});
   const [products, setProducts] = useState<ShowcaseProduct[]>([]);
   const [categories, setCategories] = useState<ShowcaseCategory[]>([]);
@@ -217,61 +219,71 @@ export function WebsiteProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const site = useMemo<ResolvedSiteState>(() => {
+    const activeConfig = previewDraft ? { ...savedConfig, ...previewDraft } : savedConfig;
     const lockedByTenant = !isSuperAdmin && Boolean(tenantMeta.businessType);
     const industry = (
       lockedByTenant
         ? tenantMeta.businessType
-        : savedConfig.industry || tenantMeta.businessType || "RETAIL"
+        : activeConfig.industry || tenantMeta.businessType || "RETAIL"
     ).toUpperCase();
     const key = Object.keys(INDUSTRY_PRESETS).find((k) => industry.includes(k)) || "RETAIL";
     const preset = INDUSTRY_PRESETS[key];
+    const staleFranchiseCopy =
+      key !== "FRANCHISE" &&
+      (activeConfig.heroTitle === "Unified Multi-Outlet Brand Experience" ||
+        activeConfig.heroPill === "Multi-Branch Network");
+    const configMatchesIndustry =
+      !staleFranchiseCopy &&
+      (!lockedByTenant ||
+        !activeConfig.industry ||
+        activeConfig.industry.toUpperCase() === key);
     const highlights =
-      Array.isArray(savedConfig.highlights) && savedConfig.highlights.length === 3
-        ? savedConfig.highlights
+      configMatchesIndustry && Array.isArray(activeConfig.highlights) && activeConfig.highlights.length === 3
+        ? activeConfig.highlights
         : preset.highlights;
 
     return {
       key,
       preset,
-      accent: savedConfig.accentColor || preset.accent,
-      storeName: savedConfig.businessName || tenantMeta.name || "SalePay Business",
-      tagline: savedConfig.tagline || preset.label,
-      logoUrl: savedConfig.logoUrl || tenantMeta.logoUrl || "/logos/salepay-logo-blue.png",
-      heroBgStyle: savedConfig.heroBgStyle || "constellation",
-      heroImages: Array.isArray(savedConfig.heroImages) ? savedConfig.heroImages.filter(Boolean) : [],
-      pill: savedConfig.heroPill || preset.pill,
-      title: savedConfig.heroTitle || preset.title,
-      desc: savedConfig.heroDesc || preset.desc,
-      cta: savedConfig.ctaText || preset.cta,
-      aboutTitle: savedConfig.aboutTitle || "Crafted With Quality & Care",
+      accent: (configMatchesIndustry ? activeConfig.accentColor : undefined) ?? preset.accent,
+      storeName: activeConfig.businessName ?? tenantMeta.name ?? "SalePay Business",
+      tagline: (configMatchesIndustry ? activeConfig.tagline : undefined) ?? preset.label,
+      logoUrl: activeConfig.logoUrl ?? tenantMeta.logoUrl ?? "/logos/salepay-logo-blue.png",
+      heroBgStyle: activeConfig.heroBgStyle || "constellation",
+      heroImages: Array.isArray(activeConfig.heroImages) ? activeConfig.heroImages.filter(Boolean) : [],
+      pill: (configMatchesIndustry ? activeConfig.heroPill : undefined) ?? preset.pill,
+      title: (configMatchesIndustry ? activeConfig.heroTitle : undefined) ?? preset.title,
+      desc: (configMatchesIndustry ? activeConfig.heroDesc : undefined) ?? preset.desc,
+      cta: (configMatchesIndustry ? activeConfig.ctaText : undefined) ?? preset.cta,
+      aboutTitle: activeConfig.aboutTitle ?? "Crafted With Quality & Care",
       aboutText:
-        savedConfig.aboutText ||
+        activeConfig.aboutText ??
         "We are committed to delivering exceptional quality, authentic products, and memorable customer experiences every single day.",
-      years: savedConfig.years || "5+",
-      phone: savedConfig.phone || tenantMeta.contactPhone || "+880 1700-000000",
-      email: savedConfig.email || tenantMeta.contactEmail || "info@salepay.io",
-      address: savedConfig.address || "Dhaka, Bangladesh",
-      hours: savedConfig.hours || "Sat - Thu: 10:00 AM - 10:00 PM",
+      years: activeConfig.years ?? "5+",
+      phone: activeConfig.phone ?? tenantMeta.contactPhone ?? "+880 1700-000000",
+      email: activeConfig.email ?? tenantMeta.contactEmail ?? "info@salepay.io",
+      address: activeConfig.address ?? "Dhaka, Bangladesh",
+      hours: activeConfig.hours ?? "Sat - Thu: 10:00 AM - 10:00 PM",
       highlights,
-      navHome: savedConfig.navHome || "Home",
-      navAbout: savedConfig.navAbout || "About Us",
-      navHighlights: savedConfig.navHighlights || "Highlights",
-      navShowcase: savedConfig.navShowcase || "Showcase",
-      navContact: savedConfig.navContact || "Contact",
-      headerCtaText: savedConfig.headerCtaText || "Book / Contact Us",
-      headerCtaHref: savedConfig.headerCtaHref || "/contact",
+      navHome: activeConfig.navHome ?? "Home",
+      navAbout: activeConfig.navAbout ?? "About Us",
+      navHighlights: activeConfig.navHighlights ?? "Highlights",
+      navShowcase: activeConfig.navShowcase ?? "Showcase",
+      navContact: activeConfig.navContact ?? "Contact",
+      headerCtaText: activeConfig.headerCtaText ?? "Book / Contact Us",
+      headerCtaHref: activeConfig.headerCtaHref || "/contact",
       footerDesc:
-        savedConfig.footerDesc ||
-        savedConfig.aboutText ||
+        activeConfig.footerDesc ??
+        activeConfig.aboutText ??
         "We are committed to delivering exceptional quality, authentic products, and memorable customer experiences every single day.",
-      footerBadge: savedConfig.footerBadge || `${savedConfig.years || "5+"} Years of Trusted Service`,
-      footerCtaText: savedConfig.footerCtaText || "Book / Contact Us",
+      footerBadge: activeConfig.footerBadge ?? `${activeConfig.years || "5+"} Years of Trusted Service`,
+      footerCtaText: activeConfig.footerCtaText ?? "Book / Contact Us",
       footerCopyright:
-        savedConfig.footerCopyright ||
-        `© ${new Date().getFullYear()} ${savedConfig.businessName || tenantMeta.name || "SalePay Business"}. All rights reserved.`,
-      footerBgColor: savedConfig.footerBgColor || "#060913",
+        activeConfig.footerCopyright ??
+        `© ${new Date().getFullYear()} ${activeConfig.businessName || tenantMeta.name || "SalePay Business"}. All rights reserved.`,
+      footerBgColor: activeConfig.footerBgColor || "#060913",
     };
-  }, [savedConfig, tenantMeta, isSuperAdmin]);
+  }, [savedConfig, previewDraft, tenantMeta, isSuperAdmin]);
 
   const setIndustryPreview = (industry: string) => {
     if (!isSuperAdmin) return;
@@ -349,6 +361,7 @@ export function WebsiteProvider({ children }: { children: React.ReactNode }) {
       });
       if (res.ok) {
         setSavedConfig(finalPayload);
+        setPreviewDraft(null);
         return true;
       }
       return false;
@@ -405,6 +418,7 @@ export function WebsiteProvider({ children }: { children: React.ReactNode }) {
         isSuperAdmin,
         adminOpen,
         setAdminOpen,
+        setPreviewDraft,
         setIndustryPreview,
         adminLogin,
         adminLogout,

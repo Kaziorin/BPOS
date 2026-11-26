@@ -70,16 +70,29 @@ export default function HomePage() {
 
         <div className="relative z-10 max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12">
           <div className="max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-extrabold bg-white/10 border border-white/20 backdrop-blur-md shadow-sm">
-              <span
-                className="w-2 h-2 rounded-full animate-pulse"
-                style={{ backgroundColor: site.accent }}
-              />
-              <span>{site.pill}</span>
-            </div>
+            {site.pill && (
+              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-extrabold bg-white/10 border border-white/20 backdrop-blur-md">
+                <span
+                  className="w-2 h-2 rounded-full animate-pulse"
+                  style={{ backgroundColor: site.accent }}
+                />
+                <span>{site.pill}</span>
+              </div>
+            )}
 
-            <h1 className="text-4xl sm:text-6xl lg:text-[64px] font-black tracking-tight leading-[1.05]">
-              {site.title}
+            <h1 className="text-4xl sm:text-6xl lg:text-[68px] font-black tracking-tight leading-[1.06]">
+              {(() => {
+                const words = (site.title || "").trim().split(/\s+/);
+                if (words.length <= 2) return site.title;
+                const head = words.slice(0, -2).join(" ");
+                const tail = words.slice(-2).join(" ");
+                return (
+                  <>
+                    <span className="text-white">{head} </span>
+                    <span className="text-sky-300">{tail}</span>
+                  </>
+                );
+              })()}
             </h1>
 
             <p className="text-base sm:text-xl text-white/80 max-w-2xl leading-relaxed font-normal">
@@ -89,48 +102,33 @@ export default function HomePage() {
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <Link
                 href="/showcase"
-                className="inline-flex items-center gap-2 px-7 py-4 rounded-2xl bg-white text-slate-950 font-extrabold text-sm shadow-2xl hover:-translate-y-0.5 hover:shadow-white/20 transition"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-white text-slate-950 font-extrabold text-sm shadow-2xl hover:-translate-y-0.5 transition"
               >
                 <span>{site.cta}</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/about"
-                className="inline-flex items-center gap-2 px-7 py-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold text-sm backdrop-blur transition"
+                href="/contact"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold text-sm backdrop-blur-md transition"
               >
-                Our Story
+                Book / Visit Us
               </Link>
             </div>
 
-            {/* Sleek Trust Strip */}
-            <div className="pt-6 flex flex-wrap items-center gap-x-8 gap-y-3 text-xs font-semibold text-white/75 border-t border-white/15">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>{site.years} Years of Excellence</span>
+            {isSliderActive && site.heroImages.length > 1 && (
+              <div className="flex items-center gap-2 pt-3">
+                {site.heroImages.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setSlideIdx(idx)}
+                    aria-label={`Slide ${idx + 1}`}
+                    className={`h-2 rounded-full transition-all ${idx === slideIdx ? "w-7 bg-white" : "w-2 bg-white/40 hover:bg-white/75"
+                      }`}
+                  />
+                ))}
               </div>
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                <span>4.9/5 Customer Satisfaction</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-sky-400" />
-                <span>100% Authentic &amp; Verified</span>
-              </div>
-              {isSliderActive && site.heroImages.length > 1 && (
-                <div className="ml-auto flex items-center gap-1.5">
-                  {site.heroImages.map((_, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setSlideIdx(idx)}
-                      aria-label={`Slide ${idx + 1}`}
-                      className={`h-2 rounded-full transition-all ${idx === slideIdx ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/70"
-                        }`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </section>
