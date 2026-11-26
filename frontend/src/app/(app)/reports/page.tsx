@@ -1327,6 +1327,22 @@ export function ReportsContent({ initialTab }: { initialTab?: TabType }) {
   );
 }
 
+function ReportsRedirect() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const tab = searchParams.get("tab") || "sales";
+    router.replace(`/reports/${tab}`);
+  }, [router, searchParams]);
+
+  return (
+    <div className="flex h-64 items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary-500 border-t-transparent" />
+    </div>
+  );
+}
+
 export default function ReportsPage() {
   return (
     <Suspense
@@ -1336,7 +1352,7 @@ export default function ReportsPage() {
         </div>
       }
     >
-      <ReportsContent />
+      <ReportsRedirect />
     </Suspense>
   );
 }
