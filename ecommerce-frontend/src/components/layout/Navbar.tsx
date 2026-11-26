@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   ShoppingBag,
   Search,
@@ -509,78 +509,62 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
 
         {/* Categories Navigation Bar */}
         <div className={`border-t hidden sm:block ${
-          isDark ? "border-zinc-800 bg-zinc-900 text-zinc-200" : "border-stone-800 bg-[#1C1917] text-stone-200"
+          isDark ? "border-zinc-800 bg-zinc-900 text-zinc-200" : "border-orange-100 bg-white text-stone-700"
         }`}>
-          <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 flex items-center justify-between py-2 text-xs font-medium">
+          <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 flex items-center justify-between h-11 text-xs font-medium">
             
-            {/* All Categories Trigger */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-stone-700 bg-stone-800 text-white text-xs font-semibold hover:bg-stone-700 transition-colors cursor-pointer"
-              >
-                <Layers className="w-3.5 h-3.5 text-orange-400" />
-                <span>All Categories</span>
-                <ChevronDown className="w-3 h-3 text-stone-400" />
-              </button>
+            <div className="flex items-center gap-6">
+              {/* All Categories Trigger */}
+              <div className="relative flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                  className="h-11 flex items-center gap-2 px-4 rounded-none bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  <Menu className="w-4 h-4" />
+                  <span>All Categories</span>
+                  <ChevronDown className="w-3.5 h-3.5 opacity-80" />
+                </button>
 
-              {/* Categories Mega Dropdown */}
-              {isCategoryOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsCategoryOpen(false)} />
-                  <div className={`absolute left-0 mt-2 w-80 rounded-2xl border shadow-2xl ring-1 ring-black/5 p-2.5 z-50 ${
-                    isDark ? "bg-zinc-900 border-zinc-800" : "bg-white border-stone-200"
-                  }`}>
-                    <div className={`px-2 pb-2 mb-1.5 border-b text-[11px] font-semibold ${
-                      isDark ? "border-zinc-800 text-zinc-400" : "border-stone-100 text-stone-500"
+                {/* Categories Dropdown */}
+                {isCategoryOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsCategoryOpen(false)} />
+                    <div className={`absolute left-0 top-full mt-0 w-56 rounded-none border shadow-xl p-1.5 z-50 ${
+                      isDark ? "bg-zinc-900 border-zinc-800" : "bg-white border-stone-200"
                     }`}>
-                      Shop by Category
+                      {categories.length === 0 ? (
+                        <div className="px-3 py-2 text-xs text-stone-400">No categories yet</div>
+                      ) : (
+                        <div className="space-y-0.5 max-h-72 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-stone-200">
+                          {categories.map((c) => (
+                            <Link
+                              key={c.id}
+                              href={`/products?categoryId=${c.id}`}
+                              onClick={() => setIsCategoryOpen(false)}
+                              className={`flex items-center justify-between px-3 py-1.5 rounded-none text-xs transition-colors ${
+                                isDark ? "text-zinc-200 hover:bg-zinc-800" : "text-stone-700 hover:bg-orange-50 hover:text-orange-700"
+                              }`}
+                            >
+                              <span className="truncate">{c.name}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    {categories.length === 0 ? (
-                      <div className="px-3 py-2 text-xs text-stone-400">No categories yet</div>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-1 max-h-64 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-orange-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-                        {categories.map((c) => (
-                          <Link
-                            key={c.id}
-                            href={`/products?categoryId=${c.id}`}
-                            onClick={() => setIsCategoryOpen(false)}
-                            className={`flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-colors ${
-                              isDark ? "text-zinc-200 hover:bg-zinc-800" : "text-stone-700 hover:bg-orange-50 hover:text-orange-700"
-                            }`}
-                          >
-                            <span className="truncate">{c.name}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
+                  </>
+                )}
+              </div>
+
+              {/* Essential E-Commerce Nav Links with Active Route Highlight */}
+              <Suspense fallback={null}>
+                <BottomNavLinks isDark={isDark} />
+              </Suspense>
             </div>
 
-            {/* Quick Links */}
-            <div className="flex items-center gap-6 text-stone-200">
-              <Link href="/products?filter=deals" className="font-semibold text-orange-400 hover:underline">
-                Deals &amp; Offers
-              </Link>
-              <Link href="/products" className="hover:text-white transition-colors">
-                All Products
-              </Link>
-              <Link href="/products?sort=newest" className="hover:text-white transition-colors">
-                New Arrivals
-              </Link>
-              <Link href="/products?sort=popular" className="hover:text-white transition-colors">
-                Popular
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-4 text-slate-300">
-              <Link href="/track-order" className="hover:text-white transition-colors font-medium">
-                Track Order
-              </Link>
-            </div>
+            <Suspense fallback={null}>
+              <TrackOrderNavLink isDark={isDark} />
+            </Suspense>
 
           </div>
         </div>
@@ -590,5 +574,61 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
       {/* Auth Modal */}
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </>
+  );
+}
+
+function BottomNavLinks({ isDark }: { isDark: boolean }) {
+  const pathname = usePathname();
+
+  const isHome = pathname === "/";
+  const isShop = pathname === "/products";
+  const isAbout = pathname === "/about";
+  const isContact = pathname === "/contact";
+
+  const linkClass = (active: boolean) =>
+    `h-11 inline-flex items-center border-b-2 transition-colors text-xs ${
+      active
+        ? "border-orange-600 text-orange-600 font-semibold"
+        : isDark
+        ? "border-transparent text-zinc-300 hover:text-white font-medium"
+        : "border-transparent text-stone-700 hover:text-orange-600 font-medium"
+    }`;
+
+  return (
+    <nav className="flex items-center gap-6">
+      <Link href="/" className={linkClass(isHome)}>
+        Home
+      </Link>
+      <Link href="/products" className={linkClass(isShop)}>
+        Shop
+      </Link>
+      <Link href="/about" className={linkClass(isAbout)}>
+        About
+      </Link>
+      <Link href="/contact" className={linkClass(isContact)}>
+        Contact
+      </Link>
+    </nav>
+  );
+}
+
+function TrackOrderNavLink({ isDark }: { isDark: boolean }) {
+  const pathname = usePathname();
+  const isTrack = pathname.startsWith("/track-order");
+
+  return (
+    <Link
+      href="/track-order"
+      className={`h-11 flex items-center gap-1.5 border-b-2 text-xs transition-colors ${
+        isTrack
+          ? "border-orange-600 text-orange-600 font-semibold"
+          : isDark
+          ? "border-transparent text-zinc-300 hover:text-white font-medium"
+          : "border-transparent text-stone-600 hover:text-orange-600 font-medium"
+      }`}
+    >
+      <Truck className="w-3.5 h-3.5" />
+      <span>Track Order</span>
+    </Link>
   );
 }
