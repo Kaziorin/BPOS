@@ -812,6 +812,9 @@ async def platform_overview(
 @router.get("/api/v1/saas/platform/tenants")
 async def platform_tenants(
     status: str = "",
+    search: str = "",
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
     user: AuthUser = Depends(require_auth),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
@@ -819,15 +822,116 @@ async def platform_tenants(
     _require_super_admin(user)
     where = "1=1"
     params: dict = {}
-    if status:
+    if status and status.upper() != "ALL":
         where += " AND t.status=:s"; params["s"] = status.upper()
+    if search.strip():
+        where += " AND (t.name LIKE :q OR t.slug LIKE :q OR t.contactEmail LIKE :q OR t.contactPhone LIKE :q OR EXISTS (SELECT 1 FROM users u2 WHERE u2.tenantId=t.id AND (u2.email LIKE :q OR u2.phone LIKE :q)))"
+        params["q"] = f"%{search.strip()}%"
+
+    total = int((await db.execute(text(f"SELECT COUNT(*) FROM tenants t WHERE {where}"), params)).scalar() or 0)
+    offset = (page - 1) * limit
+    params["lim"] = limit
+    params["off"] = offset
+
     rows = rows_to_dicts((await db.execute(text(
         f"SELECT t.id, t.name, t.slug, t.status, t.businessType, t.createdAt, "
+        f"COALESCE(NULLIF(t.contactEmail, ''), (SELECT u.email FROM users u WHERE u.tenantId=t.id ORDER BY u.createdAt ASC LIMIT 1)) AS email, "
+        f"COALESCE(NULLIF(t.contactPhone, ''), (SELECT u.phone FROM users u WHERE u.tenantId=t.id ORDER BY u.createdAt ASC LIMIT 1)) AS phone, "
         f"(SELECT COUNT(*) FROM users u WHERE u.tenantId=t.id) AS userCount, "
         f"(SELECT COUNT(*) FROM branches b WHERE b.tenantId=t.id) AS branchCount, "
-        f"(SELECT COUNT(*) FROM sales s WHERE s.tenantId=t.id AND s.status='CONFIRMED') AS saleCount "
-        f"FROM tenants t WHERE {where} ORDER BY t.createdAt DESC LIMIT 100"), params)).fetchall())
-    return ok(rows)
+        f"(SELECT COUNT(*) FROM sales s WHERE s.tenantId=t.id AND s.status='CONFIRMED') AS saleCount, "
+        f"(SELECT p.code FROM saas_subscriptions ss JOIN saas_plans p ON p.id=ss.planId WHERE ss.tenantId=t.id ORDER BY ss.createdAt DESC LIMIT 1) AS planCode, "
+        f"(SELECT p.name FROM saas_subscriptions ss JOIN saas_plans p ON p.id=ss.planId WHERE ss.tenantId=t.id ORDER BY ss.createdAt DESC LIMIT 1) AS planName, "
+        f"(SELECT ss.status FROM saas_subscriptions ss WHERE ss.tenantId=t.id ORDER BY ss.createdAt DESC LIMIT 1) AS subStatus, "
+        f"(SELECT ss.billingCycle FROM saas_subscriptions ss WHERE ss.tenantId=t.id ORDER BY ss.createdAt DESC LIMIT 1) AS billingCycle, "
+        f"(SELECT ss.trialEndsAt FROM saas_subscriptions ss WHERE ss.tenantId=t.id ORDER BY ss.createdAt DESC LIMIT 1) AS trialEndsAt, "
+        f"(SELECT ss.currentPeriodEnd FROM saas_subscriptions ss WHERE ss.tenantId=t.id ORDER BY ss.createdAt DESC LIMIT 1) AS currentPeriodEnd "
+        f"FROM tenants t WHERE {where} ORDER BY t.createdAt DESC LIMIT :lim OFFSET :off"), params)).fetchall())
+    total_pages = max(1, (total + limit - 1) // limit)
+    return ok(rows, extra={"pagination": {"page": page, "limit": limit, "total": total, "totalPages": total_pages}})
+
+
+@router.patch("/api/v1/saas/platform/tenants/{targetTenantId}")
+async def update_tenant_details(
+    targetTenantId: str,
+    body: dict = Body(...),
+    user: AuthUser = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Super Admin: view/edit tenant info, plan, status, or renew subscription."""
+    _require_super_admin(user)
+    t_row = (await db.execute(
+        text("SELECT id, businessType FROM tenants WHERE id = :id"),
+        {"id": targetTenantId},
+    )).first()
+    if not t_row:
+        return err("Tenant not found", 404)
+
+    updates, params = [], {"id": targetTenantId}
+    if body.get("name"):
+        updates.append("name = :n"); params["n"] = str(body["name"]).strip()
+    if body.get("businessType"):
+        updates.append("businessType = :bt"); params["bt"] = str(body["businessType"]).strip().upper()
+    if "contactEmail" in body:
+        updates.append("contactEmail = :ce"); params["ce"] = (body.get("contactEmail") or "").strip() or None
+    if "contactPhone" in body:
+        updates.append("contactPhone = :cp"); params["cp"] = (body.get("contactPhone") or "").strip() or None
+    if body.get("status"):
+        st_val = str(body["status"]).strip().upper()
+        if st_val in ("ACTIVE", "SUSPENDED", "TRIAL"):
+            if st_val == "SUSPENDED" and targetTenantId == user.tenantId:
+                return err("Cannot suspend the platform super-admin tenant", 400)
+            updates.append("status = :st"); params["st"] = st_val
+
+    if updates:
+        updates.append("updatedAt = NOW()")
+        await db.execute(text(f"UPDATE tenants SET {', '.join(updates)} WHERE id = :id"), params)
+
+    # Plan change / Subscription renewal
+    plan_code = body.get("planCode")
+    renew_days = body.get("renewDays")
+    if plan_code or renew_days:
+        sub_row = (await db.execute(
+            text("SELECT id, planId, currentPeriodEnd FROM saas_subscriptions WHERE tenantId = :t ORDER BY createdAt DESC LIMIT 1"),
+            {"t": targetTenantId},
+        )).first()
+        new_plan_id = sub_row[1] if sub_row else None
+        if plan_code:
+            p_row = (await db.execute(
+                text("SELECT id, code FROM saas_plans WHERE UPPER(code) = :c LIMIT 1"),
+                {"c": str(plan_code).strip().upper()},
+            )).first()
+            if p_row:
+                new_plan_id = p_row[0]
+
+        now = datetime.utcnow()
+        days_int = int(renew_days) if renew_days else 0
+        if sub_row:
+            base_dt = sub_row[2] if (sub_row[2] and sub_row[2] > now) else now
+            new_end = base_dt + timedelta(days=days_int) if days_int > 0 else sub_row[2]
+            sub_updates = ["updatedAt = NOW()"]
+            sub_params = {"sid": sub_row[0]}
+            if new_plan_id:
+                sub_updates.append("planId = :pid"); sub_params["pid"] = new_plan_id
+            if days_int > 0:
+                sub_updates.extend(["status = 'ACTIVE'", "currentPeriodStart = :now", "currentPeriodEnd = :end"])
+                sub_params["now"] = now; sub_params["end"] = new_end
+                await db.execute(text("UPDATE tenants SET status = 'ACTIVE', updatedAt = NOW() WHERE id = :id AND status != 'SUSPENDED'"), {"id": targetTenantId})
+            await db.execute(text(f"UPDATE saas_subscriptions SET {', '.join(sub_updates)} WHERE id = :sid"), sub_params)
+        elif new_plan_id:
+            end_dt = now + timedelta(days=days_int if days_int > 0 else 30)
+            await db.execute(text(
+                "INSERT INTO saas_subscriptions (id, tenantId, planId, billingCycle, status, currentPeriodStart, currentPeriodEnd, createdAt, updatedAt) "
+                "VALUES (:sid, :t, :pid, 'MONTHLY', 'ACTIVE', :now, :end, NOW(), NOW())"
+            ), {"sid": _uid(), "t": targetTenantId, "pid": new_plan_id, "now": now, "end": end_dt})
+
+        if plan_code:
+            from app.api.v1.saas.entitlements import sync_tenant_modules
+            bt_final = str(body.get("businessType") or t_row[1] or "RETAIL").upper()
+            await sync_tenant_modules(db, targetTenantId, bt_final, str(plan_code).upper())
+
+    await db.commit()
+    return ok({"id": targetTenantId, "updated": True})
 
 @router.patch("/api/v1/saas/platform/tenants/{targetTenantId}/status")
 async def update_tenant_status(

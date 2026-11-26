@@ -122,33 +122,40 @@ async def accounts_receivable(
         f"SELECT i.id, i.invoiceNo, i.total, i.paidTotal, i.issueDate, i.dueDate, "
         f"i.status, c.name AS customerName, c.id AS customerId, c.phone AS customerPhone "
         f"FROM invoices i LEFT JOIN customers c ON c.id=i.customerId "
-        f"WHERE {where} ORDER BY i.dueDate ASC"), params)).fetchall())
+        f"WHERE {where} ORDER BY COALESCE(i.dueDate, i.issueDate) DESC"), params)).fetchall())
 
+    now_date = datetime.utcnow().date()
     for r in rows:
-        r["balance"] = float(r.get("total", 0)) - float(r.get("paidTotal", 0))
-        if r.get("dueDate") and r["balance"] > 0:
-            days = (datetime.utcnow() - datetime.fromisoformat(str(r["dueDate"]))).days
-            r["agingDays"] = max(days, 0)
+        r["balance"] = round(max(float(r.get("total", 0) or 0) - float(r.get("paidTotal", 0) or 0), 0.0), 2)
+        ref_date = r.get("dueDate") or r.get("issueDate")
+        if ref_date and r["balance"] > 0:
+            try:
+                date_str = str(ref_date)[:10]
+                inv_dt = datetime.strptime(date_str, "%Y-%m-%d").date()
+                days = (now_date - inv_dt).days
+                r["agingDays"] = max(days, 0)
+            except Exception:
+                r["agingDays"] = 0
         else:
             r["agingDays"] = 0
 
-    total = sum(r["balance"] for r in rows)
-    buckets = {"current": 0, "1_30": 0, "31_60": 0, "61_90": 0, "over_90": 0}
-    if aging:
-        for r in rows:
-            d = r.get("agingDays", 0)
-            if d <= 0:
-                buckets["current"] += r["balance"]
-            elif d <= 30:
-                buckets["1_30"] += r["balance"]
-            elif d <= 60:
-                buckets["31_60"] += r["balance"]
-            elif d <= 90:
-                buckets["61_90"] += r["balance"]
-            else:
-                buckets["over_90"] += r["balance"]
+    total = round(sum(float(r.get("balance", 0) or 0) for r in rows), 2)
+    buckets = {"current": 0.0, "1_30": 0.0, "31_60": 0.0, "61_90": 0.0, "over_90": 0.0}
+    for r in rows:
+        d = r.get("agingDays", 0)
+        bal = float(r.get("balance", 0) or 0)
+        if d <= 0:
+            buckets["current"] = round(buckets["current"] + bal, 2)
+        elif d <= 30:
+            buckets["1_30"] = round(buckets["1_30"] + bal, 2)
+        elif d <= 60:
+            buckets["31_60"] = round(buckets["31_60"] + bal, 2)
+        elif d <= 90:
+            buckets["61_90"] = round(buckets["61_90"] + bal, 2)
+        else:
+            buckets["over_90"] = round(buckets["over_90"] + bal, 2)
 
-    return ok({"invoices": rows, "totalOutstanding": total, "aging": buckets if aging else None})
+    return ok({"invoices": rows, "totalOutstanding": total, "aging": buckets})
 
 
 @router.get("/api/v1/reports/financial/ap")

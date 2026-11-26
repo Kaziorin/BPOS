@@ -52,6 +52,36 @@ class AuthUser:
         self.businessType = payload.get("businessType", "")
 
 
+_BILLING_EXEMPT_PREFIXES = (
+    "/api/auth/",
+    "/api/v1/auth/",
+    "/api/v1/saas/plans",
+    "/api/v1/saas/subscription",
+    "/api/v1/onboarding/",
+)
+
+
+async def _enforce_subscription_active(db: AsyncSession, tenant_id: str, path: str, is_super: bool) -> None:
+    if is_super or not tenant_id:
+        return
+    if any(path.startswith(p) for p in _BILLING_EXEMPT_PREFIXES):
+        return
+    sub = (await db.execute(
+        text(
+            "SELECT status, COALESCE(currentPeriodEnd, trialEndsAt) AS expAt "
+            "FROM saas_subscriptions WHERE tenantId = :t ORDER BY createdAt DESC LIMIT 1"
+        ),
+        {"t": tenant_id},
+    )).first()
+    if not sub:
+        return
+    sub_status = (sub[0] or "").upper()
+    exp_at = sub[1]
+    from datetime import datetime
+    if sub_status == "EXPIRED" or (exp_at is not None and exp_at <= datetime.utcnow()):
+        raise HTTPException(403, "Subscription expired — please renew your plan")
+
+
 async def require_auth(request: Request, db: AsyncSession = Depends(get_db)) -> AuthUser:
     auth = request.headers.get("authorization", "")
     if not auth.startswith("Bearer "):
@@ -76,6 +106,7 @@ async def require_auth(request: Request, db: AsyncSession = Depends(get_db)) -> 
         is_super = role_l in ("super admin", "superadmin", "system admin") or email_l == "admin@gmail.com"
         if (user_row[2] or "").upper() == "SUSPENDED" and not is_super:
             raise HTTPException(403, "Your business account has been suspended")
+        await _enforce_subscription_active(db, payload.get("tenantId", ""), request.url.path, is_super)
 
     request.state.user = AuthUser(payload)
     return request.state.user
@@ -107,6 +138,7 @@ async def resolve_tenant(
                 t_row = (await db.execute(text("SELECT status FROM tenants WHERE id = :t"), {"t": token_tenant})).first()
                 if t_row and (t_row[0] or "").upper() == "SUSPENDED":
                     raise HTTPException(403, "Your business account has been suspended")
+                await _enforce_subscription_active(db, token_tenant, request.url.path, is_super)
             request.state.tenantId = token_tenant
             return token_tenant
         row = (await db.execute(text("SELECT id FROM tenants LIMIT 1"))).first()
@@ -189,6 +221,7 @@ def require_permission(*codes: str):
                 raise HTTPException(401, "User account not found or deactivated")
             if (user_row[2] or "").upper() == "SUSPENDED" and not is_super:
                 raise HTTPException(403, "Your business account has been suspended")
+            await _enforce_subscription_active(db, payload.get("tenantId", ""), request.url.path, is_super)
 
         user = AuthUser(payload)
         request.state.user = user

@@ -67,20 +67,20 @@ export default function DynamicProductCard({ product, businessType: propBusiness
   };
 
   return (
-    <div className="group relative flex flex-col bg-white rounded-2xl border border-slate-200/90 hover:border-sky-300 shadow-xs hover:shadow-xl hover:shadow-sky-500/10 transition-all duration-300 overflow-hidden">
+    <div className="group relative flex flex-col bg-white rounded-xl border border-stone-200 hover:border-stone-400 shadow-2xs hover:shadow-md transition-all duration-200 overflow-hidden">
       {/* ── 1. BUSINESS SPECIFIC BADGES ── */}
       <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none gap-1.5">
         {/* Business Badge */}
         {businessType === "PHARMACY" && product.genericName ? (
-          <span className="px-2 py-0.5 bg-sky-500/90 backdrop-blur-md text-white rounded-md text-[10px] font-bold tracking-wide shadow-xs flex items-center gap-1">
-            💊 {product.genericName}
+          <span className="px-2 py-0.5 bg-[#0F5132]/90 backdrop-blur-md text-white rounded-md text-[10px] font-semibold shadow-2xs flex items-center gap-1">
+            <ShieldCheck className="w-3 h-3" /> {product.genericName}
           </span>
         ) : businessType === "RESTAURANT" && product.spiceLevel ? (
-          <span className="px-2 py-0.5 bg-amber-500/90 backdrop-blur-md text-white rounded-md text-[10px] font-bold tracking-wide shadow-xs flex items-center gap-0.5">
-            <Flame className="w-3 h-3 text-red-100" /> Spice Lvl {product.spiceLevel}
+          <span className="px-2 py-0.5 bg-amber-700/90 backdrop-blur-md text-white rounded-md text-[10px] font-semibold shadow-2xs flex items-center gap-0.5">
+            <Flame className="w-3 h-3 text-amber-100" /> Spice Lvl {product.spiceLevel}
           </span>
         ) : product.categoryName ? (
-          <span className="px-2.5 py-0.5 bg-white/95 backdrop-blur-md text-slate-700 rounded-full text-[11px] font-semibold tracking-wide border border-slate-100 shadow-xs truncate max-w-[120px]">
+          <span className="px-2.5 py-0.5 bg-white/95 backdrop-blur-md text-stone-700 rounded-full text-[11px] font-medium border border-stone-200 shadow-2xs truncate max-w-[120px]">
             {product.categoryName}
           </span>
         ) : <div />}

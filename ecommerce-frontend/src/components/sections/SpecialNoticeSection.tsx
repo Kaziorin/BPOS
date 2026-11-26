@@ -31,8 +31,8 @@ export default function SpecialNoticeSection({ section, isDarkMode = false }: Sp
           <div
             className={`w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${
               isDarkMode
-                ? "bg-zinc-800 border-zinc-700 text-sky-400"
-                : "bg-white border-slate-200 text-sky-600 shadow-2xs"
+                ? "bg-zinc-800 border-zinc-700 text-orange-400"
+                : "bg-orange-50 border-orange-200 text-orange-600 shadow-2xs"
             }`}
           >
             <Bell className="w-4 h-4" />
@@ -40,11 +40,11 @@ export default function SpecialNoticeSection({ section, isDarkMode = false }: Sp
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
               {badge && (
-                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-sky-600 text-white">
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-orange-600 text-white">
                   {badge}
                 </span>
               )}
-              <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
+              <h3 className={`text-xs sm:text-sm font-semibold ${isDarkMode ? "text-white" : "text-stone-900"}`}>
                 {title}
               </h3>
             </div>
@@ -59,7 +59,7 @@ export default function SpecialNoticeSection({ section, isDarkMode = false }: Sp
         {settings.ctaText && (
           <Link
             href={settings.ctaLink || "/products"}
-            className="shrink-0 px-3.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-medium text-xs flex items-center gap-1.5 shadow-2xs transition-colors"
+            className="shrink-0 px-3.5 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium text-xs flex items-center gap-1.5 shadow-2xs transition-colors"
           >
             <span>{settings.ctaText}</span>
             <ArrowRight className="w-3.5 h-3.5" />

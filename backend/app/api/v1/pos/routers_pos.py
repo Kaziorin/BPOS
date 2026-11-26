@@ -405,9 +405,10 @@ async def pos_confirm(body: dict, user: AuthUser = Depends(require_auth),
                     "VALUES (:id, :t, :sh, 'CASH_SALE', :amt, 'SALE', :rid, :note, :u)"),
                     {"id": _uuid_str(), "t": tenant, "sh": shiftId, "amt": net_cash, "rid": saleId,
                      "note": f"Cash sale {invoiceNo}", "u": user.id})
-        # customer dues update for credit
-        if credit_amt > 0 and customerId:
-            await db.execute(text("UPDATE customers SET currentDue = currentDue + :amt WHERE id=:id"), {"amt": credit_amt, "id": customerId})
+        # customer dues update for credit / unpaid balance
+        due_to_add = max(credit_amt, due)
+        if due_to_add > 0 and customerId:
+            await db.execute(text("UPDATE customers SET currentDue = currentDue + :amt WHERE id=:id"), {"amt": due_to_add, "id": customerId})
         # Loyalty points award (§10.22 — Prompt 26 keeps the ledger account in sync)
         if customerId:
             pts_earned = int(total // 100)

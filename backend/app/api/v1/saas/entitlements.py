@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 from typing import Iterable
 
 from sqlalchemy import text
@@ -276,11 +277,15 @@ async def get_tenant_subscription_payload(
             "maxAPICallsDaily": sub_row.maxAPICallsDaily,
             "maxAIQueriesDaily": sub_row.maxAIQueriesDaily,
         }
+        exp_dt = sub_row.currentPeriodEnd or sub_row.trialEndsAt
+        is_expired = bool(exp_dt and exp_dt <= datetime.utcnow()) or (sub_row.status or "").upper() == "EXPIRED"
+        effective_status = "EXPIRED" if is_expired else sub_row.status
         sub_meta = {
             "id": sub_row.id,
             "planCode": sub_row.planCode,
             "planName": sub_row.planName,
-            "status": sub_row.status,
+            "status": effective_status,
+            "isExpired": is_expired,
             "billingCycle": sub_row.billingCycle or "MONTHLY",
             "trialEndsAt": str(sub_row.trialEndsAt) if sub_row.trialEndsAt else None,
             "currentPeriodStart": str(sub_row.currentPeriodStart) if sub_row.currentPeriodStart else None,

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   ShoppingBag,
   Search,
@@ -23,6 +23,7 @@ import {
   Sparkles,
   Tag,
   ArrowRight,
+  Check,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -45,14 +46,33 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCat, setSelectedCat] = useState("All Categories");
+  const [isSearchCatOpen, setIsSearchCatOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [notifCount, setNotifCount] = useState(0);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+
+  useEffect(() => {
+    StorefrontAPI.getCategories()
+      .then((cats) => setCategories(Array.isArray(cats) ? cats : []))
+      .catch(() => {});
+    if (typeof window !== "undefined") {
+      try {
+        const wl = JSON.parse(localStorage.getItem("wishlist") || "[]");
+        setWishlistCount(Array.isArray(wl) ? wl.length : 0);
+      } catch {
+        setWishlistCount(0);
+      }
+      setNotifCount(0);
+    }
+  }, []);
 
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -94,14 +114,14 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
 
   return (
     <>
-      {/* ── Optional Top Header Announcement Bar ── */}
+      {/* ── Top Announcement Bar ── */}
       {theme.showAnnouncement !== false && theme.announcementText && (
-        <div className="text-xs font-normal py-2 px-4 text-center transition-colors flex items-center justify-center gap-2 bg-slate-900 text-slate-200 border-b border-slate-800">
+        <div className="text-xs font-medium py-2 px-4 text-center transition-colors flex items-center justify-center gap-2 bg-[#1C1917] text-stone-200 border-b border-stone-800">
           <span>{theme.announcementText.replace(/[🎉💄🥬✨🚀👗💊🍕]\s*/g, "")}</span>
           {theme.announcementLink && (
             <Link
               href={theme.announcementLink}
-              className="underline hover:text-white inline-flex items-center gap-1 font-medium ml-1 text-xs text-sky-400"
+              className="underline hover:text-white inline-flex items-center gap-1 font-semibold ml-1 text-xs text-orange-400"
             >
               <span>Shop deals</span>
               <ArrowRight className="w-3 h-3" />
@@ -122,85 +142,126 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
       )}
 
       <header
-        className={`sticky top-0 z-40 w-full transition-colors border-b backdrop-blur-md shadow-xs ${
+        className={`sticky top-0 z-40 w-full transition-colors border-b ${
           isDark
-            ? "bg-zinc-950/95 border-zinc-800 text-white"
-            : "bg-white/95 border-slate-200/90 text-slate-800"
+            ? "bg-zinc-950 border-zinc-800 text-white"
+            : "bg-[#FFF7ED] border-orange-200/80 text-stone-900"
         }`}
       >
         {/* Main Navbar Bar */}
         <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12">
-          <div className="flex items-center justify-between h-20 gap-3 sm:gap-6">
+          <div className="flex items-center justify-between h-16 sm:h-[72px] gap-3 sm:gap-6">
             
-            {/* Logo: Image Logo or Text Logo */}
-            <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
+            {/* Logo: Custom Image Logo or SalePay Logo */}
+            <Link href="/" className="flex items-center gap-3 shrink-0 group">
               {theme.headerLogo ? (
                 <img
                   src={theme.headerLogo}
                   alt={brandTitle}
-                  className="h-10 sm:h-12 w-auto object-contain max-w-[180px]"
+                  className="h-9 sm:h-11 w-auto object-contain max-w-[180px]"
                 />
               ) : (
-                <div
-                  className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold shadow-md group-hover:scale-105 transition-transform"
-                  style={{
-                    backgroundColor: primaryColor,
-                    boxShadow: `0 8px 16px ${primaryColor}40`,
-                  }}
-                >
-                  <ShoppingBag className="w-5 h-5 text-white" />
-                </div>
-              )}
-              
-              {!theme.headerLogo && (
-                <div>
-                  <span
-                    className="text-xl font-black tracking-tight block"
-                    style={{ color: primaryColor }}
-                  >
-                    {brandTitle}
-                  </span>
-                  <span className="block text-[9px] font-bold text-slate-400 tracking-wider uppercase">
-                    {brandTagline}
-                  </span>
-                </div>
+                <img
+                  src={isDark ? "/logos/salepay-logo-white.png" : "/logos/salepay-logo-blue.png"}
+                  alt="SalePay"
+                  className="h-9 sm:h-10 w-auto object-contain max-w-[150px]"
+                />
               )}
             </Link>
 
             {/* Search Bar with Category Selector & Autocomplete Dropdown */}
-            <div className="hidden md:flex flex-1 max-w-2xl relative">
+            <div className="hidden md:flex flex-1 max-w-xl relative">
               <form
                 onSubmit={handleSearchSubmit}
-                className={`w-full flex items-center rounded-full border px-4 py-2 transition-all ${
+                className={`w-full h-11 flex items-center rounded-lg border px-3.5 transition-colors ${
                   isDark
-                    ? "bg-zinc-900 border-zinc-700/80 focus-within:border-sky-500"
-                    : "bg-slate-50 border-slate-200 focus-within:bg-white shadow-xs"
+                    ? "bg-zinc-900 border-zinc-700 focus-within:border-orange-500"
+                    : "bg-white border-orange-200 focus-within:border-orange-600 shadow-2xs"
                 }`}
               >
-                <Search className="w-4 h-4 text-slate-400 shrink-0 mr-2.5" />
+                <Search className={`w-4 h-4 shrink-0 mr-2.5 ${isDark ? "text-zinc-400" : "text-slate-400"}`} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => searchQuery.trim() && setShowSearchDropdown(true)}
-                  placeholder="Search for products, brands, coupons and more..."
-                  className="w-full bg-transparent text-xs sm:text-sm focus:outline-none placeholder-slate-400 text-slate-900 dark:text-white"
+                  placeholder="Search products"
+                  className={`w-full bg-transparent text-xs sm:text-sm focus:outline-none ${
+                    isDark ? "placeholder-zinc-500 text-white" : "placeholder-slate-400 text-slate-900"
+                  }`}
                 />
 
-                {/* Category selector inside Search */}
-                <div className="relative border-l border-slate-200 dark:border-zinc-700 pl-3 ml-2 shrink-0">
-                  <select
-                    value={selectedCat}
-                    onChange={(e) => setSelectedCat(e.target.value)}
-                    className="bg-transparent text-xs font-semibold text-slate-600 dark:text-zinc-300 focus:outline-none cursor-pointer"
+                {/* Category selector inside Search (Custom Orange Dropdown) */}
+                <div className={`relative border-l pl-2.5 ml-2 shrink-0 ${isDark ? "border-zinc-700" : "border-orange-200"}`}>
+                  <button
+                    type="button"
+                    onClick={() => setIsSearchCatOpen((v) => !v)}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
+                      isDark
+                        ? "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
+                        : "bg-orange-50 text-orange-800 border border-orange-200 hover:bg-orange-100"
+                    }`}
                   >
-                    <option value="All Categories" className="dark:bg-zinc-900">All Categories</option>
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id} className="dark:bg-zinc-900">
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
+                    <span className="max-w-[110px] truncate">
+                      {selectedCat === "All Categories"
+                        ? "All Categories"
+                        : categories.find((c) => c.id === selectedCat)?.name || "All Categories"}
+                    </span>
+                    <ChevronDown className="w-3 h-3 opacity-70" />
+                  </button>
+
+                  {isSearchCatOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setIsSearchCatOpen(false)} />
+                      <div className={`absolute right-0 top-full mt-2 w-56 rounded-xl border shadow-xl p-1.5 z-50 ${
+                        isDark ? "bg-zinc-900 border-zinc-700" : "bg-white border-stone-200"
+                      }`}>
+                        <div className="space-y-0.5 max-h-72 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-stone-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedCat("All Categories");
+                              setIsSearchCatOpen(false);
+                            }}
+                            className={`w-full flex items-center justify-between text-left px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer ${
+                              selectedCat === "All Categories"
+                                ? isDark
+                                  ? "bg-orange-500/20 text-orange-300 font-semibold"
+                                  : "bg-orange-50 text-orange-700 font-semibold"
+                                : isDark
+                                ? "text-zinc-200 hover:bg-zinc-800"
+                                : "text-stone-700 hover:bg-stone-100"
+                            }`}
+                          >
+                            <span>All Categories</span>
+                            {selectedCat === "All Categories" && <Check className="w-3.5 h-3.5 text-orange-600 shrink-0" />}
+                          </button>
+                          {categories.map((c) => (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedCat(c.id);
+                                setIsSearchCatOpen(false);
+                              }}
+                              className={`w-full flex items-center justify-between gap-2 text-left px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer ${
+                                selectedCat === c.id
+                                  ? isDark
+                                    ? "bg-orange-500/20 text-orange-300 font-semibold"
+                                    : "bg-orange-50 text-orange-700 font-semibold"
+                                  : isDark
+                                  ? "text-zinc-200 hover:bg-zinc-800"
+                                  : "text-stone-700 hover:bg-stone-100"
+                              }`}
+                            >
+                              <span className="truncate">{c.name}</span>
+                              {selectedCat === c.id && <Check className="w-3.5 h-3.5 text-orange-600 shrink-0" />}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </form>
 
@@ -211,13 +272,17 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
                     className="fixed inset-0 z-40"
                     onClick={() => setShowSearchDropdown(false)}
                   />
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-2xl shadow-xl overflow-hidden z-50 divide-y divide-slate-100 dark:divide-zinc-800 animate-in fade-in zoom-in-95">
-                    <div className="p-3 bg-slate-50 dark:bg-zinc-800/60 flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
+                  <div className={`absolute top-full left-0 right-0 mt-2 rounded-xl border shadow-xl overflow-hidden z-50 divide-y ${
+                    isDark ? "bg-zinc-900 border-zinc-700 divide-zinc-800" : "bg-[#FFF7ED] border-orange-200 divide-orange-100"
+                  }`}>
+                    <div className={`p-3 flex items-center justify-between text-[11px] font-semibold ${
+                      isDark ? "bg-zinc-800/60 text-zinc-400" : "bg-orange-100/70 text-orange-900"
+                    }`}>
                       <span>Live Results ({searchResults.length})</span>
                       <button
                         type="button"
                         onClick={() => setShowSearchDropdown(false)}
-                        className="text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
+                        className="text-stone-500 hover:text-orange-700 cursor-pointer"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -232,38 +297,42 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
                             setShowSearchDropdown(false);
                             setSearchQuery("");
                           }}
-                          className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors group"
+                          className={`flex items-center justify-between p-2 rounded-lg transition-colors group ${
+                            isDark ? "hover:bg-zinc-800" : "hover:bg-orange-100/70"
+                          }`}
                         >
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 overflow-hidden shrink-0 flex items-center justify-center">
+                            <div className={`w-9 h-9 rounded-md border overflow-hidden shrink-0 flex items-center justify-center ${
+                              isDark ? "bg-zinc-800 border-zinc-700" : "bg-white border-orange-200"
+                            }`}>
                               {item.imageUrl ? (
                                 <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                               ) : (
-                                <ShoppingBag className="w-4 h-4 text-slate-400" />
+                                <ShoppingBag className="w-4 h-4 text-orange-400" />
                               )}
                             </div>
                             <div className="min-w-0">
-                              <h4 className="text-xs font-semibold text-slate-800 dark:text-white group-hover:text-sky-600 transition-colors truncate">
+                              <h4 className={`text-xs font-semibold truncate ${isDark ? "text-white" : "text-stone-900 group-hover:text-orange-700"}`}>
                                 {item.name}
                               </h4>
-                              <span className="text-[10px] text-slate-400 font-normal">
+                              <span className="text-[10px] text-stone-500 font-normal">
                                 {item.categoryName || "Product"}
                               </span>
                             </div>
                           </div>
 
-                          <span className="text-xs font-bold text-slate-900 dark:text-white shrink-0 ml-2 tabular-nums font-mono">
+                          <span className={`text-xs font-bold shrink-0 ml-2 tabular-nums font-mono ${isDark ? "text-white" : "text-stone-900"}`}>
                             ৳{Number(item.sellingPrice || item.price || 0).toLocaleString()}
                           </span>
                         </Link>
                       ))}
                     </div>
 
-                    <div className="p-2.5 bg-slate-50/80 dark:bg-zinc-800/40 text-center border-t border-slate-100 dark:border-zinc-800">
+                    <div className={`p-2.5 text-center border-t ${isDark ? "bg-zinc-800/40 border-zinc-800" : "bg-orange-100/60 border-orange-200"}`}>
                       <Link
                         href={`/products?search=${encodeURIComponent(searchQuery.trim())}`}
                         onClick={() => setShowSearchDropdown(false)}
-                        className="text-xs font-semibold text-sky-600 hover:underline inline-flex items-center gap-1"
+                        className="text-xs font-semibold text-orange-700 hover:underline inline-flex items-center gap-1"
                       >
                         <span>View all matching products</span>
                         <ArrowRight className="w-3 h-3" />
@@ -274,66 +343,108 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
               )}
             </div>
 
-            {/* Right Action Icons (Location, Wishlist, Notification, Account, Cart) */}
-            <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
-              
-              {/* Promo Deals Badge Link */}
-              <Link
-                href="/products?filter=deals"
-                className="hidden xl:flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200 transition-colors"
-              >
-                <Tag className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-                <span>Special deals</span>
-              </Link>
-
-              {/* Wishlist */}
+            {/* Right Action Icons: Wishlist, Notification, Cart, Sign In */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {/* Wishlist with Corner Count Badge */}
               <Link
                 href="/products"
-                className="w-9 h-9 rounded-full flex items-center justify-center text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                className={`relative h-10 w-10 rounded-full flex items-center justify-center transition-colors shrink-0 ${
+                  isDark
+                    ? "text-zinc-200 hover:bg-zinc-800"
+                    : "text-stone-700 hover:bg-orange-100/70 hover:text-orange-700"
+                }`}
                 title="Wishlist"
               >
-                <Heart className="w-4 h-4" />
+                <Heart className="w-6 h-6" />
+                <span className={`absolute top-0.5 right-0.5 min-w-4 h-4 px-1 rounded-full bg-orange-600 text-white flex items-center justify-center font-bold text-[10px] leading-none tabular-nums font-mono ring-2 ${
+                  isDark ? "ring-zinc-950" : "ring-[#FFF7ED]"
+                }`}>
+                  {wishlistCount}
+                </span>
               </Link>
 
-              {/* Notifications */}
+              {/* Notification with Corner Count Badge & Popover */}
+              <div className="relative flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setIsNotifOpen((v) => !v)}
+                  className={`relative h-10 w-10 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
+                    isDark
+                      ? "text-zinc-200 hover:bg-zinc-800"
+                      : "text-stone-700 hover:bg-orange-100/70 hover:text-orange-700"
+                  }`}
+                  title="Notifications"
+                >
+                  <Bell className="w-6 h-6" />
+                  <span className={`absolute top-0.5 right-0.5 min-w-4 h-4 px-1 rounded-full bg-orange-600 text-white flex items-center justify-center font-bold text-[10px] leading-none tabular-nums font-mono ring-2 ${
+                    isDark ? "ring-zinc-950" : "ring-[#FFF7ED]"
+                  }`}>
+                    {notifCount}
+                  </span>
+                </button>
+
+                {isNotifOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsNotifOpen(false)} />
+                    <div className={`absolute right-0 top-full mt-2 w-72 rounded-xl border shadow-xl p-3 z-50 ${
+                      isDark ? "bg-zinc-900 border-zinc-700 text-white" : "bg-white border-stone-200 text-stone-800"
+                    }`}>
+                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-stone-100">
+                        <span className="text-xs font-semibold">Notifications</span>
+                        <span className="text-[11px] text-stone-400">{notifCount} unread</span>
+                      </div>
+                      <p className="text-xs text-stone-500 py-3 text-center">
+                        No new notifications right now.
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Cart with Corner Count Badge */}
               <button
                 type="button"
-                className="relative w-9 h-9 rounded-full flex items-center justify-center text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
-                title="Notifications"
+                onClick={() => setIsDrawerOpen(true)}
+                className={`relative h-10 w-10 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
+                  isDark
+                    ? "text-zinc-200 hover:bg-zinc-800"
+                    : "text-stone-700 hover:bg-orange-100/70 hover:text-orange-700"
+                }`}
+                title="Shopping Cart"
               >
-                <Bell className="w-4 h-4" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500" />
+                <ShoppingBag className="w-6 h-6" />
+                <span className={`absolute top-0.5 right-0.5 min-w-4 h-4 px-1 rounded-full bg-orange-600 text-white flex items-center justify-center font-bold text-[10px] leading-none tabular-nums font-mono ring-2 ${
+                  isDark ? "ring-zinc-950" : "ring-[#FFF7ED]"
+                }`}>
+                  {cartCount}
+                </span>
               </button>
 
-              {/* User Account / Login Button */}
-              <div className="relative">
+              {/* User Account / Sign In Button */}
+              <div className="relative flex items-center ml-1">
                 {customer || adminUser ? (
                   <button
                     type="button"
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="flex items-center gap-2 p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                    className={`h-9 flex items-center gap-2 px-2.5 rounded-full border transition-colors cursor-pointer ${
+                      isDark ? "bg-zinc-900 border-zinc-700 hover:bg-zinc-800" : "bg-white border-orange-200 hover:bg-orange-50"
+                    }`}
                   >
-                    <div
-                      className="w-8 h-8 rounded-full text-white flex items-center justify-center font-bold text-xs"
-                      style={{ backgroundColor: primaryColor }}
-                    >
+                    <div className="w-5 h-5 rounded-full bg-orange-600 text-white flex items-center justify-center font-bold text-[10px]">
                       {(adminUser?.name || customer?.name || "U")[0].toUpperCase()}
                     </div>
-                    <div className="hidden sm:block text-left leading-tight pr-1">
-                      <span className="block text-xs font-bold truncate max-w-[90px]">
+                    <div className="hidden sm:block text-left leading-tight pr-0.5">
+                      <span className={`block text-xs font-semibold truncate max-w-[90px] ${isDark ? "text-white" : "text-stone-900"}`}>
                         {adminUser?.name || customer?.name}
                       </span>
-                      <span className="block text-[9px] text-slate-400 font-semibold uppercase">
-                        {isAdmin ? "Admin / Owner" : "Customer"}
-                      </span>
                     </div>
-                    <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                    <ChevronDown className="w-3.5 h-3.5 text-stone-400" />
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setIsLoginModalOpen(true)}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:bg-slate-800 transition-all shadow-xs"
+                    className="h-9 inline-flex items-center justify-center gap-1.5 px-3.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold transition-colors cursor-pointer shrink-0"
                   >
                     <User className="w-3.5 h-3.5" />
                     <span>Sign In</span>
@@ -342,12 +453,14 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
 
                 {/* Dropdown Menu */}
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xl py-2 z-50 animate-fadeIn">
-                    <div className="px-4 py-2 border-b border-slate-100 dark:border-zinc-800">
-                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                  <div className={`absolute right-0 mt-2 w-56 rounded-xl border shadow-lg py-1.5 z-50 ${
+                    isDark ? "bg-zinc-900 border-zinc-800" : "bg-white border-stone-200"
+                  }`}>
+                    <div className={`px-4 py-2 border-b ${isDark ? "border-zinc-800" : "border-stone-100"}`}>
+                      <p className={`text-xs font-semibold truncate ${isDark ? "text-white" : "text-stone-900"}`}>
                         {adminUser?.name || customer?.name}
                       </p>
-                      <p className="text-[11px] text-slate-400 truncate">
+                      <p className="text-[11px] text-stone-500 truncate">
                         {adminUser?.email || customer?.phone || customer?.email}
                       </p>
                     </div>
@@ -356,17 +469,19 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
                       <Link
                         href="/setup"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-sky-600 hover:bg-sky-50 dark:hover:bg-zinc-800 transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-orange-600 hover:bg-orange-50 transition-colors"
                       >
                         <Sliders className="w-3.5 h-3.5" />
-                        <span>Page Builder & Setup</span>
+                        <span>Page Builder &amp; Setup</span>
                       </Link>
                     )}
 
                     <Link
                       href="/track-order"
                       onClick={() => setIsUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors"
+                      className={`flex items-center gap-2 px-4 py-2 text-xs font-medium transition-colors ${
+                        isDark ? "text-zinc-300 hover:bg-zinc-800" : "text-stone-700 hover:bg-stone-50"
+                      }`}
                     >
                       <Truck className="w-3.5 h-3.5" />
                       <span>Track Orders</span>
@@ -378,7 +493,7 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
                         logout();
                         setIsUserMenuOpen(false);
                       }}
-                      className="w-full text-left flex items-center gap-2 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-zinc-800 transition-colors"
+                      className="w-full text-left flex items-center gap-2 px-4 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       <span>Logout</span>
@@ -387,84 +502,69 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
                 )}
               </div>
 
-              {/* Mini Cart Button */}
-              <button
-                type="button"
-                onClick={() => setIsDrawerOpen(true)}
-                className="relative flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg text-white font-semibold text-xs shadow-2xs transition-colors bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 cursor-pointer"
-              >
-                <ShoppingBag className="w-4 h-4" />
-                <span className="hidden sm:inline">Cart</span>
-                <span className="w-4 h-4 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-[10px] tabular-nums font-mono">
-                  {cartCount}
-                </span>
-              </button>
-
             </div>
 
           </div>
         </div>
 
         {/* Categories Navigation Bar */}
-        <div className="border-t border-slate-100 dark:border-zinc-800/80 bg-slate-50/70 dark:bg-zinc-900/60 hidden sm:block">
-          <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 flex items-center justify-between py-2 text-xs font-semibold">
+        <div className={`border-t hidden sm:block ${
+          isDark ? "border-zinc-800 bg-zinc-900 text-zinc-200" : "border-orange-100 bg-white text-stone-700"
+        }`}>
+          <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 flex items-center justify-between h-11 text-xs font-medium">
             
-            {/* All Categories Trigger */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-slate-900 text-white dark:bg-zinc-800 dark:text-zinc-200 text-xs font-medium shadow-2xs hover:bg-slate-800 transition-colors"
-              >
-                <Layers className="w-3.5 h-3.5" />
-                <span>All Categories</span>
-                <ChevronDown className="w-3 h-3" />
-              </button>
+            <div className="flex items-center gap-6">
+              {/* All Categories Trigger */}
+              <div className="relative flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                  className="h-11 flex items-center gap-2 px-4 rounded-none bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  <Menu className="w-4 h-4" />
+                  <span>All Categories</span>
+                  <ChevronDown className="w-3.5 h-3.5 opacity-80" />
+                </button>
 
-              {/* Categories Mega Dropdown */}
-              {isCategoryOpen && (
-                <div className="absolute left-0 mt-2 w-64 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl p-2 z-50 animate-fadeIn">
-                  {categories.map((c) => (
-                    <Link
-                      key={c.id}
-                      href={`/products?categoryId=${c.id}`}
-                      onClick={() => setIsCategoryOpen(false)}
-                      className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
-                    >
-                      <span>{c.name}</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
+                {/* Categories Dropdown */}
+                {isCategoryOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsCategoryOpen(false)} />
+                    <div className={`absolute left-0 top-full mt-0 w-56 rounded-none border shadow-xl p-1.5 z-50 ${
+                      isDark ? "bg-zinc-900 border-zinc-800" : "bg-white border-stone-200"
+                    }`}>
+                      {categories.length === 0 ? (
+                        <div className="px-3 py-2 text-xs text-stone-400">No categories yet</div>
+                      ) : (
+                        <div className="space-y-0.5 max-h-72 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-stone-200">
+                          {categories.map((c) => (
+                            <Link
+                              key={c.id}
+                              href={`/products?categoryId=${c.id}`}
+                              onClick={() => setIsCategoryOpen(false)}
+                              className={`flex items-center justify-between px-3 py-1.5 rounded-none text-xs transition-colors ${
+                                isDark ? "text-zinc-200 hover:bg-zinc-800" : "text-stone-700 hover:bg-orange-50 hover:text-orange-700"
+                              }`}
+                            >
+                              <span className="truncate">{c.name}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Essential E-Commerce Nav Links with Active Route Highlight */}
+              <Suspense fallback={null}>
+                <BottomNavLinks isDark={isDark} />
+              </Suspense>
             </div>
 
-            {/* Quick Links */}
-            <div className="flex items-center gap-6 text-slate-600 dark:text-zinc-300">
-              <Link href="/products?filter=deals" className="hover:underline font-bold" style={{ color: primaryColor }}>
-                Deals & Coupons
-              </Link>
-              <Link href="/products?category=Grocery" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                Grocery
-              </Link>
-              <Link href="/products?category=Fashion" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                Fashion
-              </Link>
-              <Link href="/products?category=Electronics" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                Electronics
-              </Link>
-              <Link href="/products?category=Home" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                Home & Living
-              </Link>
-              <Link href="/products?category=Beauty" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                Beauty & Care
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-4 text-slate-500 dark:text-zinc-400">
-              <Link href="/track-order" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-                Track Order
-              </Link>
-            </div>
+            <Suspense fallback={null}>
+              <TrackOrderNavLink isDark={isDark} />
+            </Suspense>
 
           </div>
         </div>
@@ -474,5 +574,61 @@ export default function Navbar({ isDarkMode }: NavbarProps) {
       {/* Auth Modal */}
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </>
+  );
+}
+
+function BottomNavLinks({ isDark }: { isDark: boolean }) {
+  const pathname = usePathname();
+
+  const isHome = pathname === "/";
+  const isShop = pathname === "/products";
+  const isAbout = pathname === "/about";
+  const isContact = pathname === "/contact";
+
+  const linkClass = (active: boolean) =>
+    `h-11 inline-flex items-center border-b-2 transition-colors text-xs ${
+      active
+        ? "border-orange-600 text-orange-600 font-semibold"
+        : isDark
+        ? "border-transparent text-zinc-300 hover:text-white font-medium"
+        : "border-transparent text-stone-700 hover:text-orange-600 font-medium"
+    }`;
+
+  return (
+    <nav className="flex items-center gap-6">
+      <Link href="/" className={linkClass(isHome)}>
+        Home
+      </Link>
+      <Link href="/products" className={linkClass(isShop)}>
+        Shop
+      </Link>
+      <Link href="/about" className={linkClass(isAbout)}>
+        About
+      </Link>
+      <Link href="/contact" className={linkClass(isContact)}>
+        Contact
+      </Link>
+    </nav>
+  );
+}
+
+function TrackOrderNavLink({ isDark }: { isDark: boolean }) {
+  const pathname = usePathname();
+  const isTrack = pathname.startsWith("/track-order");
+
+  return (
+    <Link
+      href="/track-order"
+      className={`h-11 flex items-center gap-1.5 border-b-2 text-xs transition-colors ${
+        isTrack
+          ? "border-orange-600 text-orange-600 font-semibold"
+          : isDark
+          ? "border-transparent text-zinc-300 hover:text-white font-medium"
+          : "border-transparent text-stone-600 hover:text-orange-600 font-medium"
+      }`}
+    >
+      <Truck className="w-3.5 h-3.5" />
+      <span>Track Order</span>
+    </Link>
   );
 }

@@ -426,26 +426,34 @@ async def display_message(
 async def list_jobs(
     status: str = "",
     deviceType: str = "",
-    limit: int = 50,
+    page: int = 1,
+    limit: int = 20,
     user: AuthUser = Depends(require_auth),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
+    lim = max(1, min(limit, 100))
+    pg = max(1, page)
+    off = (pg - 1) * lim
     where = "tenantId=:t"
-    params: dict = {"t": tenantId, "lim": min(limit, 200)}
+    params: dict = {"t": tenantId}
     if status:
         where += " AND status=:s"; params["s"] = status.upper()
     if deviceType:
         where += " AND deviceType=:dt"; params["dt"] = deviceType.upper()
 
+    total = int((await db.execute(text(f"SELECT COUNT(*) FROM hardware_jobs WHERE {where}"), params)).scalar() or 0)
+    params["lim"] = lim
+    params["off"] = off
     rows = rows_to_dicts((await db.execute(text(
-        f"SELECT * FROM hardware_jobs WHERE {where} ORDER BY createdAt DESC LIMIT :lim"), params)).fetchall())
+        f"SELECT * FROM hardware_jobs WHERE {where} ORDER BY createdAt DESC LIMIT :lim OFFSET :off"), params)).fetchall())
     for r in rows:
         for field in ("payload", "result"):
             if isinstance(r.get(field), str):
                 try: r[field] = json.loads(r[field])
                 except: pass
-    return ok(rows)
+    total_pages = max(1, (total + lim - 1) // lim)
+    return ok(rows, extra={"pagination": {"page": pg, "limit": lim, "total": total, "totalPages": total_pages}})
 
 
 @router.get("/api/v1/hardware/stats")

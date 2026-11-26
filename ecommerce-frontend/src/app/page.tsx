@@ -89,7 +89,7 @@ export default function HomePage() {
   const isDark = theme.isDarkMode;
 
   return (
-    <div className={`min-h-screen ${isDark ? "bg-zinc-950 text-white" : "bg-white text-slate-900"}`}>
+    <div className={`min-h-screen ${isDark ? "bg-zinc-950 text-white" : "bg-[#FAF8F5] text-stone-900"}`}>
       {/* Admin Floating Bar if logged in as Admin */}
       <AdminBar />
 

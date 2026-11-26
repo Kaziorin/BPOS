@@ -19,50 +19,46 @@ export default function GeneralStore({ config, products, categories }: GeneralSt
   return (
     <div className="space-y-16 pb-20">
       {/* ── 1. GENERAL HERO BANNER ── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-sky-950 to-slate-900 text-white py-16 md:py-20 px-4 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(14,165,233,0.15),transparent_60%)]" />
-        <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/20 border border-sky-400/30 text-sky-300 text-xs font-semibold backdrop-blur-md">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Official Online Store • Direct Real-Time Inventory</span>
+      <section className="bg-[#161816] text-stone-100 py-16 md:py-20 px-4 sm:px-6 lg:px-8 border-b border-stone-800">
+        <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          <div className="space-y-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-stone-800/90 border border-stone-700 text-stone-200 text-xs font-medium">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              <span>Official storefront • Live store inventory</span>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
-              Welcome to <br />
-              <span className="bg-gradient-to-r from-sky-300 via-teal-200 to-indigo-200 bg-clip-text text-transparent">
-                {storeName}
-              </span>
+            <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight leading-tight text-white">
+              Shop directly from {storeName}
             </h1>
-            <p className="text-slate-300 text-base max-w-xl font-light">
-              {config.tenant.tagline || `Shop quality authentic products directly from ${storeName} with instant dispatch and guaranteed genuine warranty.`}
+            <p className="text-stone-300 text-base max-w-xl leading-relaxed">
+              {config.tenant.tagline || `Authentic products from ${storeName} with direct dispatch and real-time stock availability.`}
             </p>
-            <div className="flex flex-wrap gap-4 pt-2">
+            <div className="flex flex-wrap gap-3 pt-2">
               <Link
                 href="/products"
-                className="px-6 py-3.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-sky-600/30 transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-[#0F5132] hover:bg-[#0A3622] text-white text-sm font-semibold rounded-lg transition-colors inline-flex items-center gap-2"
               >
-                <span>Explore Products</span>
+                <span>Explore products</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/products?sort=newest"
-                className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl backdrop-blur-md border border-white/15 transition-all"
+                className="px-6 py-3 bg-stone-800 hover:bg-stone-700 text-stone-100 text-sm font-medium rounded-lg border border-stone-700 transition-colors"
               >
-                New Arrivals
+                New arrivals
               </Link>
             </div>
           </div>
 
           <div className="hidden lg:flex justify-end">
-            <div className="relative w-80 h-80 rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-gradient-to-br from-sky-900/40 to-slate-900/80 p-6 flex flex-col justify-between backdrop-blur-xl">
-              <div className="w-12 h-12 rounded-2xl bg-sky-500/20 flex items-center justify-center text-sky-400 font-bold text-xl">
-                <Store className="w-6 h-6" />
+            <div className="w-80 h-72 rounded-2xl border border-stone-800 bg-stone-900/90 p-6 flex flex-col justify-between">
+              <div className="w-11 h-11 rounded-xl bg-[#0F5132]/30 border border-emerald-800/50 flex items-center justify-center text-emerald-300">
+                <Store className="w-5 h-5" />
               </div>
-              <div className="space-y-1">
-                <div className="text-xs uppercase tracking-widest text-sky-400 font-semibold">{businessType}</div>
-                <div className="text-xl font-bold text-white">{storeName}</div>
-                <div className="text-xs text-slate-300 pt-1">
-                  ✓ Instant Order Processing • ✓ Verified Products
+              <div className="space-y-1.5">
+                <div className="text-xs font-medium text-stone-400">{businessType}</div>
+                <div className="text-xl font-semibold text-white">{storeName}</div>
+                <div className="text-xs text-stone-400 pt-1">
+                  Direct order sync • Verified catalog
                 </div>
               </div>
             </div>
@@ -72,32 +68,32 @@ export default function GeneralStore({ config, products, categories }: GeneralSt
 
       {/* ── 2. VALUE PROPS ── */}
       <section className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 bg-white p-6 rounded-xl border border-stone-200">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
-              <Truck className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-lg bg-stone-100 text-[#0F5132] flex items-center justify-center shrink-0">
+              <Truck className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-slate-800">Direct Dispatch</h4>
-              <p className="text-xs text-slate-500">Shipped directly from our store inventory</p>
+              <h4 className="text-sm font-semibold text-stone-900">Direct dispatch</h4>
+              <p className="text-xs text-stone-500">Shipped straight from store stock</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-lg bg-stone-100 text-[#0F5132] flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-slate-800">100% Genuine Guaranteed</h4>
-              <p className="text-xs text-slate-500">Authentic products with official warranty</p>
+              <h4 className="text-sm font-semibold text-stone-900">Verified catalog</h4>
+              <p className="text-xs text-stone-500">Official store pricing and stock</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-              <Layers className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-lg bg-stone-100 text-[#0F5132] flex items-center justify-center shrink-0">
+              <Layers className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-slate-800">Multiple Payment Options</h4>
-              <p className="text-xs text-slate-500">Cash on delivery, bKash, Nagad, Card</p>
+              <h4 className="text-sm font-semibold text-stone-900">Flexible checkout</h4>
+              <p className="text-xs text-stone-500">Cash on delivery, bKash, Nagad, Card</p>
             </div>
           </div>
         </div>

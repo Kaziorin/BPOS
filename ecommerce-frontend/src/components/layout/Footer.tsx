@@ -95,14 +95,13 @@ export default function Footer() {
                   className="h-9 max-w-[150px] object-contain rounded-lg"
                 />
               ) : (
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold shadow-md"
-                  style={{ backgroundColor: theme.primaryColor || "#2563eb" }}
-                >
-                  <Store className="w-5 h-5" />
-                </div>
+                <img
+                  src="/logos/salepay-logo-white.png"
+                  alt="SalePay"
+                  className="h-9 max-w-[150px] object-contain"
+                />
               )}
-              <span className="text-xl font-extrabold tracking-tight text-white">{brandName}</span>
+              <span className="text-sm font-semibold text-slate-300 border-l border-slate-800 pl-3">{brandName}</span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed max-w-md">{aboutText}</p>
             
