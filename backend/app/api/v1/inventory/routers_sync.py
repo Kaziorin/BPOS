@@ -484,6 +484,22 @@ async def force_logout_device(
     return ok({"forceLogout": True, "deviceId": deviceId})
 
 
+@router.delete("/api/v1/devices/{deviceId}")
+async def delete_device(
+    deviceId: str,
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    """Remove a registered device from this tenant."""
+    await db.execute(
+        text("DELETE FROM device_sync_status WHERE tenantId = :t AND (deviceId = :d OR id = :d)"),
+        {"t": tenantId, "d": deviceId},
+    )
+    await db.commit()
+    return ok({"deleted": True, "deviceId": deviceId})
+
+
 # ═══════════════════ INTERNAL HELPERS ═══════════════════
 
 

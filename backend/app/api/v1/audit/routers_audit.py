@@ -13,7 +13,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
-from security import require_auth, resolve_tenant, AuthUser
+from security import require_auth, require_permission, resolve_tenant, AuthUser
 from util import ok, err, rows_to_dicts
 
 router = APIRouter()
@@ -100,7 +100,7 @@ async def list_audit_logs(
     userId: str = "",
     tenantId: str = "",
     limit: int = 100,
-    user: AuthUser = Depends(require_auth),
+    user: AuthUser = Depends(require_permission("audit.view", "security.view", "settings.view")),
     db: AsyncSession = Depends(get_db),
 ):
     where = "1=1"
@@ -132,7 +132,7 @@ async def entity_audit_trail(
     entityType: str,
     entityId: str,
     limit: int = Query(50),
-    user: AuthUser = Depends(require_auth),
+    user: AuthUser = Depends(require_permission("audit.view", "security.view", "settings.view")),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
@@ -151,7 +151,7 @@ async def entity_audit_trail(
 
 @router.get("/api/v1/audit/stats")
 async def audit_stats(
-    user: AuthUser = Depends(require_auth),
+    user: AuthUser = Depends(require_permission("audit.view", "security.view", "settings.view")),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
@@ -171,7 +171,7 @@ async def audit_stats(
 @router.get("/api/v1/audit/reports/activity")
 async def activity_report(
     days: int = 30,
-    user: AuthUser = Depends(require_auth),
+    user: AuthUser = Depends(require_permission("audit.view", "security.view", "settings.view")),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
@@ -195,7 +195,7 @@ async def activity_report(
 @router.get("/api/v1/audit/reports/user")
 async def user_audit_report(
     userId: str = "",
-    user: AuthUser = Depends(require_auth),
+    user: AuthUser = Depends(require_permission("audit.view", "security.view", "settings.view")),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
@@ -214,7 +214,7 @@ async def user_audit_report(
 @router.post("/api/v1/audit/undo")
 async def undo_audit(
     body: dict,
-    user: AuthUser = Depends(require_auth),
+    user: AuthUser = Depends(require_permission("audit.view", "security.view", "settings.view")),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
@@ -286,7 +286,7 @@ async def list_security_events(
     blocked: str = "",
     tenantId: str = "",
     limit: int = 100,
-    user: AuthUser = Depends(require_auth),
+    user: AuthUser = Depends(require_permission("audit.view", "security.view", "settings.view")),
     db: AsyncSession = Depends(get_db),
 ):
     where = "1=1"
@@ -313,7 +313,7 @@ async def list_security_events(
 @router.get("/api/v1/security/stats")
 async def security_stats(
     days: int = 30,
-    user: AuthUser = Depends(require_auth),
+    user: AuthUser = Depends(require_permission("audit.view", "security.view", "settings.view")),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
@@ -334,7 +334,7 @@ async def security_stats(
 
 @router.get("/api/v1/security/health")
 async def security_health(
-    user: AuthUser = Depends(require_auth),
+    user: AuthUser = Depends(require_permission("audit.view", "security.view", "settings.view")),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):

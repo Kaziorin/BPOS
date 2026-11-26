@@ -81,6 +81,7 @@ async def update_plan(
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
+    _require_super_admin(user)
     row = (await db.execute(text("SELECT id FROM saas_plans WHERE id=:id"), {"id": planId})).first()
     if not row:
         return err("Plan not found", 404)

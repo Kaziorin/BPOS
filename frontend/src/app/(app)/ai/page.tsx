@@ -31,6 +31,7 @@ import {
   Store,
   Layers,
   HelpCircle,
+  Percent,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { CustomBreadcrumb } from "@/components/custom/CustomBreadcrumb";
