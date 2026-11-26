@@ -52,7 +52,8 @@ class AuthUser {
     }
 
     List<String> list = [];
-    if (json['businessTypes'] is List && (json['businessTypes'] as List).isNotEmpty) {
+    if (json['businessTypes'] is List &&
+        (json['businessTypes'] as List).isNotEmpty) {
       list = (json['businessTypes'] as List).map((e) => e.toString()).toList();
     } else if (roleName.toLowerCase().contains('super admin') ||
         userEmail == 'admin@gmail.com') {
@@ -66,23 +67,30 @@ class AuthUser {
     return AuthUser(
       id: (user['id'] ?? json['id'])?.toString() ?? 'usr_1',
       name: (user['name'] ?? json['name'])?.toString() ?? 'Store Manager',
-      email: userEmail.isNotEmpty ? userEmail : (json['email'] ?? '').toString(),
+      email: userEmail.isNotEmpty
+          ? userEmail
+          : (json['email'] ?? '').toString(),
       token: rawToken.isNotEmpty ? rawToken : (json['token'] ?? '').toString(),
-      tenantId: (tenant['id'] ?? user['tenantId'] ?? json['tenantId'])?.toString() ?? '',
-      tenantName: (tenant['name'] ?? user['tenantName'] ?? json['tenantName'])?.toString() ?? 'Blue Oceans POS',
+      tenantId:
+          (tenant['id'] ?? user['tenantId'] ?? json['tenantId'])?.toString() ??
+          '',
+      tenantName:
+          (tenant['name'] ?? user['tenantName'] ?? json['tenantName'])
+              ?.toString() ??
+          'SalePay POS',
       role: roleName,
       businessTypes: list,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'email': email,
-        'token': token,
-        'tenantId': tenantId,
-        'tenantName': tenantName,
-        'role': role,
-        'businessTypes': businessTypes,
-      };
+    'id': id,
+    'name': name,
+    'email': email,
+    'token': token,
+    'tenantId': tenantId,
+    'tenantName': tenantName,
+    'role': role,
+    'businessTypes': businessTypes,
+  };
 }

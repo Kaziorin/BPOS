@@ -1198,7 +1198,7 @@ class RestaurantReceiptModal extends StatelessWidget {
                   // 1. Restaurant Header
                   Center(
                     child: Text(
-                      'BLUE OCEANS RESTAURANT',
+                      'SALEPAY RESTAURANT',
                       style: TextStyle(
                         fontSize: 14.5,
                         fontWeight: FontWeight.w900,
@@ -1602,7 +1602,7 @@ class RestaurantReceiptModal extends StatelessWidget {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Software by BPOS Restaurant',
+                      'Software by SalePay',
                       style: TextStyle(
                         fontSize: 8.5,
                         color: isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8),

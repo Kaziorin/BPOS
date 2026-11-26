@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/app_provider.dart';
+import '../../../core/services/api_service.dart';
 import '../providers/wholesaler_provider.dart';
 import '../theme/wholesaler_colors.dart';
 import 'wholesaler_dialogs.dart';
@@ -22,9 +23,7 @@ class WholesalerFooterBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: WholesalerColors.cardBg(isDark),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: WholesalerColors.border(isDark),
-        ),
+        border: Border.all(color: WholesalerColors.border(isDark)),
         boxShadow: WholesalerColors.softShadow(isDark, elevation: 1.5),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -61,7 +60,10 @@ class WholesalerFooterBar extends StatelessWidget {
                           isDark: isDark,
                           onTap: () {
                             if (w.items.isEmpty) {
-                              _snack(context, 'Add items first to hold an order');
+                              _snack(
+                                context,
+                                'Add items first to hold an order',
+                              );
                               return;
                             }
                             showDialog(
@@ -80,7 +82,10 @@ class WholesalerFooterBar extends StatelessWidget {
                           letter: 'R',
                           label: 'Recent Orders',
                           isDark: isDark,
-                          onTap: () => showLiveSalesHistoryDialog(context, businessType: 'wholesaler'),
+                          onTap: () => showLiveSalesHistoryDialog(
+                            context,
+                            businessType: 'wholesaler',
+                          ),
                         ),
                       ),
                       const SizedBox(width: 5),
@@ -89,7 +94,8 @@ class WholesalerFooterBar extends StatelessWidget {
                           letter: 'Q',
                           label: 'Quotations',
                           isDark: isDark,
-                          onTap: () => _snack(context, '📋 Quotation module opening...'),
+                          onTap: () =>
+                              _snack(context, '📋 Quotation module opening...'),
                         ),
                       ),
                       const SizedBox(width: 5),
@@ -98,7 +104,10 @@ class WholesalerFooterBar extends StatelessWidget {
                           letter: 'S',
                           label: 'Stock Transfer',
                           isDark: isDark,
-                          onTap: () => _snack(context, '🔄 Stock Transfer module opening...'),
+                          onTap: () => _snack(
+                            context,
+                            '🔄 Stock Transfer module opening...',
+                          ),
                         ),
                       ),
                       const SizedBox(width: 5),
@@ -107,7 +116,10 @@ class WholesalerFooterBar extends StatelessWidget {
                           letter: 'S',
                           label: 'Sales History',
                           isDark: isDark,
-                          onTap: () => showLiveSalesHistoryDialog(context, businessType: 'wholesaler'),
+                          onTap: () => showLiveSalesHistoryDialog(
+                            context,
+                            businessType: 'wholesaler',
+                          ),
                         ),
                       ),
                     ],
@@ -119,7 +131,9 @@ class WholesalerFooterBar extends StatelessWidget {
                   width: 1,
                   height: 22,
                   margin: const EdgeInsets.symmetric(horizontal: 8),
-                  color: isDark ? const Color(0xFF2E2B6B) : const Color(0xFFCBD5E1),
+                  color: isDark
+                      ? const Color(0xFF2E2B6B)
+                      : const Color(0xFFCBD5E1),
                 ),
 
                 // ── Right: Metadata Info Chips ───────────────────
@@ -131,7 +145,9 @@ class WholesalerFooterBar extends StatelessWidget {
                         child: _MetaChip(
                           icon: Icons.warehouse_rounded,
                           label: 'WAREHOUSE',
-                          value: w.selectedWarehouse.isNotEmpty ? w.selectedWarehouse : 'Main Warehouse',
+                          value: w.selectedWarehouse.isNotEmpty
+                              ? w.selectedWarehouse
+                              : 'Main Warehouse',
                           isDark: isDark,
                           onTap: () => _pickWarehouse(context, w, isDark),
                         ),
@@ -161,7 +177,9 @@ class WholesalerFooterBar extends StatelessWidget {
                         child: _MetaChip(
                           icon: Icons.local_shipping_rounded,
                           label: 'METHOD',
-                          value: w.deliveryMethod.isNotEmpty ? w.deliveryMethod : 'Standard',
+                          value: w.deliveryMethod.isNotEmpty
+                              ? w.deliveryMethod
+                              : 'Standard',
                           isDark: isDark,
                           onTap: () => _pickDeliveryMethod(context, w, isDark),
                         ),
@@ -171,7 +189,9 @@ class WholesalerFooterBar extends StatelessWidget {
                         child: _MetaChip(
                           icon: Icons.credit_card_rounded,
                           label: 'TERM',
-                          value: w.paymentTerm.isNotEmpty ? w.paymentTerm : '30 Days',
+                          value: w.paymentTerm.isNotEmpty
+                              ? w.paymentTerm
+                              : '30 Days',
                           isDark: isDark,
                           onTap: () => _pickPaymentTerm(context, w, isDark),
                         ),
@@ -225,41 +245,53 @@ class WholesalerFooterBar extends StatelessWidget {
                   letter: 'R',
                   label: 'Recent Orders',
                   isDark: isDark,
-                  onTap: () => showLiveSalesHistoryDialog(context, businessType: 'wholesaler'),
+                  onTap: () => showLiveSalesHistoryDialog(
+                    context,
+                    businessType: 'wholesaler',
+                  ),
                 ),
                 const SizedBox(width: 6),
                 _ActionPill(
                   letter: 'Q',
                   label: 'Quotations',
                   isDark: isDark,
-                  onTap: () => _snack(context, '📋 Quotation module opening...'),
+                  onTap: () =>
+                      _snack(context, '📋 Quotation module opening...'),
                 ),
                 const SizedBox(width: 6),
                 _ActionPill(
                   letter: 'S',
                   label: 'Stock Transfer',
                   isDark: isDark,
-                  onTap: () => _snack(context, '🔄 Stock Transfer module opening...'),
+                  onTap: () =>
+                      _snack(context, '🔄 Stock Transfer module opening...'),
                 ),
                 const SizedBox(width: 6),
                 _ActionPill(
                   letter: 'S',
                   label: 'Sales History',
                   isDark: isDark,
-                  onTap: () => showLiveSalesHistoryDialog(context, businessType: 'wholesaler'),
+                  onTap: () => showLiveSalesHistoryDialog(
+                    context,
+                    businessType: 'wholesaler',
+                  ),
                 ),
 
                 Container(
                   width: 1,
                   height: 22,
                   margin: const EdgeInsets.symmetric(horizontal: 8),
-                  color: isDark ? const Color(0xFF2E2B6B) : const Color(0xFFCBD5E1),
+                  color: isDark
+                      ? const Color(0xFF2E2B6B)
+                      : const Color(0xFFCBD5E1),
                 ),
 
                 _MetaChip(
                   icon: Icons.warehouse_rounded,
                   label: 'WAREHOUSE',
-                  value: w.selectedWarehouse.isNotEmpty ? w.selectedWarehouse : 'Main Warehouse',
+                  value: w.selectedWarehouse.isNotEmpty
+                      ? w.selectedWarehouse
+                      : 'Main Warehouse',
                   isDark: isDark,
                   onTap: () => _pickWarehouse(context, w, isDark),
                 ),
@@ -283,7 +315,9 @@ class WholesalerFooterBar extends StatelessWidget {
                 _MetaChip(
                   icon: Icons.local_shipping_rounded,
                   label: 'METHOD',
-                  value: w.deliveryMethod.isNotEmpty ? w.deliveryMethod : 'Standard',
+                  value: w.deliveryMethod.isNotEmpty
+                      ? w.deliveryMethod
+                      : 'Standard',
                   isDark: isDark,
                   onTap: () => _pickDeliveryMethod(context, w, isDark),
                 ),
@@ -304,17 +338,28 @@ class WholesalerFooterBar extends StatelessWidget {
   }
 
   static void _snack(BuildContext ctx, String msg) {
-    ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
-      content: Text(msg),
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: const Color(0xFF146EF5),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-      duration: const Duration(seconds: 1),
-    ));
+    ScaffoldMessenger.of(ctx).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF146EF5),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        duration: const Duration(seconds: 1),
+      ),
+    );
   }
 
-  static void _pickWarehouse(BuildContext context, WholesalerProvider w, bool isDark) {
-    const warehouses = ['Main Warehouse', 'WH-01 Main', 'WH-02 Annex', 'WH-03 Cold Store'];
+  static void _pickWarehouse(
+    BuildContext context,
+    WholesalerProvider w,
+    bool isDark,
+  ) {
+    const warehouses = [
+      'Main Warehouse',
+      'WH-01 Main',
+      'WH-02 Annex',
+      'WH-03 Cold Store',
+    ];
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -331,38 +376,52 @@ class WholesalerFooterBar extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: warehouses
-              .map((wh) => ListTile(
-                    dense: true,
-                    leading: Icon(
-                      Icons.warehouse_rounded,
+              .map(
+                (wh) => ListTile(
+                  dense: true,
+                  leading: Icon(
+                    Icons.warehouse_rounded,
+                    color: w.selectedWarehouse == wh
+                        ? const Color(0xFF146EF5)
+                        : (isDark
+                              ? const Color(0xFF818CF8)
+                              : const Color(0xFF64748B)),
+                  ),
+                  title: Text(
+                    wh,
+                    style: TextStyle(
+                      fontWeight: w.selectedWarehouse == wh
+                          ? FontWeight.w800
+                          : FontWeight.w600,
                       color: w.selectedWarehouse == wh
                           ? const Color(0xFF146EF5)
-                          : (isDark ? const Color(0xFF818CF8) : const Color(0xFF64748B)),
+                          : (isDark ? Colors.white : const Color(0xFF10213D)),
                     ),
-                    title: Text(
-                      wh,
-                      style: TextStyle(
-                        fontWeight: w.selectedWarehouse == wh ? FontWeight.w800 : FontWeight.w600,
-                        color: w.selectedWarehouse == wh
-                            ? const Color(0xFF146EF5)
-                            : (isDark ? Colors.white : const Color(0xFF10213D)),
-                      ),
-                    ),
-                    trailing: w.selectedWarehouse == wh
-                        ? const Icon(Icons.check_rounded, color: Color(0xFF146EF5), size: 18)
-                        : null,
-                    onTap: () {
-                      w.setWarehouse(wh);
-                      Navigator.pop(context);
-                    },
-                  ))
+                  ),
+                  trailing: w.selectedWarehouse == wh
+                      ? const Icon(
+                          Icons.check_rounded,
+                          color: Color(0xFF146EF5),
+                          size: 18,
+                        )
+                      : null,
+                  onTap: () {
+                    w.setWarehouse(wh);
+                    Navigator.pop(context);
+                  },
+                ),
+              )
               .toList(),
         ),
       ),
     );
   }
 
-  static void _pickSalesRep(BuildContext context, WholesalerProvider w, bool isDark) {
+  static void _pickSalesRep(
+    BuildContext context,
+    WholesalerProvider w,
+    bool isDark,
+  ) {
     const reps = ['Faisal', 'John Smith', 'Sarah Connor', 'Michael Scott'];
     showDialog(
       context: context,
@@ -380,31 +439,41 @@ class WholesalerFooterBar extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: reps
-              .map((rep) => ListTile(
-                    dense: true,
-                    leading: Icon(
-                      Icons.person_rounded,
+              .map(
+                (rep) => ListTile(
+                  dense: true,
+                  leading: Icon(
+                    Icons.person_rounded,
+                    color: w.salesRep == rep
+                        ? const Color(0xFF146EF5)
+                        : (isDark
+                              ? const Color(0xFF818CF8)
+                              : const Color(0xFF64748B)),
+                  ),
+                  title: Text(
+                    rep,
+                    style: TextStyle(
+                      fontWeight: w.salesRep == rep
+                          ? FontWeight.w800
+                          : FontWeight.w600,
                       color: w.salesRep == rep
                           ? const Color(0xFF146EF5)
-                          : (isDark ? const Color(0xFF818CF8) : const Color(0xFF64748B)),
+                          : (isDark ? Colors.white : const Color(0xFF10213D)),
                     ),
-                    title: Text(
-                      rep,
-                      style: TextStyle(
-                        fontWeight: w.salesRep == rep ? FontWeight.w800 : FontWeight.w600,
-                        color: w.salesRep == rep
-                            ? const Color(0xFF146EF5)
-                            : (isDark ? Colors.white : const Color(0xFF10213D)),
-                      ),
-                    ),
-                    trailing: w.salesRep == rep
-                        ? const Icon(Icons.check_rounded, color: Color(0xFF146EF5), size: 18)
-                        : null,
-                    onTap: () {
-                      w.setSalesRep(rep);
-                      Navigator.pop(context);
-                    },
-                  ))
+                  ),
+                  trailing: w.salesRep == rep
+                      ? const Icon(
+                          Icons.check_rounded,
+                          color: Color(0xFF146EF5),
+                          size: 18,
+                        )
+                      : null,
+                  onTap: () {
+                    w.setSalesRep(rep);
+                    Navigator.pop(context);
+                  },
+                ),
+              )
               .toList(),
         ),
       ),
@@ -419,12 +488,24 @@ class WholesalerFooterBar extends StatelessWidget {
       lastDate: DateTime.now().add(const Duration(days: 90)),
     );
     if (picked != null && context.mounted) {
-      _snack(context, 'Delivery Date set to ${DateFormat('MMM d, yyyy').format(picked)}');
+      _snack(
+        context,
+        'Delivery Date set to ${DateFormat('MMM d, yyyy').format(picked)}',
+      );
     }
   }
 
-  static void _pickDeliveryMethod(BuildContext context, WholesalerProvider w, bool isDark) {
-    const methods = ['Standard', 'Express Cargo', 'Customer Pickup', 'Courier / Freight'];
+  static void _pickDeliveryMethod(
+    BuildContext context,
+    WholesalerProvider w,
+    bool isDark,
+  ) {
+    const methods = [
+      'Standard',
+      'Express Cargo',
+      'Customer Pickup',
+      'Courier / Freight',
+    ];
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -441,39 +522,59 @@ class WholesalerFooterBar extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: methods
-              .map((m) => ListTile(
-                    dense: true,
-                    leading: Icon(
-                      Icons.local_shipping_rounded,
+              .map(
+                (m) => ListTile(
+                  dense: true,
+                  leading: Icon(
+                    Icons.local_shipping_rounded,
+                    color: w.deliveryMethod == m
+                        ? const Color(0xFF146EF5)
+                        : (isDark
+                              ? const Color(0xFF818CF8)
+                              : const Color(0xFF64748B)),
+                  ),
+                  title: Text(
+                    m,
+                    style: TextStyle(
+                      fontWeight: w.deliveryMethod == m
+                          ? FontWeight.w800
+                          : FontWeight.w600,
                       color: w.deliveryMethod == m
                           ? const Color(0xFF146EF5)
-                          : (isDark ? const Color(0xFF818CF8) : const Color(0xFF64748B)),
+                          : (isDark ? Colors.white : const Color(0xFF10213D)),
                     ),
-                    title: Text(
-                      m,
-                      style: TextStyle(
-                        fontWeight: w.deliveryMethod == m ? FontWeight.w800 : FontWeight.w600,
-                        color: w.deliveryMethod == m
-                            ? const Color(0xFF146EF5)
-                            : (isDark ? Colors.white : const Color(0xFF10213D)),
-                      ),
-                    ),
-                    trailing: w.deliveryMethod == m
-                        ? const Icon(Icons.check_rounded, color: Color(0xFF146EF5), size: 18)
-                        : null,
-                    onTap: () {
-                      w.setDeliveryMethod(m);
-                      Navigator.pop(context);
-                    },
-                  ))
+                  ),
+                  trailing: w.deliveryMethod == m
+                      ? const Icon(
+                          Icons.check_rounded,
+                          color: Color(0xFF146EF5),
+                          size: 18,
+                        )
+                      : null,
+                  onTap: () {
+                    w.setDeliveryMethod(m);
+                    Navigator.pop(context);
+                  },
+                ),
+              )
               .toList(),
         ),
       ),
     );
   }
 
-  static void _pickPaymentTerm(BuildContext context, WholesalerProvider w, bool isDark) {
-    const terms = ['30 Days', 'Immediate Cash', '15 Days', '45 Days', '60 Days'];
+  static void _pickPaymentTerm(
+    BuildContext context,
+    WholesalerProvider w,
+    bool isDark,
+  ) {
+    const terms = [
+      '30 Days',
+      'Immediate Cash',
+      '15 Days',
+      '45 Days',
+      '60 Days',
+    ];
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -490,31 +591,41 @@ class WholesalerFooterBar extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: terms
-              .map((t) => ListTile(
-                    dense: true,
-                    leading: Icon(
-                      Icons.credit_card_rounded,
+              .map(
+                (t) => ListTile(
+                  dense: true,
+                  leading: Icon(
+                    Icons.credit_card_rounded,
+                    color: w.paymentTerm == t
+                        ? const Color(0xFF146EF5)
+                        : (isDark
+                              ? const Color(0xFF818CF8)
+                              : const Color(0xFF64748B)),
+                  ),
+                  title: Text(
+                    t,
+                    style: TextStyle(
+                      fontWeight: w.paymentTerm == t
+                          ? FontWeight.w800
+                          : FontWeight.w600,
                       color: w.paymentTerm == t
                           ? const Color(0xFF146EF5)
-                          : (isDark ? const Color(0xFF818CF8) : const Color(0xFF64748B)),
+                          : (isDark ? Colors.white : const Color(0xFF10213D)),
                     ),
-                    title: Text(
-                      t,
-                      style: TextStyle(
-                        fontWeight: w.paymentTerm == t ? FontWeight.w800 : FontWeight.w600,
-                        color: w.paymentTerm == t
-                            ? const Color(0xFF146EF5)
-                            : (isDark ? Colors.white : const Color(0xFF10213D)),
-                      ),
-                    ),
-                    trailing: w.paymentTerm == t
-                        ? const Icon(Icons.check_rounded, color: Color(0xFF146EF5), size: 18)
-                        : null,
-                    onTap: () {
-                      w.setPaymentTerm(t);
-                      Navigator.pop(context);
-                    },
-                  ))
+                  ),
+                  trailing: w.paymentTerm == t
+                      ? const Icon(
+                          Icons.check_rounded,
+                          color: Color(0xFF146EF5),
+                          size: 18,
+                        )
+                      : null,
+                  onTap: () {
+                    w.setPaymentTerm(t);
+                    Navigator.pop(context);
+                  },
+                ),
+              )
               .toList(),
         ),
       ),
@@ -563,8 +674,12 @@ class _ActionPillState extends State<_ActionPill> {
           padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: _hovered
-                ? (isDark ? WholesalerColors.surfaceBg(isDark) : const Color(0xFFEBF3FE))
-                : (isDark ? WholesalerColors.surfaceBg(isDark) : const Color(0xFFF5FAFE)),
+                ? (isDark
+                      ? WholesalerColors.surfaceBg(isDark)
+                      : const Color(0xFFEBF3FE))
+                : (isDark
+                      ? WholesalerColors.surfaceBg(isDark)
+                      : const Color(0xFFF5FAFE)),
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
               color: _hovered
@@ -581,11 +696,11 @@ class _ActionPillState extends State<_ActionPill> {
                 width: 22,
                 height: 22,
                 decoration: BoxDecoration(
-                  color: isDark ? WholesalerColors.cardBg(isDark) : const Color(0xFFEBF3FE),
+                  color: isDark
+                      ? WholesalerColors.cardBg(isDark)
+                      : const Color(0xFFEBF3FE),
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: WholesalerColors.border(isDark),
-                  ),
+                  border: Border.all(color: WholesalerColors.border(isDark)),
                 ),
                 child: Center(
                   child: widget.icon != null
@@ -614,7 +729,9 @@ class _ActionPillState extends State<_ActionPill> {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: isDark ? const Color(0xFFF1F5F9) : const Color(0xFF10213D),
+                    color: isDark
+                        ? const Color(0xFFF1F5F9)
+                        : const Color(0xFF10213D),
                   ),
                 ),
               ),
@@ -653,11 +770,11 @@ class _MetaChip extends StatelessWidget {
         height: 35,
         padding: const EdgeInsets.symmetric(horizontal: 7),
         decoration: BoxDecoration(
-          color: isDark ? WholesalerColors.surfaceBg(isDark) : const Color(0xFFF5FAFE),
+          color: isDark
+              ? WholesalerColors.surfaceBg(isDark)
+              : const Color(0xFFF5FAFE),
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: WholesalerColors.border(isDark),
-          ),
+          border: Border.all(color: WholesalerColors.border(isDark)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -668,17 +785,13 @@ class _MetaChip extends StatelessWidget {
               width: 22,
               height: 22,
               decoration: BoxDecoration(
-                color: isDark ? WholesalerColors.cardBg(isDark) : const Color(0xFFEBF3FE),
+                color: isDark
+                    ? WholesalerColors.cardBg(isDark)
+                    : const Color(0xFFEBF3FE),
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(
-                  color: WholesalerColors.border(isDark),
-                ),
+                border: Border.all(color: WholesalerColors.border(isDark)),
               ),
-              child: Icon(
-                icon,
-                size: 11.5,
-                color: WholesalerColors.primary,
-              ),
+              child: Icon(icon, size: 11.5, color: WholesalerColors.primary),
             ),
             const SizedBox(width: 6),
             Expanded(
@@ -693,7 +806,9 @@ class _MetaChip extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 7.5,
                       fontWeight: FontWeight.w900,
-                      color: isDark ? const Color(0xFF818CF8) : const Color(0xFF64748B),
+                      color: isDark
+                          ? const Color(0xFF818CF8)
+                          : const Color(0xFF64748B),
                       letterSpacing: 0.4,
                       height: 1.0,
                     ),
@@ -765,10 +880,14 @@ class _MobileOptionsSheet extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 10, 10),
               decoration: BoxDecoration(
                 color: isDark ? WholesalerColors.cardBg(isDark) : Colors.white,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
                 border: Border(
                   bottom: BorderSide(
-                    color: isDark ? WholesalerColors.border(isDark) : const Color(0xFFE2E8F0),
+                    color: isDark
+                        ? WholesalerColors.border(isDark)
+                        : const Color(0xFFE2E8F0),
                   ),
                 ),
               ),
@@ -780,7 +899,9 @@ class _MobileOptionsSheet extends StatelessWidget {
                       height: 4.5,
                       margin: const EdgeInsets.only(bottom: 10),
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+                        color: isDark
+                            ? Colors.white24
+                            : const Color(0xFFCBD5E1),
                         borderRadius: BorderRadius.circular(3),
                       ),
                     ),
@@ -799,7 +920,9 @@ class _MobileOptionsSheet extends StatelessWidget {
                           borderRadius: BorderRadius.circular(11),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF4F46E5).withValues(alpha: 0.35),
+                              color: const Color(
+                                0xFF4F46E5,
+                              ).withValues(alpha: 0.35),
                               blurRadius: 8,
                               offset: const Offset(0, 3),
                             ),
@@ -821,7 +944,9 @@ class _MobileOptionsSheet extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF0F172A),
                                 letterSpacing: -0.2,
                               ),
                             ),
@@ -831,7 +956,9 @@ class _MobileOptionsSheet extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w500,
-                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                color: isDark
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF64748B),
                               ),
                             ),
                           ],
@@ -839,7 +966,9 @@ class _MobileOptionsSheet extends StatelessWidget {
                       ),
                       IconButton(
                         icon: const Icon(Icons.close_rounded),
-                        color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                        color: isDark
+                            ? Colors.white70
+                            : const Color(0xFF64748B),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -863,7 +992,9 @@ class _MobileOptionsSheet extends StatelessWidget {
                         fontSize: 11.5,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.8,
-                        color: isDark ? const Color(0xFF818CF8) : const Color(0xFF64748B),
+                        color: isDark
+                            ? const Color(0xFF818CF8)
+                            : const Color(0xFF64748B),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -910,7 +1041,9 @@ class _MobileOptionsSheet extends StatelessWidget {
                             Navigator.pop(context);
                             if (w.items.isEmpty) {
                               WholesalerFooterBar._snack(
-                                  context, 'Add items first to hold an order');
+                                context,
+                                'Add items first to hold an order',
+                              );
                               return;
                             }
                             showDialog(
@@ -934,8 +1067,10 @@ class _MobileOptionsSheet extends StatelessWidget {
                           isDark: isDark,
                           onTap: () {
                             Navigator.pop(context);
-                            showLiveSalesHistoryDialog(context,
-                                businessType: 'wholesaler');
+                            showLiveSalesHistoryDialog(
+                              context,
+                              businessType: 'wholesaler',
+                            );
                           },
                         ),
                         // 4. Quotations
@@ -980,8 +1115,10 @@ class _MobileOptionsSheet extends StatelessWidget {
                           isDark: isDark,
                           onTap: () {
                             Navigator.pop(context);
-                            showLiveSalesHistoryDialog(context,
-                                businessType: 'wholesaler');
+                            showLiveSalesHistoryDialog(
+                              context,
+                              businessType: 'wholesaler',
+                            );
                           },
                         ),
                         // 7. Returns
@@ -1041,13 +1178,17 @@ class _MobileOptionsSheet extends StatelessWidget {
                         fontSize: 11.5,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.8,
-                        color: isDark ? const Color(0xFF818CF8) : const Color(0xFF64748B),
+                        color: isDark
+                            ? const Color(0xFF818CF8)
+                            : const Color(0xFF64748B),
                       ),
                     ),
                     const SizedBox(height: 10),
                     Container(
                       decoration: BoxDecoration(
-                        color: isDark ? WholesalerColors.cardBg(isDark) : Colors.white,
+                        color: isDark
+                            ? WholesalerColors.cardBg(isDark)
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isDark
@@ -1057,7 +1198,9 @@ class _MobileOptionsSheet extends StatelessWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+                            color: Colors.black.withValues(
+                              alpha: isDark ? 0.2 : 0.03,
+                            ),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -1074,8 +1217,11 @@ class _MobileOptionsSheet extends StatelessWidget {
                                 ? w.selectedWarehouse
                                 : 'All Warehouses',
                             isDark: isDark,
-                            onTap: () =>
-                                WholesalerFooterBar._pickWarehouse(context, w, isDark),
+                            onTap: () => WholesalerFooterBar._pickWarehouse(
+                              context,
+                              w,
+                              isDark,
+                            ),
                           ),
                           _infoDivider(isDark),
                           _InfoRow(
@@ -1083,10 +1229,15 @@ class _MobileOptionsSheet extends StatelessWidget {
                             iconColor: const Color(0xFF3B82F6),
                             bgColor: const Color(0xFFDBEAFE),
                             label: 'Sales Rep',
-                            value: w.salesRep.isNotEmpty ? w.salesRep : 'John Smith',
+                            value: w.salesRep.isNotEmpty
+                                ? w.salesRep
+                                : 'John Smith',
                             isDark: isDark,
-                            onTap: () =>
-                                WholesalerFooterBar._pickSalesRep(context, w, isDark),
+                            onTap: () => WholesalerFooterBar._pickSalesRep(
+                              context,
+                              w,
+                              isDark,
+                            ),
                           ),
                           _infoDivider(isDark),
                           _InfoRow(
@@ -1109,7 +1260,11 @@ class _MobileOptionsSheet extends StatelessWidget {
                                 : 'Our Delivery',
                             isDark: isDark,
                             onTap: () =>
-                                WholesalerFooterBar._pickDeliveryMethod(context, w, isDark),
+                                WholesalerFooterBar._pickDeliveryMethod(
+                                  context,
+                                  w,
+                                  isDark,
+                                ),
                           ),
                           _infoDivider(isDark),
                           _InfoRow(
@@ -1117,10 +1272,15 @@ class _MobileOptionsSheet extends StatelessWidget {
                             iconColor: const Color(0xFF8B5CF6),
                             bgColor: const Color(0xFFEDE9FE),
                             label: 'Payment Term',
-                            value: w.paymentTerm.isNotEmpty ? w.paymentTerm : '30 Days',
+                            value: w.paymentTerm.isNotEmpty
+                                ? w.paymentTerm
+                                : '30 Days',
                             isDark: isDark,
-                            onTap: () =>
-                                WholesalerFooterBar._pickPaymentTerm(context, w, isDark),
+                            onTap: () => WholesalerFooterBar._pickPaymentTerm(
+                              context,
+                              w,
+                              isDark,
+                            ),
                           ),
                           _infoDivider(isDark),
                           _InfoRow(
@@ -1176,7 +1336,9 @@ class _MobileOptionsSheet extends StatelessWidget {
   }
 
   static Future<void> _pickDeliveryDate(
-      BuildContext context, WholesalerProvider w) async {
+    BuildContext context,
+    WholesalerProvider w,
+  ) async {
     final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now().add(const Duration(days: 3)),
@@ -1191,7 +1353,10 @@ class _MobileOptionsSheet extends StatelessWidget {
   }
 
   static void _pickCommission(
-      BuildContext context, WholesalerProvider w, bool isDark) {
+    BuildContext context,
+    WholesalerProvider w,
+    bool isDark,
+  ) {
     final controller = TextEditingController(text: w.commission.toString());
     showDialog(
       context: context,
@@ -1235,7 +1400,10 @@ class _MobileOptionsSheet extends StatelessWidget {
   }
 
   static void _pickNote(
-      BuildContext context, WholesalerProvider w, bool isDark) {
+    BuildContext context,
+    WholesalerProvider w,
+    bool isDark,
+  ) {
     final controller = TextEditingController(text: w.note);
     showDialog(
       context: context,
@@ -1275,7 +1443,10 @@ class _MobileOptionsSheet extends StatelessWidget {
   }
 
   static void _pickAttachments(
-      BuildContext context, WholesalerProvider w, bool isDark) {
+    BuildContext context,
+    WholesalerProvider w,
+    bool isDark,
+  ) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -1305,7 +1476,10 @@ class _MobileOptionsSheet extends StatelessWidget {
             onPressed: () {
               w.setAttachmentsCount(w.attachmentsCount + 1);
               Navigator.pop(context);
-              WholesalerFooterBar._snack(context, 'Challan attached successfully');
+              WholesalerFooterBar._snack(
+                context,
+                'Challan attached successfully',
+              );
             },
             icon: const Icon(Icons.upload_file_rounded, size: 16),
             label: const Text('Add File'),
@@ -1316,274 +1490,947 @@ class _MobileOptionsSheet extends StatelessWidget {
   }
 
   static void _showQuotations(
-      BuildContext context, WholesalerProvider w, bool isDark) {
+    BuildContext context,
+    WholesalerProvider w,
+    bool isDark,
+  ) {
+    final future = ApiService.instance.fetchQuotations(
+      businessType: 'wholesaler',
+    );
+    bool saving = false;
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF1E1B4B) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Row(
-          children: [
-            const Icon(Icons.request_quote_rounded,
-                color: Color(0xFFA855F7), size: 22),
-            const SizedBox(width: 8),
-            Text(
-              'Quotations',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: isDark ? Colors.white : const Color(0xFF10213D),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Create a new quotation for ${w.customer.name.isNotEmpty ? w.customer.name : "selected customer"} or view past quotations.',
-              style: TextStyle(
-                fontSize: 13,
-                color:
-                    isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF111827) : const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isDark
-                      ? WholesalerColors.border(isDark)
-                      : const Color(0xFFE2E8F0),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => Dialog(
+          backgroundColor: isDark ? const Color(0xFF1E1B4B) : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 24,
+          ),
+          child: Container(
+            width: 420,
+            padding: const EdgeInsets.all(18),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Active Quotations',
-                      style:
-                          TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3E8FF),
-                      borderRadius: BorderRadius.circular(12),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.request_quote_rounded,
+                        color: Color(0xFFA855F7),
+                        size: 22,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Quotations',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF10213D),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () => Navigator.pop(ctx),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Customer: ${w.customer.name.isNotEmpty ? w.customer.name : "Walk-in"} • Cart items: ${w.items.length}',
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
                     ),
-                    child: const Text('3 Pending',
-                        style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFFA855F7))),
+                  ),
+                  const SizedBox(height: 12),
+                  FutureBuilder<List<Map<String, dynamic>>>(
+                    future: future,
+                    builder: (_, snap) {
+                      if (snap.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFFA855F7),
+                            ),
+                          ),
+                        );
+                      }
+                      final list = snap.data ?? [];
+                      if (list.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text(
+                            'No quotations found yet.',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF64748B),
+                            ),
+                          ),
+                        );
+                      }
+                      return ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 220),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: list.take(8).map((q) {
+                              final qNo = q['quotationNo']?.toString() ?? 'QUO';
+                              final status = q['status']?.toString() ?? 'DRAFT';
+                              final total =
+                                  (q['total'] as num?)?.toDouble() ?? 0;
+                              final cust =
+                                  q['customerName']?.toString() ?? 'Customer';
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? const Color(0xFF111827)
+                                      : const Color(0xFFF8FAFC),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: isDark
+                                        ? WholesalerColors.border(isDark)
+                                        : const Color(0xFFE2E8F0),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            qNo,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 12.5,
+                                            ),
+                                          ),
+                                          Text(
+                                            '$cust • ৳${total.toStringAsFixed(0)}',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: isDark
+                                                  ? Colors.white60
+                                                  : Colors.grey.shade600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF3E8FF),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        status,
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFFA855F7),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Close'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFA855F7),
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: (saving || w.items.isEmpty)
+                            ? null
+                            : () async {
+                                setState(() => saving = true);
+                                final itemsPayload = w.items
+                                    .map(
+                                      (it) => {
+                                        'productId': it.product.id,
+                                        'qty': it.qty,
+                                        'unitPrice': it.unitPrice,
+                                      },
+                                    )
+                                    .toList();
+                                final res = await ApiService.instance
+                                    .createQuotation(
+                                      items: itemsPayload,
+                                      customerId: w.customer.id != 'walkin'
+                                          ? w.customer.id
+                                          : null,
+                                      note: w.note,
+                                      businessType: 'wholesaler',
+                                    );
+                                if (!ctx.mounted) return;
+                                setState(() => saving = false);
+                                Navigator.pop(ctx);
+                                if (res != null) {
+                                  WholesalerFooterBar._snack(
+                                    context,
+                                    'Quotation ${res['quoteNo'] ?? ''} saved to database',
+                                  );
+                                } else {
+                                  WholesalerFooterBar._snack(
+                                    context,
+                                    'Failed to save quotation',
+                                  );
+                                }
+                              },
+                        icon: saving
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.add_rounded, size: 16),
+                        label: Text(
+                          w.items.isEmpty ? 'Add Items First' : 'Save as Quote',
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.pop(context);
-              WholesalerFooterBar._snack(
-                  context, 'Quotation draft saved for ${w.customer.name}');
-            },
-            icon: const Icon(Icons.add_rounded, size: 16),
-            label: const Text('Save as Quote'),
-          ),
-        ],
       ),
     );
   }
 
   static void _showStockTransfer(
-      BuildContext context, WholesalerProvider w, bool isDark) {
+    BuildContext context,
+    WholesalerProvider w,
+    bool isDark,
+  ) {
+    final whFuture = ApiService.instance.fetchWarehouses(
+      businessType: 'wholesaler',
+    );
+    final trfFuture = ApiService.instance.fetchStockTransfers(
+      businessType: 'wholesaler',
+    );
+    final qtyCtrl = TextEditingController(text: '1');
+    final noteCtrl = TextEditingController();
+    String? fromId;
+    String? toId;
+    String? productId = w.allProducts.isNotEmpty
+        ? w.allProducts.first.id
+        : null;
+    bool submitting = false;
+
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF1E1B4B) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Row(
-          children: [
-            const Icon(Icons.swap_horiz_rounded,
-                color: Color(0xFF10B981), size: 22),
-            const SizedBox(width: 8),
-            Text(
-              'Stock Transfer',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: isDark ? Colors.white : const Color(0xFF10213D),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => Dialog(
+          backgroundColor: isDark ? const Color(0xFF1E1B4B) : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 24,
+          ),
+          child: Container(
+            width: 420,
+            padding: const EdgeInsets.all(18),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.swap_horiz_rounded,
+                        color: Color(0xFF10B981),
+                        size: 22,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Stock Transfer',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF10213D),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () => Navigator.pop(ctx),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  FutureBuilder<List<dynamic>>(
+                    future: Future.wait([whFuture, trfFuture]),
+                    builder: (_, snap) {
+                      if (snap.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFF10B981),
+                            ),
+                          ),
+                        );
+                      }
+                      final warehouses =
+                          (snap.data?[0] as List<Map<String, dynamic>>?) ?? [];
+                      final transfers =
+                          (snap.data?[1] as List<Map<String, dynamic>>?) ?? [];
+                      if (warehouses.length >= 2) {
+                        fromId ??= warehouses[0]['id']?.toString();
+                        toId ??= warehouses[1]['id']?.toString();
+                      }
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (warehouses.length < 2)
+                            Text(
+                              'At least 2 warehouses are required for stock transfer (found ${warehouses.length}).',
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                color: isDark
+                                    ? Colors.white70
+                                    : Colors.grey.shade700,
+                              ),
+                            )
+                          else ...[
+                            DropdownButtonFormField<String>(
+                              initialValue: fromId,
+                              isExpanded: true,
+                              decoration: const InputDecoration(
+                                labelText: 'From Warehouse',
+                                isDense: true,
+                                border: OutlineInputBorder(),
+                              ),
+                              items: warehouses
+                                  .map(
+                                    (wh) => DropdownMenuItem(
+                                      value: wh['id']?.toString() ?? '',
+                                      child: Text(
+                                        wh['name']?.toString() ?? 'Warehouse',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (v) => setState(() => fromId = v),
+                            ),
+                            const SizedBox(height: 10),
+                            DropdownButtonFormField<String>(
+                              initialValue: toId,
+                              isExpanded: true,
+                              decoration: const InputDecoration(
+                                labelText: 'To Warehouse',
+                                isDense: true,
+                                border: OutlineInputBorder(),
+                              ),
+                              items: warehouses
+                                  .map(
+                                    (wh) => DropdownMenuItem(
+                                      value: wh['id']?.toString() ?? '',
+                                      child: Text(
+                                        wh['name']?.toString() ?? 'Warehouse',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (v) => setState(() => toId = v),
+                            ),
+                            const SizedBox(height: 10),
+                            if (w.allProducts.isNotEmpty)
+                              DropdownButtonFormField<String>(
+                                initialValue: productId,
+                                isExpanded: true,
+                                decoration: const InputDecoration(
+                                  labelText: 'Product',
+                                  isDense: true,
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: w.allProducts
+                                    .take(30)
+                                    .map(
+                                      (p) => DropdownMenuItem(
+                                        value: p.id,
+                                        child: Text(
+                                          '${p.name} (Stock: ${p.stock})',
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (v) => setState(() => productId = v),
+                              ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: qtyCtrl,
+                                    keyboardType: TextInputType.number,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Qty',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  flex: 2,
+                                  child: TextField(
+                                    controller: noteCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Note',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                          if (transfers.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            Text(
+                              'Recent Transfers (${transfers.length})',
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            ...transfers
+                                .take(3)
+                                .map(
+                                  (t) => Text(
+                                    '• ${t['transferNo'] ?? 'TRF'} — ${t['status'] ?? 'REQUESTED'}',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: isDark
+                                          ? Colors.white60
+                                          : Colors.grey.shade700,
+                                    ),
+                                  ),
+                                ),
+                          ],
+                        ],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Cancel'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF10B981),
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed:
+                            (submitting ||
+                                fromId == null ||
+                                toId == null ||
+                                fromId == toId ||
+                                productId == null)
+                            ? null
+                            : () async {
+                                final qty =
+                                    int.tryParse(qtyCtrl.text.trim()) ?? 0;
+                                if (qty <= 0) return;
+                                setState(() => submitting = true);
+                                final res = await ApiService.instance
+                                    .createStockTransfer(
+                                      fromWarehouseId: fromId!,
+                                      toWarehouseId: toId!,
+                                      items: [
+                                        {'productId': productId, 'qty': qty},
+                                      ],
+                                      note: noteCtrl.text.trim(),
+                                      businessType: 'wholesaler',
+                                    );
+                                if (!ctx.mounted) return;
+                                setState(() => submitting = false);
+                                Navigator.pop(ctx);
+                                WholesalerFooterBar._snack(
+                                  context,
+                                  res != null
+                                      ? 'Transfer ${res['transferNo'] ?? ''} initiated'
+                                      : 'Transfer failed (check warehouses/stock)',
+                                );
+                              },
+                        child: submitting
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Initiate Transfer'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Transfer stock between warehouses or retail branches.',
-              style: TextStyle(
-                fontSize: 13,
-                color:
-                    isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Source: ${w.selectedWarehouse}\nDestination: WH-02 Annex',
-              style: const TextStyle(
-                  fontWeight: FontWeight.w600, fontSize: 13, height: 1.4),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              WholesalerFooterBar._snack(context, 'Transfer request initiated');
-            },
-            child: const Text('Initiate Transfer'),
-          ),
-        ],
+        ),
       ),
     );
   }
 
   static void _showReturns(
-      BuildContext context, WholesalerProvider w, bool isDark) {
+    BuildContext context,
+    WholesalerProvider w,
+    bool isDark,
+  ) {
+    final ordersFuture = ApiService.instance.fetchSalesOrders(
+      businessType: 'wholesaler',
+      limit: 15,
+    );
+    final reasonCtrl = TextEditingController();
+    String? selectedSaleId;
+    String? selectedOrderNo;
+    bool submitting = false;
+
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF1E1B4B) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Row(
-          children: [
-            const Icon(Icons.replay_rounded,
-                color: Color(0xFFEF4444), size: 22),
-            const SizedBox(width: 8),
-            Text(
-              'Returns & Damage',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: isDark ? Colors.white : const Color(0xFF10213D),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => Dialog(
+          backgroundColor: isDark ? const Color(0xFF1E1B4B) : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 24,
+          ),
+          child: Container(
+            width: 420,
+            padding: const EdgeInsets.all(18),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.replay_rounded,
+                        color: Color(0xFFEF4444),
+                        size: 22,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Returns & Damage',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF10213D),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () => Navigator.pop(ctx),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  FutureBuilder(
+                    future: ordersFuture,
+                    builder: (_, snap) {
+                      if (snap.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFFEF4444),
+                            ),
+                          ),
+                        );
+                      }
+                      final orders = snap.data ?? [];
+                      if (orders.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          child: Text(
+                            'No recent wholesale invoices found to return.',
+                          ),
+                        );
+                      }
+                      selectedSaleId ??= orders.first.id;
+                      selectedOrderNo ??= orders.first.orderNo;
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          DropdownButtonFormField<String>(
+                            initialValue: selectedSaleId,
+                            isExpanded: true,
+                            decoration: const InputDecoration(
+                              labelText: 'Select Invoice / Order',
+                              isDense: true,
+                              border: OutlineInputBorder(),
+                            ),
+                            items: orders
+                                .map(
+                                  (o) => DropdownMenuItem(
+                                    value: o.id,
+                                    child: Text(
+                                      '${o.orderNo} • ${o.customerName} (৳${o.total.toStringAsFixed(0)})',
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (v) {
+                              final match = orders
+                                  .where((o) => o.id == v)
+                                  .toList();
+                              setState(() {
+                                selectedSaleId = v;
+                                selectedOrderNo = match.isNotEmpty
+                                    ? match.first.orderNo
+                                    : null;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                          TextField(
+                            controller: reasonCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Return / Damage Reason',
+                              hintText: 'e.g. Damaged carton, wrong item',
+                              isDense: true,
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Close'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFEF4444),
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: (submitting || selectedSaleId == null)
+                            ? null
+                            : () async {
+                                setState(() => submitting = true);
+                                final res = await ApiService.instance
+                                    .createReturn(
+                                      saleId: selectedSaleId!,
+                                      returnReason:
+                                          reasonCtrl.text.trim().isEmpty
+                                          ? 'POS Return'
+                                          : reasonCtrl.text.trim(),
+                                      businessType: 'wholesaler',
+                                    );
+                                if (!ctx.mounted) return;
+                                setState(() => submitting = false);
+                                Navigator.pop(ctx);
+                                WholesalerFooterBar._snack(
+                                  context,
+                                  res != null
+                                      ? 'Return processed for ${selectedOrderNo ?? selectedSaleId}'
+                                      : 'Could not process return (check permissions/status)',
+                                );
+                              },
+                        child: submitting
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Process Return'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-        content: Text(
-          'Process return against past sales order or damaged goods for ${w.customer.name.isNotEmpty ? w.customer.name : "customer"}.',
-          style: TextStyle(
-            fontSize: 13,
-            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEF4444)),
-            onPressed: () {
-              Navigator.pop(context);
-              WholesalerFooterBar._snack(
-                  context, 'Return processing module initiated');
-            },
-            child: const Text('Start Return'),
-          ),
-        ],
       ),
     );
   }
 
   static void _showExpense(
-      BuildContext context, WholesalerProvider w, bool isDark) {
+    BuildContext context,
+    WholesalerProvider w,
+    bool isDark,
+  ) {
     final titleCtrl = TextEditingController();
     final amountCtrl = TextEditingController();
+    final noteCtrl = TextEditingController();
+    String method = 'CASH';
+    bool saving = false;
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF1E1B4B) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Row(
-          children: [
-            const Icon(Icons.add_card_rounded,
-                color: Color(0xFFEC4899), size: 22),
-            const SizedBox(width: 8),
-            Text(
-              'Add Expense',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: isDark ? Colors.white : const Color(0xFF10213D),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Expense Category / Reason',
-                hintText: 'e.g. Loading Labor, Packaging',
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: amountCtrl,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Amount (৳)',
-                hintText: '0.00',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => Dialog(
+          backgroundColor: isDark ? const Color(0xFF1E1B4B) : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEC4899)),
-            onPressed: () {
-              final amt = double.tryParse(amountCtrl.text) ?? 0;
-              Navigator.pop(context);
-              WholesalerFooterBar._snack(
-                  context, 'Expense of ৳$amt logged successfully');
-            },
-            child: const Text('Save Expense'),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 24,
           ),
-        ],
+          child: Container(
+            width: 400,
+            padding: const EdgeInsets.all(18),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.add_card_rounded,
+                        color: Color(0xFFEC4899),
+                        size: 22,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Add Expense',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF10213D),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () => Navigator.pop(ctx),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: titleCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Expense Title / Reason *',
+                      hintText: 'e.g. Loading Labor, Packaging',
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: amountCtrl,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(
+                      labelText: 'Amount (৳) *',
+                      hintText: '0.00',
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    initialValue: method,
+                    decoration: const InputDecoration(
+                      labelText: 'Payment Method',
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'CASH', child: Text('Cash')),
+                      DropdownMenuItem(value: 'BANK', child: Text('Bank')),
+                      DropdownMenuItem(
+                        value: 'MOBILE',
+                        child: Text('Mobile Banking'),
+                      ),
+                    ],
+                    onChanged: (v) => setState(() => method = v ?? 'CASH'),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: noteCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Note (Optional)',
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Cancel'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFEC4899),
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: saving
+                            ? null
+                            : () async {
+                                final title = titleCtrl.text.trim();
+                                final amt =
+                                    double.tryParse(amountCtrl.text.trim()) ??
+                                    0;
+                                if (title.isEmpty || amt <= 0) {
+                                  WholesalerFooterBar._snack(
+                                    context,
+                                    'Enter valid title and amount',
+                                  );
+                                  return;
+                                }
+                                setState(() => saving = true);
+                                final res = await ApiService.instance
+                                    .createExpense(
+                                      title: title,
+                                      amount: amt,
+                                      paymentMethod: method,
+                                      note: noteCtrl.text.trim(),
+                                      businessType: 'wholesaler',
+                                    );
+                                if (!ctx.mounted) return;
+                                setState(() => saving = false);
+                                Navigator.pop(ctx);
+                                WholesalerFooterBar._snack(
+                                  context,
+                                  res != null
+                                      ? 'Expense of ৳${amt.toStringAsFixed(0)} saved to database'
+                                      : 'Failed to save expense',
+                                );
+                              },
+                        child: saving
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Save Expense'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
 
   static void _showMoreOptions(
-      BuildContext context, WholesalerProvider w, bool isDark) {
+    BuildContext context,
+    WholesalerProvider w,
+    bool isDark,
+  ) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         backgroundColor: isDark ? const Color(0xFF1E1B4B) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         title: Text(
@@ -1599,33 +2446,35 @@ class _MobileOptionsSheet extends StatelessWidget {
           children: [
             ListTile(
               dense: true,
-              leading:
-                  const Icon(Icons.print_rounded, color: Color(0xFF4F46E5)),
-              title: const Text('Reprint Last Receipt'),
+              leading: const Icon(
+                Icons.print_rounded,
+                color: Color(0xFF4F46E5),
+              ),
+              title: const Text('Reprint / View Last Receipt'),
               onTap: () {
-                Navigator.pop(context);
-                WholesalerFooterBar._snack(context, 'Sending reprint command...');
+                Navigator.pop(ctx);
+                showLiveSalesHistoryDialog(context, businessType: 'wholesaler');
               },
             ),
             ListTile(
               dense: true,
-              leading: const Icon(Icons.price_change_rounded,
-                  color: Color(0xFF00B67A)),
-              title: const Text('Apply Batch Wholesale Price'),
-              onTap: () {
-                Navigator.pop(context);
-                WholesalerFooterBar._snack(
-                    context, 'Wholesale pricing rules updated');
-              },
-            ),
-            ListTile(
-              dense: true,
-              leading:
-                  const Icon(Icons.refresh_rounded, color: Color(0xFFF59E0B)),
-              title: const Text('Sync Catalog & Stock'),
-              onTap: () {
-                Navigator.pop(context);
-                WholesalerFooterBar._snack(context, 'Catalog synchronizing...');
+              leading: const Icon(
+                Icons.refresh_rounded,
+                color: Color(0xFFF59E0B),
+              ),
+              title: const Text('Sync Catalog, Stock & Customers'),
+              onTap: () async {
+                Navigator.pop(ctx);
+                await Future.wait([
+                  w.loadProducts(businessType: 'wholesaler'),
+                  w.loadCustomers(businessType: 'wholesaler'),
+                ]);
+                if (context.mounted) {
+                  WholesalerFooterBar._snack(
+                    context,
+                    'Catalog, stock & customers synced',
+                  );
+                }
               },
             ),
           ],
@@ -1694,9 +2543,7 @@ class _QuickActionCard extends StatelessWidget {
                   color: bgColor,
                   borderRadius: BorderRadius.circular(11),
                 ),
-                child: Center(
-                  child: Icon(icon, color: iconColor, size: 20),
-                ),
+                child: Center(child: Icon(icon, color: iconColor, size: 20)),
               ),
               const SizedBox(height: 7),
               Text(
@@ -1771,9 +2618,7 @@ class _InfoRow extends StatelessWidget {
                   color: isDark ? iconColor.withValues(alpha: 0.18) : bgColor,
                   borderRadius: BorderRadius.circular(7),
                 ),
-                child: Center(
-                  child: Icon(icon, size: 16, color: iconColor),
-                ),
+                child: Center(child: Icon(icon, size: 16, color: iconColor)),
               ),
               const SizedBox(width: 12),
               Text(

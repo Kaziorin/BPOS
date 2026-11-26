@@ -47,7 +47,9 @@ class GroceryHeader extends StatelessWidget {
           SizedBox(width: isMobile ? 8 : 16),
 
           // Search
-          Expanded(child: _SearchBar(locale: locale, isDark: isDark)),
+          Expanded(
+            child: _SearchBar(locale: locale, isDark: isDark),
+          ),
 
           if (!isMobile) ...[
             const SizedBox(width: 12),
@@ -59,7 +61,9 @@ class GroceryHeader extends StatelessWidget {
           if (!isMobile) ...[
             FullscreenButton(
               builder: (context, isFull, toggle) => _IconChip(
-                icon: isFull ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
+                icon: isFull
+                    ? Icons.fullscreen_exit_rounded
+                    : Icons.fullscreen_rounded,
                 isDark: isDark,
                 onTap: toggle,
               ),
@@ -68,7 +72,9 @@ class GroceryHeader extends StatelessWidget {
           ],
           // Theme
           _IconChip(
-            icon: app.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+            icon: app.isDarkMode
+                ? Icons.light_mode_rounded
+                : Icons.dark_mode_rounded,
             isDark: isDark,
             onTap: () => app.toggleTheme(),
           ),
@@ -117,7 +123,11 @@ class _Logo extends StatelessWidget {
               ),
             ],
           ),
-          child: const Icon(Icons.shopping_cart_rounded, color: Colors.white, size: 22),
+          padding: const EdgeInsets.all(6),
+          child: Image.asset(
+            'assets/icon/Glossy 3D Shopping Cart Logo.png',
+            fit: BoxFit.contain,
+          ),
         ),
         if (!compact) ...[
           const SizedBox(width: 10),
@@ -130,7 +140,9 @@ class _Logo extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
-                  color: isDark ? GroceryColors.accent : GroceryColors.primaryDark,
+                  color: isDark
+                      ? GroceryColors.accent
+                      : GroceryColors.primaryDark,
                   height: 1.1,
                   letterSpacing: -0.3,
                 ),
@@ -170,17 +182,27 @@ class _SearchBar extends StatelessWidget {
       child: Row(
         children: [
           const SizedBox(width: 14),
-          Icon(Icons.search_rounded, size: 20, color: GroceryColors.textSecondary(isDark)),
+          Icon(
+            Icons.search_rounded,
+            size: 20,
+            color: GroceryColors.textSecondary(isDark),
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
-              onChanged: (v) => context.read<GroceryProvider>().setSearchQuery(v),
-              style: TextStyle(fontSize: 13, color: GroceryColors.textPrimary(isDark)),
+              onChanged: (v) =>
+                  context.read<GroceryProvider>().setSearchQuery(v),
+              style: TextStyle(
+                fontSize: 13,
+                color: GroceryColors.textPrimary(isDark),
+              ),
               decoration: InputDecoration(
                 hintText: AppStrings.get('g_search_hint', locale),
                 hintStyle: TextStyle(
                   fontSize: 12,
-                  color: GroceryColors.textSecondary(isDark).withValues(alpha: 0.7),
+                  color: GroceryColors.textSecondary(
+                    isDark,
+                  ).withValues(alpha: 0.7),
                 ),
                 border: InputBorder.none,
                 isDense: true,
@@ -210,7 +232,11 @@ class _SearchBar extends StatelessWidget {
                     color: GroceryColors.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Icon(Icons.qr_code_scanner_rounded, size: 18, color: GroceryColors.primary),
+                  child: const Icon(
+                    Icons.qr_code_scanner_rounded,
+                    size: 18,
+                    color: GroceryColors.primary,
+                  ),
                 ),
               ),
             ),
@@ -225,7 +251,11 @@ class _StatusTiles extends StatelessWidget {
   final String locale;
   final bool isDark;
   final bool compact;
-  const _StatusTiles({required this.locale, required this.isDark, required this.compact});
+  const _StatusTiles({
+    required this.locale,
+    required this.isDark,
+    required this.compact,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +285,8 @@ class _StatusTiles extends StatelessWidget {
       _TileData(
         icon: Icons.star_rounded,
         title: AppStrings.get('loyalty_points', locale),
-        subtitle: '${NumberUtils.toLocalized(provider.loyaltyPoints, locale)} ${AppStrings.get('pts', locale)}',
+        subtitle:
+            '${NumberUtils.toLocalized(provider.loyaltyPoints, locale)} ${AppStrings.get('pts', locale)}',
         color: const Color(0xFFF59E0B),
       ),
       if (!compact)
@@ -375,7 +406,11 @@ class _IconChip extends StatelessWidget {
   final IconData icon;
   final bool isDark;
   final VoidCallback onTap;
-  const _IconChip({required this.icon, required this.isDark, required this.onTap});
+  const _IconChip({
+    required this.icon,
+    required this.isDark,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -387,7 +422,9 @@ class _IconChip extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: isDark ? GroceryColors.inputBg(true) : GroceryColors.primarySoft,
+            color: isDark
+                ? GroceryColors.inputBg(true)
+                : GroceryColors.primarySoft,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: GroceryColors.border(isDark)),
           ),
@@ -402,7 +439,11 @@ class _LangChip extends StatelessWidget {
   final String label;
   final bool isDark;
   final VoidCallback onTap;
-  const _LangChip({required this.label, required this.isDark, required this.onTap});
+  const _LangChip({
+    required this.label,
+    required this.isDark,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {

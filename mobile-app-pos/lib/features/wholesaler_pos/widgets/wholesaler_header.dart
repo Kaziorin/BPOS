@@ -73,12 +73,16 @@ class _DesktopHeader extends StatelessWidget {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: isDark ? WholesalerColors.cardBg(isDark) : Colors.white,
+                  color: isDark
+                      ? WholesalerColors.cardBg(isDark)
+                      : Colors.white,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: WholesalerColors.border(isDark)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                      color: Colors.black.withValues(
+                        alpha: isDark ? 0.2 : 0.04,
+                      ),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
                     ),
@@ -188,10 +192,10 @@ class _MobileLogoOrderBlock extends StatelessWidget {
               ),
             ],
           ),
-          child: const Icon(
-            Icons.all_inbox_rounded,
-            color: Colors.white,
-            size: 18,
+          padding: const EdgeInsets.all(5),
+          child: Image.asset(
+            'assets/icon/Glossy 3D Shopping Cart Logo.png',
+            fit: BoxFit.contain,
           ),
         ),
         const SizedBox(width: 8),
@@ -200,7 +204,7 @@ class _MobileLogoOrderBlock extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'BPOS',
+              'SalePay',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -215,7 +219,9 @@ class _MobileLogoOrderBlock extends StatelessWidget {
               style: TextStyle(
                 fontSize: 8.5,
                 fontWeight: FontWeight.w700,
-                color: isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1),
+                color: isDark
+                    ? const Color(0xFF818CF8)
+                    : const Color(0xFF6366F1),
                 letterSpacing: 0.5,
                 height: 1.15,
               ),
@@ -256,13 +262,17 @@ class _MobileHeaderActions extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.25 : 0.12),
+                    color: const Color(
+                      0xFF6366F1,
+                    ).withValues(alpha: isDark ? 0.25 : 0.12),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
                 border: Border.all(
-                  color: isDark ? WholesalerColors.border(isDark) : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? WholesalerColors.border(isDark)
+                      : const Color(0xFFE2E8F0),
                 ),
               ),
               child: const Icon(
@@ -289,16 +299,19 @@ class _MobileHeaderActions extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
-                    color: (app.isDarkMode
-                            ? const Color(0xFFF59E0B)
-                            : const Color(0xFF6366F1))
-                        .withValues(alpha: isDark ? 0.25 : 0.12),
+                    color:
+                        (app.isDarkMode
+                                ? const Color(0xFFF59E0B)
+                                : const Color(0xFF6366F1))
+                            .withValues(alpha: isDark ? 0.25 : 0.12),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
                 border: Border.all(
-                  color: isDark ? WholesalerColors.border(isDark) : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? WholesalerColors.border(isDark)
+                      : const Color(0xFFE2E8F0),
                 ),
               ),
               child: Center(
@@ -346,17 +359,23 @@ class _MobileHeaderActions extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: isDark ? WholesalerColors.surfaceBg(isDark) : Colors.white,
+                color: isDark
+                    ? WholesalerColors.surfaceBg(isDark)
+                    : Colors.white,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.25 : 0.12),
+                    color: const Color(
+                      0xFF6366F1,
+                    ).withValues(alpha: isDark ? 0.25 : 0.12),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
                 border: Border.all(
-                  color: isDark ? WholesalerColors.border(isDark) : const Color(0xFFE2E8F0),
+                  color: isDark
+                      ? WholesalerColors.border(isDark)
+                      : const Color(0xFFE2E8F0),
                 ),
               ),
               child: const Icon(
@@ -398,12 +417,16 @@ class _MobileCustomerInfoBlock extends StatelessWidget {
           color: isDark ? WholesalerColors.cardBg(isDark) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isDark ? WholesalerColors.border(isDark) : const Color(0xFFD8E2F5),
+            color: isDark
+                ? WholesalerColors.border(isDark)
+                : const Color(0xFFD8E2F5),
             width: 1.1,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF4F46E5).withValues(alpha: isDark ? 0.2 : 0.04),
+              color: const Color(
+                0xFF4F46E5,
+              ).withValues(alpha: isDark ? 0.2 : 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -437,12 +460,17 @@ class _MobileCustomerInfoBlock extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFEF3E6),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: const Color(0xFFF59E0B).withValues(alpha: 0.7),
+                            color: const Color(
+                              0xFFF59E0B,
+                            ).withValues(alpha: 0.7),
                             width: 0.9,
                           ),
                         ),
@@ -514,7 +542,7 @@ class _LogoBlock extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'BPOS',
+              'SalePay',
               style: TextStyle(
                 fontSize: compact ? 17 : 20,
                 fontWeight: FontWeight.w900,

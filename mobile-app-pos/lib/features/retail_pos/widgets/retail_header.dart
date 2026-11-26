@@ -70,7 +70,7 @@ class _RetailHeaderState extends State<RetailHeader> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'BPOS',
+            'SalePay',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w900,
@@ -332,7 +332,11 @@ class _RetailHeaderState extends State<RetailHeader> {
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.check_box_outlined, color: Colors.white, size: 20),
+                      padding: const EdgeInsets.all(6),
+                      child: Image.asset(
+                        'assets/icon/Glossy 3D Shopping Cart Logo.png',
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                 ),

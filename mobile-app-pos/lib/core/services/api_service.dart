@@ -683,5 +683,199 @@ class ApiService {
     }
     return [];
   }
+
+  // ── QUOTATIONS ────────────────────────────────────────────────────────────
+  Future<List<Map<String, dynamic>>> fetchQuotations({
+    String businessType = 'wholesaler',
+  }) async {
+    try {
+      final headers = await _authHeaders(businessType);
+      final uri = Uri.parse('$_baseUrl/v1/sales/quotations?limit=20');
+      final resp = await http.get(uri, headers: headers).timeout(const Duration(seconds: 8));
+      if (resp.statusCode == 200) {
+        return _extractList(jsonDecode(resp.body));
+      }
+    } catch (e) {
+      debugPrint('Error fetching quotations: $e');
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>?> createQuotation({
+    required List<Map<String, dynamic>> items,
+    String? customerId,
+    String? note,
+    String businessType = 'wholesaler',
+  }) async {
+    try {
+      final headers = await _authHeaders(businessType);
+      final uri = Uri.parse('$_baseUrl/v1/sales/quotations');
+      final resp = await http.post(
+        uri,
+        headers: headers,
+        body: jsonEncode({
+          'items': items,
+          if (customerId != null && customerId.isNotEmpty) 'customerId': customerId,
+          if (note != null && note.isNotEmpty) 'note': note,
+        }),
+      ).timeout(const Duration(seconds: 10));
+      if (resp.statusCode == 200 || resp.statusCode == 201) {
+        final body = jsonDecode(resp.body);
+        if (body is Map<String, dynamic>) {
+          return (body['data'] is Map<String, dynamic>) ? body['data'] as Map<String, dynamic> : body;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error creating quotation: $e');
+    }
+    return null;
+  }
+
+  // ── WAREHOUSES & STOCK TRANSFERS ──────────────────────────────────────────
+  Future<List<Map<String, dynamic>>> fetchWarehouses({
+    String businessType = 'wholesaler',
+  }) async {
+    try {
+      final headers = await _authHeaders(businessType);
+      final uri = Uri.parse('$_baseUrl/v1/warehouses');
+      final resp = await http.get(uri, headers: headers).timeout(const Duration(seconds: 8));
+      if (resp.statusCode == 200) {
+        return _extractList(jsonDecode(resp.body));
+      }
+    } catch (e) {
+      debugPrint('Error fetching warehouses: $e');
+    }
+    return [];
+  }
+
+  Future<List<Map<String, dynamic>>> fetchStockTransfers({
+    String businessType = 'wholesaler',
+  }) async {
+    try {
+      final headers = await _authHeaders(businessType);
+      final uri = Uri.parse('$_baseUrl/v1/inventory/transfers');
+      final resp = await http.get(uri, headers: headers).timeout(const Duration(seconds: 8));
+      if (resp.statusCode == 200) {
+        return _extractList(jsonDecode(resp.body));
+      }
+    } catch (e) {
+      debugPrint('Error fetching stock transfers: $e');
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>?> createStockTransfer({
+    required String fromWarehouseId,
+    required String toWarehouseId,
+    required List<Map<String, dynamic>> items,
+    String? note,
+    String businessType = 'wholesaler',
+  }) async {
+    try {
+      final headers = await _authHeaders(businessType);
+      final uri = Uri.parse('$_baseUrl/v1/inventory/transfers');
+      final resp = await http.post(
+        uri,
+        headers: headers,
+        body: jsonEncode({
+          'fromWarehouseId': fromWarehouseId,
+          'toWarehouseId': toWarehouseId,
+          'items': items,
+          if (note != null && note.isNotEmpty) 'note': note,
+        }),
+      ).timeout(const Duration(seconds: 10));
+      if (resp.statusCode == 200 || resp.statusCode == 201) {
+        final body = jsonDecode(resp.body);
+        if (body is Map<String, dynamic>) {
+          return (body['data'] is Map<String, dynamic>) ? body['data'] as Map<String, dynamic> : body;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error creating stock transfer: $e');
+    }
+    return null;
+  }
+
+  // ── RETURNS ───────────────────────────────────────────────────────────────
+  Future<List<Map<String, dynamic>>> fetchReturns({
+    String businessType = 'wholesaler',
+  }) async {
+    try {
+      final headers = await _authHeaders(businessType);
+      final uri = Uri.parse('$_baseUrl/v1/returns?limit=20');
+      final resp = await http.get(uri, headers: headers).timeout(const Duration(seconds: 8));
+      if (resp.statusCode == 200) {
+        return _extractList(jsonDecode(resp.body));
+      }
+    } catch (e) {
+      debugPrint('Error fetching returns: $e');
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>?> createReturn({
+    required String saleId,
+    String returnType = 'REFUND',
+    String? returnReason,
+    String refundMethod = 'CASH',
+    String businessType = 'wholesaler',
+  }) async {
+    try {
+      final headers = await _authHeaders(businessType);
+      final uri = Uri.parse('$_baseUrl/v1/returns');
+      final resp = await http.post(
+        uri,
+        headers: headers,
+        body: jsonEncode({
+          'saleId': saleId,
+          'returnType': returnType,
+          if (returnReason != null && returnReason.isNotEmpty) 'returnReason': returnReason,
+          'refundMethod': refundMethod,
+        }),
+      ).timeout(const Duration(seconds: 10));
+      if (resp.statusCode == 200 || resp.statusCode == 201) {
+        final body = jsonDecode(resp.body);
+        if (body is Map<String, dynamic>) {
+          return (body['data'] is Map<String, dynamic>) ? body['data'] as Map<String, dynamic> : body;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error creating return: $e');
+    }
+    return null;
+  }
+
+  // ── EXPENSES ──────────────────────────────────────────────────────────────
+  Future<Map<String, dynamic>?> createExpense({
+    required String title,
+    required double amount,
+    String paymentMethod = 'CASH',
+    String? note,
+    String businessType = 'wholesaler',
+  }) async {
+    try {
+      final headers = await _authHeaders(businessType);
+      final uri = Uri.parse('$_baseUrl/v1/expenses');
+      final resp = await http.post(
+        uri,
+        headers: headers,
+        body: jsonEncode({
+          'title': title,
+          'amount': amount,
+          'paymentMethod': paymentMethod,
+          if (note != null && note.isNotEmpty) 'note': note,
+        }),
+      ).timeout(const Duration(seconds: 10));
+      if (resp.statusCode == 200 || resp.statusCode == 201) {
+        final body = jsonDecode(resp.body);
+        if (body is Map<String, dynamic>) {
+          return (body['data'] is Map<String, dynamic>) ? body['data'] as Map<String, dynamic> : body;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error creating expense: $e');
+    }
+    return null;
+  }
 }
 

@@ -84,8 +84,8 @@ class PharmacyProvider extends ChangeNotifier {
           final isPrescription = pharmaAttrs['isPrescriptionRequired'] == true;
           final mfr = pharmaAttrs['manufacturer']?.toString();
           final catVal = p['category'] is Map
-              ? (p['category']['name'] ?? 'General').toString()
-              : (p['category']?.toString() ?? 'General');
+              ? (p['category']['name'] ?? '').toString().trim()
+              : (p['categoryName'] ?? p['category'] ?? '').toString().trim();
           loaded.add(
             MedicineModel(
               id: p['id']?.toString() ?? 'm-$i',
@@ -102,7 +102,7 @@ class PharmacyProvider extends ChangeNotifier {
               isRx: isPrescription,
               manufacturer: (mfr != null && mfr.isNotEmpty)
                   ? mfr
-                  : 'Blue Oceans Pharma',
+                  : 'SalePay Pharma',
               barcode:
                   p['barcode']?.toString() ??
                   '8941100${i.toString().padLeft(2, '0')}',

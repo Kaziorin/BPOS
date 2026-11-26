@@ -39,11 +39,15 @@ class PharmacyHeader extends StatelessWidget {
                     Container(
                       width: 32,
                       height: 32,
+                      padding: const EdgeInsets.all(5),
                       decoration: const BoxDecoration(
                         color: primaryTeal,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.add_rounded, color: Colors.white, size: 22, weight: 800),
+                      child: Image.asset(
+                        'assets/icon/Glossy 3D Shopping Cart Logo.png',
+                        fit: BoxFit.contain,
+                      ),
                     ),
                     const SizedBox(width: 6),
                     const Column(
@@ -51,7 +55,7 @@ class PharmacyHeader extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'BPOS',
+                          'SalePay',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
@@ -200,11 +204,15 @@ class PharmacyHeader extends StatelessWidget {
               Container(
                 width: 38,
                 height: 38,
+                padding: const EdgeInsets.all(6),
                 decoration: const BoxDecoration(
                   color: primaryTeal,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.add_rounded, color: Colors.white, size: 26, weight: 800),
+                child: Image.asset(
+                  'assets/icon/Glossy 3D Shopping Cart Logo.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               const SizedBox(width: 10),
               Column(

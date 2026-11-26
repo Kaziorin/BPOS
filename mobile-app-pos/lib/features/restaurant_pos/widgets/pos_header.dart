@@ -34,14 +34,13 @@ class POSHeader extends StatelessWidget {
           child: SizedBox(
             height: isMobile ? 60 : 74,
             child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 10 : 24,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 10 : 24),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // ── BACK BUTTON (Web/Desktop - only shown if can pop) ──
-                  if (!isMobile && (ModalRoute.of(context)?.canPop ?? false)) ...[
+                  if (!isMobile &&
+                      (ModalRoute.of(context)?.canPop ?? false)) ...[
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
@@ -59,7 +58,9 @@ class POSHeader extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.18),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: const Icon(
                             Icons.arrow_back_rounded,
@@ -85,7 +86,10 @@ class POSHeader extends StatelessWidget {
                           ? FittedBox(
                               fit: BoxFit.scaleDown,
                               alignment: Alignment.centerRight,
-                              child: _RightIcons(isMobile: true, locale: locale),
+                              child: _RightIcons(
+                                isMobile: true,
+                                locale: locale,
+                              ),
                             )
                           : SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
@@ -164,14 +168,19 @@ class _LogoWidget extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.soup_kitchen, color: Colors.white, size: isMobile ? 26 : 40),
-        SizedBox(width: isMobile ? 5 : 8),
+        Image.asset(
+          'assets/icon/Glossy 3D Shopping Cart Logo.png',
+          width: isMobile ? 26 : 36,
+          height: isMobile ? 26 : 36,
+          fit: BoxFit.contain,
+        ),
+        SizedBox(width: isMobile ? 6 : 8),
         Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'BPOS Restaurant',
+              'SalePay Restaurant',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: isMobile ? 15 : 22,
@@ -203,19 +212,29 @@ class _LogoWidget extends StatelessWidget {
 class OrderTypeSegmentedControl extends StatelessWidget {
   final bool isMobile;
   final String? locale;
-  const OrderTypeSegmentedControl({super.key, this.isMobile = false, this.locale});
+  const OrderTypeSegmentedControl({
+    super.key,
+    this.isMobile = false,
+    this.locale,
+  });
 
   @override
   Widget build(BuildContext context) {
     final currentLocale = locale ?? context.watch<AppProvider>().locale;
-    
+
     return Container(
       height: isMobile ? 36 : 44,
       decoration: BoxDecoration(
         color: context.inputBg,
         borderRadius: BorderRadius.circular(22),
         boxShadow: isMobile
-            ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))]
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
             : null,
       ),
       child: Consumer<POSProvider>(
@@ -273,7 +292,7 @@ class _SegmentButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isSelected ? const Color(0xFFFF5722) : context.textPrimary;
-    
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -302,11 +321,7 @@ class _SegmentButton extends StatelessWidget {
 class _VerticalDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 1,
-      height: 20,
-      color: context.dividerColor,
-    );
+    return Container(width: 1, height: 20, color: context.dividerColor);
   }
 }
 
@@ -339,16 +354,10 @@ class _SearchBar extends StatelessWidget {
               Expanded(
                 child: TextField(
                   onChanged: provider.setSearchQuery,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: context.textPrimary,
-                  ),
+                  style: TextStyle(fontSize: 14, color: context.textPrimary),
                   decoration: InputDecoration(
                     hintText: AppStrings.get('search_hint', locale),
-                    hintStyle: TextStyle(
-                      color: context.textHint,
-                      fontSize: 14,
-                    ),
+                    hintStyle: TextStyle(color: context.textHint, fontSize: 14),
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
@@ -385,11 +394,16 @@ class _RightIcons extends StatelessWidget {
           // Theme Toggle
           IconButton(
             icon: Icon(
-              appProvider.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+              appProvider.isDarkMode
+                  ? Icons.light_mode_rounded
+                  : Icons.dark_mode_rounded,
               color: Colors.white,
             ),
             onPressed: () => appProvider.toggleTheme(),
-            tooltip: AppStrings.get(appProvider.isDarkMode ? 'light_mode' : 'dark_mode', locale),
+            tooltip: AppStrings.get(
+              appProvider.isDarkMode ? 'light_mode' : 'dark_mode',
+              locale,
+            ),
           ),
 
           // Language Toggle
@@ -401,7 +415,9 @@ class _RightIcons extends StatelessWidget {
               foregroundColor: Colors.white,
               backgroundColor: Colors.white.withValues(alpha: 0.1),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: Text(
               appProvider.locale == 'en' ? 'BN' : 'EN',
@@ -425,14 +441,20 @@ class _RightIcons extends StatelessWidget {
           const SizedBox(width: 2),
         ],
         IconButton(
-          icon: Icon(Icons.qr_code_scanner, color: Colors.white, size: isMobile ? 20 : 24),
+          icon: Icon(
+            Icons.qr_code_scanner,
+            color: Colors.white,
+            size: isMobile ? 20 : 24,
+          ),
           onPressed: () {
             showDialog(
               context: context,
               builder: (_) => BarcodeScannerDialog(),
             );
           },
-          constraints: isMobile ? const BoxConstraints(minWidth: 34, minHeight: 34) : const BoxConstraints(minWidth: 48, minHeight: 48),
+          constraints: isMobile
+              ? const BoxConstraints(minWidth: 34, minHeight: 34)
+              : const BoxConstraints(minWidth: 48, minHeight: 48),
           padding: isMobile ? EdgeInsets.zero : const EdgeInsets.all(8),
           splashRadius: isMobile ? 20 : 24,
         ),
@@ -442,14 +464,20 @@ class _RightIcons extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             IconButton(
-              icon: Icon(Icons.notifications_none, color: Colors.white, size: isMobile ? 20 : 24),
+              icon: Icon(
+                Icons.notifications_none,
+                color: Colors.white,
+                size: isMobile ? 20 : 24,
+              ),
               onPressed: () {
                 showDialog(
                   context: context,
                   builder: (_) => const NotificationListDialog(),
                 );
               },
-              constraints: isMobile ? const BoxConstraints(minWidth: 34, minHeight: 34) : const BoxConstraints(minWidth: 48, minHeight: 48),
+              constraints: isMobile
+                  ? const BoxConstraints(minWidth: 34, minHeight: 34)
+                  : const BoxConstraints(minWidth: 48, minHeight: 48),
               padding: isMobile ? EdgeInsets.zero : const EdgeInsets.all(8),
               splashRadius: isMobile ? 20 : 24,
             ),
@@ -478,7 +506,11 @@ class _RightIcons extends StatelessWidget {
         // Sales History Button (Desktop only, excluded from mobile)
         if (!isMobile) ...[
           IconButton(
-            icon: const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 24),
+            icon: const Icon(
+              Icons.receipt_long_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
             tooltip: locale == 'bn' ? 'সেলস হিস্ট্রি' : 'Sales History',
             onPressed: () {
               showLiveSalesHistoryDialog(context, businessType: 'restaurant');
@@ -518,38 +550,70 @@ class _RightIcons extends StatelessWidget {
         PopupMenuButton<String>(
           color: context.cardBg,
           offset: Offset(0, isMobile ? 44 : 56),
-          constraints: isMobile ? const BoxConstraints(minWidth: 34, minHeight: 34) : null,
+          constraints: isMobile
+              ? const BoxConstraints(minWidth: 34, minHeight: 34)
+              : null,
           padding: isMobile ? EdgeInsets.zero : const EdgeInsets.all(8),
-          icon: Icon(Icons.more_vert, color: Colors.white, size: isMobile ? 22 : 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          icon: Icon(
+            Icons.more_vert,
+            color: Colors.white,
+            size: isMobile ? 22 : 24,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
           onSelected: (val) {
-            final posProvider = Provider.of<POSProvider>(context, listen: false);
+            final posProvider = Provider.of<POSProvider>(
+              context,
+              listen: false,
+            );
             final appProv = Provider.of<AppProvider>(context, listen: false);
             if (val == 'sales_history') {
               showLiveSalesHistoryDialog(context, businessType: 'restaurant');
             } else if (val == 'waiter') {
-              showDialog(context: context, builder: (_) => const WaiterSelectionDialog());
+              showDialog(
+                context: context,
+                builder: (_) => const WaiterSelectionDialog(),
+              );
             } else if (val == 'custom_item') {
               showDialog(context: context, builder: (_) => CustomItemDialog());
             } else if (val == 'split') {
-              showDialog(context: context, builder: (_) => const SplitBillDialog());
+              showDialog(
+                context: context,
+                builder: (_) => const SplitBillDialog(),
+              );
             } else if (val == 'transfer') {
-              showDialog(context: context, builder: (_) => const TransferOrderDialog());
+              showDialog(
+                context: context,
+                builder: (_) => const TransferOrderDialog(),
+              );
             } else if (val == 'held') {
-              showDialog(context: context, builder: (_) => const HeldOrdersDialog());
+              showDialog(
+                context: context,
+                builder: (_) => const HeldOrdersDialog(),
+              );
             } else if (val == 'clear') {
               posProvider.clearCart();
             } else if (val == 'shift') {
-              final msg = '${AppStrings.get('shift_sales_total', locale)}: ৳${NumberUtils.toLocalized('248.50', locale)} | ${AppStrings.get('cash_drawer', locale)}: ৳${NumberUtils.toLocalized('500.00', locale)}';
+              final msg =
+                  '${AppStrings.get('shift_sales_total', locale)}: ৳${NumberUtils.toLocalized('248.50', locale)} | ${AppStrings.get('cash_drawer', locale)}: ৳${NumberUtils.toLocalized('500.00', locale)}';
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(msg), backgroundColor: const Color(0xFFFF6D00)),
+                SnackBar(
+                  content: Text(msg),
+                  backgroundColor: const Color(0xFFFF6D00),
+                ),
               );
             } else if (val == 'hardware') {
-              showDialog(context: context, builder: (_) => const HardwareSettingsDialog());
+              showDialog(
+                context: context,
+                builder: (_) => const HardwareSettingsDialog(),
+              );
             } else if (val == 'help') {
               showAboutDialog(
                 context: context,
-                applicationName: locale == 'bn' ? 'জেস্টবাইট POS সিস্টেম' : 'ZestBite POS System',
+                applicationName: locale == 'bn'
+                    ? 'জেস্টবাইট POS সিস্টেম'
+                    : 'ZestBite POS System',
                 applicationVersion: '1.0.0',
                 applicationLegalese: '© 2026 ZestBite Technologies Inc.',
               );
@@ -563,16 +627,28 @@ class _RightIcons extends StatelessWidget {
           },
           itemBuilder: (context) {
             final textStyle = TextStyle(color: context.textPrimary);
-            final appProvider = Provider.of<AppProvider>(context, listen: false);
-            
+            final appProvider = Provider.of<AppProvider>(
+              context,
+              listen: false,
+            );
+
             return [
               PopupMenuItem(
                 value: 'sales_history',
                 child: Row(
                   children: [
-                    const Icon(Icons.receipt_long_rounded, size: 18, color: Color(0xFFFF6D00)),
+                    const Icon(
+                      Icons.receipt_long_rounded,
+                      size: 18,
+                      color: Color(0xFFFF6D00),
+                    ),
                     const SizedBox(width: 8),
-                    Text(locale == 'bn' ? 'সেলস হিস্ট্রি (লাইভ)' : 'Sales History (Live)', style: textStyle),
+                    Text(
+                      locale == 'bn'
+                          ? 'সেলস হিস্ট্রি (লাইভ)'
+                          : 'Sales History (Live)',
+                      style: textStyle,
+                    ),
                   ],
                 ),
               ),
@@ -580,9 +656,16 @@ class _RightIcons extends StatelessWidget {
                 value: 'toggle_fullscreen',
                 child: Row(
                   children: [
-                    const Icon(Icons.fullscreen_rounded, size: 18, color: Color(0xFFFF6D00)),
+                    const Icon(
+                      Icons.fullscreen_rounded,
+                      size: 18,
+                      color: Color(0xFFFF6D00),
+                    ),
                     const SizedBox(width: 8),
-                    Text(AppStrings.get('fullscreen', locale), style: textStyle),
+                    Text(
+                      AppStrings.get('fullscreen', locale),
+                      style: textStyle,
+                    ),
                   ],
                 ),
               ),
@@ -592,9 +675,21 @@ class _RightIcons extends StatelessWidget {
                   value: 'toggle_theme',
                   child: Row(
                     children: [
-                      Icon(appProvider.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded, size: 18, color: primaryOrange),
+                      Icon(
+                        appProvider.isDarkMode
+                            ? Icons.light_mode_rounded
+                            : Icons.dark_mode_rounded,
+                        size: 18,
+                        color: primaryOrange,
+                      ),
                       const SizedBox(width: 8),
-                      Text(AppStrings.get(appProvider.isDarkMode ? 'light_mode' : 'dark_mode', locale), style: textStyle),
+                      Text(
+                        AppStrings.get(
+                          appProvider.isDarkMode ? 'light_mode' : 'dark_mode',
+                          locale,
+                        ),
+                        style: textStyle,
+                      ),
                     ],
                   ),
                 ),
@@ -603,9 +698,16 @@ class _RightIcons extends StatelessWidget {
                   value: 'toggle_lang',
                   child: Row(
                     children: [
-                      const Icon(Icons.language_rounded, size: 18, color: primaryOrange),
+                      const Icon(
+                        Icons.language_rounded,
+                        size: 18,
+                        color: primaryOrange,
+                      ),
                       const SizedBox(width: 8),
-                      Text(appProvider.locale == 'en' ? 'বাংলা' : 'English', style: textStyle),
+                      Text(
+                        appProvider.locale == 'en' ? 'বাংলা' : 'English',
+                        style: textStyle,
+                      ),
                     ],
                   ),
                 ),
@@ -616,11 +718,19 @@ class _RightIcons extends StatelessWidget {
                     builder: (context, pos, _) {
                       return Row(
                         children: [
-                          const Icon(Icons.person_outline, size: 18, color: Color(0xFFFF6D00)),
+                          const Icon(
+                            Icons.person_outline,
+                            size: 18,
+                            color: Color(0xFFFF6D00),
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             '${AppStrings.get('waiter_menu', locale)}: ${AppStrings.get(pos.waiterKey, locale)}',
-                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: context.textPrimary),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: context.textPrimary,
+                            ),
                           ),
                         ],
                       );
@@ -631,9 +741,16 @@ class _RightIcons extends StatelessWidget {
                   value: 'custom_item',
                   child: Row(
                     children: [
-                      const Icon(Icons.soup_kitchen_outlined, size: 18, color: Color(0xFFFF6D00)),
+                      const Icon(
+                        Icons.soup_kitchen_outlined,
+                        size: 18,
+                        color: Color(0xFFFF6D00),
+                      ),
                       const SizedBox(width: 8),
-                      Text(AppStrings.get('custom_item', locale), style: textStyle),
+                      Text(
+                        AppStrings.get('custom_item', locale),
+                        style: textStyle,
+                      ),
                     ],
                   ),
                 ),
@@ -641,9 +758,16 @@ class _RightIcons extends StatelessWidget {
                   value: 'split',
                   child: Row(
                     children: [
-                      const Icon(Icons.call_split, size: 18, color: Color(0xFF2196F3)),
+                      const Icon(
+                        Icons.call_split,
+                        size: 18,
+                        color: Color(0xFF2196F3),
+                      ),
                       const SizedBox(width: 8),
-                      Text(AppStrings.get('split_bill', locale), style: textStyle),
+                      Text(
+                        AppStrings.get('split_bill', locale),
+                        style: textStyle,
+                      ),
                     ],
                   ),
                 ),
@@ -651,29 +775,91 @@ class _RightIcons extends StatelessWidget {
                   value: 'transfer',
                   child: Row(
                     children: [
-                      const Icon(Icons.sync_alt, size: 18, color: Color(0xFF4CAF50)),
+                      const Icon(
+                        Icons.sync_alt,
+                        size: 18,
+                        color: Color(0xFF4CAF50),
+                      ),
                       const SizedBox(width: 8),
-                      Text(AppStrings.get('transfer_order', locale), style: textStyle),
+                      Text(
+                        AppStrings.get('transfer_order', locale),
+                        style: textStyle,
+                      ),
                     ],
                   ),
                 ),
                 const PopupMenuDivider(),
               ],
-              PopupMenuItem(value: 'held', child: Row(children: [const Icon(Icons.pause_circle_outline, size: 18), const SizedBox(width: 8), Text(AppStrings.get('held_orders', locale), style: textStyle)])),
-              PopupMenuItem(value: 'shift', child: Row(children: [const Icon(Icons.point_of_sale, size: 18), const SizedBox(width: 8), Text(AppStrings.get('shift_report', locale), style: textStyle)])),
-              PopupMenuItem(value: 'clear', child: Row(children: [const Icon(Icons.cleaning_services, size: 18), const SizedBox(width: 8), Text(AppStrings.get('clear_cart_menu', locale), style: textStyle)])),
+              PopupMenuItem(
+                value: 'held',
+                child: Row(
+                  children: [
+                    const Icon(Icons.pause_circle_outline, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      AppStrings.get('held_orders', locale),
+                      style: textStyle,
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'shift',
+                child: Row(
+                  children: [
+                    const Icon(Icons.point_of_sale, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      AppStrings.get('shift_report', locale),
+                      style: textStyle,
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'clear',
+                child: Row(
+                  children: [
+                    const Icon(Icons.cleaning_services, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      AppStrings.get('clear_cart_menu', locale),
+                      style: textStyle,
+                    ),
+                  ],
+                ),
+              ),
               const PopupMenuDivider(),
               PopupMenuItem(
                 value: 'hardware',
                 child: Row(
                   children: [
-                    const Icon(Icons.settings_input_composite_rounded, size: 18, color: Color(0xFF607D8B)),
+                    const Icon(
+                      Icons.settings_input_composite_rounded,
+                      size: 18,
+                      color: Color(0xFF607D8B),
+                    ),
                     const SizedBox(width: 8),
-                    Text(AppStrings.get('hardware_settings', locale), style: textStyle),
+                    Text(
+                      AppStrings.get('hardware_settings', locale),
+                      style: textStyle,
+                    ),
                   ],
                 ),
               ),
-              PopupMenuItem(value: 'help', child: Row(children: [const Icon(Icons.info_outline, size: 18), const SizedBox(width: 8), Text(AppStrings.get('system_info', locale), style: textStyle)])),
+              PopupMenuItem(
+                value: 'help',
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      AppStrings.get('system_info', locale),
+                      style: textStyle,
+                    ),
+                  ],
+                ),
+              ),
             ];
           },
         ),

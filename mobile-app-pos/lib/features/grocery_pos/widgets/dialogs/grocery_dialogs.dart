@@ -1336,7 +1336,7 @@ class GroceryBillPrintDialog extends StatelessWidget {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Software by Blue Oceans POS',
+                      'Software by SalePay',
                       style: TextStyle(
                         fontSize: 8.5,
                         color: isDark
