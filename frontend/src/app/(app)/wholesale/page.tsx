@@ -40,7 +40,7 @@ import {
 } from "@/lib/catalog";
 
 function getCustomerTier(pts: number) {
-  if (pts >= 5000) return { name: "VIP Partner", color: "text-indigo-700", bg: "bg-indigo-50", border: "border-indigo-100" };
+  if (pts >= 5000) return { name: "VIP Partner", color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-100" };
   if (pts >= 2000) return { name: "Platinum", color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-100" };
   return { name: "Standard", color: "text-gray-600", bg: "bg-slate-50", border: "border-slate-200" };
 }
@@ -100,7 +100,7 @@ export default function WholesaleHubPage() {
   });
 
   return (
-    <div className="w-full max-w-full p-6 space-y-8">
+    <div data-theme="wholesale" className="theme-wholesale w-full max-w-full p-6 space-y-8">
 
       <CustomBreadcrumb
         title="Wholesale & Distribution"
@@ -121,7 +121,7 @@ export default function WholesaleHubPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           { label: "B2B Volume", val: fmt(totalVolume), sub: "Total commercial sales", icon: TrendingUp, iconColor: "text-blue-600", bg: "bg-blue-50" },
-          { label: "Active Orders", val: activeOrders, sub: "Pending fulfillment", icon: Receipt, iconColor: "text-indigo-600", bg: "bg-indigo-50" },
+          { label: "Active Orders", val: activeOrders, sub: "Pending fulfillment", icon: Receipt, iconColor: "text-blue-600", bg: "bg-blue-50" },
           { label: "Bulk Stock", val: products.reduce((s, p) => s + (p.stockQty || 0), 0), sub: "Total units on hand", icon: Boxes, iconColor: "text-cyan-600", bg: "bg-cyan-50" },
           { label: "Unique SKUs", val: products.length, sub: "Active product catalog", icon: Package, iconColor: "text-blue-500", bg: "bg-slate-50" },
         ].map((stat, i) => (
