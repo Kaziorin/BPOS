@@ -407,9 +407,8 @@ export function InvoicePrintSettingsManager({ onSaved }: Props) {
 
           {/* Render Preview */}
           <div
-            className={`mx-auto bg-white p-5 rounded-sm border border-dashed border-slate-300 shadow-md font-sans text-xs text-gray-800 space-y-2.5 transition-all ${
-              settings.paperWidth === "58mm" ? "max-w-[280px]" : "max-w-[340px]"
-            }`}
+            className={`mx-auto bg-white p-5 rounded-sm border border-dashed border-slate-300 shadow-md font-sans text-xs text-gray-800 space-y-2.5 transition-all ${settings.paperWidth === "58mm" ? "max-w-[280px]" : "max-w-[340px]"
+              }`}
           >
             {/* Store Header */}
             {settings.showStoreHeader && (
@@ -615,7 +614,7 @@ export function InvoicePrintSettingsManager({ onSaved }: Props) {
 
               {settings.showWatermark && (
                 <p className="text-[10px] text-gray-400 text-center mt-2">
-                  Software by SalePay
+                  Software By Blue Oceans Technologies Ltd
                 </p>
               )}
             </div>

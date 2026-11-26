@@ -118,21 +118,21 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
 
   const invoiceDate = data.createdAt || data.saleDate
     ? new Date(data.createdAt || data.saleDate!).toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      })
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
     : new Date().toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
 
   const items = data.items || [];
 
@@ -234,8 +234,8 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
     settings.footerMessage && settings.footerMessage.trim().length > 0
       ? settings.footerMessage
       : isRestaurant
-      ? "Thank you for dining with us! Please visit us again."
-      : "Thank you for shopping with us! Please visit us again.";
+        ? "Thank you for dining with us! Please visit us again."
+        : "Thank you for shopping with us! Please visit us again.";
 
   const is58mm = settings.paperWidth === "58mm";
   const printWidthCss = is58mm ? "54mm" : "76mm";
@@ -439,11 +439,10 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
               <button
                 type="button"
                 onClick={() => setShowQuickSettings((p) => !p)}
-                className={`p-1.5 rounded-sm border transition text-xs font-semibold flex items-center gap-1 cursor-pointer ${
-                  showQuickSettings
+                className={`p-1.5 rounded-sm border transition text-xs font-semibold flex items-center gap-1 cursor-pointer ${showQuickSettings
                     ? "bg-teal-600 text-white border-teal-600 shadow-xs"
                     : "bg-white text-gray-700 border-slate-300 hover:bg-slate-50"
-                }`}
+                  }`}
                 title="Invoice Visibility Controls"
               >
                 <Sliders size={13} />
@@ -555,13 +554,17 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
           {/* Thermal Receipt Paper Card */}
           <div
             id="thermal-receipt"
-            className={`w-full rounded-sm border border-slate-200 bg-white p-5 shadow-lg text-xs text-gray-800 space-y-2.5 font-sans transition-all ${
-              is58mm ? "max-w-[280px]" : "max-w-[390px]"
-            }`}
+            className={`w-full rounded-sm border border-slate-200 bg-white p-5 shadow-lg text-xs text-gray-800 space-y-2.5 font-sans transition-all ${is58mm ? "max-w-[280px]" : "max-w-[390px]"
+              }`}
           >
             {/* Store Header */}
             {settings.showStoreHeader && (
               <div className="text-center space-y-0.5">
+                <img
+                  src="/logos/salepay-logo-blue.png"
+                  alt="SalePay Enterprise"
+                  style={{ height: 28, width: "auto", margin: "0 auto 6px", display: "block", objectFit: "contain" }}
+                />
                 <h2 className="text-base font-extrabold tracking-wider text-black uppercase">
                   {settings.storeName || siteConfig.name || "SALEPAY"}
                 </h2>
@@ -777,7 +780,7 @@ export function SaleReceiptViewModal({ open, data, onClose }: Props) {
               {/* Attribution watermark */}
               {settings.showWatermark && (
                 <p className="text-[10px] text-gray-400 text-center mt-2">
-                  Software by SalePay
+                  Software By Blue Oceans Technologies Ltd
                 </p>
               )}
             </div>

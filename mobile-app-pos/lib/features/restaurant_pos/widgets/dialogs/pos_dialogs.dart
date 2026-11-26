@@ -1979,6 +1979,16 @@ class BillPrintDialog extends StatelessWidget {
               ),
               child: Column(
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Image.asset(
+                      context.isDark
+                          ? 'assets/images/salepay-logo-white.png'
+                          : 'assets/images/salepay-logo-blue.png',
+                      height: 28,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                   Text(
                     AppStrings.get('app_name', locale),
                     style: const TextStyle(
@@ -2144,6 +2154,11 @@ class BillPrintDialog extends StatelessWidget {
                       fontSize: 12,
                       fontStyle: FontStyle.italic,
                     ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Software By Blue Oceans Technologies Ltd',
+                    style: TextStyle(fontSize: 9, color: Colors.grey),
                   ),
                 ],
               ),

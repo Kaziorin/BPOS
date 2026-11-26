@@ -11,7 +11,10 @@ const darkTeal = Color(0xFF00695C);
 // ─────────────────────────────────────────────────────────────
 // 1. CUSTOMER DIALOG
 // ─────────────────────────────────────────────────────────────
-void showPharmacyCustomerDialog(BuildContext context, PharmacyProvider provider) {
+void showPharmacyCustomerDialog(
+  BuildContext context,
+  PharmacyProvider provider,
+) {
   final isDark = context.isDark;
   final searchCtrl = TextEditingController();
   final nameCtrl = TextEditingController();
@@ -19,24 +22,53 @@ void showPharmacyCustomerDialog(BuildContext context, PharmacyProvider provider)
   final allergyCtrl = TextEditingController();
 
   final List<Map<String, dynamic>> defaultCustomers = [
-    {'name': 'Walk-in Customer', 'phone': 'N/A', 'points': 0, 'allergy': 'None'},
-    {'name': 'Rahim Uddin', 'phone': '01711223344', 'points': 145, 'allergy': 'Penicillin Allergy'},
-    {'name': 'Farhana Akhtar', 'phone': '01899887766', 'points': 280, 'allergy': 'Sulfa Drugs'},
-    {'name': 'Dr. Kazi Mostafa', 'phone': '01912345678', 'points': 520, 'allergy': 'None'},
-    {'name': 'Nusrat Jahan', 'phone': '01655443322', 'points': 90, 'allergy': 'Aspirin'},
+    {
+      'name': 'Walk-in Customer',
+      'phone': 'N/A',
+      'points': 0,
+      'allergy': 'None',
+    },
+    {
+      'name': 'Rahim Uddin',
+      'phone': '01711223344',
+      'points': 145,
+      'allergy': 'Penicillin Allergy',
+    },
+    {
+      'name': 'Farhana Akhtar',
+      'phone': '01899887766',
+      'points': 280,
+      'allergy': 'Sulfa Drugs',
+    },
+    {
+      'name': 'Dr. Kazi Mostafa',
+      'phone': '01912345678',
+      'points': 520,
+      'allergy': 'None',
+    },
+    {
+      'name': 'Nusrat Jahan',
+      'phone': '01655443322',
+      'points': 90,
+      'allergy': 'Aspirin',
+    },
   ];
 
   // Merge API customers with defaults (API takes priority if non-empty)
   final List<Map<String, dynamic>> allCustomers;
   if (provider.customersLoaded && provider.apiCustomers.isNotEmpty) {
     // Map API customer fields to the format used by the dialog
-    allCustomers = provider.apiCustomers.map((c) => {
-      'id': c['id']?.toString() ?? '',
-      'name': c['name']?.toString() ?? 'Unknown',
-      'phone': c['phone']?.toString() ?? 'N/A',
-      'points': (c['loyaltyPoints'] as num?)?.toInt() ?? 0,
-      'allergy': c['allergy']?.toString() ?? 'None',
-    }).toList();
+    allCustomers = provider.apiCustomers
+        .map(
+          (c) => {
+            'id': c['id']?.toString() ?? '',
+            'name': c['name']?.toString() ?? 'Unknown',
+            'phone': c['phone']?.toString() ?? 'N/A',
+            'points': (c['loyaltyPoints'] as num?)?.toInt() ?? 0,
+            'allergy': c['allergy']?.toString() ?? 'None',
+          },
+        )
+        .toList();
   } else {
     allCustomers = defaultCustomers;
   }
@@ -46,13 +78,18 @@ void showPharmacyCustomerDialog(BuildContext context, PharmacyProvider provider)
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) {
         final query = searchCtrl.text.toLowerCase();
-        final filtered = allCustomers.where((c) =>
-          c['name'].toString().toLowerCase().contains(query) ||
-          c['phone'].toString().contains(query)
-        ).toList();
+        final filtered = allCustomers
+            .where(
+              (c) =>
+                  c['name'].toString().toLowerCase().contains(query) ||
+                  c['phone'].toString().contains(query),
+            )
+            .toList();
 
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           backgroundColor: isDark ? context.cardBg : Colors.white,
           child: Container(
             width: 480,
@@ -62,189 +99,265 @@ void showPharmacyCustomerDialog(BuildContext context, PharmacyProvider provider)
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Expanded(
-                      child: Row(
-                        children: [
-                          Icon(Icons.person_pin_rounded, color: primaryTeal, size: 22),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Select or Add Patient/Customer',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close_rounded),
-                      onPressed: () => Navigator.pop(ctx),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                // Search box
-                TextField(
-                  controller: searchCtrl,
-                  onChanged: (_) => setState(() {}),
-                  decoration: InputDecoration(
-                    hintText: 'Search by patient name or phone number...',
-                    prefixIcon: const Icon(Icons.search, size: 18),
-                    filled: true,
-                    fillColor: isDark ? context.scaffoldBg : Colors.grey.shade100,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    isDense: true,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text('Saved Patients:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-                const SizedBox(height: 6),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 180),
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: filtered.length,
-                    separatorBuilder: (context, index) => const Divider(height: 1),
-                    itemBuilder: (ctx, i) {
-                      final c = filtered[i];
-                      final isSelected = provider.selectedCustomer?['name'] == c['name'];
-                      final hasAllergy = c['allergy'] != 'None';
-
-                      return ListTile(
-                        dense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        leading: CircleAvatar(
-                          backgroundColor: primaryTeal.withValues(alpha: 0.1),
-                          child: const Icon(Icons.person, color: primaryTeal, size: 18),
-                        ),
-                        title: Text(
-                          c['name'] as String,
-                          style: TextStyle(fontWeight: FontWeight.bold, color: isSelected ? primaryTeal : null),
-                        ),
-                        subtitle: Row(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Expanded(
+                        child: Row(
                           children: [
-                            Text(c['phone'] as String, style: const TextStyle(fontSize: 11)),
-                            if (hasAllergy) ...[
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                                decoration: BoxDecoration(
-                                  color: Colors.red.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(4),
+                            Icon(
+                              Icons.person_pin_rounded,
+                              color: primaryTeal,
+                              size: 22,
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Select or Add Patient/Customer',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                child: Text(
-                                  c['allergy'] as String,
-                                  style: const TextStyle(fontSize: 9, color: Colors.red, fontWeight: FontWeight.bold),
-                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ],
+                            ),
                           ],
                         ),
-                        trailing: Text('⭐ ${c['points']} pts', style: const TextStyle(fontSize: 11, color: Colors.amber)),
-                        onTap: () {
-                          provider.setCustomer(c);
-                          Navigator.pop(ctx);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Patient "${c['name']}" selected'), duration: const Duration(seconds: 1)),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-                const Divider(height: 20),
-                const Text('Quick Add New Patient:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: primaryTeal)),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: nameCtrl,
-                        decoration: InputDecoration(
-                          hintText: 'Full Name',
-                          isDense: true,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: phoneCtrl,
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          hintText: 'Mobile No.',
-                          isDense: true,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () => Navigator.pop(ctx),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: allergyCtrl,
-                  decoration: InputDecoration(
-                    hintText: 'Allergies / Special Notes (optional)',
-                    isDense: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryTeal,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  const SizedBox(height: 14),
+                  // Search box
+                  TextField(
+                    controller: searchCtrl,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: 'Search by patient name or phone number...',
+                      prefixIcon: const Icon(Icons.search, size: 18),
+                      filled: true,
+                      fillColor: isDark
+                          ? context.scaffoldBg
+                          : Colors.grey.shade100,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
+                      isDense: true,
                     ),
-                    onPressed: () async {
-                      if (nameCtrl.text.trim().isEmpty) return;
-                      final newCust = {
-                        'name': nameCtrl.text.trim(),
-                        'phone': phoneCtrl.text.trim().isEmpty ? 'N/A' : phoneCtrl.text.trim(),
-                        'points': 0,
-                        'allergy': allergyCtrl.text.trim().isEmpty ? 'None' : allergyCtrl.text.trim(),
-                      };
-                      // Try to save to backend
-                      try {
-                        final nav = Navigator.of(ctx);
-                        final sm = ScaffoldMessenger.of(context);
-                        final saved = await ApiService.instance.createCustomer(
-                          businessType: 'pharmacy',
-                          payload: {
-                            'name': newCust['name'],
-                            'phone': newCust['phone'] != 'N/A' ? newCust['phone'] : null,
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Saved Patients:',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 180),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: filtered.length,
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 1),
+                      itemBuilder: (ctx, i) {
+                        final c = filtered[i];
+                        final isSelected =
+                            provider.selectedCustomer?['name'] == c['name'];
+                        final hasAllergy = c['allergy'] != 'None';
+
+                        return ListTile(
+                          dense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          leading: CircleAvatar(
+                            backgroundColor: primaryTeal.withValues(alpha: 0.1),
+                            child: const Icon(
+                              Icons.person,
+                              color: primaryTeal,
+                              size: 18,
+                            ),
+                          ),
+                          title: Text(
+                            c['name'] as String,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isSelected ? primaryTeal : null,
+                            ),
+                          ),
+                          subtitle: Row(
+                            children: [
+                              Text(
+                                c['phone'] as String,
+                                style: const TextStyle(fontSize: 11),
+                              ),
+                              if (hasAllergy) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 5,
+                                    vertical: 1,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    c['allergy'] as String,
+                                    style: const TextStyle(
+                                      fontSize: 9,
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          trailing: Text(
+                            '⭐ ${c['points']} pts',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.amber,
+                            ),
+                          ),
+                          onTap: () {
+                            provider.setCustomer(c);
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Patient "${c['name']}" selected',
+                                ),
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
                           },
                         );
-                        if (saved != null) {
-                          newCust['id'] = saved['id']?.toString() ?? '';
-                        }
-                        provider.setCustomer(newCust);
-                        nav.pop();
-                        sm.showSnackBar(
-                          SnackBar(content: Text('Added & selected "${newCust['name']}"'), duration: const Duration(seconds: 1)),
-                        );
-                      } catch (_) {
-                        provider.setCustomer(newCust);
-                        if (ctx.mounted) Navigator.pop(ctx);
-                      }
-                    },
-                    child: const Text('Add & Select Patient'),
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
+                  const Divider(height: 20),
+                  const Text(
+                    'Quick Add New Patient:',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: primaryTeal,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: nameCtrl,
+                          decoration: InputDecoration(
+                            hintText: 'Full Name',
+                            isDense: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: phoneCtrl,
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(
+                            hintText: 'Mobile No.',
+                            isDense: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: allergyCtrl,
+                    decoration: InputDecoration(
+                      hintText: 'Allergies / Special Notes (optional)',
+                      isDense: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryTeal,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: () async {
+                        if (nameCtrl.text.trim().isEmpty) return;
+                        final newCust = {
+                          'name': nameCtrl.text.trim(),
+                          'phone': phoneCtrl.text.trim().isEmpty
+                              ? 'N/A'
+                              : phoneCtrl.text.trim(),
+                          'points': 0,
+                          'allergy': allergyCtrl.text.trim().isEmpty
+                              ? 'None'
+                              : allergyCtrl.text.trim(),
+                        };
+                        // Try to save to backend
+                        try {
+                          final nav = Navigator.of(ctx);
+                          final sm = ScaffoldMessenger.of(context);
+                          final saved = await ApiService.instance
+                              .createCustomer(
+                                businessType: 'pharmacy',
+                                payload: {
+                                  'name': newCust['name'],
+                                  'phone': newCust['phone'] != 'N/A'
+                                      ? newCust['phone']
+                                      : null,
+                                },
+                              );
+                          if (saved != null) {
+                            newCust['id'] = saved['id']?.toString() ?? '';
+                          }
+                          provider.setCustomer(newCust);
+                          nav.pop();
+                          sm.showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Added & selected "${newCust['name']}"',
+                              ),
+                              duration: const Duration(seconds: 1),
+                            ),
+                          );
+                        } catch (_) {
+                          provider.setCustomer(newCust);
+                          if (ctx.mounted) Navigator.pop(ctx);
+                        }
+                      },
+                      child: const Text('Add & Select Patient'),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -260,38 +373,51 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
   final isDark = context.isDark;
   final existing = provider.attachedPrescription;
   final rxIdCtrl = TextEditingController(
-    text: existing?['id']?.toString() ?? 'RX-${DateTime.now().year}-${(DateTime.now().millisecondsSinceEpoch % 9000) + 1000}',
+    text:
+        existing?['id']?.toString() ??
+        'RX-${DateTime.now().year}-${(DateTime.now().millisecondsSinceEpoch % 9000) + 1000}',
   );
   final doctorCtrl = TextEditingController(
-    text: existing?['doctor']?.toString() ?? (provider.attachedDoctor?['name']?.toString() ?? ''),
+    text:
+        existing?['doctor']?.toString() ??
+        (provider.attachedDoctor?['name']?.toString() ?? ''),
   );
   final patientCtrl = TextEditingController(
-    text: existing?['patient']?.toString() ?? (provider.selectedCustomer?['name']?.toString() ?? ''),
+    text:
+        existing?['patient']?.toString() ??
+        (provider.selectedCustomer?['name']?.toString() ?? ''),
   );
 
   final meds = provider.allMedicines;
-  final Set<String> selectedIds = {
-    if (meds.isNotEmpty) meds.first.id,
-  };
+  final Set<String> selectedIds = {if (meds.isNotEmpty) meds.first.id};
 
   showDialog(
     context: context,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) {
-        final selectedMeds = meds.where((m) => selectedIds.contains(m.id)).toList();
+        final selectedMeds = meds
+            .where((m) => selectedIds.contains(m.id))
+            .toList();
 
         void savePrescription({required bool loadToCart}) {
           final rxId = rxIdCtrl.text.trim();
           if (rxId.isEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Please enter a Prescription ID'), backgroundColor: Colors.orange),
+              const SnackBar(
+                content: Text('Please enter a Prescription ID'),
+                backgroundColor: Colors.orange,
+              ),
             );
             return;
           }
           provider.setPrescription({
             'id': rxId,
-            'patient': patientCtrl.text.trim().isEmpty ? 'Walk-in Patient' : patientCtrl.text.trim(),
-            'doctor': doctorCtrl.text.trim().isEmpty ? 'On-Duty Doctor' : doctorCtrl.text.trim(),
+            'patient': patientCtrl.text.trim().isEmpty
+                ? 'Walk-in Patient'
+                : patientCtrl.text.trim(),
+            'doctor': doctorCtrl.text.trim().isEmpty
+                ? 'On-Duty Doctor'
+                : doctorCtrl.text.trim(),
             'medicineIds': selectedMeds.map((m) => m.id).toList(),
             'date': DateTime.now(),
           });
@@ -315,8 +441,13 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
         }
 
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 24,
+          ),
           backgroundColor: isDark ? context.cardBg : Colors.white,
           child: Container(
             width: 480,
@@ -334,13 +465,20 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
                           color: Colors.purple.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(Icons.medical_services_rounded, color: Colors.purple, size: 20),
+                        child: const Icon(
+                          Icons.medical_services_rounded,
+                          color: Colors.purple,
+                          size: 20,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       const Expanded(
                         child: Text(
                           'Attach Prescription (Rx)',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -350,7 +488,10 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
                             provider.setPrescription(null);
                             Navigator.pop(ctx);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Prescription detached'), duration: Duration(seconds: 1)),
+                              const SnackBar(
+                                content: Text('Prescription detached'),
+                                duration: Duration(seconds: 1),
+                              ),
                             );
                           },
                           style: TextButton.styleFrom(
@@ -358,13 +499,22 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             minimumSize: Size.zero,
                           ),
-                          child: const Text('Detach', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                          child: const Text(
+                            'Detach',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                         ),
                       IconButton(
                         icon: const Icon(Icons.close_rounded),
                         onPressed: () => Navigator.pop(ctx),
                         padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                        constraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
                       ),
                     ],
                   ),
@@ -375,7 +525,9 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
                       labelText: 'Prescription ID *',
                       prefixIcon: const Icon(Icons.qr_code_2_rounded, size: 18),
                       isDense: true,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -384,9 +536,14 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
                     decoration: InputDecoration(
                       labelText: 'Patient Name',
                       hintText: 'e.g. Kamal Hossain',
-                      prefixIcon: const Icon(Icons.person_outline_rounded, size: 18),
+                      prefixIcon: const Icon(
+                        Icons.person_outline_rounded,
+                        size: 18,
+                      ),
                       isDense: true,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -395,9 +552,14 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
                     decoration: InputDecoration(
                       labelText: 'Prescribing Doctor',
                       hintText: 'e.g. Dr. Anwarul Islam',
-                      prefixIcon: const Icon(Icons.local_hospital_outlined, size: 18),
+                      prefixIcon: const Icon(
+                        Icons.local_hospital_outlined,
+                        size: 18,
+                      ),
                       isDense: true,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -406,11 +568,18 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
                     children: [
                       const Text(
                         'Select Medicines for Rx',
-                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       Text(
                         '${selectedMeds.length} selected',
-                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: primaryTeal),
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: primaryTeal,
+                        ),
                       ),
                     ],
                   ),
@@ -418,7 +587,10 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
                   if (meds.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Text('No medicines available in catalog.', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      child: Text(
+                        'No medicines available in catalog.',
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
                     )
                   else
                     ConstrainedBox(
@@ -442,38 +614,58 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
                             },
                             borderRadius: BorderRadius.circular(10),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? primaryTeal.withValues(alpha: isDark ? 0.18 : 0.08)
-                                    : (isDark ? context.scaffoldBg : Colors.grey.shade50),
+                                    ? primaryTeal.withValues(
+                                        alpha: isDark ? 0.18 : 0.08,
+                                      )
+                                    : (isDark
+                                          ? context.scaffoldBg
+                                          : Colors.grey.shade50),
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
-                                  color: isSelected ? primaryTeal : context.dividerColor,
+                                  color: isSelected
+                                      ? primaryTeal
+                                      : context.dividerColor,
                                   width: isSelected ? 1.4 : 1,
                                 ),
                               ),
                               child: Row(
                                 children: [
                                   Icon(
-                                    isSelected ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
-                                    color: isSelected ? primaryTeal : Colors.grey,
+                                    isSelected
+                                        ? Icons.check_box_rounded
+                                        : Icons.check_box_outline_blank_rounded,
+                                    color: isSelected
+                                        ? primaryTeal
+                                        : Colors.grey,
                                     size: 20,
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           med.name,
-                                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 12.5,
+                                          ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         Text(
                                           '${med.genericName} • Stock: ${med.stock}',
-                                          style: const TextStyle(fontSize: 10.5, color: Colors.grey),
+                                          style: const TextStyle(
+                                            fontSize: 10.5,
+                                            color: Colors.grey,
+                                          ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -483,7 +675,11 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
                                   const SizedBox(width: 8),
                                   Text(
                                     '৳${med.price.toStringAsFixed(0)}',
-                                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5, color: primaryTeal),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 12.5,
+                                      color: primaryTeal,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -498,9 +694,18 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
                       Expanded(
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 8,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            side: BorderSide(
+                              color: isDark
+                                  ? Colors.white24
+                                  : Colors.grey.shade300,
+                            ),
                           ),
                           onPressed: () => savePrescription(loadToCart: false),
                           child: const Text(
@@ -508,7 +713,10 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
                             maxLines: 1,
                             softWrap: false,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12.5,
+                            ),
                           ),
                         ),
                       ),
@@ -518,19 +726,32 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryTeal,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 8,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                             elevation: 0,
                           ),
-                          icon: const Icon(Icons.add_shopping_cart_rounded, size: 16),
+                          icon: const Icon(
+                            Icons.add_shopping_cart_rounded,
+                            size: 16,
+                          ),
                           label: const Text(
                             'Load to Cart',
                             maxLines: 1,
                             softWrap: false,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12.5,
+                            ),
                           ),
-                          onPressed: selectedMeds.isEmpty ? null : () => savePrescription(loadToCart: true),
+                          onPressed: selectedMeds.isEmpty
+                              ? null
+                              : () => savePrescription(loadToCart: true),
                         ),
                       ),
                     ],
@@ -548,7 +769,10 @@ void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
 // ─────────────────────────────────────────────────────────────
 // 3. BARCODE SCANNER DIALOG
 // ─────────────────────────────────────────────────────────────
-void showPharmacyBarcodeScanDialog(BuildContext context, PharmacyProvider provider) {
+void showPharmacyBarcodeScanDialog(
+  BuildContext context,
+  PharmacyProvider provider,
+) {
   final isDark = context.isDark;
   final codeCtrl = TextEditingController();
   MedicineModel? foundMed;
@@ -566,113 +790,168 @@ void showPharmacyBarcodeScanDialog(BuildContext context, PharmacyProvider provid
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Expanded(
-                    child: Row(
-                      children: [
-                        Icon(Icons.barcode_reader, color: primaryTeal, size: 22),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Barcode Scanner',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Container(
-                height: 90,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Stack(
-                  alignment: Alignment.center,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(Icons.qr_code_scanner, color: Colors.white70, size: 40),
-                    Divider(color: Colors.red, thickness: 2, indent: 40, endIndent: 40),
+                    const Expanded(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.barcode_reader,
+                            color: primaryTeal,
+                            size: 22,
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Barcode Scanner',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: codeCtrl,
-                autofocus: true,
-                onChanged: (val) {
-                  setState(() {
-                    foundMed = provider.allMedicines.cast<MedicineModel?>().firstWhere(
-                      (m) => m?.barcode == val.trim() || m?.name.toLowerCase().contains(val.trim().toLowerCase()) == true,
-                      orElse: () => null,
-                    );
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: 'Enter/Scan Barcode (e.g. 89411002)...',
-                  isDense: true,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-              const SizedBox(height: 10),
-              // Sample barcode suggestions
-              Wrap(
-                spacing: 6,
-                children: ['89411001', '89411002', '89411007', '89411013'].map((code) => ActionChip(
-                  label: Text(code, style: const TextStyle(fontSize: 10)),
-                  onPressed: () {
-                    codeCtrl.text = code;
-                    setState(() {
-                      foundMed = provider.allMedicines.firstWhere((m) => m.barcode == code);
-                    });
-                  },
-                )).toList(),
-              ),
-              const SizedBox(height: 12),
-              if (foundMed != null)
+                const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  height: 90,
+                  width: double.infinity,
                   decoration: BoxDecoration(
-                    color: primaryTeal.withValues(alpha: 0.08),
+                    color: Colors.black,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: primaryTeal.withValues(alpha: 0.2)),
                   ),
-                  child: Row(
+                  child: const Stack(
+                    alignment: Alignment.center,
                     children: [
-                      const Icon(Icons.check_circle, color: primaryTeal),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(foundMed!.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            Text('Price: ৳${foundMed!.price.toStringAsFixed(2)} • Stock: ${foundMed!.stock}', style: const TextStyle(fontSize: 11)),
-                          ],
-                        ),
+                      Icon(
+                        Icons.qr_code_scanner,
+                        color: Colors.white70,
+                        size: 40,
                       ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white),
-                        onPressed: () {
-                          provider.addToCart(foundMed!);
-                          Navigator.pop(ctx);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Added "${foundMed!.name}" to cart!'), duration: const Duration(seconds: 1)),
-                          );
-                        },
-                        child: const Text('Add to Cart'),
+                      Divider(
+                        color: Colors.red,
+                        thickness: 2,
+                        indent: 40,
+                        endIndent: 40,
                       ),
                     ],
                   ),
                 ),
-            ],
-          ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: codeCtrl,
+                  autofocus: true,
+                  onChanged: (val) {
+                    setState(() {
+                      foundMed = provider.allMedicines
+                          .cast<MedicineModel?>()
+                          .firstWhere(
+                            (m) =>
+                                m?.barcode == val.trim() ||
+                                m?.name.toLowerCase().contains(
+                                      val.trim().toLowerCase(),
+                                    ) ==
+                                    true,
+                            orElse: () => null,
+                          );
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Enter/Scan Barcode (e.g. 89411002)...',
+                    isDense: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Sample barcode suggestions
+                Wrap(
+                  spacing: 6,
+                  children: ['89411001', '89411002', '89411007', '89411013']
+                      .map(
+                        (code) => ActionChip(
+                          label: Text(
+                            code,
+                            style: const TextStyle(fontSize: 10),
+                          ),
+                          onPressed: () {
+                            codeCtrl.text = code;
+                            setState(() {
+                              foundMed = provider.allMedicines.firstWhere(
+                                (m) => m.barcode == code,
+                              );
+                            });
+                          },
+                        ),
+                      )
+                      .toList(),
+                ),
+                const SizedBox(height: 12),
+                if (foundMed != null)
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: primaryTeal.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: primaryTeal.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle, color: primaryTeal),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                foundMed!.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Price: ৳${foundMed!.price.toStringAsFixed(2)} • Stock: ${foundMed!.stock}',
+                                style: const TextStyle(fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryTeal,
+                            foregroundColor: Colors.white,
+                          ),
+                          onPressed: () {
+                            provider.addToCart(foundMed!);
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Added "${foundMed!.name}" to cart!',
+                                ),
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          },
+                          child: const Text('Add to Cart'),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -683,7 +962,10 @@ void showPharmacyBarcodeScanDialog(BuildContext context, PharmacyProvider provid
 // ─────────────────────────────────────────────────────────────
 // 4. QUICK REFILL DIALOG
 // ─────────────────────────────────────────────────────────────
-void showPharmacyQuickRefillDialog(BuildContext context, PharmacyProvider provider) {
+void showPharmacyQuickRefillDialog(
+  BuildContext context,
+  PharmacyProvider provider,
+) {
   final isDark = context.isDark;
   final meds = provider.allMedicines;
   MedicineModel? safePick(String name, int fallbackIdx) {
@@ -718,27 +1000,41 @@ void showPharmacyQuickRefillDialog(BuildContext context, PharmacyProvider provid
         padding: const EdgeInsets.all(20),
         child: SingleChildScrollView(
           child: FutureBuilder(
-            future: ApiService.instance.fetchSalesOrders(businessType: 'pharmacy', limit: 10),
+            future: ApiService.instance.fetchSalesOrders(
+              businessType: 'pharmacy',
+              limit: 10,
+            ),
             builder: (context, snapshot) {
               final liveOrders = snapshot.data ?? [];
               final List<Map<String, dynamic>> refills = liveOrders.isNotEmpty
-                  ? liveOrders.map((order) {
-                      final matchedMeds = <MedicineModel>[];
-                      for (final item in order.items) {
-                        final found = meds.where((m) =>
-                            m.id == item.productId ||
-                            m.name.toLowerCase() == item.name.toLowerCase()).toList();
-                        if (found.isNotEmpty) {
-                          matchedMeds.add(found.first);
-                        }
-                      }
-                      return {
-                        'patient': order.customerName,
-                        'rxNumber': order.orderNo,
-                        'lastFilled': '${order.orderDate.day}/${order.orderDate.month}/${order.orderDate.year}',
-                        'items': matchedMeds,
-                      };
-                    }).where((r) => (r['items'] as List<MedicineModel>).isNotEmpty).toList()
+                  ? liveOrders
+                        .map((order) {
+                          final matchedMeds = <MedicineModel>[];
+                          for (final item in order.items) {
+                            final found = meds
+                                .where(
+                                  (m) =>
+                                      m.id == item.productId ||
+                                      m.name.toLowerCase() ==
+                                          item.name.toLowerCase(),
+                                )
+                                .toList();
+                            if (found.isNotEmpty) {
+                              matchedMeds.add(found.first);
+                            }
+                          }
+                          return {
+                            'patient': order.customerName,
+                            'rxNumber': order.orderNo,
+                            'lastFilled':
+                                '${order.orderDate.day}/${order.orderDate.month}/${order.orderDate.year}',
+                            'items': matchedMeds,
+                          };
+                        })
+                        .where(
+                          (r) => (r['items'] as List<MedicineModel>).isNotEmpty,
+                        )
+                        .toList()
                   : fallbackRefills;
 
               return Column(
@@ -751,33 +1047,51 @@ void showPharmacyQuickRefillDialog(BuildContext context, PharmacyProvider provid
                       const Expanded(
                         child: Row(
                           children: [
-                            Icon(Icons.refresh_rounded, color: Colors.orange, size: 22),
+                            Icon(
+                              Icons.refresh_rounded,
+                              color: Colors.orange,
+                              size: 22,
+                            ),
                             SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 'Patient Quick Refill',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Text('Choose past prescription / order to auto-refill:', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  const Text(
+                    'Choose past prescription / order to auto-refill:',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
                   const SizedBox(height: 10),
                   if (snapshot.connectionState == ConnectionState.waiting)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 24),
-                      child: Center(child: CircularProgressIndicator(color: Colors.orange)),
+                      child: Center(
+                        child: CircularProgressIndicator(color: Colors.orange),
+                      ),
                     )
                   else if (refills.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20),
-                      child: Text('No refillable medicines or past orders found.', style: TextStyle(color: Colors.grey)),
+                      child: Text(
+                        'No refillable medicines or past orders found.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     )
                   else
                     ...refills.map((refill) {
@@ -786,7 +1100,9 @@ void showPharmacyQuickRefillDialog(BuildContext context, PharmacyProvider provid
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: isDark ? context.scaffoldBg : Colors.grey.shade50,
+                          color: isDark
+                              ? context.scaffoldBg
+                              : Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: context.dividerColor),
                         ),
@@ -799,21 +1115,48 @@ void showPharmacyQuickRefillDialog(BuildContext context, PharmacyProvider provid
                                 Expanded(
                                   child: Text(
                                     refill['patient'] as String,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                Text('Last: ${refill['lastFilled']}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                                Text(
+                                  'Last: ${refill['lastFilled']}',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
                               ],
                             ),
-                            Text('Ref: ${refill['rxNumber']} • ${items.length} items', style: const TextStyle(fontSize: 11, color: primaryTeal)),
+                            Text(
+                              'Ref: ${refill['rxNumber']} • ${items.length} items',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: primaryTeal,
+                              ),
+                            ),
                             const SizedBox(height: 6),
-                            Text(items.map((m) => '${m.name} (৳${m.price.toStringAsFixed(0)})').join(' + '), style: const TextStyle(fontSize: 11)),
+                            Text(
+                              items
+                                  .map(
+                                    (m) =>
+                                        '${m.name} (৳${m.price.toStringAsFixed(0)})',
+                                  )
+                                  .join(' + '),
+                              style: const TextStyle(fontSize: 11),
+                            ),
                             const SizedBox(height: 8),
                             Align(
                               alignment: Alignment.centerRight,
                               child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white, elevation: 0),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                ),
                                 icon: const Icon(Icons.restart_alt, size: 16),
                                 label: const Text('Refill Now'),
                                 onPressed: () {
@@ -822,7 +1165,12 @@ void showPharmacyQuickRefillDialog(BuildContext context, PharmacyProvider provid
                                   }
                                   Navigator.pop(ctx);
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Refilled ${items.length} medicines for ${refill['patient']}'), duration: const Duration(seconds: 1)),
+                                    SnackBar(
+                                      content: Text(
+                                        'Refilled ${items.length} medicines for ${refill['patient']}',
+                                      ),
+                                      duration: const Duration(seconds: 1),
+                                    ),
                                   );
                                 },
                               ),
@@ -844,7 +1192,10 @@ void showPharmacyQuickRefillDialog(BuildContext context, PharmacyProvider provid
 // ─────────────────────────────────────────────────────────────
 // 5. ADD MEDICINE DIALOG
 // ─────────────────────────────────────────────────────────────
-void showPharmacyAddMedicineDialog(BuildContext context, PharmacyProvider provider) {
+void showPharmacyAddMedicineDialog(
+  BuildContext context,
+  PharmacyProvider provider,
+) {
   final isDark = context.isDark;
   final nameCtrl = TextEditingController();
   final genericCtrl = TextEditingController();
@@ -868,114 +1219,185 @@ void showPharmacyAddMedicineDialog(BuildContext context, PharmacyProvider provid
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Expanded(
-                    child: Row(
-                      children: [
-                        Icon(Icons.add_circle_outline, color: primaryTeal, size: 22),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Add New Medicine to Stock',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            overflow: TextOverflow.ellipsis,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Expanded(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.add_circle_outline,
+                            color: primaryTeal,
+                            size: 22,
                           ),
-                        ),
-                      ],
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Add New Medicine to Stock',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
-                ],
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: nameCtrl,
-                decoration: const InputDecoration(labelText: 'Brand/Medicine Name (e.g. Ciprocin)', isDense: true),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: genericCtrl,
-                decoration: const InputDecoration(labelText: 'Generic & Strength (e.g. Ciprofloxacin • 500mg)', isDense: true),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: priceCtrl,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(labelText: 'Price (৳)', isDense: true),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(ctx),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: stockCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Initial Stock Qty', isDense: true),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: manufacturerCtrl,
-                decoration: const InputDecoration(labelText: 'Manufacturer / Brand', isDense: true),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Category:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                  DropdownButton<String>(
-                    value: category,
-                    items: ['Antibiotics', 'Pain Relief', 'Vitamins & Supplements', 'Skin Care', 'Diabetes Care', 'Gastrointestinal', 'Respiratory', 'Others']
-                      .map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontSize: 12)))).toList(),
-                    onChanged: (val) {
-                      if (val != null) setState(() => category = val);
-                    },
-                  ),
-                ],
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                title: const Text('Prescription Required (Rx)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                value: isRx,
-                onChanged: (val) => setState(() => isRx = val),
-              ),
-              const SizedBox(height: 14),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white),
-                  onPressed: () {
-                    if (nameCtrl.text.trim().isEmpty || priceCtrl.text.trim().isEmpty) return;
-                    final newMed = MedicineModel(
-                      id: DateTime.now().millisecondsSinceEpoch.toString(),
-                      name: nameCtrl.text.trim(),
-                      genericName: genericCtrl.text.trim().isEmpty ? 'Tablet' : genericCtrl.text.trim(),
-                      price: double.tryParse(priceCtrl.text) ?? 10.0,
-                      stock: int.tryParse(stockCtrl.text) ?? 50,
-                      category: category,
-                      imagePath: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200',
-                      isRx: isRx,
-                      manufacturer: manufacturerCtrl.text.trim(),
-                      barcode: '894${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-                    );
-                    provider.addMedicine(newMed);
-                    Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Medicine "${newMed.name}" added to catalog!'), duration: const Duration(seconds: 1)),
-                    );
-                  },
-                  child: const Text('Save Medicine'),
+                  ],
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: nameCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Brand/Medicine Name (e.g. Ciprocin)',
+                    isDense: true,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: genericCtrl,
+                  decoration: const InputDecoration(
+                    labelText:
+                        'Generic & Strength (e.g. Ciprofloxacin • 500mg)',
+                    isDense: true,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: priceCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: const InputDecoration(
+                          labelText: 'Price (৳)',
+                          isDense: true,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: stockCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Initial Stock Qty',
+                          isDense: true,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: manufacturerCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Manufacturer / Brand',
+                    isDense: true,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Category:',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    DropdownButton<String>(
+                      value: category,
+                      items:
+                          [
+                                'Antibiotics',
+                                'Pain Relief',
+                                'Vitamins & Supplements',
+                                'Skin Care',
+                                'Diabetes Care',
+                                'Gastrointestinal',
+                                'Respiratory',
+                                'Others',
+                              ]
+                              .map(
+                                (c) => DropdownMenuItem(
+                                  value: c,
+                                  child: Text(
+                                    c,
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                      onChanged: (val) {
+                        if (val != null) setState(() => category = val);
+                      },
+                    ),
+                  ],
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: const Text(
+                    'Prescription Required (Rx)',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  value: isRx,
+                  onChanged: (val) => setState(() => isRx = val),
+                ),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryTeal,
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () {
+                      if (nameCtrl.text.trim().isEmpty ||
+                          priceCtrl.text.trim().isEmpty) {
+                        return;
+                      }
+                      final newMed = MedicineModel(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        name: nameCtrl.text.trim(),
+                        genericName: genericCtrl.text.trim().isEmpty
+                            ? 'Tablet'
+                            : genericCtrl.text.trim(),
+                        price: double.tryParse(priceCtrl.text) ?? 10.0,
+                        stock: int.tryParse(stockCtrl.text) ?? 50,
+                        category: category,
+                        imagePath:
+                            'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200',
+                        isRx: isRx,
+                        manufacturer: manufacturerCtrl.text.trim(),
+                        barcode:
+                            '894${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+                      );
+                      provider.addMedicine(newMed);
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Medicine "${newMed.name}" added to catalog!',
+                          ),
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                    },
+                    child: const Text('Save Medicine'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -986,7 +1408,10 @@ void showPharmacyAddMedicineDialog(BuildContext context, PharmacyProvider provid
 // ─────────────────────────────────────────────────────────────
 // 6. GENERIC ALTERNATIVES COMPARISON DIALOG
 // ─────────────────────────────────────────────────────────────
-void showPharmacyGenericAlternativesDialog(BuildContext context, PharmacyProvider provider) {
+void showPharmacyGenericAlternativesDialog(
+  BuildContext context,
+  PharmacyProvider provider,
+) {
   final isDark = context.isDark;
   final current = provider.focusedMedicine;
   if (current == null) return;
@@ -1010,19 +1435,29 @@ void showPharmacyGenericAlternativesDialog(BuildContext context, PharmacyProvide
                 const Expanded(
                   child: Row(
                     children: [
-                      Icon(Icons.swap_horiz_rounded, color: primaryTeal, size: 24),
+                      Icon(
+                        Icons.swap_horiz_rounded,
+                        color: primaryTeal,
+                        size: 24,
+                      ),
                       SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Generic Alternatives Finder',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
                 ),
-                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
               ],
             ),
             const SizedBox(height: 10),
@@ -1042,69 +1477,148 @@ void showPharmacyGenericAlternativesDialog(BuildContext context, PharmacyProvide
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Original: ${current.name}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.blue)),
-                        Text('${current.genericName} • ${current.manufacturer}', style: const TextStyle(fontSize: 11)),
+                        Text(
+                          'Original: ${current.name}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        Text(
+                          '${current.genericName} • ${current.manufacturer}',
+                          style: const TextStyle(fontSize: 11),
+                        ),
                       ],
                     ),
                   ),
-                  Text('৳ ${current.price.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.blue)),
+                  Text(
+                    '৳ ${current.price.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 16,
+                      color: Colors.blue,
+                    ),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 12),
-            Text('Cheaper / Equivalent Generic Brands (${alternatives.length} Available):', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            Text(
+              'Cheaper / Equivalent Generic Brands (${alternatives.length} Available):',
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 220),
               child: alternatives.isEmpty
-                ? const Center(child: Padding(padding: EdgeInsets.all(20), child: Text('No alternatives found in current catalog.')))
-                : ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: alternatives.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 6),
-                    itemBuilder: (ctx, i) {
-                      final alt = alternatives[i];
-                      final savings = current.price - alt.price;
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isDark ? context.scaffoldBg : Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: context.dividerColor),
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Text(
+                          'No alternatives found in current catalog.',
                         ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.eco_rounded, color: Colors.green, size: 20),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(alt.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                                  Text('${alt.genericName} • ${alt.manufacturer}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                                  if (savings > 0)
-                                    Text('Save ৳${savings.toStringAsFixed(2)} per unit!', style: const TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold)),
-                                ],
+                      ),
+                    )
+                  : ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: alternatives.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 6),
+                      itemBuilder: (ctx, i) {
+                        final alt = alternatives[i];
+                        final savings = current.price - alt.price;
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? context.scaffoldBg
+                                : Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: context.dividerColor),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.eco_rounded,
+                                color: Colors.green,
+                                size: 20,
                               ),
-                            ),
-                            Text('৳ ${alt.price.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: primaryTeal)),
-                            const SizedBox(width: 10),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6)),
-                              onPressed: () {
-                                provider.addToCart(alt);
-                                Navigator.pop(ctx);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Added alternative "${alt.name}" to cart!'), duration: const Duration(seconds: 1)),
-                                );
-                              },
-                              child: const Text('Select', style: TextStyle(fontSize: 11)),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      alt.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${alt.genericName} • ${alt.manufacturer}',
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    if (savings > 0)
+                                      Text(
+                                        'Save ৳${savings.toStringAsFixed(2)} per unit!',
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                '৳ ${alt.price.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: primaryTeal,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: primaryTeal,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  provider.addToCart(alt);
+                                  Navigator.pop(ctx);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Added alternative "${alt.name}" to cart!',
+                                      ),
+                                      duration: const Duration(seconds: 1),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'Select',
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -1116,7 +1630,11 @@ void showPharmacyGenericAlternativesDialog(BuildContext context, PharmacyProvide
 // ─────────────────────────────────────────────────────────────
 // 7. MEDICINE DETAILS DIALOG
 // ─────────────────────────────────────────────────────────────
-void showPharmacyMedicineDetailsDialog(BuildContext context, PharmacyProvider provider, MedicineModel medicine) {
+void showPharmacyMedicineDetailsDialog(
+  BuildContext context,
+  PharmacyProvider provider,
+  MedicineModel medicine,
+) {
   final isDark = context.isDark;
 
   showDialog(
@@ -1137,35 +1655,70 @@ void showPharmacyMedicineDetailsDialog(BuildContext context, PharmacyProvider pr
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(medicine.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
-                      Text(medicine.genericName, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text(
+                        medicine.name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      Text(
+                        medicine.genericName,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
               ],
             ),
             const Divider(height: 20),
             Row(
               children: [
-                _detailTile('Price', '৳${medicine.price.toStringAsFixed(2)}', primaryTeal),
-                _detailTile('Stock', '${medicine.stock} units', medicine.isLowStock ? Colors.orange : Colors.green),
+                _detailTile(
+                  'Price',
+                  '৳${medicine.price.toStringAsFixed(2)}',
+                  primaryTeal,
+                ),
+                _detailTile(
+                  'Stock',
+                  '${medicine.stock} units',
+                  medicine.isLowStock ? Colors.orange : Colors.green,
+                ),
                 _detailTile('Batch No.', medicine.batchNumber, Colors.blueGrey),
-                _detailTile('Expiry', medicine.expiryDate, medicine.isExpiringSoon ? Colors.red : Colors.grey),
+                _detailTile(
+                  'Expiry',
+                  medicine.expiryDate,
+                  medicine.isExpiringSoon ? Colors.red : Colors.grey,
+                ),
               ],
             ),
             const SizedBox(height: 12),
             _infoRow('Manufacturer', medicine.manufacturer),
             _infoRow('Category', medicine.category),
             _infoRow('Dosage Form', medicine.dosageForm),
-            _infoRow('Rx Required', medicine.isRx ? 'Yes (Doctor Prescription Needed)' : 'No (OTC Available)'),
+            _infoRow(
+              'Rx Required',
+              medicine.isRx
+                  ? 'Yes (Doctor Prescription Needed)'
+                  : 'No (OTC Available)',
+            ),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 8,
+                      ),
                     ),
                     icon: const Icon(Icons.swap_horiz, size: 16),
                     label: const FittedBox(
@@ -1185,7 +1738,10 @@ void showPharmacyMedicineDetailsDialog(BuildContext context, PharmacyProvider pr
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryTeal,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 8,
+                      ),
                     ),
                     icon: const Icon(Icons.add_shopping_cart, size: 16),
                     label: const FittedBox(
@@ -1196,7 +1752,10 @@ void showPharmacyMedicineDetailsDialog(BuildContext context, PharmacyProvider pr
                       provider.addToCart(medicine);
                       Navigator.pop(ctx);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Added "${medicine.name}" to cart!'), duration: const Duration(seconds: 1)),
+                        SnackBar(
+                          content: Text('Added "${medicine.name}" to cart!'),
+                          duration: const Duration(seconds: 1),
+                        ),
                       );
                     },
                   ),
@@ -1223,12 +1782,23 @@ Widget _detailTile(String label, String value, Color color) {
         children: [
           FittedBox(
             fit: BoxFit.scaleDown,
-            child: Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey), maxLines: 1),
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 10, color: Colors.grey),
+              maxLines: 1,
+            ),
           ),
           const SizedBox(height: 2),
           FittedBox(
             fit: BoxFit.scaleDown,
-            child: Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color)),
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
           ),
         ],
       ),
@@ -1262,14 +1832,32 @@ Widget _infoRow(String label, String value) {
 // ─────────────────────────────────────────────────────────────
 void showPharmacyDoctorDialog(BuildContext context, PharmacyProvider provider) {
   final isDark = context.isDark;
-  final docCtrl = TextEditingController(text: provider.attachedDoctor?['name'] ?? '');
-  final bmdcCtrl = TextEditingController(text: provider.attachedDoctor?['bmdc'] ?? '');
-  final hospitalCtrl = TextEditingController(text: provider.attachedDoctor?['hospital'] ?? '');
+  final docCtrl = TextEditingController(
+    text: provider.attachedDoctor?['name'] ?? '',
+  );
+  final bmdcCtrl = TextEditingController(
+    text: provider.attachedDoctor?['bmdc'] ?? '',
+  );
+  final hospitalCtrl = TextEditingController(
+    text: provider.attachedDoctor?['hospital'] ?? '',
+  );
 
   final List<Map<String, dynamic>> presetDoctors = [
-    {'name': 'Prof. Dr. Anwarul Islam', 'bmdc': 'A-41203', 'hospital': 'Dhaka Medical College & Hospital'},
-    {'name': 'Dr. Mahmuda Begum', 'bmdc': 'A-55912', 'hospital': 'Square Hospital Ltd'},
-    {'name': 'Dr. Kazi Tanvir Ahmed', 'bmdc': 'A-33890', 'hospital': 'Apollo Imperial Hospital'},
+    {
+      'name': 'Prof. Dr. Anwarul Islam',
+      'bmdc': 'A-41203',
+      'hospital': 'Dhaka Medical College & Hospital',
+    },
+    {
+      'name': 'Dr. Mahmuda Begum',
+      'bmdc': 'A-55912',
+      'hospital': 'Square Hospital Ltd',
+    },
+    {
+      'name': 'Dr. Kazi Tanvir Ahmed',
+      'bmdc': 'A-33890',
+      'hospital': 'Apollo Imperial Hospital',
+    },
   ];
 
   showDialog(
@@ -1286,75 +1874,138 @@ void showPharmacyDoctorDialog(BuildContext context, PharmacyProvider provider) {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Expanded(
-                    child: Row(
-                      children: [
-                        Icon(Icons.person_outline_rounded, color: Colors.indigo, size: 22),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Prescribing Doctor',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            overflow: TextOverflow.ellipsis,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Expanded(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.person_outline_rounded,
+                            color: Colors.indigo,
+                            size: 22,
                           ),
-                        ),
-                      ],
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Prescribing Doctor',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Select from Registered Doctors:',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                ...presetDoctors.map(
+                  (d) => ListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(
+                      Icons.local_hospital,
+                      color: Colors.indigo,
+                      size: 18,
+                    ),
+                    title: Text(
+                      d['name'] as String,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'BMDC: ${d['bmdc']} • ${d['hospital']}',
+                      style: const TextStyle(fontSize: 10),
+                    ),
+                    trailing: TextButton(
+                      child: const Text('Select'),
+                      onPressed: () {
+                        provider.setDoctor(d);
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Doctor "${d['name']}" attached to order!',
+                            ),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
-                ],
-              ),
-              const SizedBox(height: 10),
-              const Text('Select from Registered Doctors:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-              const SizedBox(height: 6),
-              ...presetDoctors.map((d) => ListTile(
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.local_hospital, color: Colors.indigo, size: 18),
-                title: Text(d['name'] as String, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                subtitle: Text('BMDC: ${d['bmdc']} • ${d['hospital']}', style: const TextStyle(fontSize: 10)),
-                trailing: TextButton(
-                  child: const Text('Select'),
-                  onPressed: () {
-                    provider.setDoctor(d);
-                    Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Doctor "${d['name']}" attached to order!'), duration: const Duration(seconds: 1)),
-                    );
-                  },
                 ),
-              )),
-              const Divider(height: 16),
-              TextField(controller: docCtrl, decoration: const InputDecoration(labelText: 'Doctor Name', isDense: true)),
-              const SizedBox(height: 6),
-              TextField(controller: bmdcCtrl, decoration: const InputDecoration(labelText: 'BMDC Registration No', isDense: true)),
-              const SizedBox(height: 6),
-              TextField(controller: hospitalCtrl, decoration: const InputDecoration(labelText: 'Hospital / Clinic', isDense: true)),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo, foregroundColor: Colors.white),
-                  onPressed: () {
-                    if (docCtrl.text.trim().isEmpty) return;
-                    provider.setDoctor({
-                      'name': docCtrl.text.trim(),
-                      'bmdc': bmdcCtrl.text.trim(),
-                      'hospital': hospitalCtrl.text.trim(),
-                    });
-                    Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Doctor "${docCtrl.text}" attached to order!'), duration: const Duration(seconds: 1)),
-                    );
-                  },
-                  child: const Text('Attach Doctor'),
+                const Divider(height: 16),
+                TextField(
+                  controller: docCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Doctor Name',
+                    isDense: true,
+                  ),
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: bmdcCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'BMDC Registration No',
+                    isDense: true,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: hospitalCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Hospital / Clinic',
+                    isDense: true,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.indigo,
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () {
+                      if (docCtrl.text.trim().isEmpty) return;
+                      provider.setDoctor({
+                        'name': docCtrl.text.trim(),
+                        'bmdc': bmdcCtrl.text.trim(),
+                        'hospital': hospitalCtrl.text.trim(),
+                      });
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Doctor "${docCtrl.text}" attached to order!',
+                          ),
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                    },
+                    child: const Text('Attach Doctor'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1382,63 +2033,79 @@ void showPharmacyNoteDialog(BuildContext context, PharmacyProvider provider) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Expanded(
-                  child: Row(
-                    children: [
-                      Icon(Icons.note_alt_rounded, color: primaryTeal, size: 22),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Order & Dispensing Note',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Expanded(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.note_alt_rounded,
+                          color: primaryTeal,
+                          size: 22,
                         ),
-                      ),
-                    ],
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Order & Dispensing Note',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
-              ],
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: ctrl,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'e.g. Take 1 tablet after breakfast for 7 days. Store below 25°C.',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      provider.setSalesNote('');
-                      Navigator.pop(ctx);
-                    },
-                    child: const Text('Clear'),
+              const SizedBox(height: 12),
+              TextField(
+                controller: ctrl,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  hintText:
+                      'e.g. Take 1 tablet after breakfast for 7 days. Store below 25°C.',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white),
-                    onPressed: () {
-                      provider.setSalesNote(ctrl.text.trim());
-                      Navigator.pop(ctx);
-                    },
-                    child: const Text('Save Note'),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        provider.setSalesNote('');
+                        Navigator.pop(ctx);
+                      },
+                      child: const Text('Clear'),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryTeal,
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () {
+                        provider.setSalesNote(ctrl.text.trim());
+                        Navigator.pop(ctx);
+                      },
+                      child: const Text('Save Note'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     ),
@@ -1448,7 +2115,10 @@ void showPharmacyNoteDialog(BuildContext context, PharmacyProvider provider) {
 // ─────────────────────────────────────────────────────────────
 // 10. HELD BILLS DIALOG
 // ─────────────────────────────────────────────────────────────
-void showPharmacyHeldBillsDialog(BuildContext context, PharmacyProvider provider) {
+void showPharmacyHeldBillsDialog(
+  BuildContext context,
+  PharmacyProvider provider,
+) {
   final isDark = context.isDark;
 
   showDialog(
@@ -1470,19 +2140,29 @@ void showPharmacyHeldBillsDialog(BuildContext context, PharmacyProvider provider
                   Expanded(
                     child: Row(
                       children: [
-                        const Icon(Icons.pause_circle_outline_rounded, color: primaryTeal, size: 22),
+                        const Icon(
+                          Icons.pause_circle_outline_rounded,
+                          color: primaryTeal,
+                          size: 22,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'Held Bills (${provider.heldBills.length})',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -1492,9 +2172,16 @@ void showPharmacyHeldBillsDialog(BuildContext context, PharmacyProvider provider
                     padding: EdgeInsets.all(24),
                     child: Column(
                       children: [
-                        Icon(Icons.inbox_outlined, size: 40, color: Colors.grey),
+                        Icon(
+                          Icons.inbox_outlined,
+                          size: 40,
+                          color: Colors.grey,
+                        ),
                         SizedBox(height: 8),
-                        Text('No bills currently on hold.', style: TextStyle(color: Colors.grey)),
+                        Text(
+                          'No bills currently on hold.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
                       ],
                     ),
                   ),
@@ -1505,17 +2192,21 @@ void showPharmacyHeldBillsDialog(BuildContext context, PharmacyProvider provider
                   child: ListView.separated(
                     shrinkWrap: true,
                     itemCount: provider.heldBills.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 8),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
                     itemBuilder: (ctx, i) {
                       final held = provider.heldBills[i];
-                      final customer = held['customer'] as Map<String, dynamic>?;
+                      final customer =
+                          held['customer'] as Map<String, dynamic>?;
                       final count = held['itemCount'] as int? ?? 0;
                       final amount = held['total'] as double? ?? 0.0;
 
                       return Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: isDark ? context.scaffoldBg : Colors.grey.shade50,
+                          color: isDark
+                              ? context.scaffoldBg
+                              : Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: context.dividerColor),
                         ),
@@ -1525,26 +2216,53 @@ void showPharmacyHeldBillsDialog(BuildContext context, PharmacyProvider provider
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(held['id'] as String, style: const TextStyle(fontWeight: FontWeight.bold, color: primaryTeal)),
-                                  Text('Patient: ${customer?['name'] ?? 'Walk-in'} • $count Items', style: const TextStyle(fontSize: 11)),
-                                  Text('Total: ৳ ${amount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                  Text(
+                                    held['id'] as String,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: primaryTeal,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Patient: ${customer?['name'] ?? 'Walk-in'} • $count Items',
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                  Text(
+                                    'Total: ৳ ${amount.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
                             ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryTeal,
+                                foregroundColor: Colors.white,
+                              ),
                               onPressed: () {
                                 provider.resumeHeldCart(i);
                                 Navigator.pop(ctx);
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Held order resumed to cart!'), duration: Duration(seconds: 1)),
+                                  const SnackBar(
+                                    content: Text(
+                                      'Held order resumed to cart!',
+                                    ),
+                                    duration: Duration(seconds: 1),
+                                  ),
                                 );
                               },
                               child: const Text('Resume'),
                             ),
                             const SizedBox(width: 6),
                             IconButton(
-                              icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                                size: 20,
+                              ),
                               onPressed: () {
                                 setState(() => provider.deleteHeldBill(i));
                               },
@@ -1566,7 +2284,11 @@ void showPharmacyHeldBillsDialog(BuildContext context, PharmacyProvider provider
 // ─────────────────────────────────────────────────────────────
 // 11. CHECKOUT & RECEIPT DIALOG
 // ─────────────────────────────────────────────────────────────
-void showPharmacyReceiptDialog(BuildContext context, Map<String, dynamic> order, bool isDark) {
+void showPharmacyReceiptDialog(
+  BuildContext context,
+  Map<String, dynamic> order,
+  bool isDark,
+) {
   showDialog(
     context: context,
     barrierColor: Colors.black.withValues(alpha: 0.55),
@@ -1574,10 +2296,16 @@ void showPharmacyReceiptDialog(BuildContext context, Map<String, dynamic> order,
   );
 }
 
-void showPharmacyCheckoutDialog(BuildContext context, PharmacyProvider provider) {
+void showPharmacyCheckoutDialog(
+  BuildContext context,
+  PharmacyProvider provider,
+) {
   if (provider.cart.isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Cart is empty! Add medicines before checking out.'), backgroundColor: Colors.orange),
+      const SnackBar(
+        content: Text('Cart is empty! Add medicines before checking out.'),
+        backgroundColor: Colors.orange,
+      ),
     );
     return;
   }
@@ -1613,10 +2341,12 @@ class PharmacyCheckoutPaymentModal extends StatefulWidget {
   });
 
   @override
-  State<PharmacyCheckoutPaymentModal> createState() => _PharmacyCheckoutPaymentModalState();
+  State<PharmacyCheckoutPaymentModal> createState() =>
+      _PharmacyCheckoutPaymentModalState();
 }
 
-class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentModal> {
+class _PharmacyCheckoutPaymentModalState
+    extends State<PharmacyCheckoutPaymentModal> {
   late String _selectedMethod;
   final TextEditingController _tenderedController = TextEditingController();
   double _tenderedAmount = 0.0;
@@ -1631,7 +2361,10 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
   void initState() {
     super.initState();
     final current = widget.provider.selectedPaymentMethod.toUpperCase();
-    if (current == 'CARD' || current == 'MOBILE_PAY' || current == 'CUSTOMER_DUE' || current == 'BKASH/NAGAD') {
+    if (current == 'CARD' ||
+        current == 'MOBILE_PAY' ||
+        current == 'CUSTOMER_DUE' ||
+        current == 'BKASH/NAGAD') {
       _selectedMethod = current == 'BKASH/NAGAD' ? 'MOBILE_PAY' : current;
     } else {
       _selectedMethod = 'CASH';
@@ -1658,7 +2391,9 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
     final total = widget.provider.total;
     setState(() {
       _tenderedAmount = total;
-      _tenderedController.text = total % 1 == 0 ? total.toInt().toString() : total.toStringAsFixed(2);
+      _tenderedController.text = total % 1 == 0
+          ? total.toInt().toString()
+          : total.toStringAsFixed(2);
     });
   }
 
@@ -1691,7 +2426,9 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('পর্যাপ্ত ক্যাশ প্রদান করা হয়নি! মোট মূল্য: ৳${total.toStringAsFixed(2)}'),
+            content: Text(
+              'পর্যাপ্ত ক্যাশ প্রদান করা হয়নি! মোট মূল্য: ৳${total.toStringAsFixed(2)}',
+            ),
             backgroundColor: const Color(0xFFDC2626),
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 2),
@@ -1716,7 +2453,9 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
   Widget build(BuildContext context) {
     final isDark = widget.isDark;
     final bg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2E2E2E) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? const Color(0xFF2E2E2E)
+        : const Color(0xFFE2E8F0);
     final total = widget.provider.total;
     final subtotal = widget.provider.subTotal;
     final tax = widget.provider.vat;
@@ -1763,7 +2502,11 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                           color: const Color(0xFFEF4444),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Icon(Icons.close_rounded, size: 16, color: Colors.white),
+                        child: const Icon(
+                          Icons.close_rounded,
+                          size: 16,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],
@@ -1774,7 +2517,10 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [primaryTeal, darkTeal],
@@ -1790,10 +2536,16 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                         height: 38,
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.18),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.28),
+                          ),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Icon(Icons.medical_services_outlined, color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.medical_services_outlined,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -1825,7 +2577,11 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                       ),
                       GestureDetector(
                         onTap: () => Navigator.of(context).pop(),
-                        child: const Icon(Icons.close_rounded, size: 16, color: Colors.white70),
+                        child: const Icon(
+                          Icons.close_rounded,
+                          size: 16,
+                          color: Colors.white70,
+                        ),
                       ),
                     ],
                   ),
@@ -1836,7 +2592,10 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF262626) : Colors.white,
                     borderRadius: BorderRadius.circular(4),
@@ -1873,13 +2632,21 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                         children: [
                           Row(
                             children: [
-                              const Text('Subtotal:   ', style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
+                              const Text(
+                                'Subtotal:   ',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: Color(0xFF64748B),
+                                ),
+                              ),
                               Text(
                                 '৳${subtotal.toStringAsFixed(2)}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF1E293B),
                                 ),
                               ),
                             ],
@@ -1888,7 +2655,13 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                             const SizedBox(height: 3),
                             Row(
                               children: [
-                                Text('Discount (${widget.provider.globalDiscount.toStringAsFixed(0)}%):   ', style: const TextStyle(fontSize: 11.5, color: Color(0xFF10B981))),
+                                Text(
+                                  'Discount (${widget.provider.globalDiscount.toStringAsFixed(0)}%):   ',
+                                  style: const TextStyle(
+                                    fontSize: 11.5,
+                                    color: Color(0xFF10B981),
+                                  ),
+                                ),
                                 Text(
                                   '-৳${discount.toStringAsFixed(2)}',
                                   style: const TextStyle(
@@ -1903,13 +2676,21 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                           const SizedBox(height: 3),
                           Row(
                             children: [
-                              const Text('Tax / VAT:   ', style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
+                              const Text(
+                                'Tax / VAT:   ',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: Color(0xFF64748B),
+                                ),
+                              ),
                               Text(
                                 'VAT (${widget.provider.taxRatePct}%) = ৳${tax.toStringAsFixed(2)}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF1E293B),
                                 ),
                               ),
                             ],
@@ -1933,19 +2714,45 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                         fontSize: 10.5,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.5,
-                        color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+                        color: isDark
+                            ? Colors.grey.shade400
+                            : const Color(0xFF64748B),
                       ),
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        _buildMethodItem('CASH', 'Cash', Icons.payments_outlined, isDark, borderColor),
+                        _buildMethodItem(
+                          'CASH',
+                          'Cash',
+                          Icons.payments_outlined,
+                          isDark,
+                          borderColor,
+                        ),
                         const SizedBox(width: 8),
-                        _buildMethodItem('CARD', 'Card / POS', Icons.credit_card_outlined, isDark, borderColor),
+                        _buildMethodItem(
+                          'CARD',
+                          'Card / POS',
+                          Icons.credit_card_outlined,
+                          isDark,
+                          borderColor,
+                        ),
                         const SizedBox(width: 8),
-                        _buildMethodItem('MOBILE_PAY', 'Mobile\nBanking', Icons.phone_android_outlined, isDark, borderColor),
+                        _buildMethodItem(
+                          'MOBILE_PAY',
+                          'Mobile\nBanking',
+                          Icons.phone_android_outlined,
+                          isDark,
+                          borderColor,
+                        ),
                         const SizedBox(width: 8),
-                        _buildMethodItem('CUSTOMER_DUE', 'Customer\nDue', Icons.receipt_long_outlined, isDark, borderColor),
+                        _buildMethodItem(
+                          'CUSTOMER_DUE',
+                          'Customer\nDue',
+                          Icons.receipt_long_outlined,
+                          isDark,
+                          borderColor,
+                        ),
                       ],
                     ),
                   ],
@@ -1970,7 +2777,13 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
     );
   }
 
-  Widget _buildMethodItem(String id, String label, IconData icon, bool isDark, Color borderColor) {
+  Widget _buildMethodItem(
+    String id,
+    String label,
+    IconData icon,
+    bool isDark,
+    Color borderColor,
+  ) {
     final isSelected = _selectedMethod == id;
     return Expanded(
       child: GestureDetector(
@@ -2030,7 +2843,9 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   color: isSelected
                       ? Colors.white
-                      : (isDark ? Colors.grey.shade300 : const Color(0xFF334155)),
+                      : (isDark
+                            ? Colors.grey.shade300
+                            : const Color(0xFF334155)),
                   height: 1.1,
                 ),
                 textAlign: TextAlign.center,
@@ -2043,7 +2858,11 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
     );
   }
 
-  Widget _buildSelectedMethodArea(bool isDark, Color borderColor, double total) {
+  Widget _buildSelectedMethodArea(
+    bool isDark,
+    Color borderColor,
+    double total,
+  ) {
     if (_selectedMethod == 'CASH') {
       return _buildCashTenderedBox(isDark, borderColor, total);
     } else if (_selectedMethod == 'CARD') {
@@ -2076,7 +2895,9 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.grey.shade300 : const Color(0xFF334155),
+                  color: isDark
+                      ? Colors.grey.shade300
+                      : const Color(0xFF334155),
                   letterSpacing: 0.3,
                 ),
               ),
@@ -2107,7 +2928,9 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
               color: isDark ? const Color(0xFF181818) : Colors.white,
               borderRadius: BorderRadius.circular(4),
               border: Border.all(
-                color: isDark ? const Color(0xFF3D3D3D) : const Color(0xFFCBD5E1),
+                color: isDark
+                    ? const Color(0xFF3D3D3D)
+                    : const Color(0xFFCBD5E1),
               ),
             ),
             child: Row(
@@ -2124,7 +2947,9 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                 Expanded(
                   child: TextField(
                     controller: _tenderedController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     textAlign: TextAlign.end,
                     style: TextStyle(
                       fontSize: 22,
@@ -2166,7 +2991,9 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                         style: TextStyle(
                           fontSize: d >= 1000 ? 9.5 : 10.0,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.grey.shade200 : const Color(0xFF334155),
+                          color: isDark
+                              ? Colors.grey.shade200
+                              : const Color(0xFF334155),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -2194,16 +3021,20 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                     _tenderedAmount == 0
                         ? 'Please enter cash amount received'
                         : (_tenderedAmount < total
-                            ? 'Remaining due: ৳${(total - _tenderedAmount).toStringAsFixed(2)}'
-                            : 'Change return: ৳${(_tenderedAmount - total).toStringAsFixed(2)}'),
+                              ? 'Remaining due: ৳${(total - _tenderedAmount).toStringAsFixed(2)}'
+                              : 'Change return: ৳${(_tenderedAmount - total).toStringAsFixed(2)}'),
                     style: TextStyle(
                       fontSize: 11,
-                      fontWeight: _tenderedAmount >= total ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: _tenderedAmount >= total
+                          ? FontWeight.w700
+                          : FontWeight.w500,
                       color: _tenderedAmount >= total
                           ? const Color(0xFF10B981)
                           : (_tenderedAmount > 0
-                              ? const Color(0xFFEF4444)
-                              : (isDark ? Colors.grey.shade400 : const Color(0xFF64748B))),
+                                ? const Color(0xFFEF4444)
+                                : (isDark
+                                      ? Colors.grey.shade400
+                                      : const Color(0xFF64748B))),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -2214,7 +3045,9 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.grey.shade300 : const Color(0xFF334155),
+                    color: isDark
+                        ? Colors.grey.shade300
+                        : const Color(0xFF334155),
                   ),
                 ),
               ],
@@ -2239,11 +3072,19 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
         children: [
           Row(
             children: [
-              const Icon(Icons.credit_card_rounded, size: 16, color: primaryTeal),
+              const Icon(
+                Icons.credit_card_rounded,
+                size: 16,
+                color: primaryTeal,
+              ),
               const SizedBox(width: 6),
               Text(
                 'POS Terminal Ready',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF1E293B)),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : const Color(0xFF1E293B),
+                ),
               ),
               const Spacer(),
               Container(
@@ -2252,7 +3093,14 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                   color: const Color(0xFF10B981).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text('Terminal Online', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Color(0xFF10B981))),
+                child: const Text(
+                  'Terminal Online',
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF10B981),
+                  ),
+                ),
               ),
             ],
           ),
@@ -2270,7 +3118,11 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: sel ? primaryTeal : (isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF1F5F9)),
+                        color: sel
+                            ? primaryTeal
+                            : (isDark
+                                  ? const Color(0xFF2C2C2C)
+                                  : const Color(0xFFF1F5F9)),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -2278,7 +3130,11 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.bold,
-                          color: sel ? Colors.white : (isDark ? Colors.grey.shade300 : const Color(0xFF334155)),
+                          color: sel
+                              ? Colors.white
+                              : (isDark
+                                    ? Colors.grey.shade300
+                                    : const Color(0xFF334155)),
                         ),
                       ),
                     ),
@@ -2294,8 +3150,14 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
               isDense: true,
               hintText: 'Approval / Auth Code (Optional)',
               hintStyle: const TextStyle(fontSize: 11),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: borderColor)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(4),
+                borderSide: BorderSide(color: borderColor),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 9,
+              ),
             ),
           ),
         ],
@@ -2328,7 +3190,11 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: sel ? primaryTeal : (isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF1F5F9)),
+                        color: sel
+                            ? primaryTeal
+                            : (isDark
+                                  ? const Color(0xFF2C2C2C)
+                                  : const Color(0xFFF1F5F9)),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -2336,7 +3202,11 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.bold,
-                          color: sel ? Colors.white : (isDark ? Colors.grey.shade300 : const Color(0xFF334155)),
+                          color: sel
+                              ? Colors.white
+                              : (isDark
+                                    ? Colors.grey.shade300
+                                    : const Color(0xFF334155)),
                         ),
                       ),
                     ),
@@ -2352,8 +3222,14 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
               isDense: true,
               hintText: 'Transaction ID (TrxID) / Ref',
               hintStyle: const TextStyle(fontSize: 11),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: borderColor)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(4),
+                borderSide: BorderSide(color: borderColor),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 9,
+              ),
             ),
           ),
         ],
@@ -2372,7 +3248,11 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
       ),
       child: Row(
         children: [
-          const Icon(Icons.info_outline_rounded, color: Color(0xFFF59E0B), size: 20),
+          const Icon(
+            Icons.info_outline_rounded,
+            color: Color(0xFFF59E0B),
+            size: 20,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -2385,7 +3265,12 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
                 const SizedBox(height: 2),
                 Text(
                   'Total ৳${total.toStringAsFixed(2)} will be debited to customer receivable ledger.',
-                  style: TextStyle(fontSize: 10.5, color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B)),
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    color: isDark
+                        ? Colors.grey.shade400
+                        : const Color(0xFF64748B),
+                  ),
                 ),
               ],
             ),
@@ -2407,9 +3292,11 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(_tenderedAmount <= 0
-                  ? 'দয়া করে Cash Tendered এর পরিমাণ প্রদান করুন!'
-                  : 'পর্যাপ্ত ক্যাশ প্রদান করা হয়নি (মোট: ৳${total.toStringAsFixed(2)})!'),
+              content: Text(
+                _tenderedAmount <= 0
+                    ? 'দয়া করে Cash Tendered এর পরিমাণ প্রদান করুন!'
+                    : 'পর্যাপ্ত ক্যাশ প্রদান করা হয়নি (মোট: ৳${total.toStringAsFixed(2)})!',
+              ),
               backgroundColor: const Color(0xFFDC2626),
               behavior: SnackBarBehavior.floating,
               duration: const Duration(seconds: 2),
@@ -2426,9 +3313,7 @@ class _PharmacyCheckoutPaymentModalState extends State<PharmacyCheckoutPaymentMo
           color: !isValidCash ? primaryTeal.withValues(alpha: 0.5) : null,
           gradient: !isValidCash
               ? null
-              : const LinearGradient(
-                  colors: [primaryTeal, darkTeal],
-                ),
+              : const LinearGradient(colors: [primaryTeal, darkTeal]),
           borderRadius: BorderRadius.circular(4),
           boxShadow: isCashZero
               ? null
@@ -2483,7 +3368,21 @@ class PharmacyReceiptModal extends StatelessWidget {
   });
 
   String _formatDate(DateTime dt) {
-    const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sept',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     final m = months[dt.month];
     final hr = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
@@ -2514,7 +3413,40 @@ class PharmacyReceiptModal extends StatelessWidget {
   }
 
   Widget _buildBarcode() {
-    final barPattern = [3, 1, 2, 2, 1, 3, 1, 2, 3, 1, 1, 2, 2, 1, 3, 2, 1, 1, 3, 2, 1, 2, 3, 1, 2, 1, 3, 1, 2, 2, 1, 3];
+    final barPattern = [
+      3,
+      1,
+      2,
+      2,
+      1,
+      3,
+      1,
+      2,
+      3,
+      1,
+      1,
+      2,
+      2,
+      1,
+      3,
+      2,
+      1,
+      1,
+      3,
+      2,
+      1,
+      2,
+      3,
+      1,
+      2,
+      1,
+      3,
+      1,
+      2,
+      2,
+      1,
+      3,
+    ];
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: barPattern.asMap().entries.map((entry) {
@@ -2523,7 +3455,9 @@ class PharmacyReceiptModal extends StatelessWidget {
         return Container(
           width: width,
           height: 38,
-          color: isBlack ? (isDark ? Colors.grey.shade300 : const Color(0xFF1E293B)) : Colors.transparent,
+          color: isBlack
+              ? (isDark ? Colors.grey.shade300 : const Color(0xFF1E293B))
+              : Colors.transparent,
         );
       }).toList(),
     );
@@ -2534,23 +3468,33 @@ class PharmacyReceiptModal extends StatelessWidget {
     final receiptBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
     final textDark = isDark ? Colors.white : const Color(0xFF0F172A);
     final textMuted = isDark ? Colors.grey.shade400 : const Color(0xFF475569);
-    final borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFBFDBFE);
+    final borderColor = isDark
+        ? const Color(0xFF334155)
+        : const Color(0xFFBFDBFE);
 
-    final invoiceDisplay = order['invoiceNo'] as String? ?? 'RX-${DateTime.now().millisecondsSinceEpoch}';
+    final invoiceDisplay =
+        order['invoiceNo'] as String? ??
+        'RX-${DateTime.now().millisecondsSinceEpoch}';
     final customerData = order['customer'] as Map<String, dynamic>?;
-    final cust = (customerData != null && customerData['name'] != null && customerData['name'].toString().isNotEmpty)
+    final cust =
+        (customerData != null &&
+            customerData['name'] != null &&
+            customerData['name'].toString().isNotEmpty)
         ? customerData['name'].toString()
         : 'Walk-in Customer';
     final custShort = cust.length > 20 ? '${cust.substring(0, 18)}...' : cust;
     final doctorData = order['doctor'] as Map<String, dynamic>?;
-    final doctorName = (doctorData != null && doctorData['name'] != null) ? doctorData['name'].toString() : '';
+    final doctorName = (doctorData != null && doctorData['name'] != null)
+        ? doctorData['name'].toString()
+        : '';
 
     final items = (order['items'] as List<dynamic>?) ?? [];
     final orderDate = (order['date'] as DateTime?) ?? DateTime.now();
 
     final subTotal = (order['subTotal'] as num?)?.toDouble() ?? 0.0;
     final discount = (order['discount'] as num?)?.toDouble() ?? 0.0;
-    final discountPercent = (order['discountPercent'] as num?)?.toDouble() ?? 0.0;
+    final discountPercent =
+        (order['discountPercent'] as num?)?.toDouble() ?? 0.0;
     final vat = (order['vat'] as num?)?.toDouble() ?? 0.0;
     final total = (order['total'] as num?)?.toDouble() ?? 0.0;
     final tendered = (order['tendered'] as num?)?.toDouble() ?? total;
@@ -2575,7 +3519,11 @@ class PharmacyReceiptModal extends StatelessWidget {
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF10B981)),
+                  Icon(
+                    Icons.check_circle_outline_rounded,
+                    size: 16,
+                    color: Color(0xFF10B981),
+                  ),
                   SizedBox(width: 6),
                   Text(
                     'SALE COMPLETED SUCCESSFULLY',
@@ -2612,8 +3560,20 @@ class PharmacyReceiptModal extends StatelessWidget {
                 children: [
                   // 1. Store Header
                   Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Image.asset(
+                        isDark
+                            ? 'assets/images/salepay-logo-white.png'
+                            : 'assets/images/salepay-logo-blue.png',
+                        height: 28,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  Center(
                     child: Text(
-                      'MEDICARE PHARMACY',
+                      'SALEPAY PHARMACY',
                       style: TextStyle(
                         fontSize: 14.5,
                         fontWeight: FontWeight.w900,
@@ -2658,14 +3618,22 @@ class PharmacyReceiptModal extends StatelessWidget {
                       Flexible(
                         child: Text(
                           'Invoice: $invoiceDisplay',
-                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'Date: ${_formatDate(orderDate)}',
-                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -2676,14 +3644,22 @@ class PharmacyReceiptModal extends StatelessWidget {
                       Flexible(
                         child: Text(
                           'Customer: $custShort',
-                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'Dispenser: Pharmacist',
-                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -2695,14 +3671,22 @@ class PharmacyReceiptModal extends StatelessWidget {
                         Flexible(
                           child: Text(
                             'Doctor: $doctorName',
-                            style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: textMuted,
+                              fontFamily: 'monospace',
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           'Rx: Validated',
-                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ],
                     ),
@@ -2868,11 +3852,20 @@ class PharmacyReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Subtotal:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${subTotal.toStringAsFixed(2)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -2883,11 +3876,20 @@ class PharmacyReceiptModal extends StatelessWidget {
                       children: [
                         Text(
                           'Discount (${discountPercent.toStringAsFixed(0)}%):',
-                          style: const TextStyle(fontSize: 11, color: Color(0xFF059669), fontFamily: 'monospace'),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF059669),
+                            fontFamily: 'monospace',
+                          ),
                         ),
                         Text(
                           '-৳${discount.toStringAsFixed(2)}',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF059669), fontFamily: 'monospace'),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF059669),
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ],
                     ),
@@ -2898,18 +3900,31 @@ class PharmacyReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'VAT (Mushak 6.3):',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${vat.toStringAsFixed(2)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
 
                   // Solid Line
-                  const Divider(color: Color(0xFFCBD5E1), height: 1, thickness: 1),
+                  const Divider(
+                    color: Color(0xFFCBD5E1),
+                    height: 1,
+                    thickness: 1,
+                  ),
                   const SizedBox(height: 6),
 
                   // Net Payable
@@ -2918,18 +3933,32 @@ class PharmacyReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Net Payable:',
-                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w900,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${total.toStringAsFixed(2)}',
-                        style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w900,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
 
                   // Solid Line
-                  const Divider(color: Color(0xFFCBD5E1), height: 1, thickness: 1),
+                  const Divider(
+                    color: Color(0xFFCBD5E1),
+                    height: 1,
+                    thickness: 1,
+                  ),
                   const SizedBox(height: 6),
 
                   // Tender Details
@@ -2938,11 +3967,20 @@ class PharmacyReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Tender Method:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         paymentMethod,
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -2952,11 +3990,20 @@ class PharmacyReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Paid Amount:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${tendered.toStringAsFixed(2)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -2966,11 +4013,21 @@ class PharmacyReceiptModal extends StatelessWidget {
                     children: [
                       const Text(
                         'Return Amount:',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF059669), fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF059669),
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${change.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF059669), fontFamily: 'monospace'),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF059669),
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -2986,7 +4043,11 @@ class PharmacyReceiptModal extends StatelessWidget {
                   const Center(
                     child: Text(
                       '** MEDICARE POS **',
-                      style: TextStyle(fontSize: 10, color: Color(0xFF64748B), letterSpacing: 3),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Color(0xFF64748B),
+                        letterSpacing: 3,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -3008,10 +4069,12 @@ class PharmacyReceiptModal extends StatelessWidget {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Software by SalePay',
+                      'Software By Blue Oceans Technologies Ltd',
                       style: TextStyle(
                         fontSize: 8.5,
-                        color: isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8),
+                        color: isDark
+                            ? Colors.grey.shade500
+                            : const Color(0xFF94A3B8),
                         fontFamily: 'monospace',
                       ),
                     ),
@@ -3032,7 +4095,9 @@ class PharmacyReceiptModal extends StatelessWidget {
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Printing Thermal Receipt (80mm) for $invoiceDisplay...'),
+                            content: Text(
+                              'Printing Thermal Receipt (80mm) for $invoiceDisplay...',
+                            ),
                             duration: const Duration(seconds: 2),
                             backgroundColor: primaryTeal,
                           ),
@@ -3042,14 +4107,22 @@ class PharmacyReceiptModal extends StatelessWidget {
                       child: Container(
                         height: 44,
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF242424) : Colors.white,
+                          color: isDark
+                              ? const Color(0xFF242424)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(color: const Color(0xFF93C5FD)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.print_outlined, size: 16, color: isDark ? Colors.white : const Color(0xFF334155)),
+                            Icon(
+                              Icons.print_outlined,
+                              size: 16,
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF334155),
+                            ),
                             const SizedBox(width: 8),
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -3060,7 +4133,9 @@ class PharmacyReceiptModal extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
-                                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                    color: isDark
+                                        ? Colors.white
+                                        : const Color(0xFF1E293B),
                                     height: 1.1,
                                   ),
                                 ),
@@ -3069,7 +4144,9 @@ class PharmacyReceiptModal extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 9.5,
                                     fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+                                    color: isDark
+                                        ? Colors.grey.shade400
+                                        : const Color(0xFF64748B),
                                     height: 1.1,
                                   ),
                                 ),
@@ -3103,7 +4180,11 @@ class PharmacyReceiptModal extends StatelessWidget {
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.refresh_rounded, size: 18, color: Colors.white),
+                            Icon(
+                              Icons.refresh_rounded,
+                              size: 18,
+                              color: Colors.white,
+                            ),
                             SizedBox(width: 6),
                             Text(
                               'New Sale',
@@ -3131,7 +4212,10 @@ class PharmacyReceiptModal extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────
 // 12. NOTIFICATIONS & ALERTS DIALOG
 // ─────────────────────────────────────────────────────────────
-void showPharmacyNotificationDialog(BuildContext context, PharmacyProvider provider) {
+void showPharmacyNotificationDialog(
+  BuildContext context,
+  PharmacyProvider provider,
+) {
   final isDark = context.isDark;
 
   showDialog(
@@ -3151,18 +4235,40 @@ void showPharmacyNotificationDialog(BuildContext context, PharmacyProvider provi
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.notifications_active_rounded, color: Colors.orange, size: 24),
+                    Icon(
+                      Icons.notifications_active_rounded,
+                      color: Colors.orange,
+                      size: 24,
+                    ),
                     SizedBox(width: 8),
-                    Text('Pharmacy Alerts & Notifications', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Pharmacy Alerts & Notifications',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
-                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
               ],
             ),
             const SizedBox(height: 10),
-            _alertItem(context, '⚠️ Expiry Alert: Metformin 500mg batch MET-0043 expires in 28 days!'),
-            _alertItem(context, '📦 Low Stock Alert: Azithromycin 500mg (18 units remaining). Refill recommended.'),
-            _alertItem(context, '🔔 Shift Reminder: Shift handover scheduled at 04:00 PM for Cashier Ahmed R.'),
+            _alertItem(
+              context,
+              '⚠️ Expiry Alert: Metformin 500mg batch MET-0043 expires in 28 days!',
+            ),
+            _alertItem(
+              context,
+              '📦 Low Stock Alert: Azithromycin 500mg (18 units remaining). Refill recommended.',
+            ),
+            _alertItem(
+              context,
+              '🔔 Shift Reminder: Shift handover scheduled at 04:00 PM for Cashier Ahmed R.',
+            ),
           ],
         ),
       ),
