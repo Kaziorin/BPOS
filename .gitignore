@@ -16,6 +16,8 @@ build/
 out/
 **/dist/
 **/build/
+deploy_staging/
+*.zip
 
 # Next.js
 frontend/.next/
