@@ -27,14 +27,24 @@ New-Item -ItemType Directory -Path (Join-Path $StagingDir "ecommerce-frontend") 
 New-Item -ItemType Directory -Path (Join-Path $StagingDir "website-frontend") | Out-Null
 
 # 2. Package Backend
-Write-Host "`n[1/4] Packaging Python Backend..." -ForegroundColor Yellow
+Write-Host "`n[1/5] Packaging Python Backend..." -ForegroundColor Yellow
 $BackendStaging = Join-Path $StagingDir "backend"
-$BackendItems = @("app", "main.py", "requirements.txt", "alembic.ini", "alembic")
-foreach ($item in $BackendItems) {
-    $srcPath = Join-Path $BackendDir $item
-    if (Test-Path $srcPath) {
-        Copy-Item -Path $srcPath -Destination $BackendStaging -Recurse -Force
-    }
+
+# Copy all root python modules (db.py, security.py, main.py, etc.)
+Copy-Item -Path (Join-Path $BackendDir "*.py") -Destination $BackendStaging -Force
+
+# Copy app module and configuration
+if (Test-Path (Join-Path $BackendDir "app")) {
+    Copy-Item -Path (Join-Path $BackendDir "app") -Destination $BackendStaging -Recurse -Force
+}
+if (Test-Path (Join-Path $BackendDir "requirements.txt")) {
+    Copy-Item -Path (Join-Path $BackendDir "requirements.txt") -Destination $BackendStaging -Force
+}
+if (Test-Path (Join-Path $BackendDir "alembic.ini")) {
+    Copy-Item -Path (Join-Path $BackendDir "alembic.ini") -Destination $BackendStaging -Force
+}
+if (Test-Path (Join-Path $BackendDir "alembic")) {
+    Copy-Item -Path (Join-Path $BackendDir "alembic") -Destination $BackendStaging -Recurse -Force
 }
 
 # Copy ai_engine shell scripts and create models directory placeholder

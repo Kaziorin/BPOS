@@ -418,4 +418,46 @@ REDIS_URL="redis://localhost:6379/0"
 sudo nginx -t && sudo systemctl reload nginx
 pm2 save
 ```
+
+---
+
+## 🔄 সম্পূর্ণ স্টপ, ক্লিন ডিলিট এবং নতুন করে ডিপ্লয় করার কমান্ড (Clean Delete & Fresh Redeploy)
+
+যদি কোনো পোর্ট আটকে থাকে বা পুরাতন প্রসেস ডিলিট করে সম্পূর্ণ ফ্রেশ ডিপ্লয় করতে চান, তবে সার্ভারে গিয়ে নিচের কমান্ডগুলো একবারে কপি করে পেস্ট করুন:
+
+```bash
+cd /var/www/blueoceanstech.com/public/SalePayEnterprisePOS
+
+# ১. SalePay এর পুরাতন সব PM2 প্রসেস স্টপ ও ডিলিট করুন
+pm2 delete salepay-backend salepay-pos-frontend salepay-ecommerce salepay-website salepay-ollama 2>/dev/null || true
+
+# ২. সার্ভারে পোর্ট ৪০০০, ৩০০০, ৩০০১, ৩০০২ এ আটকে থাকা পুরোনো প্রসেস কিল করুন
+fuser -k 4000/tcp 2>/dev/null || true
+fuser -k 3000/tcp 2>/dev/null || true
+fuser -k 3001/tcp 2>/dev/null || true
+fuser -k 3002/tcp 2>/dev/null || true
+
+# ৩. নতুন আপলোড করা জিপ আনজিপ করুন
+unzip -o salepay_prod_deploy.zip
+
+# ৪. ডিপ্লয় স্ক্রিপ্ট এক্সিকিউট করুন
+chmod +x deploy_server.sh
+./deploy_server.sh
+
+# ৫. সার্ভিস স্টেট সেভ করুন
+pm2 save
+```
+
+### প্রসেস স্ট্যাটাস ও লাইভ লগ চেক:
+```bash
+# সব প্রসেসের স্ট্যাটাস দেখতে
+pm2 status
+
+# লাইভ লগ দেখতে (যেকোনো একটি দেখতে পারেন)
+pm2 logs salepay-backend
+pm2 logs salepay-pos-frontend
+pm2 logs salepay-ecommerce
+pm2 logs salepay-website
+```
+
 BlueOceans SalePay Enterprise POS এখন সম্পূর্ণ সুরক্ষিত এবং হাই-পারফরম্যান্স প্রোডাকশনে চলার জন্য প্রস্তুত! 🚀

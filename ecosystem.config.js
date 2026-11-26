@@ -56,18 +56,6 @@ module.exports = {
         NODE_ENV: "production",
         PORT: 3002
       }
-    },
-    {
-      name: "salepay-ollama",
-      script: "ollama",
-      args: "serve",
-      interpreter: "none",
-      autorestart: true,
-      watch: false,
-      max_memory_restart: "2G",
-      env: {
-        OLLAMA_HOST: "127.0.0.1:11434"
-      }
     }
   ]
 };
