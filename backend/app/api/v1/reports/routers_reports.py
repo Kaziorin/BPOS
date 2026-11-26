@@ -702,7 +702,7 @@ async def customer_credit_aging(
             "COALESCE(SUM(CASE WHEN i.issueDate < DATE_SUB(NOW(), INTERVAL 90 DAY) THEN i.total - i.paidTotal ELSE 0 END), 0) AS d90plus "
             "FROM customers c "
             "LEFT JOIN invoices i ON i.customerId = c.id AND i.status IN ('ISSUED', 'PARTIALLY_PAID') "
-            "WHERE c.tenantId = :t AND c.creditLimit > 0 "
+            "WHERE c.tenantId = :t AND (c.currentDue > 0 OR COALESCE(c.creditLimit, 0) > 0) "
             "GROUP BY c.id, c.name, c.phone, c.creditLimit, c.currentDue, c.status "
             "HAVING currentDue > 0 "
             "ORDER BY currentDue DESC"

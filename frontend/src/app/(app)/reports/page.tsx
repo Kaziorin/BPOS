@@ -387,60 +387,113 @@ export function ReportsContent({ initialTab }: { initialTab?: TabType }) {
         </div>
       )}
 
-      {/* Breadcrumb Navigation */}
-      <CustomBreadcrumb
-        title="Business Intelligence & Analytics"
-        description="Enterprise multi-branch performance metrics, sales trends, inventory valuations, and financial statements"
-        icon={<BarChart3 size={16} />}
-        items={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "Administration & Intelligence" },
-          { label: "Reports & Analytics", href: "/reports" },
-        ]}
-      />
+      {/* Dynamic Report Metadata */}
+      {(() => {
+        const reportMeta: Record<TabType, { title: string; subtitle: string; tag: string; label: string }> = {
+          sales: {
+            label: "Sales Reports",
+            title: "Sales & Revenue Performance Report",
+            subtitle: "Consolidated sales revenue turnover, product velocity, category breakdown, and payment methods.",
+            tag: "REAL-TIME SALES & REVENUE REPORTING",
+          },
+          inventory: {
+            label: "Inventory Reports",
+            title: "Inventory Health & Stock Valuation Report",
+            subtitle: "Live warehouse stock valuation at cost vs retail, low-stock reorder warnings, and expiry batch risk.",
+            tag: "WAREHOUSE INVENTORY & REVALUATION REPORT",
+          },
+          financial: {
+            label: "Financial Reports",
+            title: "Financial Statements, P&L & Balance Sheet",
+            subtitle: "Executive profit & loss statements, balance sheet assets/liabilities, and customer accounts receivable (AR).",
+            tag: "EXECUTIVE FINANCIAL STATEMENTS",
+          },
+          commission: {
+            label: "Commission Reports",
+            title: "Staff Sales Commission & Performance Report",
+            subtitle: "Sales agent commission accruals, payout reconciliation, and revenue targets.",
+            tag: "HUMAN CAPITAL & SALES COMMISSIONS",
+          },
+          installments: {
+            label: "Installments & Overdue",
+            title: "Customer Installments & Credit Aging Report",
+            subtitle: "Customer EMI schedules, aging overdue buckets, and credit collection tracking.",
+            tag: "CREDIT & INSTALLMENT PORTFOLIO",
+          },
+          saved: {
+            label: "Saved Views",
+            title: "Saved Custom Report Presets",
+            subtitle: "Custom filtered views, scheduled report queries, and quick bookmarks.",
+            tag: "SAVED REPORT CONFIGURATIONS",
+          },
+          scheduled: {
+            label: "Scheduled Reports",
+            title: "Automated Scheduled Reports & Delivery",
+            subtitle: "Automated executive summary deliveries, recurring cron schedules, and exports.",
+            tag: "SCHEDULED EMAIL & EXPORT PIPELINES",
+          },
+        };
+        const currentMeta = reportMeta[activeTab] || reportMeta.sales;
 
-      {/* Master Top Banner */}
-      <div className="relative overflow-hidden rounded-sm border border-brand-border bg-brand-gradient p-6 text-white shadow-2xs">
-        <div className="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-primary-500/15 blur-3xl" />
-        <div className="absolute right-1/3 -bottom-12 h-48 w-48 rounded-full bg-emerald-500/10 blur-2xl" />
+        return (
+          <>
+            {/* Breadcrumb Navigation */}
+            <CustomBreadcrumb
+              title={currentMeta.title}
+              description={currentMeta.subtitle}
+              icon={<BarChart3 size={16} />}
+              items={[
+                { label: "Dashboard", href: "/dashboard" },
+                { label: "Reports & Analytics", href: "/reports/sales" },
+                { label: currentMeta.label },
+              ]}
+            />
 
-        <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-2xl">
-            <div className="flex items-center gap-2 text-white/90 text-xs font-bold uppercase tracking-widest">
-              <Sparkles size={14} className="text-amber-400" />
-              <span>Real-Time Business Intelligence & Financial Reporting</span>
+            {/* Master Top Banner */}
+            <div className="relative overflow-hidden rounded-sm border border-brand-border bg-brand-gradient p-6 text-white shadow-2xs">
+              <div className="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-primary-500/15 blur-3xl" />
+              <div className="absolute right-1/3 -bottom-12 h-48 w-48 rounded-full bg-emerald-500/10 blur-2xl" />
+
+              <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div className="max-w-2xl">
+                  <div className="flex items-center gap-2 text-white/90 text-xs font-bold uppercase tracking-widest">
+                    <Sparkles size={14} className="text-amber-400" />
+                    <span>{currentMeta.tag}</span>
+                  </div>
+                  <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+                    {currentMeta.title}
+                  </h1>
+                  <p className="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    {currentMeta.subtitle}
+                  </p>
+                </div>
+
+                {/* Quick Action Toolbar inside Banner */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <CustomButton
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSaveDialog(true)}
+                    className="bg-white/15 text-white border-white/30 hover:bg-white/25 rounded-sm"
+                  >
+                    <Save size={14} />
+                    <span>Save View</span>
+                  </CustomButton>
+
+                  <CustomButton
+                    size="sm"
+                    onClick={() => handleExport(activeTab)}
+                    className="bg-white text-sky-700 hover:bg-brand-50/50 shadow-2xs font-semibold rounded-sm"
+                  >
+                    <Download size={14} />
+                    <span>Export CSV</span>
+                  </CustomButton>
+                </div>
+              </div>
             </div>
-            <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-              Executive Analytics & Financial Reporting
-            </h1>
-            <p className="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Consolidated intelligence across point-of-sale registers, warehouse inventories, P&L statements, balance sheets, staff commissions, and EMI installments.
-            </p>
-          </div>
-
-          {/* Quick Action Toolbar inside Banner */}
-          <div className="flex flex-wrap items-center gap-2">
-            <CustomButton
-              variant="outline"
-              size="sm"
-              onClick={() => setShowSaveDialog(true)}
-              className="bg-white/15 text-white border-white/30 hover:bg-white/25 rounded-sm"
-            >
-              <Save size={14} />
-              <span>Save View</span>
-            </CustomButton>
-
-            <CustomButton
-              size="sm"
-              onClick={() => handleExport(activeTab)}
-              className="bg-white text-sky-700 hover:bg-brand-50/50 shadow-2xs font-semibold rounded-sm"
-            >
-              <Download size={14} />
-              <span>Export CSV</span>
-            </CustomButton>
-          </div>
-        </div>
-      </div>
+          </>
+        );
+      })()}
 
       {/* Global Filter Bar */}
       <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
@@ -546,37 +599,6 @@ export function ReportsContent({ initialTab }: { initialTab?: TabType }) {
             </CustomButton>
           </div>
         </div>
-      </div>
-
-      {/* Main Tab Strip */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
-        {[
-          { id: "sales", label: "Sales & Revenue", icon: ShoppingCart },
-          { id: "inventory", label: "Inventory & Stock", icon: Package },
-          { id: "financial", label: "Financial & P&L", icon: DollarSign },
-          { id: "commission", label: "Staff Commissions", icon: Users },
-          { id: "installments", label: "Installments & EMI", icon: CreditCard },
-          { id: "saved", label: "Saved Views & Presets", icon: Save },
-          { id: "scheduled", label: "Automated Schedules", icon: Clock },
-        ].map((t) => {
-          const Icon = t.icon;
-          const isActive = activeTab === t.id;
-
-          return (
-            <button
-              key={t.id}
-              onClick={() => switchTab(t.id as TabType)}
-              className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition cursor-pointer ${
-                isActive
-                  ? "bg-brand-gradient text-white shadow-2xs"
-                  : "bg-white text-slate-600 hover:bg-brand-50/60 border border-slate-200"
-              }`}
-            >
-              <Icon size={14} />
-              <span>{t.label}</span>
-            </button>
-          );
-        })}
       </div>
 
       {/* ═════════════════════════ CONTENT AREA ═════════════════════════ */}
@@ -975,6 +997,110 @@ export function ReportsContent({ initialTab }: { initialTab?: TabType }) {
                   </div>
                 </div>
               )}
+
+              {/* Accounts Receivable (AR) & Customer Dues Aging */}
+              <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                      <Wallet size={16} className="text-primary-600" />
+                      Accounts Receivable (AR) & Customer Dues Aging
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Live customer dues, unpaid POS credit invoices, and credit aging buckets
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 border border-amber-200">
+                      Total AR: {currency(ar?.totalOutstanding || 0)}
+                    </span>
+                    <button
+                      onClick={() => handleExport("ar")}
+                      className="text-xs font-semibold text-primary-600 hover:text-primary-700 cursor-pointer"
+                    >
+                      Export AR
+                    </button>
+                  </div>
+                </div>
+
+                {/* Aging Buckets Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                  <div className="p-3 bg-emerald-50/60 rounded-sm border border-emerald-100">
+                    <span className="text-[10px] font-bold text-emerald-700 block uppercase">Current (0-30d)</span>
+                    <span className="text-sm font-extrabold text-emerald-800">{currency(ar?.aging?.["current"] || ar?.aging?.["1_30"] || 0)}</span>
+                  </div>
+                  <div className="p-3 bg-sky-50/60 rounded-sm border border-sky-100">
+                    <span className="text-[10px] font-bold text-sky-700 block uppercase">31 - 60 Days</span>
+                    <span className="text-sm font-extrabold text-sky-800">{currency(ar?.aging?.["31_60"] || 0)}</span>
+                  </div>
+                  <div className="p-3 bg-amber-50/60 rounded-sm border border-amber-100">
+                    <span className="text-[10px] font-bold text-amber-700 block uppercase">61 - 90 Days</span>
+                    <span className="text-sm font-extrabold text-amber-800">{currency(ar?.aging?.["61_90"] || 0)}</span>
+                  </div>
+                  <div className="p-3 bg-rose-50/60 rounded-sm border border-rose-100">
+                    <span className="text-[10px] font-bold text-rose-700 block uppercase">Over 90 Days</span>
+                    <span className="text-sm font-extrabold text-rose-800">{currency(ar?.aging?.["over_90"] || 0)}</span>
+                  </div>
+                  <div className="p-3 bg-purple-50/60 rounded-sm border border-purple-100 col-span-2 sm:col-span-1">
+                    <span className="text-[10px] font-bold text-purple-700 block uppercase">Total Dues</span>
+                    <span className="text-sm font-extrabold text-purple-800">{currency(ar?.totalOutstanding || 0)}</span>
+                  </div>
+                </div>
+
+                {/* AR Invoices Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                        <th className="py-2.5 px-3">Invoice No</th>
+                        <th className="py-2.5 px-3">Customer</th>
+                        <th className="py-2.5 px-3">Date</th>
+                        <th className="py-2.5 px-3 text-right">Total</th>
+                        <th className="py-2.5 px-3 text-right">Paid</th>
+                        <th className="py-2.5 px-3 text-right">Due Balance</th>
+                        <th className="py-2.5 px-3 text-center">Overdue</th>
+                        <th className="py-2.5 px-3 text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                      {(ar?.invoices || []).length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="py-6 text-center text-slate-400">
+                            No outstanding accounts receivable found. All invoices are settled.
+                          </td>
+                        </tr>
+                      ) : (
+                        (ar?.invoices || []).slice(0, 25).map((inv: any) => (
+                          <tr key={inv.id} className="hover:bg-slate-50/60 transition">
+                            <td className="py-2 px-3 font-mono font-bold text-primary-600">{inv.invoiceNo}</td>
+                            <td className="py-2 px-3">
+                              <span className="font-semibold block">{inv.customerName || "Walk-in Customer"}</span>
+                              {inv.customerPhone && <span className="text-[10px] text-slate-400">{inv.customerPhone}</span>}
+                            </td>
+                            <td className="py-2 px-3 text-slate-500">{String(inv.issueDate || "").slice(0, 10)}</td>
+                            <td className="py-2 px-3 text-right font-medium">{currency(inv.total)}</td>
+                            <td className="py-2 px-3 text-right text-emerald-600">{currency(inv.paidTotal)}</td>
+                            <td className="py-2 px-3 text-right font-bold text-rose-600">{currency(inv.balance)}</td>
+                            <td className="py-2 px-3 text-center">
+                              <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                (inv.agingDays || 0) > 60 ? "bg-rose-100 text-rose-700" :
+                                (inv.agingDays || 0) > 30 ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"
+                              }`}>
+                                {inv.agingDays ? `${inv.agingDays}d` : "Current"}
+                              </span>
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                                {inv.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </>
           )}
 
@@ -1201,6 +1327,22 @@ export function ReportsContent({ initialTab }: { initialTab?: TabType }) {
   );
 }
 
+function ReportsRedirect() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const tab = searchParams.get("tab") || "sales";
+    router.replace(`/reports/${tab}`);
+  }, [router, searchParams]);
+
+  return (
+    <div className="flex h-64 items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary-500 border-t-transparent" />
+    </div>
+  );
+}
+
 export default function ReportsPage() {
   return (
     <Suspense
@@ -1210,7 +1352,7 @@ export default function ReportsPage() {
         </div>
       }
     >
-      <ReportsContent />
+      <ReportsRedirect />
     </Suspense>
   );
 }
