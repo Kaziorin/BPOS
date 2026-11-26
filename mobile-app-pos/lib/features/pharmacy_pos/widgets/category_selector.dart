@@ -8,25 +8,62 @@ class CategorySelector extends StatelessWidget {
 
   static const primaryTeal = Color(0xFF009688);
 
-  static const List<Map<String, dynamic>> _categories = [
-    {'name': 'All', 'icon': Icons.grid_view_rounded, 'color': primaryTeal},
-    {'name': 'Antibiotics', 'icon': Icons.link_rounded, 'color': Colors.deepPurple},
-    {'name': 'Pain Relief', 'icon': Icons.water_drop_rounded, 'color': Colors.orange},
-    {'name': 'Vitamins & Supplements', 'icon': Icons.eco_rounded, 'color': Colors.green},
-    {'name': 'Skin Care', 'icon': Icons.face_retouching_natural_rounded, 'color': Colors.pink},
-    {'name': 'Diabetes Care', 'icon': Icons.opacity_rounded, 'color': Colors.blue},
-    {'name': 'Cardiovascular', 'icon': Icons.favorite_rounded, 'color': Colors.red},
-    {'name': 'Gastrointestinal', 'icon': Icons.restaurant_menu_rounded, 'color': Colors.deepOrange},
-    {'name': 'Respiratory', 'icon': Icons.air_rounded, 'color': Colors.indigo},
-    {'name': 'Eye & Ear Care', 'icon': Icons.visibility_rounded, 'color': Colors.blueGrey},
-    {'name': 'Others', 'icon': Icons.category_rounded, 'color': Colors.amber},
-  ];
+  static Map<String, dynamic> _metaForCategory(String name) {
+    final lower = name.toLowerCase();
+    if (lower == 'all')
+      return {'icon': Icons.grid_view_rounded, 'color': primaryTeal};
+    if (lower.contains('antibiotic'))
+      return {'icon': Icons.link_rounded, 'color': Colors.deepPurple};
+    if (lower.contains('pain'))
+      return {'icon': Icons.water_drop_rounded, 'color': Colors.orange};
+    if (lower.contains('vitamin') || lower.contains('supplement'))
+      return {'icon': Icons.eco_rounded, 'color': Colors.green};
+    if (lower.contains('skin'))
+      return {
+        'icon': Icons.face_retouching_natural_rounded,
+        'color': Colors.pink,
+      };
+    if (lower.contains('diabet'))
+      return {'icon': Icons.opacity_rounded, 'color': Colors.blue};
+    if (lower.contains('cardio'))
+      return {'icon': Icons.favorite_rounded, 'color': Colors.red};
+    if (lower.contains('gastro'))
+      return {
+        'icon': Icons.restaurant_menu_rounded,
+        'color': Colors.deepOrange,
+      };
+    if (lower.contains('respir'))
+      return {'icon': Icons.air_rounded, 'color': Colors.indigo};
+    if (lower.contains('eye') || lower.contains('ear'))
+      return {'icon': Icons.visibility_rounded, 'color': Colors.blueGrey};
+    return {'icon': Icons.category_rounded, 'color': primaryTeal};
+  }
 
   static const List<Map<String, dynamic>> _quickFilters = [
-    {'tag': 'Popular', 'label': 'Popular', 'icon': Icons.trending_up_rounded, 'color': Colors.blue},
-    {'tag': 'Low Stock', 'label': 'Low Stock', 'icon': Icons.warning_amber_rounded, 'color': Colors.orange},
-    {'tag': 'Expiring Soon', 'label': 'Expiring', 'icon': Icons.calendar_today_rounded, 'color': Colors.red},
-    {'tag': 'Generic Available', 'label': 'Generic', 'icon': Icons.eco_rounded, 'color': Colors.green},
+    {
+      'tag': 'Popular',
+      'label': 'Popular',
+      'icon': Icons.trending_up_rounded,
+      'color': Colors.blue,
+    },
+    {
+      'tag': 'Low Stock',
+      'label': 'Low Stock',
+      'icon': Icons.warning_amber_rounded,
+      'color': Colors.orange,
+    },
+    {
+      'tag': 'Expiring Soon',
+      'label': 'Expiring',
+      'icon': Icons.calendar_today_rounded,
+      'color': Colors.red,
+    },
+    {
+      'tag': 'Generic Available',
+      'label': 'Generic',
+      'icon': Icons.eco_rounded,
+      'color': Colors.green,
+    },
   ];
 
   @override
@@ -35,15 +72,16 @@ class CategorySelector extends StatelessWidget {
       builder: (context, provider, child) {
         final isDark = context.isDark;
         final cardBg = isDark ? context.cardBg : Colors.white;
-        final borderColor = isDark ? context.dividerColor : Colors.grey.shade200;
+        final borderColor = isDark
+            ? context.dividerColor
+            : Colors.grey.shade200;
+        final categories = provider.categories;
 
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: isDark ? context.surfaceBg : Colors.white,
-            border: Border(
-              bottom: BorderSide(color: borderColor, width: 1),
-            ),
+            border: Border(bottom: BorderSide(color: borderColor, width: 1)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -54,25 +92,33 @@ class CategorySelector extends StatelessWidget {
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   scrollDirection: Axis.horizontal,
-                  itemCount: _categories.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: 6),
+                  itemCount: categories.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 6),
                   itemBuilder: (context, index) {
-                    final category = _categories[index];
-                    final catName = category['name'] as String;
+                    final catName = categories[index];
+                    final meta = _metaForCategory(catName);
                     final isSelected = provider.selectedCategory == catName;
-                    final color = category['color'] as Color;
+                    final color = meta['color'] as Color;
 
                     return InkWell(
                       onTap: () => provider.setCategory(catName),
                       borderRadius: BorderRadius.circular(17),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 180),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: isSelected ? primaryTeal : cardBg,
                           borderRadius: BorderRadius.circular(17),
                           border: Border.all(
-                            color: isSelected ? primaryTeal : (isDark ? context.dividerColor : Colors.grey.shade300),
+                            color: isSelected
+                                ? primaryTeal
+                                : (isDark
+                                      ? context.dividerColor
+                                      : Colors.grey.shade300),
                             width: isSelected ? 1.4 : 1,
                           ),
                           boxShadow: isSelected
@@ -89,7 +135,7 @@ class CategorySelector extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              category['icon'] as IconData,
+                              meta['icon'] as IconData,
                               size: 14,
                               color: isSelected ? Colors.white : color,
                             ),
@@ -98,10 +144,14 @@ class CategorySelector extends StatelessWidget {
                               catName,
                               style: TextStyle(
                                 fontSize: 11.5,
-                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                                fontWeight: isSelected
+                                    ? FontWeight.w700
+                                    : FontWeight.w600,
                                 color: isSelected
                                     ? Colors.white
-                                    : (isDark ? Colors.white70 : const Color(0xFF334155)),
+                                    : (isDark
+                                          ? Colors.white70
+                                          : const Color(0xFF334155)),
                               ),
                             ),
                           ],
@@ -136,7 +186,9 @@ class CategorySelector extends StatelessWidget {
                       Container(
                         width: 1,
                         height: 16,
-                        color: isDark ? context.dividerColor : Colors.grey.shade300,
+                        color: isDark
+                            ? context.dividerColor
+                            : Colors.grey.shade300,
                       ),
 
                       const SizedBox(width: 8),
@@ -152,19 +204,26 @@ class CategorySelector extends StatelessWidget {
                           child: InkWell(
                             onTap: () {
                               // Tapping an active filter deselects it back to All Medicines
-                              provider.setFilterTag(isSelected ? 'All Medicines' : tag);
+                              provider.setFilterTag(
+                                isSelected ? 'All Medicines' : tag,
+                              );
                             },
                             borderRadius: BorderRadius.circular(14),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 180),
-                              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 9,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: isSelected ? primaryTeal : cardBg,
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
                                   color: isSelected
                                       ? primaryTeal
-                                      : (isDark ? context.dividerColor : Colors.grey.shade300),
+                                      : (isDark
+                                            ? context.dividerColor
+                                            : Colors.grey.shade300),
                                   width: 1,
                                 ),
                               ),
@@ -181,15 +240,23 @@ class CategorySelector extends StatelessWidget {
                                     filter['label'] as String,
                                     style: TextStyle(
                                       fontSize: 11,
-                                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
                                       color: isSelected
                                           ? Colors.white
-                                          : (isDark ? Colors.white70 : const Color(0xFF475569)),
+                                          : (isDark
+                                                ? Colors.white70
+                                                : const Color(0xFF475569)),
                                     ),
                                   ),
                                   if (isSelected) ...[
                                     const SizedBox(width: 3),
-                                    const Icon(Icons.close_rounded, size: 12, color: Colors.white),
+                                    const Icon(
+                                      Icons.close_rounded,
+                                      size: 12,
+                                      color: Colors.white,
+                                    ),
                                   ],
                                 ],
                               ),
@@ -229,17 +296,21 @@ class CategorySelector extends StatelessWidget {
       onSelected: (val) => provider.setSort(val),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       itemBuilder: (ctx) => sortOptions
-          .map((opt) => PopupMenuItem(
-                value: opt,
-                child: Text(
-                  opt,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: provider.selectedSort == opt ? FontWeight.bold : FontWeight.normal,
-                    color: provider.selectedSort == opt ? primaryTeal : null,
-                  ),
+          .map(
+            (opt) => PopupMenuItem(
+              value: opt,
+              child: Text(
+                opt,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: provider.selectedSort == opt
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                  color: provider.selectedSort == opt ? primaryTeal : null,
                 ),
-              ))
+              ),
+            ),
+          )
           .toList(),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -247,7 +318,9 @@ class CategorySelector extends StatelessWidget {
           color: isCustomSort ? primaryTeal.withValues(alpha: 0.12) : cardBg,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isCustomSort ? primaryTeal : (isDark ? context.dividerColor : Colors.grey.shade300),
+            color: isCustomSort
+                ? primaryTeal
+                : (isDark ? context.dividerColor : Colors.grey.shade300),
             width: 1,
           ),
         ),
@@ -257,7 +330,9 @@ class CategorySelector extends StatelessWidget {
             Icon(
               Icons.swap_vert_rounded,
               size: 13,
-              color: isCustomSort ? primaryTeal : (isDark ? Colors.white70 : Colors.grey.shade700),
+              color: isCustomSort
+                  ? primaryTeal
+                  : (isDark ? Colors.white70 : Colors.grey.shade700),
             ),
             const SizedBox(width: 3),
             Text(
@@ -265,7 +340,9 @@ class CategorySelector extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: isCustomSort ? FontWeight.w700 : FontWeight.w600,
-                color: isCustomSort ? primaryTeal : (isDark ? Colors.white70 : const Color(0xFF475569)),
+                color: isCustomSort
+                    ? primaryTeal
+                    : (isDark ? Colors.white70 : const Color(0xFF475569)),
               ),
             ),
             const SizedBox(width: 2),
@@ -310,7 +387,9 @@ class CategorySelector extends StatelessWidget {
           color: isRx ? primaryTeal : cardBg,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isRx ? primaryTeal : (isDark ? context.dividerColor : Colors.grey.shade300),
+            color: isRx
+                ? primaryTeal
+                : (isDark ? context.dividerColor : Colors.grey.shade300),
             width: 1,
           ),
         ),
@@ -318,7 +397,9 @@ class CategorySelector extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              isRx ? Icons.medical_services_rounded : Icons.medical_services_outlined,
+              isRx
+                  ? Icons.medical_services_rounded
+                  : Icons.medical_services_outlined,
               size: 12.5,
               color: isRx ? Colors.white : Colors.purple,
             ),
@@ -328,7 +409,9 @@ class CategorySelector extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: isRx ? FontWeight.w700 : FontWeight.w600,
-                color: isRx ? Colors.white : (isDark ? Colors.white70 : const Color(0xFF475569)),
+                color: isRx
+                    ? Colors.white
+                    : (isDark ? Colors.white70 : const Color(0xFF475569)),
               ),
             ),
           ],

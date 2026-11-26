@@ -119,13 +119,16 @@ class GroceryProvider extends ChangeNotifier {
     ),
   ];
 
-  static const List<GroceryCustomer> customers = [
-    GroceryCustomer(id: 'c0', name: 'Walk-in Customer', nameBn: 'ওয়াক-ইন কাস্টমার', phone: '—', loyaltyPoints: 0),
-    GroceryCustomer(id: 'c1', name: 'Rahim Uddin', nameBn: 'রহিম উদ্দিন', phone: '01711-234567', loyaltyPoints: 120),
-    GroceryCustomer(id: 'c2', name: 'Fatima Begum', nameBn: 'ফাতেমা বেগম', phone: '01812-345678', loyaltyPoints: 85),
-    GroceryCustomer(id: 'c3', name: 'Karim Ahmed', nameBn: 'করিম আহমেদ', phone: '01913-456789', loyaltyPoints: 210),
-    GroceryCustomer(id: 'c4', name: 'Sumaiya Akter', nameBn: 'সুমাইয়া আক্তার', phone: '01614-567890', loyaltyPoints: 45),
-  ];
+  static const GroceryCustomer _walkInCustomer = GroceryCustomer(
+    id: 'c0',
+    name: 'Walk-in Customer',
+    nameBn: 'ওয়াক-ইন কাস্টমার',
+    phone: '—',
+    loyaltyPoints: 0,
+  );
+
+  final List<GroceryCustomer> _customers = [_walkInCustomer];
+  final List<String> _apiCategories = [];
 
   String _searchQuery = '';
   String _selectedCategory = 'All Items';
@@ -137,7 +140,7 @@ class GroceryProvider extends ChangeNotifier {
   double _billDiscountPercent = 0.0;
   String _invoiceNo = 'INV-250520-0012';
   int _invoiceSeq = 12;
-  GroceryCustomer _customer = customers[0];
+  GroceryCustomer _customer = _walkInCustomer;
 
   late final List<GroceryCartItem> _cart;
   final List<HeldBill> _heldBills = [];
@@ -146,7 +149,7 @@ class GroceryProvider extends ChangeNotifier {
 
   GroceryProvider() {
     _cart = [];
-    _customer = customers[0];
+    _customer = _walkInCustomer;
     loadProducts(businessType: 'grocery');
   }
 
@@ -154,9 +157,25 @@ class GroceryProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final systemTax = await ApiService.instance.fetchDefaultTaxRate(businessType: businessType);
-      _taxRate = systemTax;
-      final apiProducts = await ApiService.instance.fetchProducts(businessType: businessType);
+      final results = await Future.wait([
+        ApiService.instance.fetchDefaultTaxRate(businessType: businessType),
+        ApiService.instance.fetchProducts(businessType: businessType),
+        ApiService.instance.fetchCategories(businessType: businessType),
+        ApiService.instance.fetchCustomers(businessType: businessType),
+      ]);
+      _taxRate = results[0] as double;
+      final apiProducts = results[1] as List<Map<String, dynamic>>;
+      final apiCats = results[2] as List<Map<String, dynamic>>;
+      final apiCusts = results[3] as List<Map<String, dynamic>>;
+
+      _apiCategories.clear();
+      for (final c in apiCats) {
+        final name = c['name']?.toString().trim() ?? '';
+        if (name.isNotEmpty && !_apiCategories.contains(name)) {
+          _apiCategories.add(name);
+        }
+      }
+
       if (apiProducts.isNotEmpty) {
         final List<GroceryProduct> loaded = [];
         for (int i = 0; i < apiProducts.length; i++) {
@@ -185,6 +204,29 @@ class GroceryProvider extends ChangeNotifier {
         }
         _allProducts.clear();
         _allProducts.addAll(loaded);
+      }
+
+      _customers
+        ..clear()
+        ..add(_walkInCustomer);
+      for (final c in apiCusts) {
+        final id = c['id']?.toString() ?? '';
+        final name = c['name']?.toString() ?? 'Customer';
+        final phone = c['phone']?.toString() ?? '—';
+        final pts = (c['loyaltyPoints'] as num?)?.toInt() ?? 0;
+        if (id.isNotEmpty) {
+          _customers.add(GroceryCustomer(
+            id: id,
+            name: name,
+            nameBn: name,
+            phone: phone.isEmpty ? '—' : phone,
+            loyaltyPoints: pts,
+          ));
+        }
+      }
+      if (_customer.id != 'c0') {
+        final match = _customers.where((c) => c.id == _customer.id).toList();
+        if (match.isNotEmpty) _customer = match.first;
       }
     } catch (e) {
       debugPrint('Error loading grocery products: $e');
@@ -233,6 +275,16 @@ class GroceryProvider extends ChangeNotifier {
   int get loyaltyPoints => _customer.loyaltyPoints;
   String get customerName => _customer.name;
   GroceryCustomer get customer => _customer;
+  List<GroceryCustomer> get customerList => List.unmodifiable(_customers);
+  List<String> get categories {
+    final set = <String>{'All Items', ..._apiCategories};
+    for (final p in _allProducts) {
+      if (p.category.isNotEmpty && p.category != 'All Items') {
+        set.add(p.category);
+      }
+    }
+    return set.toList();
+  }
   List<GroceryCartItem> get cart => _cart;
   List<HeldBill> get heldBills => List.unmodifiable(_heldBills);
   List<CompletedSale> get completedSales => List.unmodifiable(_completedSales);
@@ -283,6 +335,28 @@ class GroceryProvider extends ChangeNotifier {
   void setCustomer(GroceryCustomer c) {
     _customer = c;
     notifyListeners();
+  }
+
+  Future<GroceryCustomer?> addCustomer({
+    required String name,
+    required String phone,
+  }) async {
+    final res = await ApiService.instance.createCustomer(
+      payload: {'name': name, 'phone': phone},
+      businessType: 'grocery',
+    );
+    if (res == null) return null;
+    final created = GroceryCustomer(
+      id: res['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      name: res['name']?.toString() ?? name,
+      nameBn: res['name']?.toString() ?? name,
+      phone: res['phone']?.toString() ?? phone,
+      loyaltyPoints: (res['loyaltyPoints'] as num?)?.toInt() ?? 0,
+    );
+    _customers.insert(1, created);
+    _customer = created;
+    notifyListeners();
+    return created;
   }
 
   void applyBillDiscount(double percent) {
@@ -540,7 +614,9 @@ class GroceryProvider extends ChangeNotifier {
           'taxAmount': vat,
           'total': grandTotal,
           'source': 'GROCERY',
+          if (_customer.id != 'c0' && _customer.id.isNotEmpty) 'customerId': _customer.id,
           'customerName': _customer.name,
+          if (_customer.phone != '—' && _customer.phone.isNotEmpty) 'customerPhone': _customer.phone,
           'note': _salesNote,
         },
         businessType: 'grocery',
@@ -548,6 +624,7 @@ class GroceryProvider extends ChangeNotifier {
         if (res['invoiceNo'] != null) {
           debugPrint('Grocery sale confirmed with backend: ${res['invoiceNo']}');
         }
+        loadProducts(businessType: 'grocery');
       }).catchError((e) {
         debugPrint('Error confirming grocery sale with API: $e');
       });
