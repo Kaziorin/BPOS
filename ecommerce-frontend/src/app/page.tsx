@@ -16,11 +16,7 @@ import PromotionsSection from "@/components/sections/PromotionsSection";
 import BrandsCarouselSection from "@/components/sections/BrandsCarouselSection";
 import CuratedRecommendationsSection from "@/components/sections/CuratedRecommendationsSection";
 import BlogStoriesSection from "@/components/sections/BlogStoriesSection";
-import NewsletterSection from "@/components/sections/NewsletterSection";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
-import FaqSection from "@/components/sections/FaqSection";
-import SpecialNoticeSection from "@/components/sections/SpecialNoticeSection";
-import AppDownloadSection from "@/components/sections/AppDownloadSection";
 import PharmacyUploadSection from "@/components/sections/PharmacyUploadSection";
 import RestaurantMenuSection from "@/components/sections/RestaurantMenuSection";
 import RichTextSection from "@/components/sections/RichTextSection";
@@ -92,7 +88,13 @@ export default function HomePage() {
   const noticeSection = theme.sections.find((s) => s.type === "special_notice");
   const flashSaleSection = theme.sections.find((s) => s.type === "flash_sale");
   const visibleSections = theme.sections.filter(
-    (s) => s.enabled && s.type !== "special_notice" && s.type !== "flash_sale"
+    (s) =>
+      s.enabled &&
+      s.type !== "special_notice" &&
+      s.type !== "flash_sale" &&
+      s.type !== "app_download" &&
+      s.type !== "faq_section" &&
+      s.type !== "newsletter"
   );
 
   return (
@@ -175,7 +177,7 @@ function renderStoreSection(
             ...sec,
             settings: {
               ...sec.settings,
-              limit: 6,
+              limit: 12,
               columns: 6,
             },
           }}
@@ -198,19 +200,16 @@ function renderStoreSection(
     case "testimonials":
       return <TestimonialsSection section={sec} isDarkMode={isDarkMode} />;
     case "faq_section":
-      return <FaqSection section={sec} isDarkMode={isDarkMode} />;
     case "special_notice":
-      return null;
     case "app_download":
-      return <AppDownloadSection section={sec} isDarkMode={isDarkMode} />;
+    case "newsletter":
+      return null;
     case "pharmacy_upload":
       return <PharmacyUploadSection section={sec} isDarkMode={isDarkMode} />;
     case "restaurant_menu":
       return <RestaurantMenuSection section={sec} isDarkMode={isDarkMode} />;
     case "rich_text":
       return <RichTextSection section={sec} isDarkMode={isDarkMode} />;
-    case "newsletter":
-      return <NewsletterSection section={sec} isDarkMode={isDarkMode} />;
     default:
       return null;
   }
