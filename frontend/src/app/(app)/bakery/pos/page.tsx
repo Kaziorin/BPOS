@@ -127,6 +127,38 @@ export default function BakeryTerminalPage() {
   const [toast, setToast]                   = useState<{ msg: string; type?: "success"|"info" } | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    try {
+      const resumeHoldId = localStorage.getItem("bpos_resume_hold_id");
+      const rawCart = localStorage.getItem("bpos_general_cart");
+      if (resumeHoldId && rawCart) {
+        const parsed = JSON.parse(rawCart);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setCart(parsed.map((it: any, idx: number) => ({
+            id: String(it.productId || it.id || `bakery-item-${idx}`),
+            name: String(it.name || "Bakery Item"),
+            sku: String(it.sku || ""),
+            price: Number(it.unitPrice || it.price || 0),
+            cost: Number(it.cost || 0),
+            unit: String(it.unit || "pcs"),
+            qty: Number(it.qty || 1),
+            discount: Number(it.discount || it.discountAmount || 0),
+            cat: String(it.cat || it.category || "Bakery"),
+            badge: String(it.badge || ""),
+            badgeColor: String(it.badgeColor || ""),
+            emoji: String(it.emoji || "🥐"),
+            bgGradient: String(it.bgGradient || "from-amber-50 to-orange-50"),
+            stock: Number(it.stock || 99),
+            maxStock: Number(it.maxStock || 100),
+          })));
+          setToast({ msg: "Held order resumed!", type: "info" });
+        }
+        localStorage.removeItem("bpos_resume_hold_id");
+        localStorage.removeItem("bpos_general_cart");
+      }
+    } catch {}
+  }, []);
+
   // ─── FETCH BACKEND DATA ────────────────────────────────────────────────────
   const fetchProducts = useCallback(async () => {
     try {
@@ -1237,7 +1269,7 @@ export default function BakeryTerminalPage() {
                   (c.phone && c.phone.includes(custSearchQuery))
                 ).length === 0 && (
                   <div className="py-8 text-center text-xs text-slate-400">
-                    No customer matching "{custSearchQuery}" found.
+                    No customer matching &ldquo;{custSearchQuery}&rdquo; found.
                   </div>
                 )}
               </div>
