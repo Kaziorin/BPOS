@@ -30,6 +30,7 @@ import AdminBar from "@/components/layout/AdminBar";
 export default function HomePage() {
   const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_VIBRANT_THEME);
   const [featuredProducts, setFeaturedProducts] = useState<ProductItem[]>([]);
+  const [popularProducts, setPopularProducts] = useState<ProductItem[]>([]);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [config, setConfig] = useState<StoreConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,8 +44,9 @@ export default function HomePage() {
             : null;
         const industryParam = params?.get("industry") || params?.get("businessType") || "";
 
-        const [featRes, catRes, confRes] = await Promise.all([
+        const [featRes, popRes, catRes, confRes] = await Promise.all([
           StorefrontAPI.getProducts({ limit: 16, sort: "newest" }),
+          StorefrontAPI.getProducts({ limit: 12, sort: "popular" }),
           StorefrontAPI.getCategories(),
           StorefrontAPI.getConfig(),
         ]);
@@ -56,6 +58,7 @@ export default function HomePage() {
         );
         setTheme(loadedTheme);
         setFeaturedProducts(featRes.items || []);
+        setPopularProducts(popRes.items || []);
         setCategories(catRes || []);
         setConfig(confRes || null);
       } catch (err) {
@@ -104,7 +107,15 @@ export default function HomePage() {
           <div className="flex-1 min-w-0">
             {visibleSections.map((sec) => (
               <div key={sec.id}>
-                {renderStoreSection(sec, featuredProducts, categories, isDark, noticeSection, flashSaleSection)}
+                {renderStoreSection(
+                  sec,
+                  featuredProducts,
+                  popularProducts,
+                  categories,
+                  isDark,
+                  noticeSection,
+                  flashSaleSection
+                )}
               </div>
             ))}
           </div>
@@ -113,7 +124,15 @@ export default function HomePage() {
         <div>
           {visibleSections.map((sec) => (
             <div key={sec.id}>
-              {renderStoreSection(sec, featuredProducts, categories, isDark, noticeSection, flashSaleSection)}
+              {renderStoreSection(
+                sec,
+                featuredProducts,
+                popularProducts,
+                categories,
+                isDark,
+                noticeSection,
+                flashSaleSection
+              )}
             </div>
           ))}
         </div>
@@ -125,6 +144,7 @@ export default function HomePage() {
 function renderStoreSection(
   sec: SectionItem,
   products: ProductItem[],
+  popularProducts: ProductItem[],
   categories: CategoryItem[],
   isDarkMode: boolean,
   noticeSection?: SectionItem,
@@ -151,9 +171,17 @@ function renderStoreSection(
     case "product_grid":
       return (
         <ProductGridSection
-          section={sec}
-          products={products}
+          section={{
+            ...sec,
+            settings: {
+              ...sec.settings,
+              limit: 6,
+              columns: 6,
+            },
+          }}
+          products={popularProducts.length > 0 ? popularProducts : products}
           isDarkMode={isDarkMode}
+          hideCategoryTabs
           surfaceClass={isDarkMode ? "bg-zinc-900 border-y border-zinc-800" : "bg-white border-y border-orange-100"}
         />
       );
