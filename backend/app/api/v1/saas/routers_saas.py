@@ -56,6 +56,35 @@ async def list_plans(
     return ok(rows)
 
 
+
+@router.patch("/api/v1/saas/platform/tenants/{targetTenantId}/status")
+async def update_tenant_status(
+    targetTenantId: str,
+    body: dict = Body(...),
+    user: AuthUser = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Super Admin: suspend or activate a tenant."""
+    _require_super_admin(user)
+    new_status = (body.get("status") or "").strip().upper()
+    if new_status not in ("ACTIVE", "SUSPENDED"):
+        return err("status must be ACTIVE or SUSPENDED", 400)
+    row = (await db.execute(
+        text("SELECT id, slug FROM tenants WHERE id = :id"),
+        {"id": targetTenantId},
+    )).first()
+    if not row:
+        return err("Tenant not found", 404)
+    if new_status == "SUSPENDED" and row[0] == user.tenantId:
+        return err("Cannot suspend the platform super-admin tenant", 400)
+    await db.execute(
+        text("UPDATE tenants SET status = :s, updatedAt = NOW() WHERE id = :id"),
+        {"s": new_status, "id": targetTenantId},
+    )
+    await db.commit()
+    return ok({"id": targetTenantId, "status": new_status})
+
+
 @router.get("/api/v1/saas/plans/{planId}")
 async def get_plan(
     planId: str,
@@ -473,6 +502,35 @@ async def list_custom_fields(
     return ok(rows)
 
 
+
+@router.patch("/api/v1/saas/platform/tenants/{targetTenantId}/status")
+async def update_tenant_status(
+    targetTenantId: str,
+    body: dict = Body(...),
+    user: AuthUser = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Super Admin: suspend or activate a tenant."""
+    _require_super_admin(user)
+    new_status = (body.get("status") or "").strip().upper()
+    if new_status not in ("ACTIVE", "SUSPENDED"):
+        return err("status must be ACTIVE or SUSPENDED", 400)
+    row = (await db.execute(
+        text("SELECT id, slug FROM tenants WHERE id = :id"),
+        {"id": targetTenantId},
+    )).first()
+    if not row:
+        return err("Tenant not found", 404)
+    if new_status == "SUSPENDED" and row[0] == user.tenantId:
+        return err("Cannot suspend the platform super-admin tenant", 400)
+    await db.execute(
+        text("UPDATE tenants SET status = :s, updatedAt = NOW() WHERE id = :id"),
+        {"s": new_status, "id": targetTenantId},
+    )
+    await db.commit()
+    return ok({"id": targetTenantId, "status": new_status})
+
+
 @router.post("/api/v1/saas/custom-fields")
 async def create_custom_field(
     body: dict,
@@ -553,6 +611,35 @@ async def get_custom_field_values(
     return ok(rows)
 
 
+
+@router.patch("/api/v1/saas/platform/tenants/{targetTenantId}/status")
+async def update_tenant_status(
+    targetTenantId: str,
+    body: dict = Body(...),
+    user: AuthUser = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Super Admin: suspend or activate a tenant."""
+    _require_super_admin(user)
+    new_status = (body.get("status") or "").strip().upper()
+    if new_status not in ("ACTIVE", "SUSPENDED"):
+        return err("status must be ACTIVE or SUSPENDED", 400)
+    row = (await db.execute(
+        text("SELECT id, slug FROM tenants WHERE id = :id"),
+        {"id": targetTenantId},
+    )).first()
+    if not row:
+        return err("Tenant not found", 404)
+    if new_status == "SUSPENDED" and row[0] == user.tenantId:
+        return err("Cannot suspend the platform super-admin tenant", 400)
+    await db.execute(
+        text("UPDATE tenants SET status = :s, updatedAt = NOW() WHERE id = :id"),
+        {"s": new_status, "id": targetTenantId},
+    )
+    await db.commit()
+    return ok({"id": targetTenantId, "status": new_status})
+
+
 @router.post("/api/v1/saas/custom-field-values")
 async def upsert_custom_field_value(
     body: dict,
@@ -603,6 +690,35 @@ async def list_form_templates(
             try: r["fields"] = json.loads(r["fields"])
             except: pass
     return ok(rows)
+
+
+
+@router.patch("/api/v1/saas/platform/tenants/{targetTenantId}/status")
+async def update_tenant_status(
+    targetTenantId: str,
+    body: dict = Body(...),
+    user: AuthUser = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Super Admin: suspend or activate a tenant."""
+    _require_super_admin(user)
+    new_status = (body.get("status") or "").strip().upper()
+    if new_status not in ("ACTIVE", "SUSPENDED"):
+        return err("status must be ACTIVE or SUSPENDED", 400)
+    row = (await db.execute(
+        text("SELECT id, slug FROM tenants WHERE id = :id"),
+        {"id": targetTenantId},
+    )).first()
+    if not row:
+        return err("Tenant not found", 404)
+    if new_status == "SUSPENDED" and row[0] == user.tenantId:
+        return err("Cannot suspend the platform super-admin tenant", 400)
+    await db.execute(
+        text("UPDATE tenants SET status = :s, updatedAt = NOW() WHERE id = :id"),
+        {"s": new_status, "id": targetTenantId},
+    )
+    await db.commit()
+    return ok({"id": targetTenantId, "status": new_status})
 
 
 @router.post("/api/v1/saas/form-templates")
@@ -713,6 +829,62 @@ async def platform_tenants(
         f"FROM tenants t WHERE {where} ORDER BY t.createdAt DESC LIMIT 100"), params)).fetchall())
     return ok(rows)
 
+@router.patch("/api/v1/saas/platform/tenants/{targetTenantId}/status")
+async def update_tenant_status(
+    targetTenantId: str,
+    body: dict = Body(...),
+    user: AuthUser = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Super Admin: suspend or activate a tenant."""
+    _require_super_admin(user)
+    new_status = (body.get("status") or "").strip().upper()
+    if new_status not in ("ACTIVE", "SUSPENDED"):
+        return err("status must be ACTIVE or SUSPENDED", 400)
+    row = (await db.execute(
+        text("SELECT id, slug FROM tenants WHERE id = :id"),
+        {"id": targetTenantId},
+    )).first()
+    if not row:
+        return err("Tenant not found", 404)
+    if new_status == "SUSPENDED" and row[0] == user.tenantId:
+        return err("Cannot suspend the platform super-admin tenant", 400)
+    await db.execute(
+        text("UPDATE tenants SET status = :s, updatedAt = NOW() WHERE id = :id"),
+        {"s": new_status, "id": targetTenantId},
+    )
+    await db.commit()
+    return ok({"id": targetTenantId, "status": new_status})
+
+
+
+@router.patch("/api/v1/saas/platform/tenants/{targetTenantId}/status")
+async def update_tenant_status(
+    targetTenantId: str,
+    body: dict = Body(...),
+    user: AuthUser = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Super Admin: suspend or activate a tenant."""
+    _require_super_admin(user)
+    new_status = (body.get("status") or "").strip().upper()
+    if new_status not in ("ACTIVE", "SUSPENDED"):
+        return err("status must be ACTIVE or SUSPENDED", 400)
+    row = (await db.execute(
+        text("SELECT id, slug FROM tenants WHERE id = :id"),
+        {"id": targetTenantId},
+    )).first()
+    if not row:
+        return err("Tenant not found", 404)
+    if new_status == "SUSPENDED" and row[0] == user.tenantId:
+        return err("Cannot suspend the platform super-admin tenant", 400)
+    await db.execute(
+        text("UPDATE tenants SET status = :s, updatedAt = NOW() WHERE id = :id"),
+        {"s": new_status, "id": targetTenantId},
+    )
+    await db.commit()
+    return ok({"id": targetTenantId, "status": new_status})
+
 
 @router.get("/api/v1/saas/platform/health")
 async def platform_health(
@@ -724,6 +896,35 @@ async def platform_health(
     rows = rows_to_dicts((await db.execute(text(
         "SELECT * FROM platform_health ORDER BY checkedAt DESC LIMIT 20"))).fetchall())
     return ok(rows)
+
+
+
+@router.patch("/api/v1/saas/platform/tenants/{targetTenantId}/status")
+async def update_tenant_status(
+    targetTenantId: str,
+    body: dict = Body(...),
+    user: AuthUser = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Super Admin: suspend or activate a tenant."""
+    _require_super_admin(user)
+    new_status = (body.get("status") or "").strip().upper()
+    if new_status not in ("ACTIVE", "SUSPENDED"):
+        return err("status must be ACTIVE or SUSPENDED", 400)
+    row = (await db.execute(
+        text("SELECT id, slug FROM tenants WHERE id = :id"),
+        {"id": targetTenantId},
+    )).first()
+    if not row:
+        return err("Tenant not found", 404)
+    if new_status == "SUSPENDED" and row[0] == user.tenantId:
+        return err("Cannot suspend the platform super-admin tenant", 400)
+    await db.execute(
+        text("UPDATE tenants SET status = :s, updatedAt = NOW() WHERE id = :id"),
+        {"s": new_status, "id": targetTenantId},
+    )
+    await db.commit()
+    return ok({"id": targetTenantId, "status": new_status})
 
 
 @router.post("/api/v1/saas/platform/health/check")
@@ -773,6 +974,35 @@ async def list_tickets(
     rows = rows_to_dicts((await db.execute(text(
         f"SELECT * FROM support_tickets WHERE {where} ORDER BY createdAt DESC LIMIT 50"), params)).fetchall())
     return ok(rows)
+
+
+
+@router.patch("/api/v1/saas/platform/tenants/{targetTenantId}/status")
+async def update_tenant_status(
+    targetTenantId: str,
+    body: dict = Body(...),
+    user: AuthUser = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Super Admin: suspend or activate a tenant."""
+    _require_super_admin(user)
+    new_status = (body.get("status") or "").strip().upper()
+    if new_status not in ("ACTIVE", "SUSPENDED"):
+        return err("status must be ACTIVE or SUSPENDED", 400)
+    row = (await db.execute(
+        text("SELECT id, slug FROM tenants WHERE id = :id"),
+        {"id": targetTenantId},
+    )).first()
+    if not row:
+        return err("Tenant not found", 404)
+    if new_status == "SUSPENDED" and row[0] == user.tenantId:
+        return err("Cannot suspend the platform super-admin tenant", 400)
+    await db.execute(
+        text("UPDATE tenants SET status = :s, updatedAt = NOW() WHERE id = :id"),
+        {"s": new_status, "id": targetTenantId},
+    )
+    await db.commit()
+    return ok({"id": targetTenantId, "status": new_status})
 
 
 @router.post("/api/v1/saas/tickets")
