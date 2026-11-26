@@ -87,6 +87,7 @@ export default function HomePage() {
   }
 
   const isDark = theme.isDarkMode;
+  const noticeSection = theme.sections.find((s) => s.type === "special_notice");
 
   return (
     <div className={`min-h-screen ${isDark ? "bg-zinc-950 text-white" : "bg-[#FAF8F5] text-stone-900"}`}>
@@ -102,7 +103,7 @@ export default function HomePage() {
               if (!sec.enabled) return null;
               return (
                 <div key={sec.id}>
-                  {renderStoreSection(sec, featuredProducts, categories, isDark)}
+                  {renderStoreSection(sec, featuredProducts, categories, isDark, noticeSection)}
                 </div>
               );
             })}
@@ -114,7 +115,7 @@ export default function HomePage() {
             if (!sec.enabled) return null;
             return (
               <div key={sec.id}>
-                {renderStoreSection(sec, featuredProducts, categories, isDark)}
+                {renderStoreSection(sec, featuredProducts, categories, isDark, noticeSection)}
               </div>
             );
           })}
@@ -128,11 +129,12 @@ function renderStoreSection(
   sec: SectionItem,
   products: ProductItem[],
   categories: CategoryItem[],
-  isDarkMode: boolean
+  isDarkMode: boolean,
+  noticeSection?: SectionItem
 ) {
   switch (sec.type) {
     case "hero_slider":
-      return <HeroSliderSection section={sec} isDarkMode={isDarkMode} />;
+      return <HeroSliderSection section={sec} noticeSection={noticeSection} isDarkMode={isDarkMode} />;
     case "feature_badges":
       return <FeatureBadgesSection section={sec} isDarkMode={isDarkMode} />;
     case "category_showcase":
@@ -158,7 +160,7 @@ function renderStoreSection(
     case "faq_section":
       return <FaqSection section={sec} isDarkMode={isDarkMode} />;
     case "special_notice":
-      return <SpecialNoticeSection section={sec} isDarkMode={isDarkMode} />;
+      return null;
     case "app_download":
       return <AppDownloadSection section={sec} isDarkMode={isDarkMode} />;
     case "pharmacy_upload":

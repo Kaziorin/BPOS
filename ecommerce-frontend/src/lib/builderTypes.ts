@@ -90,7 +90,7 @@ export const DEFAULT_VIBRANT_THEME: ThemeConfig = {
       title: "Seasonal edit: up to 40% off selected collections",
       subtitle: "Use voucher code SHOP2026 for instant checkout discounts.",
       badge: "Offer",
-      enabled: true,
+      enabled: false,
       settings: { ctaText: "Shop deals", ctaLink: "/products", themeStyle: "gradient" },
     },
     {
