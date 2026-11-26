@@ -975,6 +975,110 @@ export function ReportsContent({ initialTab }: { initialTab?: TabType }) {
                   </div>
                 </div>
               )}
+
+              {/* Accounts Receivable (AR) & Customer Dues Aging */}
+              <div className="rounded-sm border border-slate-200 bg-white p-5 shadow-2xs space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                      <Wallet size={16} className="text-primary-600" />
+                      Accounts Receivable (AR) & Customer Dues Aging
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Live customer dues, unpaid POS credit invoices, and credit aging buckets
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 border border-amber-200">
+                      Total AR: {currency(ar?.totalOutstanding || 0)}
+                    </span>
+                    <button
+                      onClick={() => handleExport("ar")}
+                      className="text-xs font-semibold text-primary-600 hover:text-primary-700 cursor-pointer"
+                    >
+                      Export AR
+                    </button>
+                  </div>
+                </div>
+
+                {/* Aging Buckets Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                  <div className="p-3 bg-emerald-50/60 rounded-sm border border-emerald-100">
+                    <span className="text-[10px] font-bold text-emerald-700 block uppercase">Current (0-30d)</span>
+                    <span className="text-sm font-extrabold text-emerald-800">{currency(ar?.aging?.["current"] || ar?.aging?.["1_30"] || 0)}</span>
+                  </div>
+                  <div className="p-3 bg-sky-50/60 rounded-sm border border-sky-100">
+                    <span className="text-[10px] font-bold text-sky-700 block uppercase">31 - 60 Days</span>
+                    <span className="text-sm font-extrabold text-sky-800">{currency(ar?.aging?.["31_60"] || 0)}</span>
+                  </div>
+                  <div className="p-3 bg-amber-50/60 rounded-sm border border-amber-100">
+                    <span className="text-[10px] font-bold text-amber-700 block uppercase">61 - 90 Days</span>
+                    <span className="text-sm font-extrabold text-amber-800">{currency(ar?.aging?.["61_90"] || 0)}</span>
+                  </div>
+                  <div className="p-3 bg-rose-50/60 rounded-sm border border-rose-100">
+                    <span className="text-[10px] font-bold text-rose-700 block uppercase">Over 90 Days</span>
+                    <span className="text-sm font-extrabold text-rose-800">{currency(ar?.aging?.["over_90"] || 0)}</span>
+                  </div>
+                  <div className="p-3 bg-purple-50/60 rounded-sm border border-purple-100 col-span-2 sm:col-span-1">
+                    <span className="text-[10px] font-bold text-purple-700 block uppercase">Total Dues</span>
+                    <span className="text-sm font-extrabold text-purple-800">{currency(ar?.totalOutstanding || 0)}</span>
+                  </div>
+                </div>
+
+                {/* AR Invoices Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                        <th className="py-2.5 px-3">Invoice No</th>
+                        <th className="py-2.5 px-3">Customer</th>
+                        <th className="py-2.5 px-3">Date</th>
+                        <th className="py-2.5 px-3 text-right">Total</th>
+                        <th className="py-2.5 px-3 text-right">Paid</th>
+                        <th className="py-2.5 px-3 text-right">Due Balance</th>
+                        <th className="py-2.5 px-3 text-center">Overdue</th>
+                        <th className="py-2.5 px-3 text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                      {(ar?.invoices || []).length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="py-6 text-center text-slate-400">
+                            No outstanding accounts receivable found. All invoices are settled.
+                          </td>
+                        </tr>
+                      ) : (
+                        (ar?.invoices || []).slice(0, 25).map((inv: any) => (
+                          <tr key={inv.id} className="hover:bg-slate-50/60 transition">
+                            <td className="py-2 px-3 font-mono font-bold text-primary-600">{inv.invoiceNo}</td>
+                            <td className="py-2 px-3">
+                              <span className="font-semibold block">{inv.customerName || "Walk-in Customer"}</span>
+                              {inv.customerPhone && <span className="text-[10px] text-slate-400">{inv.customerPhone}</span>}
+                            </td>
+                            <td className="py-2 px-3 text-slate-500">{String(inv.issueDate || "").slice(0, 10)}</td>
+                            <td className="py-2 px-3 text-right font-medium">{currency(inv.total)}</td>
+                            <td className="py-2 px-3 text-right text-emerald-600">{currency(inv.paidTotal)}</td>
+                            <td className="py-2 px-3 text-right font-bold text-rose-600">{currency(inv.balance)}</td>
+                            <td className="py-2 px-3 text-center">
+                              <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                (inv.agingDays || 0) > 60 ? "bg-rose-100 text-rose-700" :
+                                (inv.agingDays || 0) > 30 ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"
+                              }`}>
+                                {inv.agingDays ? `${inv.agingDays}d` : "Current"}
+                              </span>
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                                {inv.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </>
           )}
 
