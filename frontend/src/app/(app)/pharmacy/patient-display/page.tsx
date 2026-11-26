@@ -203,7 +203,9 @@ export default function PatientDisplayPage() {
   const [selectedWallet, setSelectedWallet] = useState<string>("bkash");
 
   const soundRef = useRef(soundOn);
-  soundRef.current = soundOn;
+  useEffect(() => {
+    soundRef.current = soundOn;
+  }, [soundOn]);
   const paidRef = useRef(false);
 
   // Network check
