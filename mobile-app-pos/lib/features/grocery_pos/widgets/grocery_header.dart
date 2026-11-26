@@ -123,7 +123,7 @@ class _Logo extends StatelessWidget {
               ),
             ],
           ),
-          padding: const EdgeInsets.all(6),
+          padding: const EdgeInsets.all(2),
           child: Image.asset(
             'assets/icon/Glossy 3D Shopping Cart Logo.png',
             fit: BoxFit.contain,

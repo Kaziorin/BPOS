@@ -11,10 +11,7 @@ import '../../../core/widgets/live_sales_history_dialog.dart';
 class RetailHeader extends StatefulWidget {
   final TextEditingController searchController;
 
-  const RetailHeader({
-    super.key,
-    required this.searchController,
-  });
+  const RetailHeader({super.key, required this.searchController});
 
   @override
   State<RetailHeader> createState() => _RetailHeaderState();
@@ -41,9 +38,21 @@ class _RetailHeaderState extends State<RetailHeader> {
     super.dispose();
   }
 
-
   String _formatDate(DateTime dt) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
   }
 
@@ -55,7 +64,11 @@ class _RetailHeaderState extends State<RetailHeader> {
     return '$hour:$minute:$second $period';
   }
 
-  Widget _buildTitleWidget(BuildContext context, bool isDark, double screenWidth) {
+  Widget _buildTitleWidget(
+    BuildContext context,
+    bool isDark,
+    double screenWidth,
+  ) {
     return InkWell(
       onTap: () {
         if (Navigator.of(context).canPop()) {
@@ -110,7 +123,11 @@ class _RetailHeaderState extends State<RetailHeader> {
                 color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: const Icon(Icons.notifications_active_rounded, size: 18, color: Color(0xFF8B5CF6)),
+              child: const Icon(
+                Icons.notifications_active_rounded,
+                size: 18,
+                color: Color(0xFF8B5CF6),
+              ),
             ),
             const SizedBox(width: 10),
             Text(
@@ -130,7 +147,11 @@ class _RetailHeaderState extends State<RetailHeader> {
               ),
               child: const Text(
                 '3 New',
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFEF4444),
+                ),
               ),
             ),
           ],
@@ -151,7 +172,8 @@ class _RetailHeaderState extends State<RetailHeader> {
               const SizedBox(height: 8),
               _buildNotificationItem(
                 title: 'Data Sync Success',
-                desc: 'All recent retail transactions synced with central cloud.',
+                desc:
+                    'All recent retail transactions synced with central cloud.',
                 time: '25m ago',
                 icon: Icons.cloud_done_outlined,
                 color: const Color(0xFF10B981),
@@ -172,7 +194,13 @@ class _RetailHeaderState extends State<RetailHeader> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close', style: TextStyle(color: Color(0xFF8B5CF6), fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                color: Color(0xFF8B5CF6),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -192,7 +220,9 @@ class _RetailHeaderState extends State<RetailHeader> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF262626) : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isDark ? const Color(0xFF383838) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF383838) : const Color(0xFFE2E8F0),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,7 +255,9 @@ class _RetailHeaderState extends State<RetailHeader> {
                       time,
                       style: TextStyle(
                         fontSize: 10,
-                        color: isDark ? Colors.grey.shade500 : Colors.grey.shade400,
+                        color: isDark
+                            ? Colors.grey.shade500
+                            : Colors.grey.shade400,
                       ),
                     ),
                   ],
@@ -235,7 +267,9 @@ class _RetailHeaderState extends State<RetailHeader> {
                   desc,
                   style: TextStyle(
                     fontSize: 11,
-                    color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+                    color: isDark
+                        ? Colors.grey.shade400
+                        : const Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -289,7 +323,11 @@ class _RetailHeaderState extends State<RetailHeader> {
                       decoration: BoxDecoration(
                         color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF3A3A3A)
+                              : Colors.grey.shade300,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.03),
@@ -312,27 +350,31 @@ class _RetailHeaderState extends State<RetailHeader> {
                       if (Navigator.of(context).canPop()) {
                         Navigator.of(context).pop();
                       } else {
-                        Navigator.of(context).popUntil((route) => route.isFirst);
+                        Navigator.of(
+                          context,
+                        ).popUntil((route) => route.isFirst);
                       }
                     },
                     borderRadius: BorderRadius.circular(4),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 38,
+                      height: 38,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)],
                         ),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(6),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF8B5CF6).withValues(alpha: 0.25),
+                            color: const Color(
+                              0xFF8B5CF6,
+                            ).withValues(alpha: 0.25),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(2),
                       child: Image.asset(
                         'assets/icon/Glossy 3D Shopping Cart Logo.png',
                         fit: BoxFit.contain,
@@ -355,24 +397,40 @@ class _RetailHeaderState extends State<RetailHeader> {
                       height: 38,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF8FAFC),
+                        color: isDark
+                            ? const Color(0xFF2A2A2A)
+                            : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF3A3A3A)
+                              : Colors.grey.shade300,
+                        ),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.search_rounded, size: 18, color: isDark ? Colors.grey.shade400 : Colors.grey.shade500),
+                          Icon(
+                            Icons.search_rounded,
+                            size: 18,
+                            color: isDark
+                                ? Colors.grey.shade400
+                                : Colors.grey.shade500,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextField(
                               controller: widget.searchController,
-                              onChanged: (val) => retailProvider.setSearchQuery(val),
+                              onChanged: (val) =>
+                                  retailProvider.setSearchQuery(val),
                               style: const TextStyle(fontSize: 12),
                               decoration: InputDecoration(
-                                hintText: 'Search product by name, SKU or barcode...',
+                                hintText:
+                                    'Search product by name, SKU or barcode...',
                                 hintStyle: TextStyle(
                                   fontSize: 12,
-                                  color: isDark ? Colors.grey.shade500 : Colors.grey.shade400,
+                                  color: isDark
+                                      ? Colors.grey.shade500
+                                      : Colors.grey.shade400,
                                 ),
                                 border: InputBorder.none,
                                 isDense: true,
@@ -380,7 +438,13 @@ class _RetailHeaderState extends State<RetailHeader> {
                               ),
                             ),
                           ),
-                          Icon(Icons.crop_free_rounded, size: 18, color: isDark ? Colors.grey.shade400 : Colors.grey.shade400),
+                          Icon(
+                            Icons.crop_free_rounded,
+                            size: 18,
+                            color: isDark
+                                ? Colors.grey.shade400
+                                : Colors.grey.shade400,
+                          ),
                         ],
                       ),
                     ),
@@ -412,12 +476,16 @@ class _RetailHeaderState extends State<RetailHeader> {
                         decoration: BoxDecoration(
                           color: _isSearchOpen
                               ? const Color(0xFF8B5CF6)
-                              : (isDark ? const Color(0xFF2A2A2A) : Colors.white),
+                              : (isDark
+                                    ? const Color(0xFF2A2A2A)
+                                    : Colors.white),
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(
                             color: _isSearchOpen
                                 ? const Color(0xFF8B5CF6)
-                                : (isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
+                                : (isDark
+                                      ? const Color(0xFF3A3A3A)
+                                      : Colors.grey.shade300),
                           ),
                           boxShadow: [
                             BoxShadow(
@@ -428,11 +496,15 @@ class _RetailHeaderState extends State<RetailHeader> {
                           ],
                         ),
                         child: Icon(
-                          _isSearchOpen ? Icons.close_rounded : Icons.search_rounded,
+                          _isSearchOpen
+                              ? Icons.close_rounded
+                              : Icons.search_rounded,
                           size: 20,
                           color: _isSearchOpen
                               ? Colors.white
-                              : (isDark ? Colors.white : const Color(0xFF475569)),
+                              : (isDark
+                                    ? Colors.white
+                                    : const Color(0xFF475569)),
                         ),
                       ),
                     ),
@@ -449,9 +521,15 @@ class _RetailHeaderState extends State<RetailHeader> {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                          color: isDark
+                              ? const Color(0xFF2A2A2A)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF3A3A3A)
+                                : Colors.grey.shade300,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.03),
@@ -466,7 +544,9 @@ class _RetailHeaderState extends State<RetailHeader> {
                             Icon(
                               Icons.notifications_outlined,
                               size: 20,
-                              color: isDark ? Colors.white : const Color(0xFF475569),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF475569),
                             ),
                             Positioned(
                               top: 7,
@@ -489,20 +569,31 @@ class _RetailHeaderState extends State<RetailHeader> {
                   Tooltip(
                     message: 'Sales History (Live Orders)',
                     child: InkWell(
-                      onTap: () => showLiveSalesHistoryDialog(context, businessType: 'retail'),
+                      onTap: () => showLiveSalesHistoryDialog(
+                        context,
+                        businessType: 'retail',
+                      ),
                       borderRadius: BorderRadius.circular(4),
                       child: Container(
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                          color: isDark
+                              ? const Color(0xFF2A2A2A)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF3A3A3A)
+                                : Colors.grey.shade300,
+                          ),
                         ),
                         child: Icon(
                           Icons.receipt_long_rounded,
                           size: 20,
-                          color: isDark ? const Color(0xFFA78BFA) : const Color(0xFF7C3AED),
+                          color: isDark
+                              ? const Color(0xFFA78BFA)
+                              : const Color(0xFF7C3AED),
                         ),
                       ),
                     ),
@@ -513,15 +604,25 @@ class _RetailHeaderState extends State<RetailHeader> {
                   Tooltip(
                     message: 'More Options & POS Tools',
                     child: InkWell(
-                      onTap: () => showRetailMobileOptionsSheet(context, retailProvider, isDark),
+                      onTap: () => showRetailMobileOptionsSheet(
+                        context,
+                        retailProvider,
+                        isDark,
+                      ),
                       borderRadius: BorderRadius.circular(4),
                       child: Container(
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                          color: isDark
+                              ? const Color(0xFF2A2A2A)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF3A3A3A)
+                                : Colors.grey.shade300,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.03),
@@ -533,7 +634,9 @@ class _RetailHeaderState extends State<RetailHeader> {
                         child: Icon(
                           Icons.more_vert_rounded,
                           size: 20,
-                          color: isDark ? Colors.white : const Color(0xFF475569),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF475569),
                         ),
                       ),
                     ),
@@ -552,9 +655,15 @@ class _RetailHeaderState extends State<RetailHeader> {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                          color: isDark
+                              ? const Color(0xFF2A2A2A)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF3A3A3A)
+                                : Colors.grey.shade300,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.03),
@@ -569,7 +678,9 @@ class _RetailHeaderState extends State<RetailHeader> {
                             Icon(
                               Icons.notifications_outlined,
                               size: 20,
-                              color: isDark ? Colors.white : const Color(0xFF475569),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF475569),
                             ),
                             Positioned(
                               top: 7,
@@ -594,10 +705,19 @@ class _RetailHeaderState extends State<RetailHeader> {
                   FullscreenButton(
                     iconColor: const Color(0xFF8B5CF6),
                     iconSize: 20,
-                    backgroundColor: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                    backgroundColor: isDark
+                        ? const Color(0xFF2A2A2A)
+                        : Colors.white,
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
-                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                    border: Border.all(
+                      color: isDark
+                          ? const Color(0xFF3A3A3A)
+                          : Colors.grey.shade300,
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 36,
+                    ),
                     padding: const EdgeInsets.all(8),
                   ),
                   const SizedBox(width: 8),
@@ -606,15 +726,24 @@ class _RetailHeaderState extends State<RetailHeader> {
                   Tooltip(
                     message: 'Sales History (Live Database)',
                     child: InkWell(
-                      onTap: () => showLiveSalesHistoryDialog(context, businessType: 'retail'),
+                      onTap: () => showLiveSalesHistoryDialog(
+                        context,
+                        businessType: 'retail',
+                      ),
                       borderRadius: BorderRadius.circular(4),
                       child: Container(
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                          color: isDark
+                              ? const Color(0xFF2A2A2A)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF3A3A3A)
+                                : Colors.grey.shade300,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.03),
@@ -626,7 +755,9 @@ class _RetailHeaderState extends State<RetailHeader> {
                         child: Icon(
                           Icons.receipt_long_rounded,
                           size: 20,
-                          color: isDark ? const Color(0xFFA78BFA) : const Color(0xFF7C3AED),
+                          color: isDark
+                              ? const Color(0xFFA78BFA)
+                              : const Color(0xFF7C3AED),
                         ),
                       ),
                     ),
@@ -636,7 +767,11 @@ class _RetailHeaderState extends State<RetailHeader> {
                   // Quick Actions Button
                   if (screenWidth >= 1050) ...[
                     InkWell(
-                      onTap: () => showRetailHoldsDialog(context, retailProvider, isDark),
+                      onTap: () => showRetailHoldsDialog(
+                        context,
+                        retailProvider,
+                        isDark,
+                      ),
                       borderRadius: BorderRadius.circular(4),
                       child: Container(
                         height: 36,
@@ -648,7 +783,9 @@ class _RetailHeaderState extends State<RetailHeader> {
                           borderRadius: BorderRadius.circular(4),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+                              color: const Color(
+                                0xFF8B5CF6,
+                              ).withValues(alpha: 0.3),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -657,14 +794,26 @@ class _RetailHeaderState extends State<RetailHeader> {
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.bolt_rounded, size: 16, color: Colors.amber),
+                            Icon(
+                              Icons.bolt_rounded,
+                              size: 16,
+                              color: Colors.amber,
+                            ),
                             SizedBox(width: 4),
                             Text(
                               'Quick Actions',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                             SizedBox(width: 4),
-                            Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: Colors.white),
+                            Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 16,
+                              color: Colors.white,
+                            ),
                           ],
                         ),
                       ),
@@ -678,14 +827,24 @@ class _RetailHeaderState extends State<RetailHeader> {
                       height: 36,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF8FAFC),
+                        color: isDark
+                            ? const Color(0xFF2A2A2A)
+                            : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF3A3A3A)
+                              : Colors.grey.shade300,
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.access_time_rounded, size: 16, color: Color(0xFF8B5CF6)),
+                          const Icon(
+                            Icons.access_time_rounded,
+                            size: 16,
+                            color: Color(0xFF8B5CF6),
+                          ),
                           const SizedBox(width: 6),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -697,14 +856,18 @@ class _RetailHeaderState extends State<RetailHeader> {
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : Colors.grey.shade800,
+                                  color: isDark
+                                      ? Colors.white
+                                      : Colors.grey.shade800,
                                 ),
                               ),
                               Text(
                                 _formatTime(_now),
                                 style: TextStyle(
                                   fontSize: 9,
-                                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                                  color: isDark
+                                      ? Colors.grey.shade400
+                                      : Colors.grey.shade600,
                                 ),
                               ),
                             ],
@@ -720,9 +883,15 @@ class _RetailHeaderState extends State<RetailHeader> {
                     height: 36,
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF8FAFC),
+                      color: isDark
+                          ? const Color(0xFF2A2A2A)
+                          : const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : Colors.grey.shade300),
+                      border: Border.all(
+                        color: isDark
+                            ? const Color(0xFF3A3A3A)
+                            : Colors.grey.shade300,
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -733,7 +902,11 @@ class _RetailHeaderState extends State<RetailHeader> {
                             color: Color(0xFF8B5CF6),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.person_rounded, size: 12, color: Colors.white),
+                          child: const Icon(
+                            Icons.person_rounded,
+                            size: 12,
+                            color: Colors.white,
+                          ),
                         ),
                         if (screenWidth >= 1150) ...[
                           const SizedBox(width: 6),
@@ -744,16 +917,33 @@ class _RetailHeaderState extends State<RetailHeader> {
                             children: [
                               Text(
                                 'Cashier',
-                                style: TextStyle(fontSize: 9, color: isDark ? Colors.grey.shade400 : Colors.grey.shade500),
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  color: isDark
+                                      ? Colors.grey.shade400
+                                      : Colors.grey.shade500,
+                                ),
                               ),
                               Text(
                                 'Super Administrator',
-                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.grey.shade800),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark
+                                      ? Colors.white
+                                      : Colors.grey.shade800,
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(width: 4),
-                          Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: isDark ? Colors.grey.shade400 : Colors.grey.shade500),
+                          Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            size: 16,
+                            color: isDark
+                                ? Colors.grey.shade400
+                                : Colors.grey.shade500,
+                          ),
                         ],
                       ],
                     ),
@@ -771,7 +961,9 @@ class _RetailHeaderState extends State<RetailHeader> {
                 height: 40,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF8FAFC),
+                  color: isDark
+                      ? const Color(0xFF2A2A2A)
+                      : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
                     color: const Color(0xFF8B5CF6),
@@ -787,7 +979,11 @@ class _RetailHeaderState extends State<RetailHeader> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.search_rounded, size: 18, color: Color(0xFF8B5CF6)),
+                    const Icon(
+                      Icons.search_rounded,
+                      size: 18,
+                      color: Color(0xFF8B5CF6),
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: TextField(
@@ -799,13 +995,17 @@ class _RetailHeaderState extends State<RetailHeader> {
                         },
                         style: TextStyle(
                           fontSize: 13,
-                          color: isDark ? Colors.white : const Color(0xFF1E293B),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1E293B),
                         ),
                         decoration: InputDecoration(
                           hintText: 'Search product by name, SKU or barcode...',
                           hintStyle: TextStyle(
                             fontSize: 12,
-                            color: isDark ? Colors.grey.shade500 : Colors.grey.shade400,
+                            color: isDark
+                                ? Colors.grey.shade500
+                                : Colors.grey.shade400,
                           ),
                           border: InputBorder.none,
                           isDense: true,
@@ -823,14 +1023,26 @@ class _RetailHeaderState extends State<RetailHeader> {
                         child: Container(
                           padding: const EdgeInsets.all(2),
                           decoration: BoxDecoration(
-                            color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+                            color: isDark
+                                ? Colors.grey.shade700
+                                : Colors.grey.shade300,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            size: 14,
+                            color: Colors.white,
+                          ),
                         ),
                       )
                     else
-                      Icon(Icons.crop_free_rounded, size: 18, color: isDark ? Colors.grey.shade400 : Colors.grey.shade400),
+                      Icon(
+                        Icons.crop_free_rounded,
+                        size: 18,
+                        color: isDark
+                            ? Colors.grey.shade400
+                            : Colors.grey.shade400,
+                      ),
                   ],
                 ),
               ),

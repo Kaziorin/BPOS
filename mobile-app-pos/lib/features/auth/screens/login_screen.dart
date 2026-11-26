@@ -138,54 +138,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // ── Store Logo in Gradient Box ──
+                          // ── SalePay Full Logo (Icon + Name) ──
                           Center(
-                            child: Container(
-                              height: 52,
-                              width: 52,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  begin: Alignment.bottomLeft,
-                                  end: Alignment.topRight,
-                                  colors: [
-                                    Color(0xFF0284C7),
-                                    Color(0xFF38BDF8),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(
-                                      0xFF0284C7,
-                                    ).withValues(alpha: 0.35),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Image.asset(
-                                  'assets/icon/Glossy 3D Shopping Cart Logo.png',
-                                  fit: BoxFit.contain,
+                            child: Image.asset(
+                              'assets/images/salepay-logo-blue.png',
+                              height: 54,
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, _, _) => const Text(
+                                'SalePay',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF0284C7),
+                                  letterSpacing: -0.3,
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 12),
-
-                          // ── Brand Title & Subtitle ──
-                          const Text(
-                            'SalePay',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF334155),
-                              letterSpacing: -0.2,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
+                          const SizedBox(height: 8),
                           const Text(
                             'Sign In to Workspace',
                             textAlign: TextAlign.center,

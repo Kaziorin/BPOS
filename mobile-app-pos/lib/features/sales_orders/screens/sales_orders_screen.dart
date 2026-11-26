@@ -575,7 +575,7 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
 
           // Brand Icon Badge
           Container(
-            padding: EdgeInsets.all(isMobile ? 7 : 9),
+            padding: EdgeInsets.all(isMobile ? 3 : 4),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [bizTheme.primary, bizTheme.dark],
@@ -589,10 +589,11 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                 ),
               ],
             ),
-            child: Icon(
-              bizTheme.icon,
-              color: Colors.white,
-              size: isMobile ? 18 : 20,
+            child: Image.asset(
+              'assets/icon/Glossy 3D Shopping Cart Logo.png',
+              width: isMobile ? 28 : 34,
+              height: isMobile ? 28 : 34,
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(width: 10),

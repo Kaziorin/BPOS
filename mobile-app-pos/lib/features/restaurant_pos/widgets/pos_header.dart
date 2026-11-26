@@ -170,8 +170,8 @@ class _LogoWidget extends StatelessWidget {
       children: [
         Image.asset(
           'assets/icon/Glossy 3D Shopping Cart Logo.png',
-          width: isMobile ? 26 : 36,
-          height: isMobile ? 26 : 36,
+          width: isMobile ? 34 : 44,
+          height: isMobile ? 34 : 44,
           fit: BoxFit.contain,
         ),
         SizedBox(width: isMobile ? 6 : 8),
