@@ -147,9 +147,16 @@ function renderStoreSection(
     case "flash_sale":
       return null;
     case "featured_collections":
-      return <FeaturedCollectionsSection section={sec} isDarkMode={isDarkMode} />;
+      return <FeaturedCollectionsSection section={sec} products={products} isDarkMode={isDarkMode} />;
     case "product_grid":
-      return <ProductGridSection section={sec} products={products} isDarkMode={isDarkMode} />;
+      return (
+        <ProductGridSection
+          section={sec}
+          products={products}
+          isDarkMode={isDarkMode}
+          surfaceClass={isDarkMode ? "bg-zinc-900 border-y border-zinc-800" : "bg-white border-y border-orange-100"}
+        />
+      );
     case "promo_split_banner":
       return <PromoSplitBannerSection section={sec} isDarkMode={isDarkMode} />;
     case "promotions_section":
