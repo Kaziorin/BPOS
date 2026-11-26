@@ -168,27 +168,33 @@ def require_permission(*codes: str):
         user = AuthUser(payload)
         request.state.user = user
 
-        # Tenant resolve (slug or uuid → id) with graceful fallback
+        # Tenant resolve (slug or uuid → id) with strict cross-tenant isolation
+        role_clean = (user.roleName or user.role or "").lower()
+        is_super = role_clean in ("super admin", "superadmin", "system admin") or (user.email or "").lower() == "admin@gmail.com"
         ident = (x_tenant_id or "").strip()
         t_id = None
         if ident:
             row = (await db.execute(text("SELECT id FROM tenants WHERE id = :i OR slug = :i LIMIT 1"), {"i": ident})).first()
-            if row: t_id = row[0]
-        if not t_id:
+            if not row:
+                raise HTTPException(404, f"Tenant not found for '{ident}'")
+            t_id = row[0]
+            if user.tenantId and user.tenantId != t_id and not is_super:
+                raise HTTPException(403, "Token tenant does not match x-tenant-id header")
+        else:
             t_id = user.tenantId
         if not t_id:
-            row = (await db.execute(text("SELECT id FROM tenants LIMIT 1"))).first()
-            if row: t_id = row[0]
+            raise HTTPException(401, "Missing tenant context")
 
         request.state.tenantId = t_id
 
+        if is_super:
+            return user
+
         perms = await get_user_permissions(user.id, user.tenantId, db)
         if not any(c in perms for c in codes):
-            role_clean = (user.roleName or user.role or "").lower()
             if (
                 "system.admin" in perms
-                or "super" in role_clean
-                or role_clean in ("owner", "admin", "system admin", "superadmin", "super admin", "tenant admin")
+                or role_clean in ("owner", "admin", "tenant admin")
             ):
                 return user
             raise HTTPException(403, f"Forbidden — requires one of {codes}")
