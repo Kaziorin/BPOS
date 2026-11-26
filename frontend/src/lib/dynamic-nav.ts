@@ -316,7 +316,7 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
           { label: "Grocery & Supermarket POS", href: "/grocery/pos", icon: ShoppingBag, requiredAddon: "grocery" },
           { label: "Repair & Service POS", href: "/repair/pos", icon: Wrench, requiredAddon: "repair" },
           { label: "Salon & Spa POS", href: "/salon/pos", icon: Scissors, requiredAddon: "salon" },
-          { label: "Franchise & Outlet POS", href: "/franchise/pos", icon: Building2, requiredPlan: "ENTERPRISE" },
+          { label: "Franchise & Outlet POS", href: "/franchise/pos", icon: Building2, requiredAddon: "franchise" },
           { label: "Batch & Factory POS", href: "/manufacturing/pos", icon: Factory, requiredAddon: "manufacturing" },
         ],
       },

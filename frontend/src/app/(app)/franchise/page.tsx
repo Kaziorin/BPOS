@@ -54,13 +54,13 @@ interface Settlement {
 const currency = (v: number) => `৳${v.toLocaleString("en-BD", { minimumFractionDigits: 2 })}`;
 
 const STATUS_BADGES: Record<string, string> = {
-  ACTIVE: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  SUSPENDED: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  TERMINATED: "bg-rose-500/20 text-rose-300 border-rose-500/30",
-  DRAFT: "bg-slate-500/20 text-slate-300 border-slate-500/30",
-  APPROVED: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  PAID: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  CANCELLED: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+  ACTIVE: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  SUSPENDED: "bg-amber-50 text-amber-800 border-amber-200",
+  TERMINATED: "bg-rose-50 text-rose-700 border-rose-200",
+  DRAFT: "bg-slate-100 text-slate-700 border-slate-200",
+  APPROVED: "bg-sky-50 text-sky-700 border-sky-200",
+  PAID: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
 export default function FranchisePage() {
@@ -336,7 +336,7 @@ export default function FranchisePage() {
       {tab === "settlements" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">Royalty & fee settlements computed from each franchise branch's confirmed sales</p>
+            <p className="text-sm text-gray-500">Royalty &amp; fee settlements computed from each franchise branch&apos;s confirmed sales</p>
             <CustomButton leftIcon={<Calculator size={15} />} onClick={openCalc}>Calculate Settlement</CustomButton>
           </div>
           <div className="overflow-hidden rounded-sm border border-gray-100">
