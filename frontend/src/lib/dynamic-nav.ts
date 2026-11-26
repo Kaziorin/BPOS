@@ -599,7 +599,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
         children: [
           { label: "Restaurant Management", href: "/restaurant", icon: LayoutDashboard },
           { label: "Kitchen Management (KDS)", href: "/restaurant/kitchen", icon: Flame, target: "_blank", requiredAddon: "kitchen" },
-          { label: "Customer Display Screen", href: "/restaurant/customer-display", icon: Monitor },
           { label: "Slots & Reservation Matrix", href: "/restaurant/slots-matrix", icon: Calendar },
         ],
       },
@@ -977,6 +976,7 @@ export function useDynamicNav() {
           rawChildren = rawChildren.filter((c) => {
             if (c.href === "/restaurant/customer-display") return hasRestaurant;
             if (c.href === "/retail-pos/customer-display") return hasRetailDisplay;
+            if (c.href === "/customer-display") return !hasRestaurant && !hasRetailDisplay;
             return true;
           });
         }

@@ -1323,21 +1323,62 @@ export default function RestaurantPOSPage() {
     },
   });
 
+  useEffect(() => {
+    try {
+      const resumeHoldId = localStorage.getItem("bpos_resume_hold_id");
+      const rawCart = localStorage.getItem("bpos_general_cart");
+      if (resumeHoldId && rawCart) {
+        const parsed = JSON.parse(rawCart);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setCart(parsed.map((it: any, idx: number) => ({
+            id: String(it.id || `${it.productId || "item"}-${idx}`),
+            productId: String(it.productId || it.id || ""),
+            name: String(it.name || "Menu Item"),
+            sku: String(it.sku || ""),
+            qty: Number(it.qty || 1),
+            unitPrice: Number(it.unitPrice || it.price || 0),
+            lineTotal: Number(it.lineTotal ?? Number(it.qty || 1) * Number(it.unitPrice || it.price || 0)),
+            kotStatus: (it.kotStatus || "PENDING") as RestaurantCartItem["kotStatus"],
+          })));
+          toast.success("Held order resumed");
+        }
+        localStorage.removeItem("bpos_resume_hold_id");
+        localStorage.removeItem("bpos_general_cart");
+      }
+    } catch {}
+  }, []);
+
   const handleHoldOrder = () => {
     if (cart.length === 0) return;
+    const holdId = `HOLD-${new Date().getTime().toString().slice(-4)}`;
+    const snapshot = [...cart];
 
     setHeldOrders((prev) => [
       ...prev,
       {
-        id: `HOLD-${Date.now().toString().slice(-4)}`,
+        id: holdId,
         table: selectedTable,
         guestCount,
         waiterName,
         kotId: activeKotId || null,
-        cart: [...cart],
+        cart: snapshot,
         time: new Date().toLocaleTimeString(),
       },
     ]);
+    api.post("/api/v1/pos/holds", {
+      holdRef: holdId,
+      terminalMode: "RESTAURANT",
+      items: snapshot.map((i: any) => ({
+        productId: i.productId || i.id,
+        name: i.name,
+        qty: i.qty,
+        unitPrice: i.unitPrice,
+        lineTotal: i.lineTotal ?? Number(i.unitPrice || 0) * Number(i.qty || 1),
+      })),
+      subtotal: snapshot.reduce((acc: number, i: any) => acc + Number(i.lineTotal ?? Number(i.unitPrice || 0) * Number(i.qty || 1)), 0),
+      total: snapshot.reduce((acc: number, i: any) => acc + Number(i.lineTotal ?? Number(i.unitPrice || 0) * Number(i.qty || 1)), 0),
+      notes: `Table ${selectedTable?.tableNo || "N/A"}`,
+    }).catch(() => {});
     setCart([]);
     setActiveKotId(null);
     toast.info(`Order for Table ${selectedTable?.tableNo || "N/A"} held as draft!`);
@@ -2079,7 +2120,7 @@ export default function RestaurantPOSPage() {
           </button>
           <button
             onClick={() => setShowHoldModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-indigo-200 bg-indigo-50 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-amber-200 bg-amber-50 text-amber-800 text-xs font-bold hover:bg-amber-100 transition cursor-pointer"
           >
             <RotateCcw size={14} /> Recall ({heldOrders.length})
           </button>
@@ -4272,12 +4313,12 @@ export default function RestaurantPOSPage() {
           </div>
 
           {/* Single clean Per-Person summary display */}
-          <div className="p-4 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 text-center space-y-1">
-            <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Per Person Payable</p>
-            <p className="text-3xl font-black text-blue-900 font-mono tracking-tight">
+          <div className="p-4 rounded-lg bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 text-center space-y-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-orange-700">Per Person Payable</p>
+            <p className="text-3xl font-black text-orange-900 font-mono tracking-tight">
               {fmt(estimateGrandTotal / Math.max(1, splitCount))}
             </p>
-            <p className="text-xs text-blue-600 font-medium">
+            <p className="text-xs text-orange-600 font-medium">
               Total {fmt(estimateGrandTotal)} ÷ {splitCount} {splitCount === 1 ? "Person" : "Persons"}
             </p>
           </div>
@@ -4673,7 +4714,7 @@ export default function RestaurantPOSPage() {
                                 type="button"
                                 disabled={overrideLoading}
                                 onClick={() => handleShiftOverride(slot.id, "EXTEND_30M")}
-                                className="px-2 py-1 rounded-sm text-[10px] font-bold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition flex items-center gap-1 cursor-pointer"
+                                className="px-2 py-1 rounded-sm text-[10px] font-bold bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200 transition flex items-center gap-1 cursor-pointer"
                                 title="Extend shift closing time by 30 mins"
                               >
                                 ⏳ +30m

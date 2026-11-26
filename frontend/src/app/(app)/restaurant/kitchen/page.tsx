@@ -510,7 +510,7 @@ export default function KitchenManagementPage() {
                 onClick={() => setViewMode("FACING")}
                 className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm text-xs font-black transition ${
                   viewMode === "FACING"
-                    ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md"
+                    ? "bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md"
                     : "text-slate-500 hover:text-gray-600"
                 }`}
               >
@@ -1264,7 +1264,7 @@ export default function KitchenManagementPage() {
             <div className="shrink-0 bg-white px-5 py-3 rounded-sm border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-black text-gray-600 tracking-tight flex items-center gap-2">
-                  <Tv className="text-indigo-600" size={22} />
+                  <Tv className="text-orange-600" size={22} />
                   KITCHEN FACING DISPLAY
                 </h2>
                 <p className="text-[11px] text-slate-500 font-semibold mt-0.5">
@@ -1272,7 +1272,7 @@ export default function KitchenManagementPage() {
                 </p>
               </div>
               <div className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-sm text-right">
-                <span className="font-mono text-xl font-black text-indigo-600">
+                <span className="font-mono text-xl font-black text-orange-600">
                   {nowTime.toLocaleTimeString()}
                 </span>
                 <span className="block text-[9px] text-slate-500 font-bold uppercase tracking-widest">
