@@ -239,9 +239,8 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
 
   return (
     <div
-      className={`min-h-screen flex flex-col bg-slate-50 text-slate-900 transition-[padding] duration-300 ${
-        adminOpen ? "lg:pr-[430px]" : ""
-      }`}
+      className={`min-h-screen flex flex-col bg-slate-50 text-slate-900 transition-[padding] duration-300 ${adminOpen ? "lg:pr-[430px]" : ""
+        }`}
     >
       {/* Admin Top Bar (ONLY visible when Admin is signed in) */}
       {isAdmin && (

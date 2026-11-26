@@ -223,7 +223,7 @@ async def register(body: dict, db: AsyncSession = Depends(get_db)):
         if payment_details and payment_details.get("trxId"):
             inv_id = str(uuid.uuid4())
             await db.execute(text("""
-                INSERT INTO saas_invoices (id, tenantId, subscriptionId, amount, status, billingPeriod, createdAt, updatedAt)
+                INSERT INTO saas_invoices (id, tenantId, subscriptionId, amount, status, billingPeriod, paidAt, createdAt)
                 VALUES (:id, :t, :s, :a, 'PAID', 'MONTHLY', NOW(), NOW())
             """), {"id": inv_id, "t": tenant_id, "s": sub_id, "a": float(payment_details.get("amount") or 0)})
 

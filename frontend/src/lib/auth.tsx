@@ -210,12 +210,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     requestTrial?: boolean;
     trialNote?: string;
   }) {
-    const res = await api.post<{
+    const rawRes = await api.post<{
+      data?: {
+        token: string;
+        user: AuthUser;
+        tenant?: { id: string; slug: string; name: string; businessType?: string };
+        subscription?: TenantSubscription;
+      };
+      token?: string;
+      user?: AuthUser;
+      tenant?: { id: string; slug: string; name: string; businessType?: string };
+      subscription?: TenantSubscription;
+    }>("/auth/register", data);
+    const res = (rawRes?.data && rawRes.data.user ? rawRes.data : rawRes) as {
       token: string;
       user: AuthUser;
       tenant?: { id: string; slug: string; name: string; businessType?: string };
       subscription?: TenantSubscription;
-    }>("/auth/register", data);
+    };
 
     // Clear any previous tenant/user cache completely
     if (typeof window !== "undefined") {

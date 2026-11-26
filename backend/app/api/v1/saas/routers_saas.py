@@ -354,7 +354,7 @@ async def pay_subscription(
             await db.execute(text("UPDATE tenants SET status = 'ACTIVE' WHERE id = :t"), {"t": sub[0]})
             inv_id = str(uuid.uuid4())
             await db.execute(text("""
-                INSERT INTO saas_invoices (id, tenantId, subscriptionId, amount, status, billingPeriod, createdAt, updatedAt)
+                INSERT INTO saas_invoices (id, tenantId, subscriptionId, amount, status, billingPeriod, paidAt, createdAt)
                 VALUES (:id, :t, :s, :a, 'PAID', 'MONTHLY', NOW(), NOW())
             """), {"id": inv_id, "t": sub[0], "s": sub_id, "a": amount})
 
