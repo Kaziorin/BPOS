@@ -54,7 +54,7 @@ export default function HighlightsPage() {
         }}
       >
         <HeroVfxCanvas variant={site.heroBgStyle} accent={site.accent} />
-        <div className="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+        <div className="relative z-10 max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
           <div className="space-y-4 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-bold uppercase tracking-widest text-white/90">
               <Sparkles className="w-3.5 h-3.5" />
@@ -86,7 +86,7 @@ export default function HighlightsPage() {
       </section>
 
       {/* Dynamic 3 Highlights Grid */}
-      <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-14">
+      <section className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 py-14">
         <div className="grid md:grid-cols-3 gap-6">
           {site.highlights.map((h, i) => {
             const Icon = PILLAR_ICONS[i % PILLAR_ICONS.length];
@@ -120,7 +120,7 @@ export default function HighlightsPage() {
 
       {/* Service Standards & Guarantees */}
       <section className="w-full bg-white border-y border-slate-200/80 py-14">
-        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 space-y-8">
+        <div className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 space-y-8">
           <div className="max-w-2xl">
             <div className="text-xs font-extrabold uppercase tracking-widest" style={{ color: site.accent }}>
               Service Guarantees
@@ -155,7 +155,7 @@ export default function HighlightsPage() {
       </section>
 
       {/* Process & Bottom CTA */}
-      <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-14 space-y-10">
+      <section className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 py-14 space-y-10">
         <div className="grid md:grid-cols-3 gap-6">
           {[
             ["01", "Discover & Explore", `Browse our curated ${site.tagline} offerings online or at our flagship location.`],

@@ -28,6 +28,18 @@ export interface WebsiteConfig {
   address?: string;
   hours?: string;
   highlights?: [string, string][];
+  navHome?: string;
+  navAbout?: string;
+  navHighlights?: string;
+  navShowcase?: string;
+  navContact?: string;
+  headerCtaText?: string;
+  headerCtaHref?: string;
+  footerDesc?: string;
+  footerBadge?: string;
+  footerCtaText?: string;
+  footerCopyright?: string;
+  footerBgColor?: string;
 }
 
 export interface ShowcaseProduct {
@@ -65,6 +77,18 @@ export interface ResolvedSiteState {
   address: string;
   hours: string;
   highlights: [string, string][];
+  navHome: string;
+  navAbout: string;
+  navHighlights: string;
+  navShowcase: string;
+  navContact: string;
+  headerCtaText: string;
+  headerCtaHref: string;
+  footerDesc: string;
+  footerBadge: string;
+  footerCtaText: string;
+  footerCopyright: string;
+  footerBgColor: string;
 }
 
 export interface ToastMessage {
@@ -179,6 +203,23 @@ export function WebsiteProvider({ children }: { children: React.ReactNode }) {
       address: savedConfig.address || "Dhaka, Bangladesh",
       hours: savedConfig.hours || "Sat - Thu: 10:00 AM - 10:00 PM",
       highlights,
+      navHome: savedConfig.navHome || "Home",
+      navAbout: savedConfig.navAbout || "About Us",
+      navHighlights: savedConfig.navHighlights || "Highlights",
+      navShowcase: savedConfig.navShowcase || "Showcase",
+      navContact: savedConfig.navContact || "Contact",
+      headerCtaText: savedConfig.headerCtaText || "Book / Contact Us",
+      headerCtaHref: savedConfig.headerCtaHref || "/contact",
+      footerDesc:
+        savedConfig.footerDesc ||
+        savedConfig.aboutText ||
+        "We are committed to delivering exceptional quality, authentic products, and memorable customer experiences every single day.",
+      footerBadge: savedConfig.footerBadge || `${savedConfig.years || "5+"} Years of Trusted Service`,
+      footerCtaText: savedConfig.footerCtaText || "Book / Contact Us",
+      footerCopyright:
+        savedConfig.footerCopyright ||
+        `© ${new Date().getFullYear()} ${savedConfig.businessName || tenantMeta.name || "SalePay Business"}. All rights reserved.`,
+      footerBgColor: savedConfig.footerBgColor || "#060913",
     };
   }, [savedConfig, tenantMeta]);
 

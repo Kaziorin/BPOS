@@ -33,7 +33,15 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
     dismissToast,
   } = useWebsite();
 
-  const [cmsTab, setCmsTab] = useState<"content" | "highlights" | "inquiries">("content");
+  const navItems = [
+    { href: "/", label: site.navHome },
+    { href: "/about", label: site.navAbout },
+    { href: "/highlights", label: site.navHighlights },
+    { href: "/showcase", label: site.navShowcase },
+    { href: "/contact", label: site.navContact },
+  ];
+
+  const [cmsTab, setCmsTab] = useState<"content" | "header_footer" | "highlights" | "inquiries">("content");
   const [admEmail, setAdmEmail] = useState("");
   const [admPass, setAdmPass] = useState("");
   const [inquiries, setInquiries] = useState<Array<{ id: string; name: string; phone: string; message?: string }>>([]);
@@ -59,6 +67,18 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
   const [address, setAddress] = useState(site.address);
   const [hours, setHours] = useState(site.hours);
   const [highlights, setHighlights] = useState<[string, string][]>(site.highlights);
+  const [navHome, setNavHome] = useState(site.navHome);
+  const [navAbout, setNavAbout] = useState(site.navAbout);
+  const [navHighlights, setNavHighlights] = useState(site.navHighlights);
+  const [navShowcase, setNavShowcase] = useState(site.navShowcase);
+  const [navContact, setNavContact] = useState(site.navContact);
+  const [headerCtaText, setHeaderCtaText] = useState(site.headerCtaText);
+  const [headerCtaHref, setHeaderCtaHref] = useState(site.headerCtaHref);
+  const [footerDesc, setFooterDesc] = useState(site.footerDesc);
+  const [footerBadge, setFooterBadge] = useState(site.footerBadge);
+  const [footerCtaText, setFooterCtaText] = useState(site.footerCtaText);
+  const [footerCopyright, setFooterCopyright] = useState(site.footerCopyright);
+  const [footerBgColor, setFooterBgColor] = useState(site.footerBgColor);
 
   useEffect(() => {
     setName(site.storeName);
@@ -80,6 +100,18 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
     setAddress(site.address);
     setHours(site.hours);
     setHighlights(site.highlights);
+    setNavHome(site.navHome);
+    setNavAbout(site.navAbout);
+    setNavHighlights(site.navHighlights);
+    setNavShowcase(site.navShowcase);
+    setNavContact(site.navContact);
+    setHeaderCtaText(site.headerCtaText);
+    setHeaderCtaHref(site.headerCtaHref);
+    setFooterDesc(site.footerDesc);
+    setFooterBadge(site.footerBadge);
+    setFooterCtaText(site.footerCtaText);
+    setFooterCopyright(site.footerCopyright);
+    setFooterBgColor(site.footerBgColor);
   }, [site]);
 
   useEffect(() => {
@@ -109,6 +141,18 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
       address: address.trim(),
       hours: hours.trim(),
       highlights,
+      navHome: navHome.trim(),
+      navAbout: navAbout.trim(),
+      navHighlights: navHighlights.trim(),
+      navShowcase: navShowcase.trim(),
+      navContact: navContact.trim(),
+      headerCtaText: headerCtaText.trim(),
+      headerCtaHref,
+      footerDesc: footerDesc.trim(),
+      footerBadge: footerBadge.trim(),
+      footerCtaText: footerCtaText.trim(),
+      footerCopyright: footerCopyright.trim(),
+      footerBgColor,
     });
     if (ok) {
       setAdminOpen(false);
@@ -123,7 +167,7 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
       {/* Admin Top Bar (ONLY visible when Admin is signed in) */}
       {isAdmin && (
         <div className="w-full bg-slate-950 text-white text-xs py-2 border-b border-white/10">
-          <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex flex-wrap items-center justify-between gap-2">
+          <div className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2.5">
               <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="font-semibold tracking-wide">Admin Mode</span>
@@ -163,7 +207,7 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
 
       {/* Sticky Navbar */}
       <header className="w-full sticky top-0 z-40 glass-nav border-b border-slate-200/80">
-        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 h-16 flex items-center justify-between gap-4">
+        <div className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 h-16 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3">
             <img
               src={site.logoUrl || "/logos/salepay-logo-blue.png"}
@@ -187,7 +231,7 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-600">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const active = pathname === item.href;
               return (
                 <Link
@@ -209,17 +253,17 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
           </nav>
 
           <Link
-            href="/contact"
+            href={site.headerCtaHref || "/contact"}
             className="inline-flex items-center px-5 py-2.5 rounded-xl text-xs font-extrabold text-white shadow-md hover:opacity-95 transition"
             style={{ backgroundColor: site.accent }}
           >
-            Book / Contact Us
+            {site.headerCtaText}
           </Link>
         </div>
 
         {/* Mobile Nav */}
         <div className="md:hidden flex items-center gap-4 overflow-x-auto px-6 pb-2.5 text-xs font-bold text-slate-600">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -234,13 +278,16 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
 
       <main className="flex-1 w-full">{children}</main>
 
-      {/* Premium Footer */}
-      <footer className="relative w-full bg-[#060913] text-slate-300 border-t border-white/10 overflow-hidden">
+      {/* Premium Dynamic Footer */}
+      <footer
+        className="relative w-full text-slate-300 border-t border-white/10 overflow-hidden"
+        style={{ backgroundColor: site.footerBgColor || "#060913" }}
+      >
         <div
           className="h-1 w-full opacity-80"
           style={{ background: `linear-gradient(90deg, transparent 0%, ${site.accent} 50%, transparent 100%)` }}
         />
-        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10">
+        <div className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 py-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10">
           {/* Brand Column */}
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-3">
@@ -263,11 +310,11 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
               </div>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm line-clamp-3">
-              {site.aboutText}
+              {site.footerDesc}
             </p>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-semibold text-slate-300">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span>{site.years} Years of Trusted Service</span>
+              <span>{site.footerBadge}</span>
             </div>
           </div>
 
@@ -275,7 +322,7 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
           <div className="lg:col-span-2 space-y-3.5">
             <div className="text-xs font-extrabold uppercase tracking-widest text-white">Explore</div>
             <ul className="space-y-2.5 text-xs font-semibold text-slate-400">
-              {NAV_ITEMS.map((item) => (
+              {navItems.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className="inline-flex items-center gap-1 hover:text-white transition">
                     <span>{item.label}</span>
@@ -335,16 +382,16 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold text-white shadow hover:opacity-95 transition mt-1"
               style={{ backgroundColor: site.accent }}
             >
-              <span>Book / Contact Us</span>
+              <span>{site.footerCtaText}</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
 
-        {/* Bottom Legal & Credit Bar */}
+        {/* Bottom Legal & Fixed Software Credit Bar */}
         <div className="border-t border-white/10 bg-black/30">
-          <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
-            <div>© {new Date().getFullYear()} {site.storeName}. All rights reserved.</div>
+          <div className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+            <div>{site.footerCopyright}</div>
             <div className="flex items-center gap-4">
               <span>Software By Blue Oceans Technologies Ltd</span>
               <button
@@ -408,18 +455,97 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
               </div>
             )}
 
-            <div className="flex gap-2 border-b pb-2 text-xs font-bold">
-              {(["content", "highlights", "inquiries"] as const).map((tab) => (
+            <div className="flex flex-wrap gap-1.5 border-b pb-2 text-xs font-bold">
+              {([
+                ["content", "Content"],
+                ["header_footer", "Header & Footer"],
+                ["highlights", "Highlights"],
+                ["inquiries", "Inquiries"],
+              ] as const).map(([tab, label]) => (
                 <button
                   key={tab}
                   onClick={() => setCmsTab(tab)}
-                  className={`px-3 py-1.5 rounded-lg capitalize ${cmsTab === tab ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
+                  className={`px-3 py-1.5 rounded-lg ${cmsTab === tab ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
                     }`}
                 >
-                  {tab}
+                  {label}
                 </button>
               ))}
             </div>
+
+            {cmsTab === "header_footer" && (
+              <div className="space-y-3 text-xs">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+                  <div className="font-extrabold text-slate-900">Header Navigation &amp; CTA</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="font-bold text-slate-600">Home Label</label>
+                      <input value={navHome} onChange={(e) => setNavHome(e.target.value)} className="mt-1 w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white" />
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-600">About Label</label>
+                      <input value={navAbout} onChange={(e) => setNavAbout(e.target.value)} className="mt-1 w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white" />
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-600">Highlights Label</label>
+                      <input value={navHighlights} onChange={(e) => setNavHighlights(e.target.value)} className="mt-1 w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white" />
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-600">Showcase Label</label>
+                      <input value={navShowcase} onChange={(e) => setNavShowcase(e.target.value)} className="mt-1 w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white" />
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-600">Contact Label</label>
+                      <input value={navContact} onChange={(e) => setNavContact(e.target.value)} className="mt-1 w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white" />
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-600">Header CTA Link</label>
+                      <select value={headerCtaHref} onChange={(e) => setHeaderCtaHref(e.target.value)} className="mt-1 w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white">
+                        <option value="/contact">Contact Page</option>
+                        <option value="/showcase">Showcase Page</option>
+                        <option value="/about">About Page</option>
+                        <option value="/highlights">Highlights Page</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-600">Header CTA Button Text</label>
+                    <input value={headerCtaText} onChange={(e) => setHeaderCtaText(e.target.value)} className="mt-1 w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white" />
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+                  <div className="font-extrabold text-slate-900">Footer Customization</div>
+                  <div>
+                    <label className="font-bold text-slate-600">Footer Description</label>
+                    <textarea rows={2} value={footerDesc} onChange={(e) => setFooterDesc(e.target.value)} className="mt-1 w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="font-bold text-slate-600">Footer Status Badge</label>
+                      <input value={footerBadge} onChange={(e) => setFooterBadge(e.target.value)} className="mt-1 w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white" />
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-600">Footer CTA Text</label>
+                      <input value={footerCtaText} onChange={(e) => setFooterCtaText(e.target.value)} className="mt-1 w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="font-bold text-slate-600">Footer Background</label>
+                      <input type="color" value={footerBgColor} onChange={(e) => setFooterBgColor(e.target.value)} className="mt-1 w-full h-9 rounded-lg border border-slate-200 cursor-pointer" />
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-600">Copyright Text</label>
+                      <input value={footerCopyright} onChange={(e) => setFooterCopyright(e.target.value)} className="mt-1 w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white" />
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-slate-500 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5">
+                    Fixed Credit: <strong>Software By Blue Oceans Technologies Ltd</strong> (always locked)
+                  </div>
+                </div>
+              </div>
+            )}
 
             {cmsTab === "content" && (
               <div className="space-y-3 text-xs">

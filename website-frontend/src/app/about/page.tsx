@@ -70,7 +70,7 @@ export default function AboutPage() {
         style={{ background: `linear-gradient(135deg, #0b1120 0%, #0f172a 45%, ${site.accent} 100%)` }}
       >
         <HeroVfxCanvas />
-        <div className="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 grid lg:grid-cols-12 gap-10 items-center">
+        <div className="relative z-10 max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 grid lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-7 space-y-4">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-bold uppercase tracking-widest text-white/90">
               <Sparkles className="w-3.5 h-3.5" />
@@ -149,7 +149,7 @@ export default function AboutPage() {
       </section>
 
       {/* Story, Pillars & Mission/Vision */}
-      <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-14 grid lg:grid-cols-12 gap-8">
+      <section className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 py-14 grid lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 shadow-sm space-y-6">
           <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider" style={{ color: site.accent }}>
             <Layers className="w-4 h-4" />
@@ -213,7 +213,7 @@ export default function AboutPage() {
 
       {/* Core Values */}
       <section className="w-full bg-white border-y border-slate-200/80 py-14">
-        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 space-y-8">
+        <div className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 space-y-8">
           <div className="max-w-2xl">
             <div className="text-xs font-extrabold uppercase tracking-wider" style={{ color: site.accent }}>
               Why Choose {site.storeName}
@@ -247,7 +247,7 @@ export default function AboutPage() {
       </section>
 
       {/* Journey Milestones + CTA */}
-      <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-14 space-y-10">
+      <section className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 py-14 space-y-10">
         <div className="grid md:grid-cols-3 gap-6">
           {milestones.map((m) => (
             <div
