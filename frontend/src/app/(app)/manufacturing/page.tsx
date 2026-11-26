@@ -72,10 +72,10 @@ interface BomRow {
 const currency = (v: number) => `৳${v.toLocaleString("en-BD", { minimumFractionDigits: 2 })}`;
 
 const STATUS_BADGES: Record<string, string> = {
-  DRAFT: "bg-slate-500/20 text-slate-300 border-slate-500/30",
-  IN_PROGRESS: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  COMPLETED: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  CANCELLED: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+  DRAFT: "bg-slate-100 text-slate-700 border-slate-200",
+  IN_PROGRESS: "bg-sky-50 text-sky-700 border-sky-200",
+  COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
 export default function ManufacturingPage() {

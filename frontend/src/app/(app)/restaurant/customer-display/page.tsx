@@ -166,7 +166,7 @@ export default function RestaurantCustomerDisplayPage() {
   const customerTier = cart?.customerTier || "Dine-In";
   const customerPoints = cart?.customerPoints ?? 0;
   const tableNo = cart?.tableNo || (cart?.orderType ? cart.orderType.replace("_", " ") : "TABLE 01");
-  const merchantName = cart?.merchantName || "BPOS Restaurant";
+  const merchantName = cart?.merchantName || "SalePay Restaurant";
   const cashierName = cart?.cashierName || "Waiter";
   const qrPayload = `bpos-restaurant-bill-${cart?.updatedAt || "standby"}-${Math.round(total)}`;
   const activePaymentHint = PAYMENT_HINTS[selectedPayment];

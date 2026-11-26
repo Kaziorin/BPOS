@@ -295,7 +295,7 @@ const getCategoryName = (cat: any): string => {
 
 export default function RestaurantPOSPage() {
   const router = useRouter();
-  const [storeName, setStoreName] = useState<string>("BPOS Restaurant");
+  const [storeName, setStoreName] = useState<string>("SalePay Restaurant");
   const [branchName, setBranchName] = useState<string>("Main Branch");
   const [branchAddress, setBranchAddress] = useState<string>("Dhaka, Bangladesh");
   const [tables, setTables] = useState<TableOption[]>([]);
@@ -936,7 +936,7 @@ export default function RestaurantPOSPage() {
       status: cart.length > 0 ? "ACTIVE" : "IDLE",
       customerName: customerName || undefined,
       customerTier: "Guest",
-      merchantName: storeName || "BPOS Restaurant",
+      merchantName: storeName || "SalePay Restaurant",
       cashierName: waiterName || "Staff",
       tableNo:
         selectedTable?.tableNo ||
@@ -1685,7 +1685,7 @@ export default function RestaurantPOSPage() {
         paidTotal: saleResult.total || estimateGrandTotal,
         status: "PAID",
         customerName: customerName || undefined,
-        merchantName: storeName || "BPOS Restaurant",
+        merchantName: storeName || "SalePay Restaurant",
         cashierName: waiterName,
         tableNo: selectedTable?.tableNo || (orderType === "TAKEAWAY" ? "Takeaway" : orderType === "DELIVERY" ? "Delivery" : undefined),
         orderType,
@@ -1799,7 +1799,7 @@ export default function RestaurantPOSPage() {
             </div>
             <div>
               <h1 className="text-base sm:text-lg font-black tracking-tight leading-none text-white flex items-center gap-1.5">
-                BPOS Restaurant{" "}
+                SalePay Restaurant{" "}
                 <span className="text-orange-200 text-[10px] sm:text-xs font-bold capitalize tracking-wider">
                   POS SYSTEM
                 </span>
@@ -3937,7 +3937,7 @@ export default function RestaurantPOSPage() {
         <div className="space-y-2.5 py-1 text-xs">
           <div className="flex justify-between py-1.5 border-b border-slate-100 text-slate-600">
             <span>Product Name</span>
-            <span className="font-bold text-gray-600">BPOS Enterprise POS</span>
+            <span className="font-bold text-gray-600">SalePay Enterprise POS</span>
           </div>
           <div className="flex justify-between py-1.5 border-b border-slate-100 text-slate-600">
             <span>Version</span>

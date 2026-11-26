@@ -27,7 +27,7 @@ export interface GlobalThemeConfig {
 export const GLOBAL_THEMES: Record<GlobalThemeId, GlobalThemeConfig> = {
   "ocean-teal": {
     id: "ocean-teal",
-    name: "Blue Ocean (Default)",
+    name: "Ocean Azure (Default)",
     subtitle: "Modern Ocean Azure · Clean",
     primaryHex: "#0284C7",
     secondaryHex: "#0369A1",
@@ -329,7 +329,7 @@ export function resolveThemeForTenant(
 
 /**
  * Determines if a user account is a Super Administrator or Admin.
- * Admin users default to the Blue Ocean POS default theme ('ocean-teal').
+ * Admin users default to the SalePay default theme ('ocean-teal').
  */
 export function isUserAdmin(user: any): boolean {
   if (!user) return false;
@@ -339,7 +339,7 @@ export function isUserAdmin(user: any): boolean {
 
   if (
     email === "admin@gmail.com" ||
-    email === "admin@blueoceanspos.com" ||
+    email === "admin@salepay.io" ||
     email.startsWith("admin@")
   ) {
     return true;

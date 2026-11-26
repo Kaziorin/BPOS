@@ -264,7 +264,7 @@ export default function PatientDisplayPage() {
   const customerTier = cart?.customerTier || "Regular";
   const customerPoints = cart?.customerPoints ?? 0;
   const laneNo = cart?.tableNo || cart?.laneNo || "COUNTER 01";
-  const merchantName = cart?.merchantName || "BPOS Pharmacy";
+  const merchantName = cart?.merchantName || "SalePay Pharmacy";
 
   const qrPayload = `bpos-pharma-${selectedWallet}-${Math.round(total)}`;
 

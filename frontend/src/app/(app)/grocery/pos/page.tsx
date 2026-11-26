@@ -483,7 +483,7 @@ export default function GroceryPOSPage() {
         localStorage.removeItem("bpos_resume_hold_id");
         localStorage.removeItem("bpos_general_cart");
       }
-    } catch {}
+    } catch { }
   }, []);
 
   const holdCart = () => {
@@ -499,7 +499,7 @@ export default function GroceryPOSPage() {
       subtotal: subTotal,
       total: grandTotal,
       notes: salesNote || "Grocery POS Hold",
-    }).catch(() => {});
+    }).catch(() => { });
     clearCart();
     setCouponToast("📌 Bill Held Successfully");
     setTimeout(() => setCouponToast(""), 2500);
@@ -866,7 +866,7 @@ export default function GroceryPOSPage() {
               </div>
               <div className="leading-tight">
                 <div className="flex items-center gap-1.5">
-                  <h1 className="text-xl font-black text-gray-600 tracking-tight">BPOS</h1>
+                  <h1 className="text-xl font-black text-gray-600 tracking-tight">SalePay</h1>
                   <span className="bg-emerald-700 text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-sm uppercase tracking-wider shadow-2xs">GROCERY</span>
                 </div>
                 <p className="text-[9.5px] font-bold tracking-wider text-emerald-800 uppercase">POS SYSTEM</p>
@@ -1336,8 +1336,8 @@ export default function GroceryPOSPage() {
                       {NUM_KEYS.map(k => (
                         <button key={k} onClick={() => numPress(k)}
                           className={`rounded-sm font-extrabold text-sm flex items-center justify-center transition-all duration-150 transform hover:-translate-y-0.5 active:translate-y-0.5 active:scale-90 cursor-pointer ${k === "=" ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm font-bold text-base"
-                              : k === "⌫" ? "bg-rose-50 text-red-600 border border-red-200 hover:bg-red-100 font-bold"
-                                : "bg-gray-50 border border-gray-200 text-gray-600 hover:bg-white hover:border-gray-300 shadow-2xs"
+                            : k === "⌫" ? "bg-rose-50 text-red-600 border border-red-200 hover:bg-red-100 font-bold"
+                              : "bg-gray-50 border border-gray-200 text-gray-600 hover:bg-white hover:border-gray-300 shadow-2xs"
                             }`}>
                           {k}
                         </button>
@@ -1357,8 +1357,8 @@ export default function GroceryPOSPage() {
                       return (
                         <button key={pm.id} onClick={() => setPayMethod(pm.id as any)}
                           className={`flex-1 flex items-center gap-2 px-2.5 rounded-sm border text-xs font-bold transition-all duration-150 transform hover:-translate-y-0.5 active:scale-95 text-left min-w-0 cursor-pointer ${on
-                              ? "bg-emerald-600 text-white border-emerald-700 shadow-sm font-extrabold"
-                              : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"
+                            ? "bg-emerald-600 text-white border-emerald-700 shadow-sm font-extrabold"
+                            : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"
                             }`}>
                           <pm.Icon size={14} className={`shrink-0 ${on ? "text-white" : "text-slate-500"}`} />
                           <span className="truncate leading-none text-[11px]">{pm.label}</span>
@@ -1740,8 +1740,8 @@ export default function GroceryPOSPage() {
                   </div>
                 </div>
                 <span className={`text-[10px] font-black px-3 py-1 rounded-sm border uppercase tracking-wider ${(p.stock ?? 0) > 10
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                    : "bg-amber-50 text-amber-700 border-amber-100"
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                  : "bg-amber-50 text-amber-700 border-amber-100"
                   }`}>
                   Stock: {p.stock ?? 0} {p.uom}
                 </span>
@@ -1986,14 +1986,14 @@ export default function GroceryPOSPage() {
 
               {/* Status-based Glow Effect */}
               <div className={`absolute -left-10 -top-10 w-32 h-32 blur-3xl opacity-20 rounded-full ${couponToast.includes("⚠️") ? "bg-amber-500" :
-                  couponToast.includes("Loyalty") ? "bg-indigo-500" :
-                    "bg-emerald-500"
+                couponToast.includes("Loyalty") ? "bg-indigo-500" :
+                  "bg-emerald-500"
                 }`} />
 
               {/* Icon Container */}
               <div className={`relative flex-shrink-0 w-12 h-12 rounded-sm flex items-center justify-center shadow-sm transform group-hover:scale-110 transition-transform duration-300 ${couponToast.includes("⚠️") ? "bg-amber-100 text-amber-600 border border-amber-200" :
-                  couponToast.includes("Loyalty") ? "bg-indigo-100 text-indigo-600 border border-indigo-200" :
-                    "bg-emerald-100 text-emerald-600 border border-emerald-200"
+                couponToast.includes("Loyalty") ? "bg-indigo-100 text-indigo-600 border border-indigo-200" :
+                  "bg-emerald-100 text-emerald-600 border border-emerald-200"
                 }`}>
                 {couponToast.includes("⚠️") ? <AlertCircle size={24} strokeWidth={2.5} /> :
                   couponToast.includes("Loyalty") ? <Gift size={24} strokeWidth={2.5} /> :
@@ -2007,9 +2007,9 @@ export default function GroceryPOSPage() {
               <div className="relative flex-1 min-w-0 py-0.5">
                 <div className="flex items-center justify-between mb-1">
                   <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${couponToast.includes("⚠️") ? "text-amber-700" :
-                      couponToast.includes("Loyalty") ? "text-indigo-700" :
-                        couponToast.includes("🚀") ? "text-blue-700" :
-                          "text-emerald-700"
+                    couponToast.includes("Loyalty") ? "text-indigo-700" :
+                      couponToast.includes("🚀") ? "text-blue-700" :
+                        "text-emerald-700"
                     }`}>
                     {couponToast.includes("⚠️") ? "Attention" :
                       couponToast.includes("Loyalty") ? "Loyalty Reward" :
@@ -2030,8 +2030,8 @@ export default function GroceryPOSPage() {
               {/* Interactive Progress Bar */}
               <div className="absolute bottom-0 left-0 h-1 bg-slate-100 w-full overflow-hidden">
                 <div className={`h-full animate-[shrink-width_3.5s_linear_forwards] ${couponToast.includes("⚠️") ? "bg-amber-500" :
-                    couponToast.includes("Loyalty") ? "bg-indigo-500" :
-                      "bg-emerald-600"
+                  couponToast.includes("Loyalty") ? "bg-indigo-500" :
+                    "bg-emerald-600"
                   }`} />
               </div>
             </div>
@@ -2177,7 +2177,7 @@ export default function GroceryPOSPage() {
                       </div>
                     </div>
                     <p className="text-[10px] text-slate-400">Thank you for your business!</p>
-                    <p className="text-[9px] text-slate-400">Powered by SalePay</p>
+                    <p className="text-[9px] text-slate-400">Software By Blue Oceans Technologies Ltd</p>
                   </div>
 
                 </div>

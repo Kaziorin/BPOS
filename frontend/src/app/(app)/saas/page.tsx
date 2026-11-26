@@ -1809,7 +1809,7 @@ function SaaSContent() {
         amount={sslModalAmount}
         orderId={`RENEW-${Date.now().toString().slice(-6)}`}
         customerName="Platform Administrator"
-        customerEmail="admin@blueoceans.io"
+        customerEmail="admin@salepay.io"
         onSuccess={handleSslPaymentSuccess}
       />
     </div>

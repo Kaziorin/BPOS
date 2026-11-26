@@ -1277,7 +1277,7 @@ export default function RepairPOSPage() {
             <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> All Systems Operational
           </div>
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1"><Monitor size={12} className="text-indigo-400" /> BPOS Repair Engine</span>
+            <span className="flex items-center gap-1"><Monitor size={12} className="text-indigo-400" /> SalePay Repair Engine</span>
             <span className="text-slate-300">|</span>
             <span className="flex items-center gap-1"><ShieldCheck size={12} className="text-emerald-400" /> Secured Connection</span>
           </div>

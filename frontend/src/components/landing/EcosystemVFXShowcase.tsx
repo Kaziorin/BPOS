@@ -782,7 +782,7 @@ export function EcosystemVFXShowcase() {
                       </div>
                       <div className="rounded-lg border border-sky-100 bg-white p-2 shrink-0">
                         <QRCodeSVG
-                          value="BPOS-PAY-KOT-408-3538"
+                          value="SALEPAY-KOT-408-3538"
                           size={82}
                           level="M"
                         />

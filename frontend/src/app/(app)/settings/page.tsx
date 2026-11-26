@@ -817,12 +817,12 @@ function CompanySettingsTab({
   const [legalName, setLegalName] = useState(company.legalName || "SalePay Retail Ltd.");
   const [address, setAddress] = useState(company.address || "Level 8, Concord Tower, Gulshan-1, Dhaka-1212");
   const [phone, setPhone] = useState(company.phone || "+880 1711-000000");
-  const [email, setEmail] = useState(company.email || "admin@blueocean.com.bd");
+  const [email, setEmail] = useState(company.email || "admin@salepay.io");
   const [vatRegNo, setVatRegNo] = useState(company.vatRegNo || "BIN-002938194-0101");
   const [businessType, setBusinessType] = useState(tenant.businessType || "GROCERY");
   const [currency, setCurrency] = useState(tenant.currency || "BDT");
   const [timezone, setTimezone] = useState(tenant.timezone || "Asia/Dhaka");
-  const [website, setWebsite] = useState(company.website || "https://blueoceans.io");
+  const [website, setWebsite] = useState(company.website || "https://salepay.io");
   const [restaurantPosShiftVisible, setRestaurantPosShiftVisible] = useState(true);
   const [restaurantSettingLoading, setRestaurantSettingLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -984,7 +984,7 @@ function CompanySettingsTab({
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="billing@blueocean.com.bd"
+          placeholder="billing@salepay.io"
         />
 
         <CustomInput
@@ -998,7 +998,7 @@ function CompanySettingsTab({
           label="Official Website URL"
           value={website}
           onChange={(e) => setWebsite(e.target.value)}
-          placeholder="https://blueoceans.io"
+          placeholder="https://salepay.io"
         />
 
         <CustomSelect

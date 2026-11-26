@@ -214,9 +214,9 @@ export function UniversalInvoiceModal({
   const invoiceDate =
     data.saleDate || data.createdAt || data.date
       ? new Date(data.saleDate || data.createdAt || data.date!).toLocaleString("en-GB", {
-          dateStyle: "medium",
-          timeStyle: "short",
-        })
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
       : new Date().toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
 
   return (
@@ -318,9 +318,8 @@ export function UniversalInvoiceModal({
         <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-100/60 flex justify-center">
           <div
             id="printable-invoice"
-            className={`w-full bg-white border border-slate-200 shadow-md p-6 sm:p-8 transition-all ${
-              printPaperSize === "thermal" ? "max-w-[420px] rounded-sm" : "max-w-3xl rounded-sm"
-            }`}
+            className={`w-full bg-white border border-slate-200 shadow-md p-6 sm:p-8 transition-all ${printPaperSize === "thermal" ? "max-w-[420px] rounded-sm" : "max-w-3xl rounded-sm"
+              }`}
           >
             {/* 1. RETAIL POS TEMPLATE */}
             {activeVertical === "retail" && (
@@ -380,6 +379,7 @@ function RetailInvoiceTemplate({ data, fmt, invoiceDate, invoiceSettings }: { da
   return (
     <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-slate-300 pb-3 space-y-1">
+        <img src="/logos/salepay-logo-blue.png" alt="SalePay Enterprise" className="h-8 w-auto mx-auto object-contain mb-1" />
         <h2 className="text-base font-black tracking-tight text-gray-600 uppercase">{siteConfig.name}</h2>
         <p className="text-[11px] text-slate-600">{data.branchName || "Dhaka Flagship Outlet"} • Counter #{data.terminalCode || "POS-01"}</p>
         <p className="text-[10px] text-slate-500">BIN / VAT Reg No: 002938194-0101 • Mushak-6.3</p>
@@ -484,6 +484,7 @@ function GroceryInvoiceTemplate({ data, fmt, invoiceDate, invoiceSettings }: { d
   return (
     <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-emerald-300 pb-3 space-y-1">
+        <img src="/logos/salepay-logo-blue.png" alt="SalePay Enterprise" className="h-8 w-auto mx-auto object-contain mb-1" />
         <div className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full mb-1">
           <Scale size={12} /> Supermarket Express Lane Checkout
         </div>
@@ -587,6 +588,7 @@ function WholesaleInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDat
       {/* Header Commercial Banner */}
       <div className="flex justify-between items-start border-b-2 border-blue-900 pb-4">
         <div>
+          <img src="/logos/salepay-logo-blue.png" alt="SalePay Enterprise" className="h-8 w-auto object-contain mb-2" />
           <div className="inline-flex items-center gap-1.5 text-xs font-black text-blue-800 bg-blue-50 px-2.5 py-1 rounded-sm mb-1.5">
             <Truck size={14} /> Commercial B2B Tax Invoice & Delivery Challan
           </div>
@@ -714,6 +716,7 @@ function RestaurantInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceDa
   return (
     <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-amber-300 pb-3 space-y-1">
+        <img src="/logos/salepay-logo-blue.png" alt="SalePay Enterprise" className="h-8 w-auto mx-auto object-contain mb-1" />
         <div className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full mb-1">
           <UtensilsCrossed size={12} /> Restaurant & Cafe Guest Check
         </div>
@@ -816,6 +819,7 @@ function PharmacyInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData
   return (
     <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-brand-border pb-3 space-y-1">
+        <img src="/logos/salepay-logo-blue.png" alt="SalePay Enterprise" className="h-8 w-auto mx-auto object-contain mb-1" />
         <div className="inline-flex items-center gap-1 text-[10px] font-bold text-brand-dark bg-brand-50 px-2 py-0.5 rounded-full mb-1">
           <Pill size={12} /> DGDA Licensed Pharmacy & Prescription Dispense
         </div>
@@ -913,6 +917,7 @@ function SalonInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; f
   return (
     <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-pink-300 pb-3 space-y-1">
+        <img src="/logos/salepay-logo-blue.png" alt="SalePay Enterprise" className="h-8 w-auto mx-auto object-contain mb-1" />
         <div className="inline-flex items-center gap-1 text-[10px] font-bold text-pink-700 bg-pink-50 px-2 py-0.5 rounded-full mb-1">
           <Scissors size={12} /> Salon & Spa Beauty Service Voucher
         </div>
@@ -970,6 +975,7 @@ function RepairInvoiceTemplate({ data, fmt, invoiceDate }: { data: InvoiceData; 
   return (
     <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-orange-300 pb-3 space-y-1">
+        <img src="/logos/salepay-logo-blue.png" alt="SalePay Enterprise" className="h-8 w-auto mx-auto object-contain mb-1" />
         <div className="inline-flex items-center gap-1 text-[10px] font-bold text-orange-800 bg-orange-50 px-2 py-0.5 rounded-full mb-1">
           <Wrench size={12} /> Tech Repair Center Job Card & Invoice
         </div>
@@ -1038,6 +1044,7 @@ function ManufacturingInvoiceTemplate({ data, fmt, invoiceDate }: { data: Invoic
   return (
     <div className="font-mono text-xs text-gray-600 space-y-4">
       <div className="text-center border-b border-dashed border-slate-300 pb-3 space-y-1">
+        <img src="/logos/salepay-logo-blue.png" alt="SalePay Enterprise" className="h-8 w-auto mx-auto object-contain mb-1" />
         <div className="inline-flex items-center gap-1 text-[10px] font-bold text-gray-600 bg-slate-100 px-2 py-0.5 rounded-full mb-1">
           <Factory size={12} /> Bakery & Production Batch Delivery
         </div>
@@ -1108,7 +1115,7 @@ function BarcodeFooter({ invoiceNo, footerText }: { invoiceNo: string; footerTex
       </div>
       <p className="text-[10px] text-slate-400 font-mono">*{invoiceNo}*</p>
       {footerText && <p className="text-[11px] font-semibold text-gray-600 mt-1">{footerText}</p>}
-      <p className="text-[10px] text-slate-400">Software by SalePay</p>
+      <p className="text-[10px] text-slate-400">Software By Blue Oceans Technologies Ltd</p>
     </div>
   );
 }

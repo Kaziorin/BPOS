@@ -141,7 +141,10 @@ export function getTenantEntitlementContext(
   const email = (user?.email || "").toLowerCase();
   const roleName = (user?.roleName || user?.role || "").toLowerCase();
   const isSuperAdmin =
-    email === "admin@gmail.com" || roleName === "super administrator" || roleName === "superadmin";
+    email === "admin@gmail.com" ||
+    roleName === "super admin" ||
+    roleName === "super administrator" ||
+    roleName === "superadmin";
 
   const businessType = (
     user?.businessType ||

@@ -616,7 +616,7 @@ export function SubscriptionCheckoutModal({
                         4. Store & Administrator Account
                       </label>
                       <span className="text-[10px] font-mono text-sky-700 truncate max-w-[200px]">
-                        {storeSlug}.blueoceanspos.com
+                        {storeSlug}.salepay.io
                       </span>
                     </div>
 
@@ -943,7 +943,7 @@ export function SubscriptionCheckoutModal({
         customerEmail={
           workspaceAction === "upgrade" && user
             ? user.email
-            : formik.values.email || "merchant@blueoceanspos.com"
+            : formik.values.email || "merchant@salepay.io"
         }
         customerPhone={formik.values.phone || "01700000000"}
         onSuccess={handlePaymentSuccess}

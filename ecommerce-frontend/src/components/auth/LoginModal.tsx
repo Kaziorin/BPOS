@@ -172,7 +172,7 @@ export default function LoginModal({ isOpen, onClose }: Props) {
           <form onSubmit={handleAdminLogin} className="p-6 space-y-4 bg-amber-50/40 dark:bg-zinc-950/40">
             <div className="p-3 rounded-xl bg-amber-100/70 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>Use your POS Admin credentials (e.g. admin@blueoceanspos.com) to access the Page Builder.</span>
+              <span>Use your POS Admin credentials (e.g. admin@salepay.io) to access the Page Builder.</span>
             </div>
 
             <div>
@@ -183,7 +183,7 @@ export default function LoginModal({ isOpen, onClose }: Props) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@blueoceanspos.com"
+                placeholder="admin@salepay.io"
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-500 text-slate-900 dark:text-white"
               />
             </div>

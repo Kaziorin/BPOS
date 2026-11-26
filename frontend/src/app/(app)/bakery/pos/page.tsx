@@ -1329,7 +1329,7 @@ export default function BakeryTerminalPage() {
           {/* Printable Receipt Box */}
           <div className="p-4 bg-slate-50 border border-slate-200 rounded-sm font-mono text-xs text-gray-600 shadow-inner">
             <div className="text-center border-b border-dashed border-slate-300 pb-3">
-              <h3 className="font-black text-sm uppercase tracking-wider text-gray-600">BPOS Bakery &amp; Manufacturing</h3>
+              <h3 className="font-black text-sm uppercase tracking-wider text-gray-600">SalePay Bakery &amp; Manufacturing</h3>
               <p className="text-[10px] text-slate-500">Dhanmondi, Dhaka, Bangladesh</p>
               <p className="text-[10px] text-slate-500">Phone: +880 1700-000000</p>
               <div className="mt-2 text-[10px] font-bold text-amber-800 bg-amber-100 inline-block px-2 py-0.5 rounded">

@@ -1923,6 +1923,18 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                 children: [
                   // 1. Company Header
                   Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Image.asset(
+                        isDark
+                            ? 'assets/images/salepay-logo-white.png'
+                            : 'assets/images/salepay-logo-blue.png',
+                        height: 28,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  Center(
                     child: Text(
                       'SALEPAY POS',
                       style: TextStyle(
@@ -2481,7 +2493,7 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Software by SalePay',
+                      'Software By Blue Oceans Technologies Ltd',
                       style: TextStyle(
                         fontSize: 9,
                         color: isDark

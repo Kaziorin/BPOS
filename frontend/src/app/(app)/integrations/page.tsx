@@ -1027,7 +1027,7 @@ export default function IntegrationsPage() {
             </div>
 
             <pre className="p-4 rounded-sm bg-slate-50 border border-slate-200 font-mono text-xs text-gray-600 overflow-x-auto leading-relaxed">
-{`curl -X POST https://api.blueoceanspos.com/api/v1/sales \\
+{`curl -X POST https://api.salepay.io/api/v1/sales \\
   -H "Authorization: Bearer omni_live_YOUR_KEY_HERE" \\
   -H "X-Tenant-Id: demo-shop" \\
   -H "Content-Type: application/json" \\

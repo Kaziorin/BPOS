@@ -563,7 +563,7 @@ async def ai_copilot(
         # Identity & Greeting Intent
         if any(w in msg_lower for w in ["tomar name", "tomar nam", "your name", "who are you", "tumi k", "tumi ke", "পরিচয়", "নাম কি", "নাম কী", "কে তুমি", "কে আপনি", "hello", "hi", "kemon aso", "কেমন আছো", "কেমন আছেন"]):
             answer = (
-                "👋 আমি ব্লু ওশানস পিওএস (Blue Oceans POS)-এর অফলাইন বিজনেস এআই কোপাইলট।\n\n"
+                "👋 আমি সেলপে (SalePay)-এর অফলাইন বিজনেস এআই কোপাইলট।\n\n"
                 "আমি আপনার সফটওয়্যারের একজন ডেডিকেটেড সহকারী হিসেবে কাজ করি।\n"
                 "• আপনার দোকানের আজকের বিক্রি, লাভ-ক্ষতি, পণ্যের বর্তমান স্টক ও কাস্টমার বকেয়ার লাইভ হিসাব দিতে পারি।\n"
                 "• পিওএস, ইনভেন্টরি, রেস্তোরাঁ KOT, ফার্মেসি, অ্যাকাউন্টিং এবং অন্যান্য মডিউল ব্যবহারের সঠিক নির্দেশনা দিতে পারি।"
@@ -582,7 +582,7 @@ async def ai_copilot(
                             f"  আউটলেট: {p.get('maxBranches', 1)}টি, টার্মিনাল: {p.get('maxPOS', 2)}টি, স্টাফ: {p.get('maxUsers', 5)} জন।"
                         )
                     answer = (
-                        "💳 ব্লু ওশানস পিওএস-এর সাবস্ক্রিপশন প্ল্যানসমূহ:\n\n" +
+                        "💳 সেলপে-এর সাবস্ক্রিপশন প্ল্যানসমূহ:\n\n" +
                         "\n\n".join(p_lines) +
                         "\n\n⚙️ কীভাবে কাজ করে:\n"
                         "১. প্রতিটি প্ল্যানে আউটলেট, টার্মিনাল ও ইউজারের নির্ধারিত লিমিট থাকে।\n"
@@ -593,7 +593,7 @@ async def ai_copilot(
                 pass
             if not answer:
                 answer = (
-                    "💳 ব্লু ওশানস পিওএস-এর প্রধান ৩টি কমার্শিয়াল সাবস্ক্রিপশন প্ল্যান:\n\n"
+                    "💳 সেলপে-এর প্রধান ৩টি কমার্শিয়াল সাবস্ক্রিপশন প্ল্যান:\n\n"
                     "১. Starter (৳৯৯০/মাস):\n"
                     "   • ১টি ব্রাঞ্চ, ২টি পিওএস টার্মিনাল, ৫ জন স্টাফ, ২৫০০ পণ্য ক্যাটালগ।\n"
                     "   • কোর রিটেইল পিওএস ও ইনভেন্টরি।\n\n"
@@ -612,7 +612,7 @@ async def ai_copilot(
                 "SELECT COUNT(*) FROM stock s JOIN products p ON p.id=s.productId WHERE s.tenantId=:t AND s.qtyOnHand <= COALESCE(p.reorderPoint, 10) AND s.qtyOnHand > 0"),
                 {"t": tenantId})).scalar() or 0
             answer = (
-                "📦 ব্লু ওশানস পিওএস-এ ইনভেন্টরি যেভাবে কাজ করে:\n\n"
+                "📦 সেলপে-এ ইনভেন্টরি যেভাবে কাজ করে:\n\n"
                 "১. ক্যাটালগ ও বারকোড ট্র্যাকিং:\n"
                 "   প্রতিটি পণ্যের একক SKU, বারকোড, কেনা দাম (Cost Price) এবং বিক্রির দাম নির্ধারণ থাকে। বারকোড স্ক্যান করলেই তাৎক্ষণিক স্টক পাওয়া যায়।\n\n"
                 "২. অটো স্টক ডিডাকশন (POS Billing):\n"
@@ -628,7 +628,7 @@ async def ai_copilot(
         # How POS / Billing Terminal Works Intent
         elif any(w in msg_lower for w in ["pos ke vabe", "pos kivabe", "how pos", "পিওএস কীভাবে", "বিলিং কীভাবে", "বিল কীভাবে", "ক্যাশ কাউন্টার"]):
             answer = (
-                "🛒 ব্লু ওশানস পিওএস টার্মিনাল ব্যবহারের কার্যপ্রণালী:\n\n"
+                "🛒 সেলপে টার্মিনাল ব্যবহারের কার্যপ্রণালী:\n\n"
                 "১. কুইক আইটেম সিলেকশন:\n"
                 "   বারকোড স্ক্যানার দিয়ে স্ক্যান করুন অথবা স্ক্রিনের ক্যাটাগরি গ্রিড থেকে টাচ করে আইটেম কার্টে যোগ করুন।\n"
                 "২. হোল্ড ও পার্ক সেল (Hold Sale):\n"
@@ -660,7 +660,7 @@ async def ai_copilot(
             supp_count = (await db.execute(text("SELECT COUNT(*) FROM suppliers WHERE tenantId=:t"), {"t": tenantId})).scalar() or 0
             po_count = (await db.execute(text("SELECT COUNT(*) FROM purchase_orders WHERE tenantId=:t AND status IN ('PENDING', 'ORDERED')"), {"t": tenantId})).scalar() or 0
             answer = (
-                "🛒 ব্লু ওশানস পিওএস-এ পারচেজ ও প্রকিউরমেন্ট (Purchase & Procurement) যেভাবে কাজ করে:\n\n"
+                "🛒 সেলপে-এ পারচেজ ও প্রকিউরমেন্ট (Purchase & Procurement) যেভাবে কাজ করে:\n\n"
                 "১. পারচেজ অর্ডার (Purchase Order - PO) তৈরি:\n"
                 "   লো-স্টক অ্যালার্ট বা এআই ডিমান্ড ফোরকাস্ট দেখে নির্বাচিত সাপ্লায়ারের নামে ক্রয়ের রিকুইজিশন বা PO ইস্যু করা হয়।\n\n"
                 "২. গুডস রিসিভড নোট (Goods Received Note - GRN):\n"
@@ -690,7 +690,7 @@ async def ai_copilot(
         if any(w in msg_lower for w in ["feature", "ke ke feature", "ki ki feature", "ফিচার", "সুবিধা", "মডিউল", "module", "system", "ব্যবহার", "কি কি আছে", "কী কী আছে", "ক্যাপাসিটি", "কি কি"]):
             if is_bengali:
                 answer = (
-                    "ব্লু ওশানস পিওএস (Blue Oceans POS)-এ অন্তর্ভুক্ত প্রধান ফিচার ও মডিউলসমূহ:\n\n"
+                    "সেলপে (SalePay)-এ অন্তর্ভুক্ত প্রধান ফিচার ও মডিউলসমূহ:\n\n"
                     "১. 🛒 মাল্টি-ইন্ডাস্ট্রি পিওএস টার্মিনাল:\n"
                     "   • রিটেইল পিওএস (বারকোড রিডার, টাচ সেল, কুইক বিলিং)\n"
                     "   • রেস্তোরাঁ ও কিচেন (ডাইন-ইন, টেবিল মেট্রিক্স, KOT ও কিচেন ডিসপ্লে)\n"
@@ -716,7 +716,7 @@ async def ai_copilot(
                 )
             else:
                 answer = (
-                    "Blue Oceans POS Enterprise Features & Capabilities:\n\n"
+                    "SalePay Enterprise Features & Capabilities:\n\n"
                     "1. Multi-Mode POS Terminals: Retail, Restaurant KOT/Tables, Pharmacy Rx, Grocery, Bakery, Salon, Wholesale & Repair POS.\n"
                     "2. Inventory & Warehouses: Real-time stock, batch & expiry tracking, barcode printing, and inter-branch transfers.\n"
                     "3. Financial Accounting: Double-entry ledger, PnL, Balance Sheet, NBR VAT reports, customer credit & EMI installments.\n"
@@ -802,7 +802,7 @@ async def ai_copilot(
         # Greetings & General Help
         elif any(w in msg_lower for w in ["hi", "hello", "help", "সালাম", "হাই", "হ্যালো", "কেমন", "সাহায্য"]):
             if is_bengali:
-                answer = ("হ্যালো! আমি আপনার ব্লু ওশানস পিওএস বিজনেস কোপাইলট।\n"
+                answer = ("হ্যালো! আমি আপনার সেলপে বিজনেস কোপাইলট।\n"
                           "আপনি আমাকে আপনার ব্যবসার যেকোনো হিসাব জিজ্ঞেস করতে পারেন:\n"
                           "• \"আজকের মোট বিক্রি কত?\"\n"
                           "• \"চলতি মাসের লাভ কত?\"\n"
@@ -810,7 +810,7 @@ async def ai_copilot(
                           "• \"বকেয়া বাকির পরিমাণ কত?\"\n"
                           "• \"সেরা কাস্টমার কারা?\"")
             else:
-                answer = ("Hello! I am your Blue Oceans POS Business Copilot.\n"
+                answer = ("Hello! I am your SalePay Business Copilot.\n"
                           "You can ask me questions about your store data:\n"
                           "• \"What are today's sales?\"\n"
                           "• \"How much profit this month?\"\n"
@@ -828,7 +828,7 @@ async def ai_copilot(
                 try:
                     import httpx
                     system_prompt = (
-                        "You are Blue Oceans POS Business AI Agent. You are an expert retail ERP & POS assistant. "
+                        "You are SalePay Business AI Agent. You are an expert retail ERP & POS assistant. "
                         "Help the user with business operations, point of sale, inventory, purchasing, accounting, and multi-branch management. "
                         "Reply helpfully and concisely in natural Bengali (বাংলা) or English matching the user's question."
                     )
@@ -857,7 +857,7 @@ async def ai_copilot(
 
             if not answer and is_bengali:
                 answer = (
-                    "🤖 ব্লু ওশানস পিওএস এআই সহকারী:\n\n"
+                    "🤖 সেলপে এআই সহকারী:\n\n"
                     "আমি আপনার ব্যবসা পরিচালনা, পিওএস বিলিং, ইনভেন্টরি, পারচেজ ও ফিন্যান্সিয়াল অ্যাকাউন্টিংয়ের সকল হিসাব বিশ্লেষণে সাহায্য করতে পারি।\n\n"
                     "আপনি যেকোনো বিষয়ে জানতে চাইতে পারেন:\n"
                     "• \"আজকের মোট বিক্রি ও লাভ কত?\"\n"
@@ -868,7 +868,7 @@ async def ai_copilot(
                 )
             elif not answer:
                 answer = (
-                    "🤖 Blue Oceans POS Business AI Agent:\n\n"
+                    "🤖 SalePay Business AI Agent:\n\n"
                     "I can assist with POS operations, inventory tracking, purchase orders, customer dues, and financial accounting.\n\n"
                     "Try asking:\n"
                     "• \"What were today's sales?\"\n"

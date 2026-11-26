@@ -72,7 +72,7 @@ def _build_barcode_html(product: dict, qty: int = 4, size: str = "standard", sho
     sku = product.get("sku") or "SKU-001"
     barcode_val = product.get("barcode") or sku or product.get("id", "")[:12]
     selling_price = float(product.get("sellingPrice") or 0)
-    store_name = product.get("tenantName") or "BlueOceans POS"
+    store_name = product.get("tenantName") or "SalePay"
 
     # Generate vector barcode SVG (clean without text inside svg, text rendered via CSS)
     svg_markup = generate_code128_svg(barcode_val, height=40, font_size=11, show_text=False)
@@ -634,7 +634,7 @@ def _build_shelf_html(product: dict, qty: int = 4, size: str = "standard", show_
     barcode_val = product.get("barcode") or sku or product.get("id", "")[:12]
     selling_price = float(product.get("sellingPrice") or 0)
     cost_price = float(product.get("costPrice") or 0)
-    store_name = product.get("tenantName") or "BlueOceans POS"
+    store_name = product.get("tenantName") or "SalePay"
     category = product.get("categoryName") or product.get("subCategoryName") or ""
     brand = product.get("brandName") or ""
     unit_name = product.get("unitName") or product.get("unitCode") or "Pcs"
