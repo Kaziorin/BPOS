@@ -157,6 +157,18 @@ function SaaSContent() {
   const [editingPlan, setEditingPlan] = useState<any>(null);
   const [savingPlan, setSavingPlan] = useState(false);
   const [planModulesText, setPlanModulesText] = useState("");
+  const [viewingTenant, setViewingTenant] = useState<any>(null);
+  const [editingTenant, setEditingTenant] = useState<any>(null);
+  const [savingTenant, setSavingTenant] = useState(false);
+  const [tenantEditForm, setTenantEditForm] = useState({
+    name: "",
+    businessType: "RETAIL",
+    contactEmail: "",
+    contactPhone: "",
+    status: "ACTIVE",
+    planCode: "STARTER",
+    renewDays: "",
+  });
   const [planForm, setPlanForm] = useState({
     name: "",
     code: "",
@@ -749,23 +761,35 @@ function SaaSContent() {
                       <thead>
                         <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 text-left font-bold">
                           <th className="py-3 px-4">Tenant Name</th>
+                          <th className="py-3 px-4">Contact</th>
                           <th className="py-3 px-4">Status</th>
-                          <th className="py-3 px-4">Industry Vertical</th>
-                          <th className="py-3 px-4">Staff Users</th>
-                          <th className="py-3 px-4">Sales Count</th>
+                          <th className="py-3 px-4">Subscription</th>
+                          <th className="py-3 px-4">Vertical</th>
+                          <th className="py-3 px-4">Staff / Sales</th>
                           <th className="py-3 px-4 text-right">Action</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {filteredTenants.map((t: any) => (
+                        {filteredTenants.map((t: any) => {
+                          const expStr = t.currentPeriodEnd || t.trialEndsAt;
+                          const expDate = expStr ? new Date(expStr) : null;
+                          const isExpired = expDate ? expDate.getTime() <= Date.now() : false;
+                          return (
                           <tr key={t.id || t.name} className="hover:bg-slate-50/80 transition">
                             <td className="py-3 px-4 font-bold text-gray-600">
                               <div className="flex items-center gap-2">
-                                <div className="w-7 h-7 rounded-sm bg-indigo-50 text-indigo-700 font-black flex items-center justify-center text-xs">
+                                <div className="w-7 h-7 rounded-sm bg-indigo-50 text-indigo-700 font-black flex items-center justify-center text-xs shrink-0">
                                   {(t.name || "T")[0].toUpperCase()}
                                 </div>
-                                <span>{t.name}</span>
+                                <div>
+                                  <div>{t.name}</div>
+                                  <div className="text-[10px] font-mono text-slate-400">{t.slug}</div>
+                                </div>
                               </div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="text-gray-700 font-medium">{t.email || "—"}</div>
+                              <div className="text-[10px] text-slate-400 font-mono">{t.phone || "—"}</div>
                             </td>
                             <td className="py-3 px-4">
                               <span
@@ -784,40 +808,84 @@ function SaaSContent() {
                               </span>
                             </td>
                             <td className="py-3 px-4">
-                              <span className="font-mono text-slate-600 font-semibold">{t.businessType || "GROCERY"}</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-bold text-gray-700">{t.planName || t.planCode || "Starter"}</span>
+                                {isExpired && (
+                                  <span className="px-1.5 py-0.5 rounded-sm text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                    EXPIRED
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[10px] text-slate-400">
+                                {expDate ? `Ends ${expDate.toLocaleDateString()}` : t.subStatus || "Active"}
+                              </div>
                             </td>
-                            <td className="py-3 px-4 font-bold text-gray-600">{t.userCount ?? 0}</td>
-                            <td className="py-3 px-4 font-mono font-bold text-gray-600">{t.saleCount ?? 0}</td>
+                            <td className="py-3 px-4">
+                              <span className="font-mono text-slate-600 font-semibold">{t.businessType || "RETAIL"}</span>
+                            </td>
+                            <td className="py-3 px-4 font-bold text-gray-600">
+                              <span>{t.userCount ?? 0}</span>
+                              <span className="text-slate-300 mx-1">/</span>
+                              <span className="font-mono">{t.saleCount ?? 0}</span>
+                            </td>
                             <td className="py-3 px-4 text-right">
-                              {t.slug !== "demo-shop" && (
+                              <div className="inline-flex items-center gap-1.5">
                                 <button
                                   type="button"
-                                  onClick={async () => {
-                                    const nextStatus = t.status === "SUSPENDED" ? "ACTIVE" : "SUSPENDED";
-                                    try {
-                                      await api.patch(`/api/v1/saas/platform/tenants/${t.id}/status`, { status: nextStatus });
-                                      showToast(`${t.name} ${nextStatus === "SUSPENDED" ? "suspended" : "activated"}`);
-                                      loadData("overview");
-                                    } catch (err: any) {
-                                      showToast(err?.message || "Failed to update tenant status");
-                                    }
-                                  }}
-                                  className={cn(
-                                    "px-2.5 py-1 rounded-sm text-[11px] font-bold border transition cursor-pointer",
-                                    t.status === "SUSPENDED"
-                                      ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                                      : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
-                                  )}
+                                  onClick={() => setViewingTenant(t)}
+                                  className="px-2 py-1 rounded-sm text-[11px] font-semibold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition cursor-pointer"
                                 >
-                                  {t.status === "SUSPENDED" ? "Turn On" : "Turn Off"}
+                                  View
                                 </button>
-                              )}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingTenant(t);
+                                    setTenantEditForm({
+                                      name: t.name || "",
+                                      businessType: t.businessType || "RETAIL",
+                                      contactEmail: t.email || "",
+                                      contactPhone: t.phone || "",
+                                      status: t.status || "ACTIVE",
+                                      planCode: t.planCode || "STARTER",
+                                      renewDays: "",
+                                    });
+                                  }}
+                                  className="px-2 py-1 rounded-sm text-[11px] font-semibold border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition cursor-pointer"
+                                >
+                                  Edit
+                                </button>
+                                {t.slug !== "demo-shop" && (
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      const nextStatus = t.status === "SUSPENDED" ? "ACTIVE" : "SUSPENDED";
+                                      try {
+                                        await api.patch(`/api/v1/saas/platform/tenants/${t.id}/status`, { status: nextStatus });
+                                        showToast(`${t.name} ${nextStatus === "SUSPENDED" ? "suspended" : "activated"}`);
+                                        loadData("overview");
+                                      } catch (err: any) {
+                                        showToast(err?.message || "Failed to update tenant status");
+                                      }
+                                    }}
+                                    className={cn(
+                                      "px-2.5 py-1 rounded-sm text-[11px] font-bold border transition cursor-pointer",
+                                      t.status === "SUSPENDED"
+                                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                                        : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                                    )}
+                                  >
+                                    {t.status === "SUSPENDED" ? "Turn On" : "Turn Off"}
+                                  </button>
+                                )}
+                              </div>
                             </td>
                           </tr>
-                        ))}
+                          );
+                        })}
                         {filteredTenants.length === 0 && (
                           <tr>
-                            <td colSpan={6} className="py-8 text-center text-slate-400">
+                            <td colSpan={7} className="py-8 text-center text-slate-400">
                               No matching tenants found.
                             </td>
                           </tr>
@@ -1825,6 +1893,141 @@ function SaaSContent() {
             </CustomButton>
             <CustomButton type="submit" variant="primary" loading={savingPlan}>
               Save Plan Details
+            </CustomButton>
+          </div>
+        </form>
+      </CustomModal>
+
+      {/* View Tenant Modal */}
+      <CustomModal
+        open={Boolean(viewingTenant)}
+        onClose={() => setViewingTenant(null)}
+        title={`Tenant Details — ${viewingTenant?.name || ""}`}
+      >
+        {viewingTenant && (
+          <div className="space-y-3 text-xs">
+            <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-sm border border-slate-200">
+              <div><span className="text-slate-400">Slug:</span> <span className="font-mono font-bold text-gray-700">{viewingTenant.slug}</span></div>
+              <div><span className="text-slate-400">Status:</span> <span className="font-bold text-gray-700">{viewingTenant.status}</span></div>
+              <div><span className="text-slate-400">Email:</span> <span className="font-medium text-gray-700">{viewingTenant.email || "—"}</span></div>
+              <div><span className="text-slate-400">Phone:</span> <span className="font-mono text-gray-700">{viewingTenant.phone || "—"}</span></div>
+              <div><span className="text-slate-400">Business Type:</span> <span className="font-bold text-gray-700">{viewingTenant.businessType}</span></div>
+              <div><span className="text-slate-400">Plan:</span> <span className="font-bold text-indigo-700">{viewingTenant.planName || viewingTenant.planCode || "Starter"}</span></div>
+              <div><span className="text-slate-400">Sub Status:</span> <span className="font-bold text-gray-700">{viewingTenant.subStatus || "ACTIVE"}</span></div>
+              <div><span className="text-slate-400">Period End:</span> <span className="font-mono text-gray-700">{(viewingTenant.currentPeriodEnd || viewingTenant.trialEndsAt) ? new Date(viewingTenant.currentPeriodEnd || viewingTenant.trialEndsAt).toLocaleString() : "—"}</span></div>
+              <div><span className="text-slate-400">Users / Branches:</span> <span className="font-bold">{viewingTenant.userCount ?? 0} / {viewingTenant.branchCount ?? 0}</span></div>
+              <div><span className="text-slate-400">Confirmed Sales:</span> <span className="font-bold">{viewingTenant.saleCount ?? 0}</span></div>
+            </div>
+            <div className="flex justify-end">
+              <CustomButton size="sm" variant="outline" onClick={() => setViewingTenant(null)}>Close</CustomButton>
+            </div>
+          </div>
+        )}
+      </CustomModal>
+
+      {/* Edit / Renew Tenant Modal */}
+      <CustomModal
+        open={Boolean(editingTenant)}
+        onClose={() => setEditingTenant(null)}
+        title={`Edit / Renew Tenant — ${editingTenant?.name || ""}`}
+      >
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (!editingTenant) return;
+            setSavingTenant(true);
+            try {
+              await api.patch(`/api/v1/saas/platform/tenants/${editingTenant.id}`, {
+                name: tenantEditForm.name,
+                businessType: tenantEditForm.businessType,
+                contactEmail: tenantEditForm.contactEmail,
+                contactPhone: tenantEditForm.contactPhone,
+                status: tenantEditForm.status,
+                planCode: tenantEditForm.planCode,
+                renewDays: tenantEditForm.renewDays ? Number(tenantEditForm.renewDays) : undefined,
+              });
+              showToast(`${tenantEditForm.name} updated`);
+              setEditingTenant(null);
+              loadData("overview");
+            } catch (err: any) {
+              showToast(err?.message || "Failed to update tenant");
+            } finally {
+              setSavingTenant(false);
+            }
+          }}
+          className="space-y-3 text-xs"
+        >
+          <CustomInput
+            label="Business Name"
+            value={tenantEditForm.name}
+            onChange={(e) => setTenantEditForm({ ...tenantEditForm, name: e.target.value })}
+            required
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <CustomInput
+              label="Contact Email"
+              value={tenantEditForm.contactEmail}
+              onChange={(e) => setTenantEditForm({ ...tenantEditForm, contactEmail: e.target.value })}
+            />
+            <CustomInput
+              label="Contact Phone"
+              value={tenantEditForm.contactPhone}
+              onChange={(e) => setTenantEditForm({ ...tenantEditForm, contactPhone: e.target.value })}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-600 mb-1">Subscription Plan</label>
+              <select
+                value={tenantEditForm.planCode}
+                onChange={(e) => setTenantEditForm({ ...tenantEditForm, planCode: e.target.value })}
+                className="w-full px-3 py-2 border border-slate-200 rounded-sm bg-white font-semibold"
+              >
+                <option value="STARTER">Starter</option>
+                <option value="BUSINESS">Advance (Business)</option>
+                <option value="ENTERPRISE">Enterprise</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold text-slate-600 mb-1">Account Status</label>
+              <select
+                value={tenantEditForm.status}
+                onChange={(e) => setTenantEditForm({ ...tenantEditForm, status: e.target.value })}
+                className="w-full px-3 py-2 border border-slate-200 rounded-sm bg-white font-semibold"
+              >
+                <option value="ACTIVE">ACTIVE (On)</option>
+                <option value="SUSPENDED">SUSPENDED (Off)</option>
+                <option value="TRIAL">TRIAL</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-slate-600 mb-1">Renew / Extend Subscription (Days)</label>
+            <div className="flex items-center gap-2">
+              <CustomInput
+                type="number"
+                placeholder="e.g. 30 (leave empty to keep current date)"
+                value={tenantEditForm.renewDays}
+                onChange={(e) => setTenantEditForm({ ...tenantEditForm, renewDays: e.target.value })}
+              />
+              {[30, 90, 365].map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => setTenantEditForm({ ...tenantEditForm, renewDays: String(d), status: "ACTIVE" })}
+                  className="px-2.5 py-2 rounded-sm border border-emerald-200 bg-emerald-50 text-emerald-700 font-bold hover:bg-emerald-100 shrink-0 cursor-pointer"
+                >
+                  +{d}d
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <CustomButton type="button" variant="outline" size="sm" onClick={() => setEditingTenant(null)}>
+              Cancel
+            </CustomButton>
+            <CustomButton type="submit" size="sm" loading={savingTenant} variant="primary">
+              Save &amp; Apply
             </CustomButton>
           </div>
         </form>
