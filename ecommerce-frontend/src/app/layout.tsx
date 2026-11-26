@@ -11,8 +11,8 @@ import { Toaster } from "react-hot-toast";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ShopEase | Real-Time Omnichannel Retail & Visual Store Builder",
-  description: "Shop online with real-time stock sync, visual drag-and-drop themes and express delivery.",
+  title: "SalePay | Real-Time Omnichannel Retail & Storefront",
+  description: "Shop online with real-time stock sync and express delivery.",
 };
 
 export default function RootLayout({
