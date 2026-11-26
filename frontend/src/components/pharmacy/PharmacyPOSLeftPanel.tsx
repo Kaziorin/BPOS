@@ -49,18 +49,12 @@ import {
   CustomSelect,
 } from "@/components/custom";
 
-export type PharmaCat =
-  | "All"
-  | "Antibiotics"
-  | "Pain Relief"
-  | "Vitamins & Suppl."
-  | "Skin Care"
-  | "Diabetes Care"
-  | "Cardiovascular"
-  | "Gastrointestinal"
-  | "Respiratory"
-  | "Eye & Ear Care"
-  | "Others";
+export type PharmaCat = string;
+
+export interface DynamicPharmaCategory {
+  id: string;
+  name: string;
+}
 
 export type GridFilter =
   | "All Medicines"
@@ -72,25 +66,15 @@ export type GridFilter =
 
 export type SortBy = "name-asc" | "name-desc" | "price-asc" | "price-desc" | "stock";
 
-export const CATEGORIES: {
-  id: PharmaCat;
-  label: string;
-  Icon: React.ElementType;
-  iconBg: string;
-  iconColor: string;
-}[] = [
-    { id: "All", label: "All", Icon: LayoutGrid, iconBg: "bg-brand-dark", iconColor: "text-white" },
-    { id: "Antibiotics", label: "Antibiotics", Icon: Syringe, iconBg: "bg-purple-100", iconColor: "text-purple-600" },
-    { id: "Pain Relief", label: "Pain Relief", Icon: Pill, iconBg: "bg-orange-100", iconColor: "text-orange-500" },
-    { id: "Vitamins & Suppl.", label: "Vitamins & Suppl.", Icon: Sparkles, iconBg: "bg-emerald-100", iconColor: "text-emerald-600" },
-    { id: "Skin Care", label: "Skin Care", Icon: Droplets, iconBg: "bg-rose-100", iconColor: "text-rose-500" },
-    { id: "Diabetes Care", label: "Diabetes Care", Icon: Activity, iconBg: "bg-brand-50", iconColor: "text-brand-dark" },
-    { id: "Cardiovascular", label: "Cardiovascular", Icon: Heart, iconBg: "bg-red-100", iconColor: "text-red-500" },
-    { id: "Gastrointestinal", label: "Gastrointestinal", Icon: Activity, iconBg: "bg-amber-100", iconColor: "text-amber-600" },
-    { id: "Respiratory", label: "Respiratory", Icon: Wind, iconBg: "bg-blue-100", iconColor: "text-blue-500" },
-    { id: "Eye & Ear Care", label: "Eye & Ear Care", Icon: Eye, iconBg: "bg-slate-100", iconColor: "text-slate-600" },
-    { id: "Others", label: "Others", Icon: Package, iconBg: "bg-yellow-100", iconColor: "text-yellow-600" },
-  ];
+const CATEGORY_ICON_STYLES: { Icon: React.ElementType; iconBg: string; iconColor: string }[] = [
+  { Icon: Pill, iconBg: "bg-cyan-100", iconColor: "text-cyan-700" },
+  { Icon: Syringe, iconBg: "bg-purple-100", iconColor: "text-purple-600" },
+  { Icon: Sparkles, iconBg: "bg-emerald-100", iconColor: "text-emerald-600" },
+  { Icon: Droplets, iconBg: "bg-rose-100", iconColor: "text-rose-500" },
+  { Icon: Activity, iconBg: "bg-amber-100", iconColor: "text-amber-600" },
+  { Icon: Heart, iconBg: "bg-red-100", iconColor: "text-red-500" },
+  { Icon: Package, iconBg: "bg-slate-100", iconColor: "text-slate-600" },
+];
 
 export const GRID_FILTERS: { id: GridFilter; label: string; Icon?: React.ElementType; tone?: string }[] = [
   { id: "All Medicines", label: "All Medicines", Icon: Pill },
@@ -159,6 +143,7 @@ interface PharmacyPOSLeftPanelProps {
   searchRef?: React.RefObject<HTMLInputElement | null>;
   category: PharmaCat;
   setCategory: (cat: PharmaCat) => void;
+  categories?: DynamicPharmaCategory[];
   catSearch: string;
   setCatSearch: (val: string) => void;
   gridFilter: GridFilter;
@@ -192,6 +177,7 @@ export function PharmacyPOSLeftPanel({
   searchRef,
   category,
   setCategory,
+  categories = [],
   catSearch,
   setCatSearch,
   gridFilter,
@@ -215,10 +201,26 @@ export function PharmacyPOSLeftPanel({
   isFullscreen,
 }: PharmacyPOSLeftPanelProps) {
   const visibleCategories = useMemo(() => {
+    const allItem = {
+      id: "All",
+      label: "All",
+      Icon: LayoutGrid,
+      iconBg: "bg-brand-dark",
+      iconColor: "text-white",
+    };
+    const dynamicItems = categories.map((c, idx) => {
+      const style = CATEGORY_ICON_STYLES[idx % CATEGORY_ICON_STYLES.length];
+      return {
+        id: c.id,
+        label: c.name,
+        ...style,
+      };
+    });
+    const fullList = [allItem, ...dynamicItems];
     const q = catSearch.trim().toLowerCase();
-    if (!q) return CATEGORIES;
-    return CATEGORIES.filter((c) => c.label.toLowerCase().includes(q));
-  }, [catSearch]);
+    if (!q) return fullList;
+    return fullList.filter((c) => c.label.toLowerCase().includes(q));
+  }, [categories, catSearch]);
 
   return (
     <div className={cn("flex w-full flex-col h-full overflow-hidden bg-white", darkMode && "bg-slate-900 text-slate-100")}>

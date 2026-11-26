@@ -63,23 +63,6 @@ import {
   type CheckoutPayMethod,
 } from "@/components/pharmacy/PharmacyPOSModals";
 
-// ─── Demo seed products (fallback when API is empty) ────────────────────────
-const INITIAL_CART: RxCartItem[] = [];
-
-function inferCategory(p: RegisterProduct): PharmaCat {
-  const raw = `${p.categoryName || ""} ${p.name}`.toLowerCase();
-  if (raw.includes("antibiotic") || raw.includes("amox") || raw.includes("cipro") || raw.includes("azith")) return "Antibiotics";
-  if (raw.includes("pain") || raw.includes("napa") || raw.includes("paracetamol") || raw.includes("ibuprofen") || raw.includes("domstal")) return "Pain Relief";
-  if (raw.includes("vitamin") || raw.includes("suppl") || raw.includes("zinc") || raw.includes("calcium")) return "Vitamins & Suppl.";
-  if (raw.includes("skin") || raw.includes("cream") || raw.includes("ointment") || raw.includes("lotion")) return "Skin Care";
-  if (raw.includes("diabet") || raw.includes("metformin") || raw.includes("insulin") || raw.includes("glime")) return "Diabetes Care";
-  if (raw.includes("cardio") || raw.includes("heart") || raw.includes("atenolol") || raw.includes("amlodip")) return "Cardiovascular";
-  if (raw.includes("gastro") || raw.includes("seclo") || raw.includes("omeprazole") || raw.includes("antacid") || raw.includes("esomeprazole") || raw.includes("ors")) return "Gastrointestinal";
-  if (raw.includes("respir") || raw.includes("cough") || raw.includes("asthma") || raw.includes("inhal") || raw.includes("salbutamol")) return "Respiratory";
-  if (raw.includes("eye") || raw.includes("ear") || raw.includes("drop")) return "Eye & Ear Care";
-  return "Others";
-}
-
 // ─── Toast type ──────────────────────────────────────────────────────────────
 interface ToastState {
   message: string;
@@ -101,6 +84,7 @@ export default function PharmacyPOSPage() {
   // ─── Core state ─────────────────────────────────────────────────────────
   const [ctx, setCtx] = useState<RegisterContext>({ branch: null, warehouse: null, currency: "BDT" });
   const [products, setProducts] = useState<RegisterProduct[]>([]);
+  const [categoriesList, setCategoriesList] = useState<{ id: string; name: string }[]>([]);
   const [batches, setBatches] = useState<BatchRow[]>([]);
   const [customers, setCustomers] = useState<{ id: string; name: string; phone: string | null }[]>([]);
   const [customerId, setCustomerId] = useState<string>(() => {
@@ -108,12 +92,12 @@ export default function PharmacyPOSPage() {
     try { return localStorage.getItem("bpos_pharmacy_customer") || ""; } catch { return ""; }
   });
   const [cart, setCart] = useState<RxCartItem[]>(() => {
-    if (typeof window === "undefined") return INITIAL_CART;
+    if (typeof window === "undefined") return [];
     try {
       const saved = localStorage.getItem("bpos_pharmacy_cart");
-      return saved ? JSON.parse(saved) : INITIAL_CART;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return INITIAL_CART;
+      return [];
     }
   });
   const [payments, setPayments] = useState<PaymentLine[]>([{ method: "CASH", amount: 0 }]);
@@ -275,14 +259,16 @@ export default function PharmacyPOSPage() {
         read: false,
       });
     }
-    const expiring = products.filter((p) => p.name.includes("Metformin") || p.name.includes("Napa"));
-    if (expiring.length > 0) {
+    const nowMs = now.getTime();
+    const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+    const expiringBatch = batches.find((b) => b.expiryDate && new Date(b.expiryDate).getTime() - nowMs <= thirtyDaysMs && Number(b.qty || 0) > 0);
+    if (expiringBatch) {
       list.push({
         id: "expiry-alert",
         type: "error",
         title: "Expiry Warning",
-        body: `${expiring[0].name} — batch expiring within 30 days`,
-        time: "5 min ago",
+        body: `${expiringBatch.product?.name || "Medicine"} — batch expiring within 30 days`,
+        time: "Just now",
         read: false,
       });
     }
@@ -358,17 +344,24 @@ export default function PharmacyPOSPage() {
 
   const loadData = useCallback(async () => {
     try {
-      const [c, prods, bts] = await Promise.all([
+      const [c, prods, bts, catRes] = await Promise.all([
         fetchRegisterContext().catch((err) => {
           console.warn("Failed to fetch register context", err);
           return { branch: null, warehouse: null, currency: "BDT" };
         }),
         fetchAllProducts().catch(() => []),
         fetchBatches().catch(() => []),
+        api.get<any>("/api/v1/categories").catch(() => ({ data: [] })),
       ]);
       setCtx(c);
       setBatches(bts);
       setProducts(applyBatchStock(prods, bts));
+      const rawCats = Array.isArray(catRes?.data) ? catRes.data : Array.isArray(catRes) ? catRes : [];
+      setCategoriesList(
+        rawCats
+          .filter((ct: any) => ct && ct.id && ct.name)
+          .map((ct: any) => ({ id: String(ct.id), name: String(ct.name) }))
+      );
     } catch {
       setProducts([]);
     }
@@ -408,8 +401,25 @@ export default function PharmacyPOSPage() {
   // ─── Product filtering ────────────────────────────────────────────────────
   const visibleProducts = useMemo(() => {
     const term = search.trim().toLowerCase();
+    const selectedCatObj = categoriesList.find((c) => c.id === category);
+    const nowMs = now.getTime();
+    const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+    const expiringProductIds = new Set(
+      batches
+        .filter((b) => b.expiryDate && new Date(b.expiryDate).getTime() - nowMs <= thirtyDaysMs && Number(b.qty || 0) > 0)
+        .map((b) => b.product?.id)
+        .filter(Boolean)
+    );
+
     let list = products.filter((p) => {
-      if (category !== "All" && inferCategory(p) !== category) return false;
+      if (category !== "All") {
+        const pCatId = (p as any).categoryId;
+        const matchId = pCatId && pCatId === category;
+        const matchName =
+          selectedCatObj &&
+          (p.categoryName || "").trim().toLowerCase() === selectedCatObj.name.trim().toLowerCase();
+        if (!matchId && !matchName) return false;
+      }
       if (!term) return true;
       return (
         p.name.toLowerCase().includes(term) ||
@@ -423,9 +433,9 @@ export default function PharmacyPOSPage() {
     // Grid filters
     if (gridFilter === "Popular") list = [...list].sort((a, b) => (b.stockQty ?? 0) - (a.stockQty ?? 0));
     else if (gridFilter === "Low Stock") list = list.filter((p) => (p.stockQty ?? 0) > 0 && (p.stockQty ?? 0) <= 15);
-    else if (gridFilter === "Expiring Soon") list = list.filter((p) => p.name.includes("Metformin") || p.name.includes("Napa"));
-    else if (gridFilter === "Prescription Required") list = list.filter((p) => /rx|prescription|omeprazole|esomeprazole/i.test(p.categoryName || p.name));
-    else if (gridFilter === "Generic Available") list = list.filter((_, i) => i % 2 === 0);
+    else if (gridFilter === "Expiring Soon") list = list.filter((p) => expiringProductIds.has(p.id));
+    else if (gridFilter === "Prescription Required") list = list.filter((p) => /rx|prescription/i.test(p.categoryName || p.name));
+    else if (gridFilter === "Generic Available") list = list.filter((p) => Boolean(p.genericName));
 
     // Advanced filters
     if (advFilter.inStockOnly) list = list.filter((p) => (p.stockQty ?? 0) > 0);
@@ -441,7 +451,7 @@ export default function PharmacyPOSPage() {
     else if (sortBy === "stock") list = [...list].sort((a, b) => (b.stockQty ?? 0) - (a.stockQty ?? 0));
 
     return list;
-  }, [products, search, category, gridFilter, sortBy, advFilter]);
+  }, [products, categoriesList, batches, now, search, category, gridFilter, sortBy, advFilter]);
 
   // ─── Generic alternatives for lastAddedProduct ────────────────────────────
   const genericAlternatives = useMemo(() => {
@@ -982,6 +992,7 @@ export default function PharmacyPOSPage() {
             searchRef={searchRef}
             category={category}
             setCategory={setCategory}
+            categories={categoriesList}
             catSearch={catSearch}
             setCatSearch={setCatSearch}
             gridFilter={gridFilter}
