@@ -458,19 +458,55 @@ function WholesalePOSInner() {
     setRecentOrdersOpen(false);
   }
 
+  useEffect(() => {
+    try {
+      const resumeHoldId = localStorage.getItem("bpos_resume_hold_id");
+      const rawCart = localStorage.getItem("bpos_general_cart");
+      if (resumeHoldId && rawCart) {
+        const parsed = JSON.parse(rawCart);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setCart(parsed.map((it: any) => ({
+            productId: String(it.productId || it.id || ""),
+            variantId: it.variantId || null,
+            name: String(it.name || "Wholesale Item"),
+            sku: String(it.sku || ""),
+            qty: Number(it.qty || 1),
+            unitPrice: Number(it.unitPrice || it.price || 0),
+            discountAmount: Number(it.discountAmount || 0),
+            lineTotal: Number(it.lineTotal ?? Number(it.qty || 1) * Number(it.unitPrice || it.price || 0)),
+            imageUrl: it.imageUrl || it.image || null,
+          })));
+        }
+        localStorage.removeItem("bpos_resume_hold_id");
+        localStorage.removeItem("bpos_general_cart");
+      }
+    } catch {}
+  }, []);
+
   function holdOrder() {
     if (cart.length === 0) return;
+    const holdId = crypto.randomUUID();
+    const snapshot = [...cart];
     setHeldBills((prev) => [
       ...prev,
       {
-        id: crypto.randomUUID(),
-        items: cart,
+        id: holdId,
+        items: snapshot,
         discountInput,
         discountMode,
         shipping,
         note,
       },
     ]);
+    api.post("/api/v1/pos/holds", {
+      holdRef: `WHL-${holdId.slice(0, 6).toUpperCase()}`,
+      terminalMode: "WHOLESALE",
+      items: snapshot,
+      customerId: selectedCustomer?.id || null,
+      subtotal: snapshot.reduce((acc, i) => acc + Number(i.lineTotal || 0), 0),
+      total,
+      notes: note || "Wholesale POS Hold",
+    }).catch(() => {});
     onClearCart();
   }
 

@@ -109,7 +109,7 @@ export default function PharmacyHubPage() {
   });
 
   return (
-    <div className="w-full max-w-full p-6 space-y-8">
+    <div data-theme="pharmacy" className="theme-pharmacy w-full max-w-full p-6 space-y-8">
       <CustomBreadcrumb
         title="Pharmacy Hub"
         subtitle="Clinical-grade dispense monitoring. Manage prescription batches, track medicine expiry dates, and oversee pharmacy lane throughput with real-time stock sync."
@@ -135,7 +135,7 @@ export default function PharmacyHubPage() {
         {[
           { label: "Daily Revenue", val: fmt(totalSales), sub: "Rx checkout volume", icon: TrendingUp, color: "cyan", iconColor: "text-cyan-600", bg: "bg-cyan-50" },
           { label: "Prescriptions", val: sales.length, sub: "Completed dispenses", icon: Receipt, color: "teal", iconColor: "text-brand-primary", bg: "bg-brand-50" },
-          { label: "Units Dispensed", val: totalItemsSold, sub: "Medicine units sold", icon: Pill, color: "indigo", iconColor: "text-indigo-600", bg: "bg-indigo-50" },
+          { label: "Units Dispensed", val: totalItemsSold, sub: "Medicine units sold", icon: Pill, color: "cyan", iconColor: "text-cyan-600", bg: "bg-cyan-50" },
           { label: "Active Medicines", val: products.length, sub: "FEFO tracked stock", icon: Activity, color: "amber", iconColor: "text-amber-600", bg: "bg-amber-50" },
         ].map((stat, i) => (
           <div key={i} className="group relative overflow-hidden rounded-sm bg-white border border-slate-200 p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_20px_40px_-20px_rgba(0,0,0,0.1)] hover:-translate-y-1">

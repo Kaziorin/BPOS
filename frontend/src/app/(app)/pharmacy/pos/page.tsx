@@ -648,10 +648,45 @@ export default function PharmacyPOSPage() {
     showToast(`${val}% discount applied — ৳${discountAmt.toFixed(2)} off`, "success");
   }
 
+  useEffect(() => {
+    try {
+      const resumeHoldId = localStorage.getItem("bpos_resume_hold_id");
+      const rawCart = localStorage.getItem("bpos_general_cart");
+      if (resumeHoldId && rawCart) {
+        const parsed = JSON.parse(rawCart);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setCart(parsed.map((it: any) => ({
+            productId: String(it.productId || it.id || ""),
+            name: String(it.name || "Medicine"),
+            sku: String(it.sku || ""),
+            qty: Number(it.qty || 1),
+            unitPrice: Number(it.unitPrice || it.price || 0),
+            discountAmount: Number(it.discountAmount || 0),
+            lineTotal: Number(it.lineTotal ?? Number(it.qty || 1) * Number(it.unitPrice || it.price || 0)),
+          })));
+          showToast("Held bill resumed", "info");
+        }
+        localStorage.removeItem("bpos_resume_hold_id");
+        localStorage.removeItem("bpos_general_cart");
+      }
+    } catch {}
+  }, []);
+
   // ─── Hold Bill ────────────────────────────────────────────────────────────
   function holdBill() {
     if (cart.length === 0) return;
-    setHeldBills((prev) => [...prev, { id: crypto.randomUUID(), items: cart, discountTotal, note, createdAt: Date.now() }]);
+    const holdId = crypto.randomUUID();
+    const snapshot = [...cart];
+    setHeldBills((prev) => [...prev, { id: holdId, items: snapshot, discountTotal, note, createdAt: Date.now() }]);
+    api.post("/api/v1/pos/holds", {
+      holdRef: `RX-${holdId.slice(0, 6).toUpperCase()}`,
+      terminalMode: "PHARMACY",
+      items: snapshot,
+      customerId: customerId || null,
+      subtotal: snapshot.reduce((acc, i) => acc + Number(i.lineTotal || 0), 0),
+      total,
+      notes: note || "Pharmacy Rx Hold",
+    }).catch(() => {});
     setCart([]);
     setDiscountTotal(0);
     setDiscountApplied(false);
