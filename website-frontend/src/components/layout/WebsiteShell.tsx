@@ -22,6 +22,7 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
     categories,
     isAdmin,
     isSuperAdmin,
+    configVersion,
     adminOpen,
     setAdminOpen,
     setPreviewDraft,
@@ -83,7 +84,6 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
   const [footerBgColor, setFooterBgColor] = useState(site.footerBgColor);
 
   useEffect(() => {
-    if (adminOpen) return;
     setName(site.storeName);
     setTagline(site.tagline);
     setLogoUrl(site.logoUrl);
@@ -115,7 +115,8 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
     setFooterCtaText(site.footerCtaText);
     setFooterCopyright(site.footerCopyright);
     setFooterBgColor(site.footerBgColor);
-  }, [site, adminOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [configVersion, adminOpen]);
 
   // Live instant preview while editing inside the CMS drawer
   useEffect(() => {

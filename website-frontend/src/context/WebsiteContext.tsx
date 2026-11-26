@@ -104,6 +104,7 @@ interface WebsiteContextValue {
   loading: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
+  configVersion: number;
   adminOpen: boolean;
   setAdminOpen: (open: boolean) => void;
   setPreviewDraft: (draft: WebsiteConfig | null) => void;
@@ -158,6 +159,7 @@ export function WebsiteProvider({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [tenantId, setTenantId] = useState("");
+  const [configVersion, setConfigVersion] = useState(0);
   const [adminOpen, setAdminOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
@@ -195,6 +197,7 @@ export function WebsiteProvider({ children }: { children: React.ReactNode }) {
           ? prodRes.data
           : [];
       setProducts(prods);
+      setConfigVersion((v) => v + 1);
     } finally {
       setLoading(false);
     }
@@ -323,6 +326,7 @@ export function WebsiteProvider({ children }: { children: React.ReactNode }) {
         }
         setIsAdmin(true);
         setIsSuperAdmin(superFlag);
+        setPreviewDraft(null);
         await loadTenantData(tid, token);
         return true;
       }
@@ -335,6 +339,7 @@ export function WebsiteProvider({ children }: { children: React.ReactNode }) {
   const adminLogout = () => {
     localStorage.removeItem("salepay_website_token");
     localStorage.removeItem("token");
+    setPreviewDraft(null);
     setIsAdmin(false);
     setIsSuperAdmin(false);
     setAdminOpen(false);
@@ -416,6 +421,7 @@ export function WebsiteProvider({ children }: { children: React.ReactNode }) {
         loading,
         isAdmin,
         isSuperAdmin,
+        configVersion,
         adminOpen,
         setAdminOpen,
         setPreviewDraft,
