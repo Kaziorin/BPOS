@@ -64,13 +64,13 @@ interface CustomerOption { id: string; name: string; phone: string | null; }
 const currency = (v: number) => `৳${v.toLocaleString("en-BD", { minimumFractionDigits: 2 })}`;
 
 const STATUS_BADGES: Record<string, string> = {
-  BOOKED: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  CONFIRMED: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
-  CHECKED_IN: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  IN_SERVICE: "bg-purple-500/20 text-purple-300 border-purple-500/30",
-  COMPLETED: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  NO_SHOW: "bg-slate-500/20 text-slate-300 border-slate-500/30",
-  CANCELLED: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+  BOOKED: "bg-sky-50 text-sky-700 border-sky-200",
+  CONFIRMED: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  CHECKED_IN: "bg-amber-50 text-amber-800 border-amber-200",
+  IN_SERVICE: "bg-purple-50 text-purple-700 border-purple-200",
+  COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  NO_SHOW: "bg-slate-100 text-slate-700 border-slate-200",
+  CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
 const CATEGORIES = ["HAIR", "SKIN", "NAIL", "SPA", "MAKEUP", "MASSAGE", "OTHER"];
@@ -357,7 +357,7 @@ export default function SalonPage() {
                     <td className="px-4 py-3 text-xs text-gray-500">
                       {s.commissionType === "NONE" ? "—" : s.commissionType === "PERCENTAGE" ? `${s.commissionValue}%` : currency(Number(s.commissionValue))}
                     </td>
-                    <td className="px-4 py-3"><span className={`rounded-full border px-2 py-0.5 text-xs ${s.isActive ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" : "bg-slate-500/20 text-slate-300"}`}>{s.isActive ? "ACTIVE" : "INACTIVE"}</span></td>
+                    <td className="px-4 py-3"><span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${s.isActive ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-slate-100 text-slate-600 border-slate-200"}`}>{s.isActive ? "ACTIVE" : "INACTIVE"}</span></td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1">
                         <button onClick={() => toggleService(s)} className="rounded-sm p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600" title={s.isActive ? "Deactivate" : "Activate"}><Sparkles size={14} /></button>
@@ -591,7 +591,7 @@ export default function SalonPage() {
             options={staff.map((s) => ({ label: s.name, value: s.id }))} />
           <CustomInput label="Start time" type="datetime-local" value={bookForm.startAt} onChange={(e) => setBookForm({ ...bookForm, startAt: e.target.value })} />
           <div className="flex items-center gap-2 rounded-sm bg-amber-50 p-3 text-xs text-amber-700">
-            <Clock size={13} /> Booking conflicts with the stylist's other appointments are rejected automatically.
+            <Clock size={13} /> Booking conflicts with the stylist&apos;s other appointments are rejected automatically.
           </div>
           <div className="flex justify-end gap-2">
             <CustomButton variant="outline" onClick={() => setShowBook(false)}>Cancel</CustomButton>
