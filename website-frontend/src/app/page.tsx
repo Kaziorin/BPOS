@@ -70,13 +70,15 @@ export default function HomePage() {
 
         <div className="relative z-10 max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12">
           <div className="max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-extrabold bg-white/10 border border-white/20 backdrop-blur-md">
-              <span
-                className="w-2 h-2 rounded-full animate-pulse"
-                style={{ backgroundColor: site.accent }}
-              />
-              <span>{site.pill}</span>
-            </div>
+            {site.pill && (
+              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-extrabold bg-white/10 border border-white/20 backdrop-blur-md">
+                <span
+                  className="w-2 h-2 rounded-full animate-pulse"
+                  style={{ backgroundColor: site.accent }}
+                />
+                <span>{site.pill}</span>
+              </div>
+            )}
 
             <h1 className="text-4xl sm:text-6xl lg:text-[68px] font-black tracking-tight leading-[1.06]">
               {(() => {
@@ -121,9 +123,8 @@ export default function HomePage() {
                     type="button"
                     onClick={() => setSlideIdx(idx)}
                     aria-label={`Slide ${idx + 1}`}
-                    className={`h-2 rounded-full transition-all ${
-                      idx === slideIdx ? "w-7 bg-white" : "w-2 bg-white/40 hover:bg-white/75"
-                    }`}
+                    className={`h-2 rounded-full transition-all ${idx === slideIdx ? "w-7 bg-white" : "w-2 bg-white/40 hover:bg-white/75"
+                      }`}
                   />
                 ))}
               </div>
