@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Tag, Copy, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Tag, Copy, Check, ChevronLeft, ChevronRight, Zap } from "lucide-react";
 import { SectionItem } from "@/lib/builderTypes";
 
 interface HeroSliderProps {
@@ -30,8 +30,9 @@ export default function HeroSliderSection({ section, noticeSection, isDarkMode }
   const sideDealTitle = settings?.sideDealTitle || "Flash Deal";
   const sideDealBadge = settings?.sideDealBadge || "Up to 70% off";
   const sideDealImage =
-    settings?.sideDealImage ||
-    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80";
+    settings?.sideDealImage && !settings.sideDealImage.includes("1505740420928")
+      ? settings.sideDealImage
+      : "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&auto=format&fit=crop&q=80";
 
   const slides: HeroSlide[] = [
     {
@@ -88,13 +89,13 @@ export default function HeroSliderSection({ section, noticeSection, isDarkMode }
 
   const currentSlide = slides[activeIndex];
 
-  const renderTwoToneTitle = (heading: string) => {
+  const renderTwoToneTitle = (heading: string, accentWords = 2, accentClass = "text-orange-600") => {
     const words = heading.trim().split(/\s+/);
-    if (words.length <= 2) return heading;
+    if (words.length <= accentWords) return heading;
     return (
       <>
-        {words.slice(0, -2).join(" ")}{" "}
-        <span className="text-orange-600">{words.slice(-2).join(" ")}</span>
+        {words.slice(0, -accentWords).join(" ")}{" "}
+        <span className={accentClass}>{words.slice(-accentWords).join(" ")}</span>
       </>
     );
   };
@@ -320,43 +321,55 @@ export default function HeroSliderSection({ section, noticeSection, isDarkMode }
               </div>
             </div>
 
-            {/* Card 3 (Bottom-Right): Featured / Flash Deal Card */}
+            {/* Card 3 (Bottom-Right): Full-Bleed Image + Seamless Bottom Gradient Overlay */}
             <div
-              className={`flex-1 rounded-2xl overflow-hidden p-5 flex flex-col justify-between gap-3 border ${
+              className={`group relative overflow-hidden flex-1 rounded-2xl p-4 sm:p-5 flex flex-col justify-between border min-h-[245px] ${
                 isDarkMode
                   ? "bg-zinc-900 border-zinc-800"
-                  : "bg-white border-orange-200/70"
+                  : "bg-stone-100 border-orange-200/80 shadow-[0_2px_12px_-4px_rgba(234,88,12,0.08)]"
               }`}
             >
-              <div className="flex items-center justify-between gap-2">
-                <h3 className={`text-base font-semibold leading-tight ${isDarkMode ? "!text-white" : "!text-stone-900"}`}>
-                  {sideDealTitle}
-                </h3>
-                <span className="text-[11px] font-semibold text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-0.5 rounded-md">
-                  {sideDealBadge}
+              {/* Full-Bleed Crisp Image */}
+              <img
+                src={sideDealImage}
+                alt={sideDealTitle}
+                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+              />
+
+              {/* Seamless Bottom Scrim for High-Contrast Text */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/40 to-black/10"
+              />
+
+              {/* Top-Left Floating Discount Pill */}
+              <div className="relative z-10">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-orange-600 !text-white text-[11px] font-semibold shadow-md">
+                  <Zap className="w-3 h-3 fill-current" />
+                  <span>{sideDealBadge}</span>
                 </span>
               </div>
 
-              <div className="relative h-44 w-full rounded-xl overflow-hidden border border-stone-200 bg-stone-100">
-                <img
-                  src={sideDealImage}
-                  alt={sideDealTitle}
-                  className="w-full h-full object-cover object-center hover:scale-103 transition-transform duration-300"
-                  loading="lazy"
-                />
-              </div>
+              {/* Clean Floating Content Over Bottom Gradient */}
+              <div className="relative z-10 flex flex-wrap items-end justify-between gap-3 pt-6">
+                <div className="min-w-0">
+                  <h3 className="text-xl font-semibold tracking-tight leading-tight !text-white drop-shadow-xs">
+                    {renderTwoToneTitle(sideDealTitle, 1, "text-orange-400")}
+                  </h3>
+                  <p className="mt-1 text-xs font-medium !text-stone-200">
+                    Limited-time bestsellers
+                  </p>
+                </div>
 
-              <Link
-                href="/products"
-                className={`w-full py-2 px-4 rounded-lg border text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 ${
-                  isDarkMode
-                    ? "border-zinc-700 bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
-                    : "border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-600 hover:text-white hover:border-orange-600"
-                }`}
-              >
-                <span>Browse collection</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+                <Link
+                  href="/products"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 !text-white text-xs font-semibold shadow-sm transition-colors shrink-0"
+                >
+                  <span>Browse collection</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
