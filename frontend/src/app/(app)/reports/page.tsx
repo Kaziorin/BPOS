@@ -57,16 +57,23 @@ const currency = (v: any) =>
 const currencyShort = (v: any) =>
   `৳${(Number(v) || 0).toLocaleString("en-BD", { maximumFractionDigits: 0 })}`;
 
-function ReportsContent() {
+export function ReportsContent({ initialTab }: { initialTab?: TabType }) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const tabParam = (searchParams.get("tab") as TabType) || "sales";
+  const tabParam = (initialTab || (searchParams.get("tab") as TabType)) || "sales";
   const [activeTab, setActiveTab] = useState<TabType>(
     ["sales", "inventory", "financial", "commission", "installments", "saved", "scheduled"].includes(tabParam)
       ? tabParam
       : "sales"
   );
+
+  useEffect(() => {
+    const current = (initialTab || (searchParams.get("tab") as TabType)) || "sales";
+    if (["sales", "inventory", "financial", "commission", "installments", "saved", "scheduled"].includes(current)) {
+      setActiveTab(current);
+    }
+  }, [initialTab, searchParams]);
 
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState("");
@@ -125,12 +132,9 @@ function ReportsContent() {
   const switchTab = (tab: TabType) => {
     setActiveTab(tab);
     const params = new URLSearchParams(searchParams.toString());
-    if (tab === "sales") {
-      params.delete("tab");
-    } else {
-      params.set("tab", tab);
-    }
-    router.replace(`/reports?${params.toString()}`);
+    params.delete("tab");
+    const qStr = params.toString() ? `?${params.toString()}` : "";
+    router.push(`/reports/${tab}${qStr}`);
   };
 
   const buildParams = useCallback(() => {

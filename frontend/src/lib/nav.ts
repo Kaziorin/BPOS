@@ -20,6 +20,10 @@ import {
   Wrench,
   Shield,
   Monitor,
+  Sparkles,
+  Clock,
+  Calendar,
+  Percent,
   type LucideIcon,
 } from "lucide-react";
 
@@ -82,6 +86,18 @@ export const navGroups: NavGroup[] = [
     ],
   },
   {
+    title: "Reports & Analytics",
+    items: [
+      { label: "Sales Reports", href: "/reports/sales", icon: BarChart3 },
+      { label: "Inventory Reports", href: "/reports/inventory", icon: Package },
+      { label: "Financial Reports", href: "/reports/financial", icon: DollarSign },
+      { label: "Staff Commissions", href: "/reports/commission", icon: Percent },
+      { label: "Installments & Dues", href: "/reports/installments", icon: Calendar },
+      { label: "Scheduled Reports", href: "/reports/scheduled", icon: Clock },
+      { label: "AI Intelligence", href: "/ai", icon: Sparkles },
+    ],
+  },
+  {
     title: "Modules",
     items: [
       { label: "Restaurant", href: "/restaurant", icon: UtensilsCrossed },
@@ -89,7 +105,6 @@ export const navGroups: NavGroup[] = [
       { label: "Patient Display", href: "/pharmacy/patient-display", icon: Monitor },
       { label: "Customer Display", href: "/customer-display", icon: Monitor },
       { label: "HRM", href: "/hrm", icon: UserCog },
-      { label: "Reports", href: "/reports", icon: BarChart3 },
       { label: "Settings", href: "/settings", icon: Settings },
     ],
   },
