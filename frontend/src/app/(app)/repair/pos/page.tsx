@@ -159,6 +159,31 @@ export default function RepairPOSPage() {
   const customerSearchRef = useRef<HTMLInputElement>(null);
   const laborNameRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    try {
+      const resumeHoldId = localStorage.getItem("bpos_resume_hold_id");
+      const rawCart = localStorage.getItem("bpos_general_cart");
+      if (resumeHoldId && rawCart) {
+        const parsed = JSON.parse(rawCart);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setCart(parsed.map((it: any, idx: number) => ({
+            id: String(it.id || `${it.productId || "part"}-${idx}`),
+            type: (it.type === "LABOR" || it.type === "OTHER" ? it.type : "PART") as "PART" | "LABOR" | "OTHER",
+            productId: it.productId || undefined,
+            name: String(it.name || "Repair Item"),
+            qty: Number(it.qty || 1),
+            unitPrice: Number(it.unitPrice || it.price || 0),
+            lineTotal: Number(it.lineTotal ?? Number(it.qty || 1) * Number(it.unitPrice || it.price || 0)),
+            warrantyMonths: Number(it.warrantyMonths || 0),
+          })));
+          toast.success("Held items resumed");
+        }
+        localStorage.removeItem("bpos_resume_hold_id");
+        localStorage.removeItem("bpos_general_cart");
+      }
+    } catch {}
+  }, []);
+
   // ── Load Data ────────────────────────────────────────────────────────
   const loadData = useCallback(async () => {
     setLoadingParts(true);
@@ -444,7 +469,7 @@ export default function RepairPOSPage() {
 
       setCompletedTicket({
         ticketId,
-        ticketNo: ticketData?.ticketNo || `TKT-${Date.now().toString().slice(-6)}`,
+        ticketNo: ticketData?.ticketNo || `TKT-${new Date().getTime().toString().slice(-6)}`,
         invoiceNo: deliverData?.sale?.invoiceNo,
         deviceModel,
         imeiSerial,

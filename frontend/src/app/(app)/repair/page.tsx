@@ -69,20 +69,32 @@ const FLOW: Record<string, { next: string; label: string; color: string }> = {
 };
 
 const STATUS_BADGES: Record<string, string> = {
-  RECEIVED: "bg-slate-500/20 text-slate-300 border-slate-500/30",
-  INSPECTION: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  ESTIMATE: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  APPROVED: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  REPAIRING: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
-  QUALITY_CHECK: "bg-purple-500/20 text-purple-300 border-purple-500/30",
-  READY: "bg-brand-primary/20 text-brand-primary/60 border-brand-primary/30",
-  DELIVERED: "bg-gray-500/20 text-gray-300 border-gray-500/30",
-  CANCELLED: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+  RECEIVED: "bg-slate-100 text-slate-700 border-slate-200",
+  INSPECTION: "bg-sky-50 text-sky-700 border-sky-200",
+  ESTIMATE: "bg-amber-50 text-amber-800 border-amber-200",
+  APPROVED: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  REPAIRING: "bg-violet-50 text-violet-700 border-violet-200",
+  QUALITY_CHECK: "bg-purple-50 text-purple-700 border-purple-200",
+  READY: "bg-teal-50 text-teal-700 border-teal-200",
+  DELIVERED: "bg-slate-100 text-slate-800 border-slate-300",
+  CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  RECEIVED: "Received",
+  INSPECTION: "Inspection",
+  ESTIMATE: "Estimate",
+  APPROVED: "Approved",
+  REPAIRING: "Repairing",
+  QUALITY_CHECK: "Quality check",
+  READY: "Ready",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
 };
 
 const PRIORITY_STYLE: Record<string, string> = {
-  LOW: "bg-gray-100 text-gray-600", MEDIUM: "bg-blue-50 text-blue-600",
-  HIGH: "bg-amber-50 text-amber-600", URGENT: "bg-rose-50 text-rose-600",
+  LOW: "bg-slate-100 text-slate-700", MEDIUM: "bg-sky-50 text-sky-700",
+  HIGH: "bg-amber-50 text-amber-800", URGENT: "bg-rose-50 text-rose-700",
 };
 
 export default function RepairPage() {
@@ -303,32 +315,36 @@ export default function RepairPage() {
 
       {/* Pipeline columns */}
       {loading ? (
-        <div className="py-16 text-center"><Loader2 size={24} className="mx-auto animate-spin text-gray-300" /></div>
+        <div className="py-16 text-center"><Loader2 size={24} className="mx-auto animate-spin text-slate-400" /></div>
       ) : (
-        <div className="grid gap-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-8">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {pipeline.map((st) => (
-            <div key={st} className="min-h-[150px] rounded-sm border border-gray-100 bg-gray-50/40">
-              <div className="flex items-center justify-between rounded-t-sm border-b border-gray-100 bg-white px-3 py-2">
-                <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${STATUS_BADGES[st] ?? ""}`}>{st}</span>
-                <span className="text-xs font-semibold text-gray-400">{counts[st] ?? 0}</span>
+            <div key={st} className="flex min-h-[180px] flex-col rounded-sm border border-slate-200 bg-slate-50/70">
+              <div className="flex items-center justify-between rounded-t-sm border-b border-slate-200 bg-white px-3.5 py-2.5">
+                <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${STATUS_BADGES[st] ?? ""}`}>
+                  {STATUS_LABELS[st] ?? st}
+                </span>
+                <span className="text-xs font-semibold text-slate-600 tabular-nums">{counts[st] ?? 0}</span>
               </div>
-              <div className="space-y-2 p-2">
+              <div className="flex-1 space-y-2.5 p-2.5">
                 {byStatus(st).map((t) => (
                   <button key={t.id} onClick={() => openDetail(t)}
-                    className="w-full rounded-sm border border-gray-100 bg-white p-2.5 text-left shadow-sm transition hover:border-primary-200 hover:shadow">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-[10px] font-semibold text-gray-500">{t.ticketNo}</span>
-                      {t.warrantyEligible ? <span title="Under warranty"><ShieldCheck size={11} className="text-emerald-500" /></span> : null}
+                    className="w-full rounded-sm border border-slate-200 bg-white p-3 text-left shadow-2xs transition hover:border-violet-300 hover:shadow-xs cursor-pointer">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-xs font-semibold text-slate-700">{t.ticketNo}</span>
+                      {t.warrantyEligible ? <span title="Under warranty"><ShieldCheck size={14} className="text-emerald-600 shrink-0" /></span> : null}
                     </div>
-                    <p className="mt-1 truncate text-xs font-semibold text-gray-600">{t.customerName || "Customer"}</p>
-                    <p className="truncate text-[10px] text-gray-400">{t.deviceInfo || t.productName || t.serialNo || ""}</p>
-                    <div className="mt-1.5 flex items-center justify-between">
-                      <span className={`rounded-sm px-1.5 py-px text-[9px] font-semibold ${PRIORITY_STYLE[t.priority] ?? ""}`}>{t.priority}</span>
-                      <span className="text-[10px] text-gray-400 tabular-nums">{currency(Number(t.estimatedCost || t.actualCost))}</span>
+                    <p className="mt-1 truncate text-sm font-semibold text-slate-800">{t.customerName || "Customer"}</p>
+                    <p className="mt-0.5 truncate text-xs text-slate-600">{t.deviceInfo || t.productName || t.serialNo || "No device info"}</p>
+                    <div className="mt-2.5 flex items-center justify-between border-t border-slate-100 pt-2">
+                      <span className={`rounded-sm px-2 py-0.5 text-[11px] font-semibold ${PRIORITY_STYLE[t.priority] ?? ""}`}>{t.priority}</span>
+                      <span className="text-xs font-semibold text-slate-700 tabular-nums">{currency(Number(t.estimatedCost || t.actualCost))}</span>
                     </div>
                   </button>
                 ))}
-                {byStatus(st).length === 0 && <p className="py-6 text-center text-[10px] text-gray-300">Empty</p>}
+                {byStatus(st).length === 0 && (
+                  <p className="py-8 text-center text-xs font-medium text-slate-500">No tickets</p>
+                )}
               </div>
             </div>
           ))}
