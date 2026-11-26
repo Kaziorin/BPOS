@@ -4,6 +4,7 @@ $ErrorActionPreference = "Stop"
 $RootDir = $PSScriptRoot
 $FrontendDir = Join-Path $RootDir "frontend"
 $EcommerceDir = Join-Path $RootDir "ecommerce-frontend"
+$WebsiteDir = Join-Path $RootDir "website-frontend"
 $BackendDir = Join-Path $RootDir "backend"
 $StagingDir = Join-Path $RootDir "deploy_staging"
 $ZipFile = Join-Path $RootDir "salepay_prod_deploy.zip"
@@ -23,6 +24,7 @@ New-Item -ItemType Directory -Path $StagingDir | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $StagingDir "backend") | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $StagingDir "frontend") | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $StagingDir "ecommerce-frontend") | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $StagingDir "website-frontend") | Out-Null
 
 # 2. Package Backend
 Write-Host "`n[1/4] Packaging Python Backend..." -ForegroundColor Yellow
@@ -95,7 +97,7 @@ Set-Content -Path (Join-Path $FrontendStaging ".env.production") -Value $Fronten
 Write-Host "POS Frontend packaged." -ForegroundColor Green
 
 # 4. Package E-Commerce Customer Storefront
-Write-Host "`n[3/4] Packaging E-Commerce Storefront..." -ForegroundColor Yellow
+Write-Host "`n[3/5] Packaging E-Commerce Storefront..." -ForegroundColor Yellow
 $EcommerceStaging = Join-Path $StagingDir "ecommerce-frontend"
 robocopy $EcommerceDir $EcommerceStaging /E /XD node_modules .next .git /XF .env.local npm-debug.log | Out-Null
 
@@ -106,8 +108,19 @@ NEXT_PUBLIC_APP_NAME="BlueOceans Storefront"
 Set-Content -Path (Join-Path $EcommerceStaging ".env.production") -Value $EcommerceEnvContent -Encoding UTF8
 Write-Host "E-Commerce Frontend packaged." -ForegroundColor Green
 
-# 5. Copy PM2 & Deploy Scripts
-Write-Host "`n[4/4] Adding PM2 ecosystem & deploy scripts..." -ForegroundColor Yellow
+# 5. Package Corporate Website Frontend
+Write-Host "`n[4/5] Packaging Corporate Website Frontend..." -ForegroundColor Yellow
+$WebsiteStaging = Join-Path $StagingDir "website-frontend"
+robocopy $WebsiteDir $WebsiteStaging /E /XD node_modules .next .git /XF .env.local npm-debug.log | Out-Null
+
+$WebsiteEnvContent = @"
+NEXT_PUBLIC_APP_NAME="BlueOceans POS Enterprise Showcase"
+"@
+Set-Content -Path (Join-Path $WebsiteStaging ".env.production") -Value $WebsiteEnvContent -Encoding UTF8
+Write-Host "Corporate Website Frontend packaged." -ForegroundColor Green
+
+# 6. Copy PM2 & Deploy Scripts
+Write-Host "`n[5/5] Adding PM2 ecosystem & deploy scripts..." -ForegroundColor Yellow
 Copy-Item -Path (Join-Path $RootDir "ecosystem.config.js") -Destination $StagingDir -Force
 Copy-Item -Path (Join-Path $RootDir "deploy_server.sh") -Destination $StagingDir -Force
 

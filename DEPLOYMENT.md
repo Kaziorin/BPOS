@@ -24,6 +24,12 @@ On your production server (`/var/www/blueoceanstech.com/public/SalePayEnterprise
 │   ├── package.json
 │   └── node_modules/
 │
+├── website-frontend/                  # Next.js Corporate Website & Showcase (Port 3002)
+│   ├── .next/                         # Compiled Website Production Build
+│   ├── public/                        # Static Assets & Hero VFX
+│   ├── package.json
+│   └── node_modules/
+│
 ├── backend/                           # Python FastAPI API (Managed by PM2 on Port 4000)
 │   ├── app/                           # FastAPI Application Modules
 │   ├── ai_engine/                     # Local AI Engine Daemon & Models Directory
@@ -203,7 +209,22 @@ curl -s http://127.0.0.1:4000/api/v1/ai/status
     # ==============================================================
 
     # ----------------------------------------------------------
-    # 1. POS Staff & Admin Web App (Next.js Reverse Proxy :3000)
+    # 1. Corporate Marketing Website & Showcase (Next.js :3002)
+    # ----------------------------------------------------------
+    location / {
+        proxy_pass http://127.0.0.1:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # ----------------------------------------------------------
+    # 2. POS Staff & Admin Web App (Next.js Reverse Proxy :3000)
     # ----------------------------------------------------------
     location /pos {
         proxy_pass http://127.0.0.1:3000;
@@ -222,7 +243,7 @@ curl -s http://127.0.0.1:4000/api/v1/ai/status
     }
 
     # ----------------------------------------------------------
-    # 2. Online E-Commerce Customer Storefront (Next.js :3001)
+    # 3. Online E-Commerce Customer Storefront (Next.js :3001)
     # ----------------------------------------------------------
     location /store {
         proxy_pass http://127.0.0.1:3001;
@@ -237,7 +258,7 @@ curl -s http://127.0.0.1:4000/api/v1/ai/status
     }
 
     # ----------------------------------------------------------
-    # 3. FastAPI Backend API (Port 4000)
+    # 4. FastAPI Backend API (Port 4000)
     # ----------------------------------------------------------
     location /api/ {
         proxy_pass http://127.0.0.1:4000/api/;
@@ -356,6 +377,7 @@ REDIS_URL="redis://localhost:6379/0"
 | ✅ | Backend is running on port 4000 | `pm2 status salepay-backend` | `online` |
 | ✅ | POS Frontend is running on port 3000 | `pm2 status salepay-pos-frontend` | `online` |
 | ✅ | E-Commerce Storefront is on port 3001 | `pm2 status salepay-ecommerce` | `online` |
+| ✅ | Corporate Website is on port 3002 | `pm2 status salepay-website` | `online` |
 | ✅ | Ollama AI Engine is on port 11434 | `pm2 status salepay-ollama` / `curl http://127.0.0.1:11434/api/tags` | List of models |
 | ✅ | API Docs are accessible | `curl http://127.0.0.1:4000/docs` | 200 OK |
 | ✅ | Remote MySQL connection | `mysql -h 72.60.209.22 -P 3306 -u dba -pEF@j#TpZB413! blue_oceans_pos -e "SHOW TABLES;"` | Table list |

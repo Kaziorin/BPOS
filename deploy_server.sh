@@ -54,7 +54,7 @@ echo "[INFO] Upgrading pip & installing backend dependencies..."
 ./venv/bin/pip install --upgrade pip
 ./venv/bin/pip install -r requirements.txt pymysql asyncmy cryptography uvicorn gunicorn
 
-echo "[4/7] Building POS Staff & Admin Frontend (Next.js :3000)..."
+echo "[4/8] Building POS Staff & Admin Frontend (Next.js :3000)..."
 cd "$DEPLOY_DIR/frontend"
 if [ ! -d "node_modules" ]; then
     npm install
@@ -63,8 +63,17 @@ else
 fi
 npm run build
 
-echo "[5/7] Building E-Commerce Customer Storefront (Next.js :3001)..."
+echo "[5/8] Building E-Commerce Customer Storefront (Next.js :3001)..."
 cd "$DEPLOY_DIR/ecommerce-frontend"
+if [ ! -d "node_modules" ]; then
+    npm install
+else
+    npm install --prefer-offline || npm install
+fi
+npm run build
+
+echo "[6/8] Building Corporate Website Frontend (Next.js :3002)..."
+cd "$DEPLOY_DIR/website-frontend"
 if [ ! -d "node_modules" ]; then
     npm install
 else
@@ -74,11 +83,11 @@ npm run build
 
 cd "$DEPLOY_DIR"
 
-echo "[6/7] Setting Secure Permissions..."
+echo "[7/8] Setting Secure Permissions..."
 chmod -R 755 "$DEPLOY_DIR"
 chmod 600 "$DEPLOY_DIR/backend/.env"* 2>/dev/null || true
 
-echo "[7/7] Launching & Reloading Services via PM2..."
+echo "[8/8] Launching & Reloading Services via PM2..."
 pm2 startOrReload ecosystem.config.js --update-env
 pm2 save
 
@@ -93,6 +102,7 @@ echo "Testing Endpoint Health:"
 curl -sf -m 5 http://127.0.0.1:4000/docs >/dev/null && echo " [OK] Backend API (:4000) is LIVE" || echo " [WAIT] Backend API starting..."
 curl -sf -m 5 http://127.0.0.1:3000 >/dev/null && echo " [OK] POS Frontend (:3000) is LIVE" || echo " [WAIT] POS Frontend starting..."
 curl -sf -m 5 http://127.0.0.1:3001 >/dev/null && echo " [OK] E-Commerce Storefront (:3001) is LIVE" || echo " [WAIT] Storefront starting..."
+curl -sf -m 5 http://127.0.0.1:3002 >/dev/null && echo " [OK] Corporate Website (:3002) is LIVE" || echo " [WAIT] Corporate Website starting..."
 curl -sf -m 5 http://127.0.0.1:11434/api/tags >/dev/null && echo " [OK] Ollama AI Engine (:11434) is LIVE" || echo " [WARNING] Ollama port unreachable"
 
 echo ""

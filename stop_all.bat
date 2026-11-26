@@ -25,6 +25,12 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":3001" ^| findstr "LISTENING
     taskkill /F /PID %%a >nul 2>&1
 )
 
+echo Stopping processes on port 3002 (Corporate Website)...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":3002" ^| findstr "LISTENING"') do (
+    echo Terminating website process ID: %%a
+    taskkill /F /PID %%a >nul 2>&1
+)
+
 echo Stopping processes on port 11434 (Local AI Engine)...
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":11434" ^| findstr "LISTENING"') do (
     echo Terminating AI engine process ID: %%a
