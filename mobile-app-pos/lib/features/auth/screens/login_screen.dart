@@ -102,9 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
           // ── 3. CONSTELLATIONS & SINE WAVE GRAPHICS ──
           Positioned.fill(
-            child: CustomPaint(
-              painter: _ConstellationBackgroundPainter(),
-            ),
+            child: CustomPaint(painter: _ConstellationBackgroundPainter()),
           ),
 
           // ── 4. MAIN CENTERED LOGIN FORM CARD ──
@@ -132,7 +130,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 28),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 28,
+                        vertical: 28,
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -146,21 +147,28 @@ class _LoginScreenState extends State<LoginScreen> {
                                 gradient: const LinearGradient(
                                   begin: Alignment.bottomLeft,
                                   end: Alignment.topRight,
-                                  colors: [Color(0xFF0284C7), Color(0xFF38BDF8)],
+                                  colors: [
+                                    Color(0xFF0284C7),
+                                    Color(0xFF38BDF8),
+                                  ],
                                 ),
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+                                    color: const Color(
+                                      0xFF0284C7,
+                                    ).withValues(alpha: 0.35),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
                                 ],
                               ),
-                              child: const Icon(
-                                Icons.storefront_rounded,
-                                color: Colors.white,
-                                size: 26,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Image.asset(
+                                  'assets/icon/Glossy 3D Shopping Cart Logo.png',
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             ),
                           ),
@@ -168,7 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           // ── Brand Title & Subtitle ──
                           const Text(
-                            'Blue Oceans POS',
+                            'SalePay',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 18,
@@ -196,7 +204,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               decoration: BoxDecoration(
                                 color: const Color(0xFFFFF1F2),
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: const Color(0xFFFECDD3)),
+                                border: Border.all(
+                                  color: const Color(0xFFFECDD3),
+                                ),
                               ),
                               child: Text(
                                 _errorMsg!,
@@ -237,17 +247,28 @@ class _LoginScreenState extends State<LoginScreen> {
                                   size: 18,
                                 ),
                                 hintText: 'user@example.com',
-                                hintStyle: const TextStyle(fontSize: 12.5, color: Color(0xFF94A3B8)),
+                                hintStyle: const TextStyle(
+                                  fontSize: 12.5,
+                                  color: Color(0xFF94A3B8),
+                                ),
                                 filled: true,
                                 fillColor: const Color(0xFFF0F9FF),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 0,
+                                ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(color: Color(0xFFBAE6FD)),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFFBAE6FD),
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(color: Color(0xFF0284C7), width: 1.5),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF0284C7),
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
                             ),
@@ -282,24 +303,39 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscurePass ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                    _obscurePass
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
                                     size: 18,
                                     color: const Color(0xFF94A3B8),
                                   ),
-                                  onPressed: () => setState(() => _obscurePass = !_obscurePass),
+                                  onPressed: () => setState(
+                                    () => _obscurePass = !_obscurePass,
+                                  ),
                                 ),
                                 hintText: '••••••••',
-                                hintStyle: const TextStyle(fontSize: 12.5, color: Color(0xFF94A3B8)),
+                                hintStyle: const TextStyle(
+                                  fontSize: 12.5,
+                                  color: Color(0xFF94A3B8),
+                                ),
                                 filled: true,
                                 fillColor: const Color(0xFFF0F9FF),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 0,
+                                ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(color: Color(0xFFBAE6FD)),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFFBAE6FD),
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(color: Color(0xFF0284C7), width: 1.5),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF0284C7),
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
                             ),
@@ -311,7 +347,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               InkWell(
-                                onTap: () => setState(() => _rememberMe = !_rememberMe),
+                                onTap: () =>
+                                    setState(() => _rememberMe = !_rememberMe),
                                 borderRadius: BorderRadius.circular(4),
                                 child: Row(
                                   children: [
@@ -320,10 +357,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                       width: 18,
                                       child: Checkbox(
                                         value: _rememberMe,
-                                        onChanged: (v) => setState(() => _rememberMe = v ?? false),
+                                        onChanged: (v) => setState(
+                                          () => _rememberMe = v ?? false,
+                                        ),
                                         activeColor: const Color(0xFF0284C7),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                                        side: const BorderSide(color: Color(0xFFBAE6FD), width: 1.5),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                        side: const BorderSide(
+                                          color: Color(0xFFBAE6FD),
+                                          width: 1.5,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
@@ -342,7 +388,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Please contact your administrator to reset credentials.'),
+                                      content: Text(
+                                        'Please contact your administrator to reset credentials.',
+                                      ),
                                       duration: Duration(seconds: 2),
                                     ),
                                   );
@@ -350,7 +398,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: TextButton.styleFrom(
                                   padding: EdgeInsets.zero,
                                   minimumSize: Size.zero,
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                 ),
                                 child: const Text(
                                   'Forgot password?',
@@ -375,12 +424,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                 height: 44,
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
-                                    colors: [Color(0xFF0284C7), Color(0xFF0EA5E9)],
+                                    colors: [
+                                      Color(0xFF0284C7),
+                                      Color(0xFF0EA5E9),
+                                    ],
                                   ),
                                   borderRadius: BorderRadius.circular(8),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF0284C7).withValues(alpha: 0.35),
+                                      color: const Color(
+                                        0xFF0284C7,
+                                      ).withValues(alpha: 0.35),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
@@ -391,7 +445,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ? const SizedBox(
                                           height: 20,
                                           width: 20,
-                                          child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white),
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.2,
+                                            color: Colors.white,
+                                          ),
                                         )
                                       : const Text(
                                           'Sign In',
@@ -417,7 +474,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             child: Text(
-                              '© Blue Oceans $currentYear. All rights reserved.',
+                              '© SalePay $currentYear. All rights reserved.',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 11.5,
@@ -430,12 +487,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
           ),
-
         ],
       ),
     );

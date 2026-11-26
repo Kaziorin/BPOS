@@ -57,10 +57,11 @@ void showPharmacyCustomerDialog(BuildContext context, PharmacyProvider provider)
           child: Container(
             width: 480,
             padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -244,6 +245,7 @@ void showPharmacyCustomerDialog(BuildContext context, PharmacyProvider provider)
                 ),
               ],
             ),
+            ),
           ),
         );
       },
@@ -256,177 +258,289 @@ void showPharmacyCustomerDialog(BuildContext context, PharmacyProvider provider)
 // ─────────────────────────────────────────────────────────────
 void showPharmacyScanRxDialog(BuildContext context, PharmacyProvider provider) {
   final isDark = context.isDark;
-  final rxIdCtrl = TextEditingController(text: 'RX-2026-9041');
-  final doctorCtrl = TextEditingController(text: 'Prof. Dr. Anwarul Islam, FCPS');
-  final patientCtrl = TextEditingController(text: 'Kamal Hossain (Age: 42)');
+  final existing = provider.attachedPrescription;
+  final rxIdCtrl = TextEditingController(
+    text: existing?['id']?.toString() ?? 'RX-${DateTime.now().year}-${(DateTime.now().millisecondsSinceEpoch % 9000) + 1000}',
+  );
+  final doctorCtrl = TextEditingController(
+    text: existing?['doctor']?.toString() ?? (provider.attachedDoctor?['name']?.toString() ?? ''),
+  );
+  final patientCtrl = TextEditingController(
+    text: existing?['patient']?.toString() ?? (provider.selectedCustomer?['name']?.toString() ?? ''),
+  );
 
-  final List<MedicineModel> prescribedItems = [
-    provider.allMedicines.firstWhere((m) => m.name == 'Augmentin', orElse: () => provider.allMedicines[1]),
-    provider.allMedicines.firstWhere((m) => m.name == 'Napa Extra', orElse: () => provider.allMedicines[9]),
-    provider.allMedicines.firstWhere((m) => m.name == 'Esomeprazole', orElse: () => provider.allMedicines[6]),
-  ];
+  final meds = provider.allMedicines;
+  final Set<String> selectedIds = {
+    if (meds.isNotEmpty) meds.first.id,
+  };
 
   showDialog(
     context: context,
-    builder: (ctx) => Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: isDark ? context.cardBg : Colors.white,
-      child: Container(
-        width: 500,
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Expanded(
-                  child: Row(
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setState) {
+        final selectedMeds = meds.where((m) => selectedIds.contains(m.id)).toList();
+
+        void savePrescription({required bool loadToCart}) {
+          final rxId = rxIdCtrl.text.trim();
+          if (rxId.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Please enter a Prescription ID'), backgroundColor: Colors.orange),
+            );
+            return;
+          }
+          provider.setPrescription({
+            'id': rxId,
+            'patient': patientCtrl.text.trim().isEmpty ? 'Walk-in Patient' : patientCtrl.text.trim(),
+            'doctor': doctorCtrl.text.trim().isEmpty ? 'On-Duty Doctor' : doctorCtrl.text.trim(),
+            'medicineIds': selectedMeds.map((m) => m.id).toList(),
+            'date': DateTime.now(),
+          });
+          if (loadToCart) {
+            for (final m in selectedMeds) {
+              provider.addToCart(m);
+            }
+          }
+          Navigator.pop(ctx);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                loadToCart
+                    ? 'Rx $rxId attached & ${selectedMeds.length} medicine(s) added to cart'
+                    : 'Prescription $rxId attached to order',
+              ),
+              backgroundColor: primaryTeal,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          backgroundColor: isDark ? context.cardBg : Colors.white,
+          child: Container(
+            width: 480,
+            padding: const EdgeInsets.all(18),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Icon(Icons.camera_alt_outlined, color: primaryTeal, size: 22),
-                      SizedBox(width: 8),
-                      Expanded(
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.purple.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.medical_services_rounded, color: Colors.purple, size: 20),
+                      ),
+                      const SizedBox(width: 10),
+                      const Expanded(
                         child: Text(
-                          'Scan / Attach Prescription (Rx)',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          'Attach Prescription (Rx)',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
                           overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (existing != null)
+                        TextButton(
+                          onPressed: () {
+                            provider.setPrescription(null);
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Prescription detached'), duration: Duration(seconds: 1)),
+                            );
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            minimumSize: Size.zero,
+                          ),
+                          child: const Text('Detach', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                        ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () => Navigator.pop(ctx),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: rxIdCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'Prescription ID *',
+                      prefixIcon: const Icon(Icons.qr_code_2_rounded, size: 18),
+                      isDense: true,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: patientCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'Patient Name',
+                      hintText: 'e.g. Kamal Hossain',
+                      prefixIcon: const Icon(Icons.person_outline_rounded, size: 18),
+                      isDense: true,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: doctorCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'Prescribing Doctor',
+                      hintText: 'e.g. Dr. Anwarul Islam',
+                      prefixIcon: const Icon(Icons.local_hospital_outlined, size: 18),
+                      isDense: true,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Select Medicines for Rx',
+                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
+                      ),
+                      Text(
+                        '${selectedMeds.length} selected',
+                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: primaryTeal),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  if (meds.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Text('No medicines available in catalog.', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    )
+                  else
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 190),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: meds.length,
+                        separatorBuilder: (_, _) => const SizedBox(height: 6),
+                        itemBuilder: (_, idx) {
+                          final med = meds[idx];
+                          final isSelected = selectedIds.contains(med.id);
+                          return InkWell(
+                            onTap: () {
+                              setState(() {
+                                if (isSelected) {
+                                  selectedIds.remove(med.id);
+                                } else {
+                                  selectedIds.add(med.id);
+                                }
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? primaryTeal.withValues(alpha: isDark ? 0.18 : 0.08)
+                                    : (isDark ? context.scaffoldBg : Colors.grey.shade50),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: isSelected ? primaryTeal : context.dividerColor,
+                                  width: isSelected ? 1.4 : 1,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isSelected ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
+                                    color: isSelected ? primaryTeal : Colors.grey,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          med.name,
+                                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        Text(
+                                          '${med.genericName} • Stock: ${med.stock}',
+                                          style: const TextStyle(fontSize: 10.5, color: Colors.grey),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '৳${med.price.toStringAsFixed(0)}',
+                                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5, color: primaryTeal),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade300),
+                          ),
+                          onPressed: () => savePrescription(loadToCart: false),
+                          child: const Text(
+                            'Attach Only',
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryTeal,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            elevation: 0,
+                          ),
+                          icon: const Icon(Icons.add_shopping_cart_rounded, size: 16),
+                          label: const Text(
+                            'Load to Cart',
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5),
+                          ),
+                          onPressed: selectedMeds.isEmpty ? null : () => savePrescription(loadToCart: true),
                         ),
                       ),
                     ],
                   ),
-                ),
-                IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(ctx)),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.purple.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.purple.withValues(alpha: 0.2)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.document_scanner_rounded, color: Colors.purple, size: 28),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('AI Prescription OCR Scanner', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.purple)),
-                        Text('Prescription scanned & validated. 3 prescribed medicines recognized.', style: TextStyle(fontSize: 11)),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: Colors.purple, borderRadius: BorderRadius.circular(6)),
-                    child: const Text('Verified', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: rxIdCtrl,
-                    decoration: const InputDecoration(labelText: 'Prescription ID', isDense: true),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: patientCtrl,
-                    decoration: const InputDecoration(labelText: 'Patient Name & Age', isDense: true),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: doctorCtrl,
-              decoration: const InputDecoration(labelText: 'Prescribing Doctor', isDense: true),
-            ),
-            const SizedBox(height: 14),
-            const Text('Recognized Medicines to Dispense:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 6),
-            ...prescribedItems.map((med) => Container(
-              margin: const EdgeInsets.only(bottom: 6),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: isDark ? context.scaffoldBg : Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: context.dividerColor),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.medication, color: primaryTeal, size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(med.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text('${med.genericName} • ${med.manufacturer}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                      ],
-                    ),
-                  ),
-                  Text('৳ ${med.price.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, color: primaryTeal)),
-                ],
-              ),
-            )),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      provider.setPrescription({
-                        'id': rxIdCtrl.text,
-                        'patient': patientCtrl.text,
-                        'doctor': doctorCtrl.text,
-                        'date': DateTime.now(),
-                      });
-                      Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Prescription attached without loading cart'), duration: Duration(seconds: 1)),
-                      );
-                    },
-                    child: const Text('Attach Only'),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: primaryTeal, foregroundColor: Colors.white),
-                    icon: const Icon(Icons.add_shopping_cart, size: 16),
-                    label: const Text('Load All to Cart'),
-                    onPressed: () {
-                      provider.setPrescription({
-                        'id': rxIdCtrl.text,
-                        'patient': patientCtrl.text,
-                        'doctor': doctorCtrl.text,
-                        'date': DateTime.now(),
-                      });
-                      for (final m in prescribedItems) {
-                        provider.addToCart(m);
-                      }
-                      Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Rx attached & 3 medicines loaded to cart!'), duration: Duration(seconds: 1)),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     ),
   );
 }
@@ -448,9 +562,10 @@ void showPharmacyBarcodeScanDialog(BuildContext context, PharmacyProvider provid
         child: Container(
           width: 420,
           padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -558,6 +673,7 @@ void showPharmacyBarcodeScanDialog(BuildContext context, PharmacyProvider provid
                 ),
             ],
           ),
+          ),
         ),
       ),
     ),
@@ -569,26 +685,28 @@ void showPharmacyBarcodeScanDialog(BuildContext context, PharmacyProvider provid
 // ─────────────────────────────────────────────────────────────
 void showPharmacyQuickRefillDialog(BuildContext context, PharmacyProvider provider) {
   final isDark = context.isDark;
-  final List<Map<String, dynamic>> pastRefills = [
-    {
-      'patient': 'Al-Amin Sikder (01788990011)',
-      'rxNumber': 'RX-8812',
-      'lastFilled': '28 Aug 2026',
-      'items': [
-        provider.allMedicines.firstWhere((m) => m.name == 'Metformin', orElse: () => provider.allMedicines[8]),
-        provider.allMedicines.firstWhere((m) => m.name == 'Zincovit', orElse: () => provider.allMedicines[16]),
-      ],
-    },
-    {
-      'patient': 'Shirin Sultana (01955443322)',
-      'rxNumber': 'RX-7741',
-      'lastFilled': '15 Aug 2026',
-      'items': [
-        provider.allMedicines.firstWhere((m) => m.name == 'Salbutamol', orElse: () => provider.allMedicines[13]),
-        provider.allMedicines.firstWhere((m) => m.name == 'Cetirizine', orElse: () => provider.allMedicines[4]),
-      ],
-    },
-  ];
+  final meds = provider.allMedicines;
+  MedicineModel? safePick(String name, int fallbackIdx) {
+    if (meds.isEmpty) return null;
+    return meds.firstWhere(
+      (m) => m.name == name,
+      orElse: () => meds[fallbackIdx % meds.length],
+    );
+  }
+
+  final List<Map<String, dynamic>> fallbackRefills = meds.isEmpty
+      ? []
+      : [
+          {
+            'patient': 'Walk-in / Recent Rx',
+            'rxNumber': 'RX-8812',
+            'lastFilled': 'Recent',
+            'items': [
+              safePick('Metformin', 0),
+              safePick('Zincovit', 1),
+            ].whereType<MedicineModel>().toList(),
+          },
+        ];
 
   showDialog(
     context: context,
@@ -598,80 +716,125 @@ void showPharmacyQuickRefillDialog(BuildContext context, PharmacyProvider provid
       child: Container(
         width: 480,
         padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Expanded(
-                  child: Row(
+        child: SingleChildScrollView(
+          child: FutureBuilder(
+            future: ApiService.instance.fetchSalesOrders(businessType: 'pharmacy', limit: 10),
+            builder: (context, snapshot) {
+              final liveOrders = snapshot.data ?? [];
+              final List<Map<String, dynamic>> refills = liveOrders.isNotEmpty
+                  ? liveOrders.map((order) {
+                      final matchedMeds = <MedicineModel>[];
+                      for (final item in order.items) {
+                        final found = meds.where((m) =>
+                            m.id == item.productId ||
+                            m.name.toLowerCase() == item.name.toLowerCase()).toList();
+                        if (found.isNotEmpty) {
+                          matchedMeds.add(found.first);
+                        }
+                      }
+                      return {
+                        'patient': order.customerName,
+                        'rxNumber': order.orderNo,
+                        'lastFilled': '${order.orderDate.day}/${order.orderDate.month}/${order.orderDate.year}',
+                        'items': matchedMeds,
+                      };
+                    }).where((r) => (r['items'] as List<MedicineModel>).isNotEmpty).toList()
+                  : fallbackRefills;
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(Icons.refresh_rounded, color: Colors.orange, size: 22),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Patient Quick Refill',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
+                      const Expanded(
+                        child: Row(
+                          children: [
+                            Icon(Icons.refresh_rounded, color: Colors.orange, size: 22),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Patient Quick Refill',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                      IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
                     ],
                   ),
-                ),
-                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
-              ],
-            ),
-            const SizedBox(height: 12),
-            const Text('Choose past prescription to auto-refill:', style: TextStyle(fontSize: 12, color: Colors.grey)),
-            const SizedBox(height: 10),
-            ...pastRefills.map((refill) {
-              final items = refill['items'] as List<MedicineModel>;
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isDark ? context.scaffoldBg : Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: context.dividerColor),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(refill['patient'] as String, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                        Text('Last: ${refill['lastFilled']}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                      ],
-                    ),
-                    Text('Rx: ${refill['rxNumber']} • ${items.length} items', style: const TextStyle(fontSize: 11, color: primaryTeal)),
-                    const SizedBox(height: 6),
-                    Text(items.map((m) => '${m.name} (৳${m.price.toStringAsFixed(0)})').join(' + '), style: const TextStyle(fontSize: 11)),
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white, elevation: 0),
-                        icon: const Icon(Icons.restart_alt, size: 16),
-                        label: const Text('Refill Now'),
-                        onPressed: () {
-                          for (final m in items) {
-                            provider.addToCart(m);
-                          }
-                          Navigator.pop(ctx);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Refilled ${items.length} medicines for ${refill['patient']}'), duration: const Duration(seconds: 1)),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  const SizedBox(height: 12),
+                  const Text('Choose past prescription / order to auto-refill:', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  const SizedBox(height: 10),
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Center(child: CircularProgressIndicator(color: Colors.orange)),
+                    )
+                  else if (refills.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Text('No refillable medicines or past orders found.', style: TextStyle(color: Colors.grey)),
+                    )
+                  else
+                    ...refills.map((refill) {
+                      final items = refill['items'] as List<MedicineModel>;
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isDark ? context.scaffoldBg : Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: context.dividerColor),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    refill['patient'] as String,
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                Text('Last: ${refill['lastFilled']}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                              ],
+                            ),
+                            Text('Ref: ${refill['rxNumber']} • ${items.length} items', style: const TextStyle(fontSize: 11, color: primaryTeal)),
+                            const SizedBox(height: 6),
+                            Text(items.map((m) => '${m.name} (৳${m.price.toStringAsFixed(0)})').join(' + '), style: const TextStyle(fontSize: 11)),
+                            const SizedBox(height: 8),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white, elevation: 0),
+                                icon: const Icon(Icons.restart_alt, size: 16),
+                                label: const Text('Refill Now'),
+                                onPressed: () {
+                                  for (final m in items) {
+                                    provider.addToCart(m);
+                                  }
+                                  Navigator.pop(ctx);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Refilled ${items.length} medicines for ${refill['patient']}'), duration: const Duration(seconds: 1)),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                ],
               );
-            }),
-          ],
+            },
+          ),
         ),
       ),
     ),
@@ -700,10 +863,11 @@ void showPharmacyAddMedicineDialog(BuildContext context, PharmacyProvider provid
         child: Container(
           width: 460,
           padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -811,6 +975,7 @@ void showPharmacyAddMedicineDialog(BuildContext context, PharmacyProvider provid
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),
@@ -1116,10 +1281,11 @@ void showPharmacyDoctorDialog(BuildContext context, PharmacyProvider provider) {
         child: Container(
           width: 440,
           padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -1189,6 +1355,7 @@ void showPharmacyDoctorDialog(BuildContext context, PharmacyProvider provider) {
               ),
             ],
           ),
+          ),
         ),
       ),
     ),
@@ -1210,10 +1377,11 @@ void showPharmacyNoteDialog(BuildContext context, PharmacyProvider provider) {
       child: Container(
         width: 400,
         padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1270,6 +1438,7 @@ void showPharmacyNoteDialog(BuildContext context, PharmacyProvider provider) {
               ],
             ),
           ],
+        ),
         ),
       ),
     ),
@@ -2839,7 +3008,7 @@ class PharmacyReceiptModal extends StatelessWidget {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Software by Blue Oceans POS',
+                      'Software by SalePay',
                       style: TextStyle(
                         fontSize: 8.5,
                         color: isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8),

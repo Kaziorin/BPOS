@@ -50,7 +50,7 @@ class ZestBiteApp extends StatelessWidget {
       child: Consumer<AppProvider>(
         builder: (context, appProvider, _) {
           return MaterialApp(
-            title: 'BPOS',
+            title: 'SalePay',
             debugShowCheckedModeBanner: false,
             scrollBehavior: const AppScrollBehavior(),
             theme: AppTheme.lightTheme,

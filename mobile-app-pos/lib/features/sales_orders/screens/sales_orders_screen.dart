@@ -17,13 +17,11 @@ import '../utils/sales_orders_export.dart';
 class BusinessSalesOrdersScreen extends StatefulWidget {
   final String businessType;
 
-  const BusinessSalesOrdersScreen({
-    super.key,
-    required this.businessType,
-  });
+  const BusinessSalesOrdersScreen({super.key, required this.businessType});
 
   @override
-  State<BusinessSalesOrdersScreen> createState() => _BusinessSalesOrdersScreenState();
+  State<BusinessSalesOrdersScreen> createState() =>
+      _BusinessSalesOrdersScreenState();
 }
 
 class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
@@ -99,7 +97,7 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
       'Due (Tk)',
       'Status',
       'Date',
-      'Time'
+      'Time',
     ];
 
     final rows = _orders.map((o) {
@@ -121,8 +119,10 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
       ];
     });
 
-    final csvContent = '${headers.join(',')}\n${rows.map((r) => r.join(',')).join('\n')}';
-    final fileName = 'sales_orders_${DateTime.now().toIso8601String().substring(0, 10)}.csv';
+    final csvContent =
+        '${headers.join(',')}\n${rows.map((r) => r.join(',')).join('\n')}';
+    final fileName =
+        'sales_orders_${DateTime.now().toIso8601String().substring(0, 10)}.csv';
 
     exportCsvFile(csvContent, fileName);
 
@@ -130,7 +130,11 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+            const Icon(
+              Icons.check_circle_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -157,7 +161,7 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
           primary: Color(0xFFFF6D00),
           dark: Color(0xFFE65100),
           icon: Icons.restaurant_rounded,
-          titleEn: 'Blue Oceans Restaurant',
+          titleEn: 'SalePay Restaurant',
           titleBn: 'ব্লু ওশান রেস্তোরাঁ',
           subtitleEn: 'Live Sales Orders & Floor POS',
           subtitleBn: 'লাইভ সেলস অর্ডার ও কিচেন পিওএস',
@@ -167,7 +171,7 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
           primary: Color(0xFF00897B),
           dark: Color(0xFF004D40),
           icon: Icons.local_pharmacy_rounded,
-          titleEn: 'Blue Oceans Pharmacy',
+          titleEn: 'SalePay Pharmacy',
           titleBn: 'ব্লু ওশান ফার্মেসি',
           subtitleEn: 'Rx Drug Orders & Dispensing',
           subtitleBn: 'প্রেসক্রিপশন অর্ডার ও ড্রাগ কাউন্টার',
@@ -177,7 +181,7 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
           primary: Color(0xFF22C55E),
           dark: Color(0xFF16A34A),
           icon: Icons.local_grocery_store_rounded,
-          titleEn: 'Blue Oceans Grocery',
+          titleEn: 'SalePay Grocery',
           titleBn: 'ব্লু ওশান গ্রোসারি',
           subtitleEn: 'Daily Counter Orders & Produce POS',
           subtitleBn: 'দৈনিক কাউন্টার অর্ডার ও কাঁচাবাজার পিওএস',
@@ -188,7 +192,7 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
           primary: Color(0xFF4F46E5),
           dark: Color(0xFF3730A3),
           icon: Icons.inventory_2_rounded,
-          titleEn: 'Blue Oceans Wholesale',
+          titleEn: 'SalePay Wholesale',
           titleBn: 'ব্লু ওশান হোলসেল',
           subtitleEn: 'B2B Invoices & Bulk Freight Orders',
           subtitleBn: 'বি২বি চালান ও পাইকারি বাল্ক পিওএস',
@@ -199,7 +203,7 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
           primary: Color(0xFFC62828),
           dark: Color(0xFF8B5CF6),
           icon: Icons.shopping_bag_rounded,
-          titleEn: 'Blue Oceans Retail',
+          titleEn: 'SalePay Retail',
           titleBn: 'ব্লু ওশান রিটেইল',
           subtitleEn: 'Store Checkout Orders & Fast POS',
           subtitleBn: 'কাউন্টার চেকআউট অর্ডার ও এক্সপ্রেস পিওএস',
@@ -244,23 +248,35 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
 
     final bgColor = isDark ? const Color(0xFF0B0A0D) : const Color(0xFFF8FAFC);
     final cardBg = isDark ? const Color(0xFF16151A) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF27262D) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? const Color(0xFF27262D)
+        : const Color(0xFFE2E8F0);
     final textPrimary = isDark ? Colors.white : const Color(0xFF0F172A);
-    final textSecondary = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+    final textSecondary = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF64748B);
 
     // KPI Metrics calculation
     final totalOrdersCount = _orders.length;
     final todayOrdersCount = _orders.where((o) => o.isToday).length;
     final totalVolume = _orders.fold<double>(0, (sum, o) => sum + o.total);
-    final completedCount = _orders.where((o) =>
-        o.status == 'COMPLETED' ||
-        o.status == 'CONFIRMED' ||
-        o.status == 'PAID' ||
-        o.status == 'DELIVERED').length;
-    final pendingCount = _orders.where((o) =>
-        o.status == 'PENDING' ||
-        o.status == 'PICKING' ||
-        o.status == 'STOCK_RESERVED').length;
+    final completedCount = _orders
+        .where(
+          (o) =>
+              o.status == 'COMPLETED' ||
+              o.status == 'CONFIRMED' ||
+              o.status == 'PAID' ||
+              o.status == 'DELIVERED',
+        )
+        .length;
+    final pendingCount = _orders
+        .where(
+          (o) =>
+              o.status == 'PENDING' ||
+              o.status == 'PICKING' ||
+              o.status == 'STOCK_RESERVED',
+        )
+        .length;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -274,161 +290,194 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
               children: [
                 // ── TOP HEADER ──
                 _buildTopHeader(
-              context: context,
-              user: user,
-              appProvider: appProvider,
-              bizTheme: bizTheme,
-              locale: locale,
-              isDark: isDark,
-              isMobile: isMobile,
-              cardBg: cardBg,
-              borderColor: borderColor,
-              textPrimary: textPrimary,
-              textSecondary: textSecondary,
-            ),
+                  context: context,
+                  user: user,
+                  appProvider: appProvider,
+                  bizTheme: bizTheme,
+                  locale: locale,
+                  isDark: isDark,
+                  isMobile: isMobile,
+                  cardBg: cardBg,
+                  borderColor: borderColor,
+                  textPrimary: textPrimary,
+                  textSecondary: textSecondary,
+                ),
 
-            // ── BODY ──
-            Expanded(
-              child: RefreshIndicator(
-                color: bizTheme.primary,
-                backgroundColor: cardBg,
-                onRefresh: () async => _loadOrders(),
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isMobile ? 12 : 28,
-                    vertical: isMobile ? 12 : 18,
-                  ),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1800),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // ── BREADCRUMB / ACTION ROW ──
-                        _buildBreadcrumbAndActions(
-                          context: context,
-                          locale: locale,
-                          isDark: isDark,
-                          isMobile: isMobile,
-                          textPrimary: textPrimary,
-                          textSecondary: textSecondary,
-                          bizTheme: bizTheme,
-                          borderColor: borderColor,
-                          cardBg: cardBg,
-                        ),
-                        SizedBox(height: isMobile ? 12 : 18),
-
-                        // ── KPI METRICS BAR (5 CARDS WITH TOTAL & TODAY) ──
-                        _OrdersKpiBar(
-                          totalOrders: totalOrdersCount,
-                          todayOrders: todayOrdersCount,
-                          totalVolume: totalVolume,
-                          completedCount: completedCount,
-                          pendingCount: pendingCount,
-                          locale: locale,
-                          isDark: isDark,
-                          isMobile: isMobile,
-                          cardBg: cardBg,
-                          borderColor: borderColor,
-                          textPrimary: textPrimary,
-                          textSecondary: textSecondary,
-                          accentColor: bizTheme.primary,
-                        ),
-                        SizedBox(height: isMobile ? 12 : 16),
-
-                        // ── SEARCH & STATUS FILTER BAR ──
-                        _FilterSearchBar(
-                          searchCtrl: _searchCtrl,
-                          selectedStatus: _selectedStatus,
-                          onSearch: (val) {
-                            setState(() => _searchQuery = val);
-                            _loadOrders();
-                          },
-                          onStatusChanged: (val) {
-                            setState(() => _selectedStatus = val);
-                            _loadOrders();
-                          },
-                          onRefresh: _loadOrders,
-                          locale: locale,
-                          isDark: isDark,
-                          isMobile: isMobile,
-                          cardBg: cardBg,
-                          borderColor: borderColor,
-                          textPrimary: textPrimary,
-                          textSecondary: textSecondary,
-                          accentColor: bizTheme.primary,
-                        ),
-                        SizedBox(height: isMobile ? 12 : 16),
-
-                        // ── ORDERS DATA TABLE / CARD LIST ──
-                        if (_isLoading)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 40),
-                            child: Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  CircularProgressIndicator(color: bizTheme.primary, strokeWidth: 3),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    locale == 'bn' ? 'অর্ডার তালিকা লোড হচ্ছে...' : 'Loading sales orders...',
-                                    style: TextStyle(color: textSecondary, fontSize: 12, fontWeight: FontWeight.w600),
-                                  ),
-                                ],
+                // ── BODY ──
+                Expanded(
+                  child: RefreshIndicator(
+                    color: bizTheme.primary,
+                    backgroundColor: cardBg,
+                    onRefresh: () async => _loadOrders(),
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isMobile ? 12 : 28,
+                        vertical: isMobile ? 12 : 18,
+                      ),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 1800),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // ── BREADCRUMB / ACTION ROW ──
+                              _buildBreadcrumbAndActions(
+                                context: context,
+                                locale: locale,
+                                isDark: isDark,
+                                isMobile: isMobile,
+                                textPrimary: textPrimary,
+                                textSecondary: textSecondary,
+                                bizTheme: bizTheme,
+                                borderColor: borderColor,
+                                cardBg: cardBg,
                               ),
-                            ),
-                          )
-                        else if (_orders.isEmpty)
-                          _EmptyOrdersView(
-                            locale: locale,
-                            isDark: isDark,
-                            cardBg: cardBg,
-                            borderColor: borderColor,
-                            textPrimary: textPrimary,
-                            textSecondary: textSecondary,
-                            onOpenPos: () => _openPosScreen(context),
-                          )
-                        else if (isMobile)
-                          _OrdersCardList(
-                            orders: _orders,
-                            locale: locale,
-                            isDark: isDark,
-                            cardBg: cardBg,
-                            borderColor: borderColor,
-                            textPrimary: textPrimary,
-                            textSecondary: textSecondary,
-                            accentColor: bizTheme.primary,
-                            onViewDetails: (order) => _showOrderDetailsModal(context, order, bizTheme),
-                            onPrintReceipt: (order) => _showReceiptPrintModal(context, order, bizTheme),
-                          )
-                        else
-                          _OrdersTableView(
-                            orders: _orders,
-                            locale: locale,
-                            isDark: isDark,
-                            cardBg: cardBg,
-                            borderColor: borderColor,
-                            textPrimary: textPrimary,
-                            textSecondary: textSecondary,
-                            accentColor: bizTheme.primary,
-                            onViewDetails: (order) => _showOrderDetailsModal(context, order, bizTheme),
-                            onPrintReceipt: (order) => _showReceiptPrintModal(context, order, bizTheme),
+                              SizedBox(height: isMobile ? 12 : 18),
+
+                              // ── KPI METRICS BAR (5 CARDS WITH TOTAL & TODAY) ──
+                              _OrdersKpiBar(
+                                totalOrders: totalOrdersCount,
+                                todayOrders: todayOrdersCount,
+                                totalVolume: totalVolume,
+                                completedCount: completedCount,
+                                pendingCount: pendingCount,
+                                locale: locale,
+                                isDark: isDark,
+                                isMobile: isMobile,
+                                cardBg: cardBg,
+                                borderColor: borderColor,
+                                textPrimary: textPrimary,
+                                textSecondary: textSecondary,
+                                accentColor: bizTheme.primary,
+                              ),
+                              SizedBox(height: isMobile ? 12 : 16),
+
+                              // ── SEARCH & STATUS FILTER BAR ──
+                              _FilterSearchBar(
+                                searchCtrl: _searchCtrl,
+                                selectedStatus: _selectedStatus,
+                                onSearch: (val) {
+                                  setState(() => _searchQuery = val);
+                                  _loadOrders();
+                                },
+                                onStatusChanged: (val) {
+                                  setState(() => _selectedStatus = val);
+                                  _loadOrders();
+                                },
+                                onRefresh: _loadOrders,
+                                locale: locale,
+                                isDark: isDark,
+                                isMobile: isMobile,
+                                cardBg: cardBg,
+                                borderColor: borderColor,
+                                textPrimary: textPrimary,
+                                textSecondary: textSecondary,
+                                accentColor: bizTheme.primary,
+                              ),
+                              SizedBox(height: isMobile ? 12 : 16),
+
+                              // ── ORDERS DATA TABLE / CARD LIST ──
+                              if (_isLoading)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 40,
+                                  ),
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        CircularProgressIndicator(
+                                          color: bizTheme.primary,
+                                          strokeWidth: 3,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          locale == 'bn'
+                                              ? 'অর্ডার তালিকা লোড হচ্ছে...'
+                                              : 'Loading sales orders...',
+                                          style: TextStyle(
+                                            color: textSecondary,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              else if (_orders.isEmpty)
+                                _EmptyOrdersView(
+                                  locale: locale,
+                                  isDark: isDark,
+                                  cardBg: cardBg,
+                                  borderColor: borderColor,
+                                  textPrimary: textPrimary,
+                                  textSecondary: textSecondary,
+                                  onOpenPos: () => _openPosScreen(context),
+                                )
+                              else if (isMobile)
+                                _OrdersCardList(
+                                  orders: _orders,
+                                  locale: locale,
+                                  isDark: isDark,
+                                  cardBg: cardBg,
+                                  borderColor: borderColor,
+                                  textPrimary: textPrimary,
+                                  textSecondary: textSecondary,
+                                  accentColor: bizTheme.primary,
+                                  onViewDetails: (order) =>
+                                      _showOrderDetailsModal(
+                                        context,
+                                        order,
+                                        bizTheme,
+                                      ),
+                                  onPrintReceipt: (order) =>
+                                      _showReceiptPrintModal(
+                                        context,
+                                        order,
+                                        bizTheme,
+                                      ),
+                                )
+                              else
+                                _OrdersTableView(
+                                  orders: _orders,
+                                  locale: locale,
+                                  isDark: isDark,
+                                  cardBg: cardBg,
+                                  borderColor: borderColor,
+                                  textPrimary: textPrimary,
+                                  textSecondary: textSecondary,
+                                  accentColor: bizTheme.primary,
+                                  onViewDetails: (order) =>
+                                      _showOrderDetailsModal(
+                                        context,
+                                        order,
+                                        bizTheme,
+                                      ),
+                                  onPrintReceipt: (order) =>
+                                      _showReceiptPrintModal(
+                                        context,
+                                        order,
+                                        bizTheme,
+                                      ),
+                                ),
+                            ],
                           ),
-                      ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  ),
-),
-);
-}
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
 
   // ── TOP HEADER ──
   Widget _buildTopHeader({
@@ -484,7 +533,9 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                     border: Border.all(color: borderColor),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                        color: Colors.black.withValues(
+                          alpha: isDark ? 0.2 : 0.04,
+                        ),
                         blurRadius: 4,
                         offset: const Offset(0, 1),
                       ),
@@ -504,10 +555,19 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
           // Switch business if multi-business
           if (user != null && user.isMultiBusiness) ...[
             IconButton(
-              icon: Icon(Icons.apps_rounded, color: bizTheme.primary, size: isMobile ? 20 : 22),
-              tooltip: locale == 'bn' ? 'অন্য ব্যবসা নির্বাচন' : 'Switch Business',
+              icon: Icon(
+                Icons.apps_rounded,
+                color: bizTheme.primary,
+                size: isMobile ? 20 : 22,
+              ),
+              tooltip: locale == 'bn'
+                  ? 'অন্য ব্যবসা নির্বাচন'
+                  : 'Switch Business',
               padding: EdgeInsets.zero,
-              constraints: BoxConstraints(minWidth: isMobile ? 32 : 40, minHeight: isMobile ? 32 : 40),
+              constraints: BoxConstraints(
+                minWidth: isMobile ? 32 : 40,
+                minHeight: isMobile ? 32 : 40,
+              ),
               onPressed: () => appProvider.clearSelectedBusiness(),
             ),
             const SizedBox(width: 2),
@@ -517,7 +577,9 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
           Container(
             padding: EdgeInsets.all(isMobile ? 7 : 9),
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [bizTheme.primary, bizTheme.dark]),
+              gradient: LinearGradient(
+                colors: [bizTheme.primary, bizTheme.dark],
+              ),
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
@@ -527,7 +589,11 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                 ),
               ],
             ),
-            child: Icon(bizTheme.icon, color: Colors.white, size: isMobile ? 18 : 20),
+            child: Icon(
+              bizTheme.icon,
+              color: Colors.white,
+              size: isMobile ? 18 : 20,
+            ),
           ),
           const SizedBox(width: 10),
 
@@ -547,7 +613,9 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  locale == 'bn' ? 'সেলস অর্ডার রেজিস্টার' : 'Sales Orders Register',
+                  locale == 'bn'
+                      ? 'সেলস অর্ডার রেজিস্টার'
+                      : 'Sales Orders Register',
                   style: TextStyle(
                     fontSize: isMobile ? 10 : 11.5,
                     color: bizTheme.primary,
@@ -597,7 +665,9 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                     Text(
                       isMobile
                           ? (locale == 'bn' ? 'পিওএস' : 'POS')
-                          : (locale == 'bn' ? 'পয়েন্ট অব সেল' : 'POS Register'),
+                          : (locale == 'bn'
+                                ? 'পয়েন্ট অব সেল'
+                                : 'POS Register'),
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: isMobile ? 12 : 13,
@@ -657,7 +727,10 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
               ),
               padding: EdgeInsets.zero,
               onPressed: () => appProvider.toggleTheme(),
-              tooltip: AppStrings.get(isDark ? 'light_mode' : 'dark_mode', locale),
+              tooltip: AppStrings.get(
+                isDark ? 'light_mode' : 'dark_mode',
+                locale,
+              ),
             ),
           ),
 
@@ -680,10 +753,16 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
               ],
             ),
             child: PopupMenuButton<String>(
-              icon: Icon(Icons.account_circle_rounded, color: textSecondary, size: isMobile ? 19 : 21),
+              icon: Icon(
+                Icons.account_circle_rounded,
+                color: textSecondary,
+                size: isMobile ? 19 : 21,
+              ),
               color: cardBg,
               padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               onSelected: (val) {
                 if (val == 'logout') {
                   appProvider.logout();
@@ -696,7 +775,10 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                   enabled: false,
                   child: Text(
                     user?.name ?? 'User',
-                    style: TextStyle(fontWeight: FontWeight.w800, color: textPrimary),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: textPrimary,
+                    ),
                   ),
                 ),
                 if (user != null && user.isMultiBusiness)
@@ -706,7 +788,11 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                       children: [
                         const Icon(Icons.swap_horiz_rounded, size: 18),
                         const SizedBox(width: 10),
-                        Text(locale == 'bn' ? 'অন্য ব্যবসা নির্বাচন' : 'Switch Business'),
+                        Text(
+                          locale == 'bn'
+                              ? 'অন্য ব্যবসা নির্বাচন'
+                              : 'Switch Business',
+                        ),
                       ],
                     ),
                   ),
@@ -715,9 +801,16 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                   value: 'logout',
                   child: Row(
                     children: [
-                      const Icon(Icons.logout_rounded, size: 18, color: Colors.red),
+                      const Icon(
+                        Icons.logout_rounded,
+                        size: 18,
+                        color: Colors.red,
+                      ),
                       const SizedBox(width: 10),
-                      Text(locale == 'bn' ? 'লগআউট' : 'Logout', style: const TextStyle(color: Colors.red)),
+                      Text(
+                        locale == 'bn' ? 'লগআউট' : 'Logout',
+                        style: const TextStyle(color: Colors.red),
+                      ),
                     ],
                   ),
                 ),
@@ -763,7 +856,10 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: bizTheme.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
@@ -798,7 +894,9 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                       border: Border.all(color: borderColor, width: 1.2),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+                          color: Colors.black.withValues(
+                            alpha: isDark ? 0.2 : 0.03,
+                          ),
                           blurRadius: 4,
                           offset: const Offset(0, 1),
                         ),
@@ -807,7 +905,11 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.download_rounded, size: 15, color: bizTheme.primary),
+                        Icon(
+                          Icons.download_rounded,
+                          size: 15,
+                          color: bizTheme.primary,
+                        ),
                         const SizedBox(width: 5),
                         Text(
                           locale == 'bn' ? 'সিএসভি' : 'Export CSV',
@@ -838,13 +940,19 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                       border: Border.all(color: borderColor, width: 1.2),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+                          color: Colors.black.withValues(
+                            alpha: isDark ? 0.2 : 0.03,
+                          ),
                           blurRadius: 4,
                           offset: const Offset(0, 1),
                         ),
                       ],
                     ),
-                    child: Icon(Icons.refresh_rounded, size: 16, color: textSecondary),
+                    child: Icon(
+                      Icons.refresh_rounded,
+                      size: 16,
+                      color: textSecondary,
+                    ),
                   ),
                 ),
               ),
@@ -864,23 +972,47 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
             const SizedBox(width: 6),
             Text(
               locale == 'bn' ? 'হোম' : 'Home',
-              style: TextStyle(fontSize: 12.5, color: textSecondary, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 12.5,
+                color: textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Text('/', style: TextStyle(fontSize: 12, color: textSecondary.withValues(alpha: 0.5))),
+              child: Text(
+                '/',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: textSecondary.withValues(alpha: 0.5),
+                ),
+              ),
             ),
             Text(
               locale == 'bn' ? 'সেলস' : 'Sales',
-              style: TextStyle(fontSize: 12.5, color: textSecondary, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 12.5,
+                color: textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Text('/', style: TextStyle(fontSize: 12, color: textSecondary.withValues(alpha: 0.5))),
+              child: Text(
+                '/',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: textSecondary.withValues(alpha: 0.5),
+                ),
+              ),
             ),
             Text(
               locale == 'bn' ? 'অর্ডার সমূহ' : 'Orders',
-              style: TextStyle(fontSize: 12.5, color: textPrimary, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                fontSize: 12.5,
+                color: textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ],
         ),
@@ -901,7 +1033,9 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                     border: Border.all(color: borderColor, width: 1.2),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+                        color: Colors.black.withValues(
+                          alpha: isDark ? 0.2 : 0.03,
+                        ),
                         blurRadius: 4,
                         offset: const Offset(0, 1.5),
                       ),
@@ -910,7 +1044,11 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.download_rounded, size: 16, color: bizTheme.primary),
+                      Icon(
+                        Icons.download_rounded,
+                        size: 16,
+                        color: bizTheme.primary,
+                      ),
                       const SizedBox(width: 7),
                       Text(
                         locale == 'bn' ? 'সিএসভি এক্সপোর্ট' : 'Export CSV',
@@ -941,13 +1079,19 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                     border: Border.all(color: borderColor, width: 1.2),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+                        color: Colors.black.withValues(
+                          alpha: isDark ? 0.2 : 0.03,
+                        ),
                         blurRadius: 4,
                         offset: const Offset(0, 1.5),
                       ),
                     ],
                   ),
-                  child: Icon(Icons.refresh_rounded, size: 18, color: textSecondary),
+                  child: Icon(
+                    Icons.refresh_rounded,
+                    size: 18,
+                    color: textSecondary,
+                  ),
                 ),
               ),
             ),
@@ -957,10 +1101,12 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
     );
   }
 
-
-
   // ── ORDER DETAILS MODAL ──
-  void _showOrderDetailsModal(BuildContext context, SalesOrder order, _BusinessTheme biz) {
+  void _showOrderDetailsModal(
+    BuildContext context,
+    SalesOrder order,
+    _BusinessTheme biz,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final locale = context.read<AppProvider>().locale;
 
@@ -994,9 +1140,15 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: biz.primary.withValues(alpha: 0.08),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(20),
+                  ),
                   border: Border(
-                    bottom: BorderSide(color: isDark ? const Color(0xFF2C2B30) : const Color(0xFFE2E8F0)),
+                    bottom: BorderSide(
+                      color: isDark
+                          ? const Color(0xFF2C2B30)
+                          : const Color(0xFFE2E8F0),
+                    ),
                   ),
                 ),
                 child: Row(
@@ -1010,7 +1162,11 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                             color: biz.primary.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Icon(Icons.receipt_rounded, color: biz.primary, size: 20),
+                          child: Icon(
+                            Icons.receipt_rounded,
+                            color: biz.primary,
+                            size: 20,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Column(
@@ -1026,7 +1182,11 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                             ),
                             Text(
                               '${order.source} • ${order.orderDate.day.toString().padLeft(2, '0')}/${order.orderDate.month.toString().padLeft(2, '0')}/${order.orderDate.year} ${order.orderDate.hour.toString().padLeft(2, '0')}:${order.orderDate.minute.toString().padLeft(2, '0')}',
-                              style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ],
                         ),
@@ -1051,9 +1211,14 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
+                          color: (isDark ? Colors.white : Colors.black)
+                              .withValues(alpha: 0.03),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: isDark ? const Color(0xFF2C2B30) : const Color(0xFFE2E8F0)),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF2C2B30)
+                                : const Color(0xFFE2E8F0),
+                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1062,17 +1227,32 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  locale == 'bn' ? 'গ্রাহকের তথ্য' : 'Customer Info',
-                                  style: const TextStyle(fontSize: 10.5, color: Colors.grey, fontWeight: FontWeight.bold),
+                                  locale == 'bn'
+                                      ? 'গ্রাহকের তথ্য'
+                                      : 'Customer Info',
+                                  style: const TextStyle(
+                                    fontSize: 10.5,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 const SizedBox(height: 3),
                                 Text(
                                   order.customerName,
-                                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800),
+                                  style: const TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w800,
+                                  ),
                                 ),
                                 if (order.customerPhone.isNotEmpty) ...[
                                   const SizedBox(height: 2),
-                                  Text(order.customerPhone, style: const TextStyle(fontSize: 11.5, color: Colors.grey)),
+                                  Text(
+                                    order.customerPhone,
+                                    style: const TextStyle(
+                                      fontSize: 11.5,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
                                 ],
                               ],
                             ),
@@ -1080,15 +1260,27 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  locale == 'bn' ? 'পেমেন্ট ও স্ট্যাটাস' : 'Payment & Status',
-                                  style: const TextStyle(fontSize: 10.5, color: Colors.grey, fontWeight: FontWeight.bold),
+                                  locale == 'bn'
+                                      ? 'পেমেন্ট ও স্ট্যাটাস'
+                                      : 'Payment & Status',
+                                  style: const TextStyle(
+                                    fontSize: 10.5,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 const SizedBox(height: 3),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 7,
+                                    vertical: 3,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: (order.paymentStatus == 'PAID' ? Colors.green : Colors.orange)
-                                        .withValues(alpha: 0.15),
+                                    color:
+                                        (order.paymentStatus == 'PAID'
+                                                ? Colors.green
+                                                : Colors.orange)
+                                            .withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
@@ -1096,7 +1288,9 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w800,
-                                      color: order.paymentStatus == 'PAID' ? Colors.green : Colors.orange,
+                                      color: order.paymentStatus == 'PAID'
+                                          ? Colors.green
+                                          : Colors.orange,
                                     ),
                                   ),
                                 ),
@@ -1109,24 +1303,39 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
 
                       // Items list header
                       Text(
-                        locale == 'bn' ? 'অর্ডার আইটেম তালিকা' : 'Ordered Line Items',
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                        locale == 'bn'
+                            ? 'অর্ডার আইটেম তালিকা'
+                            : 'Ordered Line Items',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
                       const SizedBox(height: 8),
 
                       // Table of items
                       Container(
                         decoration: BoxDecoration(
-                          border: Border.all(color: isDark ? const Color(0xFF2C2B30) : const Color(0xFFE2E8F0)),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF2C2B30)
+                                : const Color(0xFFE2E8F0),
+                          ),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Column(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
                               decoration: BoxDecoration(
-                                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.04),
-                                borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                                color: (isDark ? Colors.white : Colors.black)
+                                    .withValues(alpha: 0.04),
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(10),
+                                ),
                               ),
                               child: Row(
                                 children: [
@@ -1134,28 +1343,44 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                                     flex: 3,
                                     child: Text(
                                       locale == 'bn' ? 'পণ্য' : 'Item',
-                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.grey,
+                                      ),
                                     ),
                                   ),
                                   Expanded(
                                     child: Text(
                                       locale == 'bn' ? 'পরিমাণ' : 'Qty',
                                       textAlign: TextAlign.center,
-                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.grey,
+                                      ),
                                     ),
                                   ),
                                   Expanded(
                                     child: Text(
                                       locale == 'bn' ? 'দর' : 'Rate',
                                       textAlign: TextAlign.right,
-                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.grey,
+                                      ),
                                     ),
                                   ),
                                   Expanded(
                                     child: Text(
                                       locale == 'bn' ? 'মোট' : 'Total',
                                       textAlign: TextAlign.right,
-                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.grey,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -1163,44 +1388,72 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                             ),
                             ...order.items.map((item) {
                               return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
                                 child: Row(
                                   children: [
                                     Expanded(
                                       flex: 3,
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             item.name,
-                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
+                                            ),
                                           ),
                                           Text(
                                             'SKU: ${item.sku}',
-                                            style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.grey,
+                                            ),
                                           ),
                                         ],
                                       ),
                                     ),
                                     Expanded(
                                       child: Text(
-                                        NumberUtils.formatNumber(item.qty, locale),
+                                        NumberUtils.formatNumber(
+                                          item.qty,
+                                          locale,
+                                        ),
                                         textAlign: TextAlign.center,
-                                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600),
+                                        style: const TextStyle(
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
                                     Expanded(
                                       child: Text(
-                                        NumberUtils.formatCurrency(item.unitPrice, locale),
+                                        NumberUtils.formatCurrency(
+                                          item.unitPrice,
+                                          locale,
+                                        ),
                                         textAlign: TextAlign.right,
-                                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600),
+                                        style: const TextStyle(
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
                                     Expanded(
                                       child: Text(
-                                        NumberUtils.formatCurrency(item.lineTotal, locale),
+                                        NumberUtils.formatCurrency(
+                                          item.lineTotal,
+                                          locale,
+                                        ),
                                         textAlign: TextAlign.right,
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w800,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -1216,46 +1469,116 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.02),
+                          color: (isDark ? Colors.white : Colors.black)
+                              .withValues(alpha: 0.02),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: isDark ? const Color(0xFF2C2B30) : const Color(0xFFE2E8F0)),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF2C2B30)
+                                : const Color(0xFFE2E8F0),
+                          ),
                         ),
                         child: Column(
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(locale == 'bn' ? 'সাবটোটাল' : 'Subtotal', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                                Text(NumberUtils.formatCurrency(order.subtotal, locale), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                                Text(
+                                  locale == 'bn' ? 'সাবটোটাল' : 'Subtotal',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                Text(
+                                  NumberUtils.formatCurrency(
+                                    order.subtotal,
+                                    locale,
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ],
                             ),
                             if (order.discountTotal > 0) ...[
                               const SizedBox(height: 5),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(locale == 'bn' ? 'ছাড়' : 'Discount', style: const TextStyle(fontSize: 12, color: Colors.green)),
-                                  Text('- ${NumberUtils.formatCurrency(order.discountTotal, locale)}', style: const TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.w700)),
+                                  Text(
+                                    locale == 'bn' ? 'ছাড়' : 'Discount',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.green,
+                                    ),
+                                  ),
+                                  Text(
+                                    '- ${NumberUtils.formatCurrency(order.discountTotal, locale)}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
                             if (order.taxTotal > 0) ...[
                               const SizedBox(height: 5),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(locale == 'bn' ? 'ভ্যাট / ট্যাক্স' : 'Tax / VAT', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                                  Text(NumberUtils.formatCurrency(order.taxTotal, locale), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                                  Text(
+                                    locale == 'bn'
+                                        ? 'ভ্যাট / ট্যাক্স'
+                                        : 'Tax / VAT',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  Text(
+                                    NumberUtils.formatCurrency(
+                                      order.taxTotal,
+                                      locale,
+                                    ),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
                             if (order.serviceCharge > 0) ...[
                               const SizedBox(height: 5),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(locale == 'bn' ? 'সার্ভিস চার্জ' : 'Service Charge', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                                  Text(NumberUtils.formatCurrency(order.serviceCharge, locale), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                                  Text(
+                                    locale == 'bn'
+                                        ? 'সার্ভিস চার্জ'
+                                        : 'Service Charge',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  Text(
+                                    NumberUtils.formatCurrency(
+                                      order.serviceCharge,
+                                      locale,
+                                    ),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
@@ -1263,10 +1586,23 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(locale == 'bn' ? 'সর্বমোট' : 'Total Amount', style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900)),
                                 Text(
-                                  NumberUtils.formatCurrency(order.total, locale),
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: biz.primary),
+                                  locale == 'bn' ? 'সর্বমোট' : 'Total Amount',
+                                  style: const TextStyle(
+                                    fontSize: 14.5,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                Text(
+                                  NumberUtils.formatCurrency(
+                                    order.total,
+                                    locale,
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w900,
+                                    color: biz.primary,
+                                  ),
                                 ),
                               ],
                             ),
@@ -1274,17 +1610,52 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(locale == 'bn' ? 'পরিশোধিত' : 'Paid Amount', style: const TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold)),
-                                Text(NumberUtils.formatCurrency(order.paidTotal, locale), style: const TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold)),
+                                Text(
+                                  locale == 'bn' ? 'পরিশোধিত' : 'Paid Amount',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  NumberUtils.formatCurrency(
+                                    order.paidTotal,
+                                    locale,
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
                             if (order.dueTotal > 0) ...[
                               const SizedBox(height: 5),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(locale == 'bn' ? 'বকেয়া' : 'Due Amount', style: const TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold)),
-                                  Text(NumberUtils.formatCurrency(order.dueTotal, locale), style: const TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold)),
+                                  Text(
+                                    locale == 'bn' ? 'বকেয়া' : 'Due Amount',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    NumberUtils.formatCurrency(
+                                      order.dueTotal,
+                                      locale,
+                                    ),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
@@ -1304,15 +1675,27 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                     Navigator.pop(ctx);
                     _showReceiptPrintModal(context, order, biz);
                   },
-                  icon: const Icon(Icons.print_rounded, color: Colors.white, size: 17),
+                  icon: const Icon(
+                    Icons.print_rounded,
+                    color: Colors.white,
+                    size: 17,
+                  ),
                   label: Text(
-                    locale == 'bn' ? 'রসিদ প্রিভিউ ও প্রিন্ট' : 'Print Sales Receipt',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13),
+                    locale == 'bn'
+                        ? 'রসিদ প্রিভিউ ও প্রিন্ট'
+                        : 'Print Sales Receipt',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: biz.primary,
                     padding: const EdgeInsets.symmetric(vertical: 13),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -1324,7 +1707,11 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
   }
 
   // ── RECEIPT VIEW & PRINT MODAL (Pixel-Perfect Matching POS Thermal Receipt) ──
-  void _showReceiptPrintModal(BuildContext context, SalesOrder order, _BusinessTheme biz) {
+  void _showReceiptPrintModal(
+    BuildContext context,
+    SalesOrder order,
+    _BusinessTheme biz,
+  ) {
     final isDark = context.read<AppProvider>().isDarkMode;
 
     showDialog(
@@ -1357,7 +1744,21 @@ class _SalesOrderReceiptModal extends StatelessWidget {
   });
 
   String _formatDate(DateTime dt) {
-    const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sept',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     final m = months[dt.month];
     final hr = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
@@ -1388,7 +1789,40 @@ class _SalesOrderReceiptModal extends StatelessWidget {
   }
 
   Widget _buildBarcode() {
-    final barPattern = [3, 1, 2, 2, 1, 3, 1, 2, 3, 1, 1, 2, 2, 1, 3, 2, 1, 1, 3, 2, 1, 2, 3, 1, 2, 1, 3, 1, 2, 2, 1, 3];
+    final barPattern = [
+      3,
+      1,
+      2,
+      2,
+      1,
+      3,
+      1,
+      2,
+      3,
+      1,
+      1,
+      2,
+      2,
+      1,
+      3,
+      2,
+      1,
+      1,
+      3,
+      2,
+      1,
+      2,
+      3,
+      1,
+      2,
+      1,
+      3,
+      1,
+      2,
+      2,
+      1,
+      3,
+    ];
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: barPattern.asMap().entries.map((entry) {
@@ -1397,7 +1831,9 @@ class _SalesOrderReceiptModal extends StatelessWidget {
         return Container(
           width: width,
           height: 38,
-          color: isBlack ? (isDark ? Colors.grey.shade300 : const Color(0xFF1E293B)) : Colors.transparent,
+          color: isBlack
+              ? (isDark ? Colors.grey.shade300 : const Color(0xFF1E293B))
+              : Colors.transparent,
         );
       }).toList(),
     );
@@ -1408,19 +1844,23 @@ class _SalesOrderReceiptModal extends StatelessWidget {
     final receiptBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
     final textDark = isDark ? Colors.white : const Color(0xFF0F172A);
     final textMuted = isDark ? Colors.grey.shade400 : const Color(0xFF475569);
-    final borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFC7D2FE);
+    final borderColor = isDark
+        ? const Color(0xFF334155)
+        : const Color(0xFFC7D2FE);
     final fmt = NumberFormat('#,##0.00');
 
     final cleanBiz = businessType.toLowerCase().trim();
     final badgeText = cleanBiz == 'wholesale'
         ? 'WHOLESALE ORDER COMPLETED & DISPATCHED'
         : (cleanBiz == 'pharmacy'
-            ? 'PHARMACY DISPENSE & ORDER COMPLETED'
-            : (cleanBiz == 'grocery'
-                ? 'GROCERY ORDER COMPLETED & VERIFIED'
-                : 'SALE ORDER COMPLETED & DISPATCHED'));
+              ? 'PHARMACY DISPENSE & ORDER COMPLETED'
+              : (cleanBiz == 'grocery'
+                    ? 'GROCERY ORDER COMPLETED & VERIFIED'
+                    : 'SALE ORDER COMPLETED & DISPATCHED'));
 
-    final cust = order.customerName.isNotEmpty ? order.customerName : 'Walk-in Customer';
+    final cust = order.customerName.isNotEmpty
+        ? order.customerName
+        : 'Walk-in Customer';
     final custShort = cust.length > 22 ? '${cust.substring(0, 20)}...' : cust;
 
     return Dialog(
@@ -1441,7 +1881,11 @@ class _SalesOrderReceiptModal extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF10B981)),
+                  const Icon(
+                    Icons.check_circle_outline_rounded,
+                    size: 16,
+                    color: Color(0xFF10B981),
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     badgeText,
@@ -1479,7 +1923,7 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                   // 1. Company Header
                   Center(
                     child: Text(
-                      'BLUE OCEANS POS',
+                      'SALEPAY POS',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w900,
@@ -1524,14 +1968,22 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                       Flexible(
                         child: Text(
                           'Order: ${order.orderNo}',
-                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'Date: ${_formatDate(order.orderDate)}',
-                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -1542,14 +1994,22 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                       Flexible(
                         child: Text(
                           'Cust: $custShort',
-                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'Source: ${order.source.toUpperCase()}',
-                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -1623,7 +2083,12 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Text(
                         'Standard Order Items',
-                        style: TextStyle(fontSize: 10, color: textMuted, fontStyle: FontStyle.italic, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: textMuted,
+                          fontStyle: FontStyle.italic,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     )
                   else
@@ -1720,11 +2185,20 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Subtotal:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${fmt.format(order.subtotal)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -1735,11 +2209,20 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                       children: [
                         const Text(
                           'Special Discount:',
-                          style: TextStyle(fontSize: 11, color: Colors.green, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.green,
+                            fontFamily: 'monospace',
+                          ),
                         ),
                         Text(
                           '-৳${fmt.format(order.discountTotal)}',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green, fontFamily: 'monospace'),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ],
                     ),
@@ -1750,11 +2233,20 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'VAT (Mushak 6.3 - 15%):',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${fmt.format(order.taxTotal)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -1764,18 +2256,31 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Shipping & Handling:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${fmt.format(order.serviceCharge)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
 
                   // Solid Line
-                  const Divider(color: Color(0xFFCBD5E1), height: 1, thickness: 1),
+                  const Divider(
+                    color: Color(0xFFCBD5E1),
+                    height: 1,
+                    thickness: 1,
+                  ),
                   const SizedBox(height: 6),
 
                   // Net Payable
@@ -1784,18 +2289,32 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Net Payable:',
-                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w900,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${fmt.format(order.total)}',
-                        style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900, color: biz.primary, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w900,
+                          color: biz.primary,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
 
                   // Solid Line
-                  const Divider(color: Color(0xFFCBD5E1), height: 1, thickness: 1),
+                  const Divider(
+                    color: Color(0xFFCBD5E1),
+                    height: 1,
+                    thickness: 1,
+                  ),
                   const SizedBox(height: 6),
 
                   // Tender Details
@@ -1804,11 +2323,20 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Tender Method:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         order.paymentMethod,
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -1819,11 +2347,20 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                       children: [
                         Text(
                           'Tendered / Received:',
-                          style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
                         ),
                         Text(
                           '৳${fmt.format(order.tenderedAmount)}',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: textDark,
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ],
                     ),
@@ -1834,11 +2371,20 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Paid Amount:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${fmt.format(order.paidTotal)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -1849,27 +2395,48 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                       children: [
                         const Text(
                           'Remaining Due:',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFEF4444), fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFFEF4444),
+                            fontFamily: 'monospace',
+                          ),
                         ),
                         Text(
                           '৳${fmt.format(order.dueTotal)}',
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFFEF4444), fontFamily: 'monospace'),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFFEF4444),
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ],
                     ),
                   ],
-                  if (order.changeReturn > 0 || order.tenderedAmount > order.total) ...[
+                  if (order.changeReturn > 0 ||
+                      order.tenderedAmount > order.total) ...[
                     const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
                           'Change / Return:',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF059669), fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF059669),
+                            fontFamily: 'monospace',
+                          ),
                         ),
                         Text(
                           '৳${fmt.format(order.changeReturn > 0 ? order.changeReturn : (order.tenderedAmount - order.total))}',
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF059669), fontFamily: 'monospace'),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF059669),
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ],
                     ),
@@ -1886,7 +2453,12 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                   Center(
                     child: Text(
                       '*${order.orderNo}*',
-                      style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), letterSpacing: 2, fontFamily: 'monospace'),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Color(0xFF64748B),
+                        letterSpacing: 2,
+                        fontFamily: 'monospace',
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -1908,10 +2480,12 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Software by Blue Oceans POS',
+                      'Software by SalePay',
                       style: TextStyle(
                         fontSize: 9,
-                        color: isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8),
+                        color: isDark
+                            ? Colors.grey.shade500
+                            : const Color(0xFF94A3B8),
                         fontFamily: 'monospace',
                       ),
                     ),
@@ -1933,7 +2507,9 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                         printWebDocument();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Printing Thermal Receipt (80mm) for ${order.orderNo}...'),
+                            content: Text(
+                              'Printing Thermal Receipt (80mm) for ${order.orderNo}...',
+                            ),
                             duration: const Duration(seconds: 2),
                             backgroundColor: biz.primary,
                           ),
@@ -1943,14 +2519,22 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                       child: Container(
                         height: 44,
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF242424) : Colors.white,
+                          color: isDark
+                              ? const Color(0xFF242424)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(color: const Color(0xFFC7D2FE)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.print_outlined, size: 16, color: isDark ? Colors.white : const Color(0xFF334155)),
+                            Icon(
+                              Icons.print_outlined,
+                              size: 16,
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF334155),
+                            ),
                             const SizedBox(width: 8),
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -1961,7 +2545,9 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
-                                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                    color: isDark
+                                        ? Colors.white
+                                        : const Color(0xFF1E293B),
                                     height: 1.1,
                                   ),
                                 ),
@@ -1970,7 +2556,9 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 9.5,
                                     fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+                                    color: isDark
+                                        ? Colors.grey.shade400
+                                        : const Color(0xFF64748B),
                                     height: 1.1,
                                   ),
                                 ),
@@ -2004,7 +2592,11 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.close_rounded, size: 18, color: Colors.white),
+                            Icon(
+                              Icons.close_rounded,
+                              size: 18,
+                              color: Colors.white,
+                            ),
                             SizedBox(width: 6),
                             Text(
                               'Close',
@@ -2166,13 +2758,21 @@ class _OrdersKpiBar extends StatelessWidget {
                       children: [
                         Text(
                           i['label'] as String,
-                          style: TextStyle(fontSize: 10, color: textSecondary, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: textSecondary,
+                            fontWeight: FontWeight.w600,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 1),
                         Text(
                           i['val'] as String,
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: textPrimary),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: textPrimary,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
@@ -2188,12 +2788,14 @@ class _OrdersKpiBar extends StatelessWidget {
 
     return Row(
       children: items
-          .map((i) => Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: _kpiTile(i),
-                ),
-              ))
+          .map(
+            (i) => Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: _kpiTile(i),
+              ),
+            ),
+          )
           .toList(),
     );
   }
@@ -2232,18 +2834,29 @@ class _OrdersKpiBar extends StatelessWidget {
               children: [
                 Text(
                   i['label'] as String,
-                  style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
                   i['val'] as String,
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: textPrimary),
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                    color: textPrimary,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   i['sub'] as String,
-                  style: TextStyle(fontSize: 9.5, color: textSecondary.withValues(alpha: 0.8)),
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    color: textSecondary.withValues(alpha: 0.8),
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -2289,7 +2902,14 @@ class _FilterSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statuses = ['ALL', 'CONFIRMED', 'COMPLETED', 'PAID', 'PENDING', 'CANCELLED'];
+    final statuses = [
+      'ALL',
+      'CONFIRMED',
+      'COMPLETED',
+      'PAID',
+      'PENDING',
+      'CANCELLED',
+    ];
 
     return Container(
       padding: EdgeInsets.all(isMobile ? 10 : 14),
@@ -2309,13 +2929,23 @@ class _FilterSearchBar extends StatelessWidget {
                   child: TextField(
                     controller: searchCtrl,
                     onChanged: onSearch,
-                    style: TextStyle(fontSize: isMobile ? 12 : 13, color: textPrimary),
+                    style: TextStyle(
+                      fontSize: isMobile ? 12 : 13,
+                      color: textPrimary,
+                    ),
                     decoration: InputDecoration(
                       hintText: locale == 'bn'
                           ? 'অর্ডার নং, গ্রাহক নাম বা ফোন...'
                           : 'Search by order no, customer or phone...',
-                      hintStyle: TextStyle(fontSize: isMobile ? 11.5 : 12, color: textSecondary),
-                      prefixIcon: Icon(Icons.search_rounded, size: isMobile ? 18 : 20, color: textSecondary),
+                      hintStyle: TextStyle(
+                        fontSize: isMobile ? 11.5 : 12,
+                        color: textSecondary,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search_rounded,
+                        size: isMobile ? 18 : 20,
+                        color: textSecondary,
+                      ),
                       suffixIcon: searchCtrl.text.isNotEmpty
                           ? IconButton(
                               icon: const Icon(Icons.clear_rounded, size: 16),
@@ -2326,10 +2956,16 @@ class _FilterSearchBar extends StatelessWidget {
                             )
                           : null,
                       isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 0,
+                      ),
                       filled: true,
                       fillColor: borderColor.withValues(alpha: 0.3),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
                 ),
@@ -2341,10 +2977,15 @@ class _FilterSearchBar extends StatelessWidget {
                 icon: const Icon(Icons.refresh_rounded, size: 18),
                 tooltip: locale == 'bn' ? 'রিফ্রেশ' : 'Refresh',
                 padding: EdgeInsets.zero,
-                constraints: BoxConstraints(minWidth: isMobile ? 36 : 40, minHeight: isMobile ? 36 : 40),
+                constraints: BoxConstraints(
+                  minWidth: isMobile ? 36 : 40,
+                  minHeight: isMobile ? 36 : 40,
+                ),
                 style: IconButton.styleFrom(
                   backgroundColor: borderColor.withValues(alpha: 0.3),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
             ],
@@ -2374,16 +3015,22 @@ class _FilterSearchBar extends StatelessWidget {
                     onSelected: (_) => onStatusChanged(st),
                     selectedColor: accentColor.withValues(alpha: 0.18),
                     checkmarkColor: accentColor,
-                    padding: isMobile ? const EdgeInsets.symmetric(horizontal: 4, vertical: 0) : null,
+                    padding: isMobile
+                        ? const EdgeInsets.symmetric(horizontal: 4, vertical: 0)
+                        : null,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     labelStyle: TextStyle(
                       fontSize: isMobile ? 11 : 12,
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                      fontWeight: isSelected
+                          ? FontWeight.w800
+                          : FontWeight.w600,
                       color: isSelected ? accentColor : textSecondary,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(color: isSelected ? accentColor : borderColor),
+                      side: BorderSide(
+                        color: isSelected ? accentColor : borderColor,
+                      ),
                     ),
                   ),
                 );
@@ -2443,8 +3090,12 @@ class _OrdersTableView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             decoration: BoxDecoration(
-              color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+              color: (isDark ? Colors.white : Colors.black).withValues(
+                alpha: 0.03,
+              ),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(14),
+              ),
               border: Border(bottom: BorderSide(color: borderColor)),
             ),
             child: Row(
@@ -2453,21 +3104,33 @@ class _OrdersTableView extends StatelessWidget {
                   flex: 3,
                   child: Text(
                     locale == 'bn' ? 'অর্ডার নং ও উৎস' : 'Order # & Source',
-                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: textSecondary),
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: textSecondary,
+                    ),
                   ),
                 ),
                 Expanded(
                   flex: 2,
                   child: Text(
                     locale == 'bn' ? 'অর্ডার তারিখ' : 'Order Date',
-                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: textSecondary),
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: textSecondary,
+                    ),
                   ),
                 ),
                 Expanded(
                   flex: 2,
                   child: Text(
                     locale == 'bn' ? 'আইটেম সমূহ' : 'Line Items',
-                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: textSecondary),
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: textSecondary,
+                    ),
                   ),
                 ),
                 Expanded(
@@ -2475,7 +3138,11 @@ class _OrdersTableView extends StatelessWidget {
                   child: Text(
                     locale == 'bn' ? 'পদ্ধতি' : 'Payment Method',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: textSecondary),
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: textSecondary,
+                    ),
                   ),
                 ),
                 Expanded(
@@ -2483,7 +3150,11 @@ class _OrdersTableView extends StatelessWidget {
                   child: Text(
                     locale == 'bn' ? 'মোট / বকেয়া' : 'Total / Due',
                     textAlign: TextAlign.right,
-                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: textSecondary),
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: textSecondary,
+                    ),
                   ),
                 ),
                 Expanded(
@@ -2491,7 +3162,11 @@ class _OrdersTableView extends StatelessWidget {
                   child: Text(
                     locale == 'bn' ? 'স্ট্যাটাস' : 'Fulfillment Status',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: textSecondary),
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: textSecondary,
+                    ),
                   ),
                 ),
                 Expanded(
@@ -2499,7 +3174,11 @@ class _OrdersTableView extends StatelessWidget {
                   child: Text(
                     locale == 'bn' ? 'অ্যাকশন' : 'Actions',
                     textAlign: TextAlign.right,
-                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: textSecondary),
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: textSecondary,
+                    ),
                   ),
                 ),
               ],
@@ -2511,12 +3190,19 @@ class _OrdersTableView extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: orders.length,
-            separatorBuilder: (ctx, index) => Divider(height: 1, color: borderColor),
+            separatorBuilder: (ctx, index) =>
+                Divider(height: 1, color: borderColor),
             itemBuilder: (ctx, idx) {
               final order = orders[idx];
-              final statusColor = (order.status == 'COMPLETED' || order.status == 'CONFIRMED' || order.status == 'PAID' || order.status == 'DELIVERED')
+              final statusColor =
+                  (order.status == 'COMPLETED' ||
+                      order.status == 'CONFIRMED' ||
+                      order.status == 'PAID' ||
+                      order.status == 'DELIVERED')
                   ? const Color(0xFF10B981)
-                  : (order.status == 'CANCELLED' ? const Color(0xFFEF4444) : const Color(0xFFF59E0B));
+                  : (order.status == 'CANCELLED'
+                        ? const Color(0xFFEF4444)
+                        : const Color(0xFFF59E0B));
 
               final dateStr =
                   '${order.orderDate.day.toString().padLeft(2, '0')}/${order.orderDate.month.toString().padLeft(2, '0')}/${order.orderDate.year}';
@@ -2527,7 +3213,10 @@ class _OrdersTableView extends StatelessWidget {
                 onTap: () => onViewDetails(order),
                 hoverColor: accentColor.withValues(alpha: 0.04),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
                   child: Row(
                     children: [
                       // Order # & Source & Customer
@@ -2541,7 +3230,11 @@ class _OrdersTableView extends StatelessWidget {
                                 color: accentColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Icon(Icons.inventory_2_outlined, color: accentColor, size: 16),
+                              child: Icon(
+                                Icons.inventory_2_outlined,
+                                color: accentColor,
+                                size: 16,
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -2559,7 +3252,10 @@ class _OrdersTableView extends StatelessWidget {
                                   ),
                                   Text(
                                     '${order.customerName} • ${order.source}',
-                                    style: TextStyle(fontSize: 11, color: textSecondary),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: textSecondary,
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
@@ -2575,8 +3271,21 @@ class _OrdersTableView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(dateStr, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textPrimary)),
-                            Text(timeStr, style: TextStyle(fontSize: 10.5, color: textSecondary)),
+                            Text(
+                              dateStr,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: textPrimary,
+                              ),
+                            ),
+                            Text(
+                              timeStr,
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                color: textSecondary,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -2588,14 +3297,21 @@ class _OrdersTableView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 7,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: borderColor.withValues(alpha: 0.6),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 '${order.items.length} ${locale == 'bn' ? 'টি আইটেম' : 'items'}',
-                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: textPrimary),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: textPrimary,
+                                ),
                               ),
                             ),
                             if (order.items.isNotEmpty)
@@ -2603,7 +3319,10 @@ class _OrdersTableView extends StatelessWidget {
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(
                                   order.items.first.name,
-                                  style: TextStyle(fontSize: 10.5, color: textSecondary),
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    color: textSecondary,
+                                  ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -2616,7 +3335,10 @@ class _OrdersTableView extends StatelessWidget {
                         flex: 2,
                         child: Center(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3.5,
+                            ),
                             decoration: BoxDecoration(
                               color: borderColor.withValues(alpha: 0.5),
                               borderRadius: BorderRadius.circular(6),
@@ -2675,15 +3397,24 @@ class _OrdersTableView extends StatelessWidget {
                         flex: 2,
                         child: Center(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 3.5,
+                            ),
                             decoration: BoxDecoration(
                               color: statusColor.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                              border: Border.all(
+                                color: statusColor.withValues(alpha: 0.3),
+                              ),
                             ),
                             child: Text(
                               order.status,
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: statusColor),
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: statusColor,
+                              ),
                             ),
                           ),
                         ),
@@ -2697,15 +3428,22 @@ class _OrdersTableView extends StatelessWidget {
                           children: [
                             IconButton(
                               onPressed: () => onViewDetails(order),
-                              icon: const Icon(Icons.visibility_outlined, size: 18),
-                              tooltip: locale == 'bn' ? 'বিস্তারিত দেখুন' : 'Order Details',
+                              icon: const Icon(
+                                Icons.visibility_outlined,
+                                size: 18,
+                              ),
+                              tooltip: locale == 'bn'
+                                  ? 'বিস্তারিত দেখুন'
+                                  : 'Order Details',
                               color: textSecondary,
                               hoverColor: accentColor.withValues(alpha: 0.1),
                             ),
                             IconButton(
                               onPressed: () => onPrintReceipt(order),
                               icon: const Icon(Icons.print_outlined, size: 18),
-                              tooltip: locale == 'bn' ? 'রসিদ প্রিন্ট' : 'Print Invoice Receipt',
+                              tooltip: locale == 'bn'
+                                  ? 'রসিদ প্রিন্ট'
+                                  : 'Print Invoice Receipt',
                               color: accentColor,
                               hoverColor: accentColor.withValues(alpha: 0.1),
                             ),
@@ -2760,9 +3498,15 @@ class _OrdersCardList extends StatelessWidget {
       itemBuilder: (ctx, idx) {
         final order = orders[idx];
         final isPaid = order.paymentStatus == 'PAID';
-        final statusColor = (order.status == 'COMPLETED' || order.status == 'CONFIRMED' || order.status == 'PAID' || order.status == 'DELIVERED')
+        final statusColor =
+            (order.status == 'COMPLETED' ||
+                order.status == 'CONFIRMED' ||
+                order.status == 'PAID' ||
+                order.status == 'DELIVERED')
             ? const Color(0xFF10B981)
-            : (order.status == 'CANCELLED' ? const Color(0xFFEF4444) : const Color(0xFFF59E0B));
+            : (order.status == 'CANCELLED'
+                  ? const Color(0xFFEF4444)
+                  : const Color(0xFFF59E0B));
 
         final timeStr =
             '${order.orderDate.hour.toString().padLeft(2, '0')}:${order.orderDate.minute.toString().padLeft(2, '0')}';
@@ -2798,7 +3542,11 @@ class _OrdersCardList extends StatelessWidget {
                         color: accentColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(7),
                       ),
-                      child: Icon(Icons.receipt_rounded, color: accentColor, size: 15),
+                      child: Icon(
+                        Icons.receipt_rounded,
+                        color: accentColor,
+                        size: 15,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -2814,7 +3562,10 @@ class _OrdersCardList extends StatelessWidget {
                     ),
                     // Source Pill
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: borderColor.withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(5),
@@ -2831,11 +3582,16 @@ class _OrdersCardList extends StatelessWidget {
                     const SizedBox(width: 6),
                     // Status Pill
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: statusColor.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(5),
-                        border: Border.all(color: statusColor.withValues(alpha: 0.25)),
+                        border: Border.all(
+                          color: statusColor.withValues(alpha: 0.25),
+                        ),
                       ),
                       child: Text(
                         order.status,
@@ -2853,7 +3609,11 @@ class _OrdersCardList extends StatelessWidget {
                 // Middle Row: Customer Info & Timestamp
                 Row(
                   children: [
-                    Icon(Icons.person_outline_rounded, size: 14, color: textSecondary),
+                    Icon(
+                      Icons.person_outline_rounded,
+                      size: 14,
+                      color: textSecondary,
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
@@ -2866,11 +3626,19 @@ class _OrdersCardList extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    Icon(Icons.schedule_rounded, size: 13, color: textSecondary),
+                    Icon(
+                      Icons.schedule_rounded,
+                      size: 13,
+                      color: textSecondary,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '$dateStr • $timeStr',
-                      style: TextStyle(fontSize: 10.5, color: textSecondary, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        color: textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
@@ -2891,7 +3659,11 @@ class _OrdersCardList extends StatelessWidget {
                         children: [
                           Text(
                             '${order.items.length} ${locale == 'bn' ? 'টি আইটেম' : 'items'}',
-                            style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: textSecondary,
+                              fontWeight: FontWeight.w500,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -2901,7 +3673,9 @@ class _OrdersCardList extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
-                              color: isPaid ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                              color: isPaid
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFFF59E0B),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -2953,10 +3727,17 @@ class _OrdersCardList extends StatelessWidget {
                           icon: const Icon(Icons.visibility_outlined, size: 16),
                           tooltip: locale == 'bn' ? 'বিস্তারিত' : 'Details',
                           padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                          constraints: const BoxConstraints(
+                            minWidth: 28,
+                            minHeight: 28,
+                          ),
                           style: IconButton.styleFrom(
-                            backgroundColor: borderColor.withValues(alpha: 0.35),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                            backgroundColor: borderColor.withValues(
+                              alpha: 0.35,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
                           ),
                           color: textSecondary,
                         ),
@@ -2966,10 +3747,17 @@ class _OrdersCardList extends StatelessWidget {
                           icon: const Icon(Icons.print_outlined, size: 16),
                           tooltip: locale == 'bn' ? 'রসিদ' : 'Receipt',
                           padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                          constraints: const BoxConstraints(
+                            minWidth: 28,
+                            minHeight: 28,
+                          ),
                           style: IconButton.styleFrom(
-                            backgroundColor: accentColor.withValues(alpha: 0.12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                            backgroundColor: accentColor.withValues(
+                              alpha: 0.12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
                           ),
                           color: accentColor,
                         ),
@@ -3021,8 +3809,14 @@ class _EmptyOrdersView extends StatelessWidget {
           Icon(Icons.receipt_long_outlined, size: 44, color: textSecondary),
           const SizedBox(height: 12),
           Text(
-            locale == 'bn' ? 'কোন সেলস অর্ডার পাওয়া যায়নি' : 'No sales orders found',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary),
+            locale == 'bn'
+                ? 'কোন সেলস অর্ডার পাওয়া যায়নি'
+                : 'No sales orders found',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: textPrimary,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
@@ -3035,15 +3829,25 @@ class _EmptyOrdersView extends StatelessWidget {
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: onOpenPos,
-            icon: const Icon(Icons.point_of_sale_rounded, color: Colors.white, size: 16),
+            icon: const Icon(
+              Icons.point_of_sale_rounded,
+              color: Colors.white,
+              size: 16,
+            ),
             label: Text(
               locale == 'bn' ? 'পিওএস ওপেন করুন' : 'Open POS Screen',
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFFF6D00),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           ),
         ],

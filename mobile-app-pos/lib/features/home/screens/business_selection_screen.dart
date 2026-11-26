@@ -141,23 +141,29 @@ class BusinessSelectionScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Flexible(
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Image.asset(
-                                  'assets/images/salepay-logo-white.png',
-                                  height: 30,
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (_, _, _) => const Text(
-                                    'SalePay Enterprise',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                      letterSpacing: -0.3,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Image.asset(
+                                    'assets/icon/Glossy 3D Shopping Cart Logo.png',
+                                    height: 28,
+                                    width: 28,
+                                    fit: BoxFit.contain,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Flexible(
+                                    child: Text(
+                                      'SalePay Enterprise',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                        letterSpacing: -0.3,
+                                      ),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
                             ),
                             const SizedBox(width: 10),

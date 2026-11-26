@@ -1019,7 +1019,7 @@ class RetailReceiptModal extends StatelessWidget {
                   // 1. Store Header
                   Center(
                     child: Text(
-                      'BLUE OCEANS POS',
+                      'SALEPAY POS',
                       style: TextStyle(
                         fontSize: 14.5,
                         fontWeight: FontWeight.w900,
@@ -1394,7 +1394,7 @@ class RetailReceiptModal extends StatelessWidget {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Software by Blue Oceans POS',
+                      'Software by SalePay',
                       style: TextStyle(
                         fontSize: 8.5,
                         color: isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8),
