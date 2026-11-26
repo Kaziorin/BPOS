@@ -2,37 +2,46 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Star, ShoppingCart, Heart, Eye, ChevronRight, Check, Grid, List, Sparkles } from "lucide-react";
+import { ShoppingCart, Heart, ChevronRight, Check } from "lucide-react";
 import { ProductItem } from "@/lib/api";
 import { SectionItem } from "@/lib/builderTypes";
 import { useCart } from "@/context/CartContext";
 import { useStoreConfig } from "@/context/StoreConfigContext";
-import { useTheme } from "@/context/ThemeContext";
-import ProductQuickViewModal from "@/components/common/ProductQuickViewModal";
 import toast from "react-hot-toast";
 
 interface Props {
   section: SectionItem;
   products: ProductItem[];
   isDarkMode?: boolean;
+  hideCategoryTabs?: boolean;
+  surfaceClass?: string;
 }
 
-export default function ProductGridSection({ section, products, isDarkMode }: Props) {
-  const { title, subtitle, badge, settings } = section;
+export default function ProductGridSection({
+  section,
+  products,
+  isDarkMode,
+  hideCategoryTabs = false,
+  surfaceClass,
+}: Props) {
+  const { title, subtitle, settings } = section;
   const { addToCart } = useCart();
   const { formatPrice } = useStoreConfig();
-  const { primaryColor } = useTheme();
 
   const [addedMap, setAddedMap] = useState<Record<string, boolean>>({});
-  const [viewMode, setViewMode] = useState<"grid" | "list">(settings?.layout === "list" ? "list" : "grid");
+  const [wishlistMap, setWishlistMap] = useState<Record<string, boolean>>({});
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [quickViewProduct, setQuickViewProduct] = useState<ProductItem | null>(null);
+
+  const toggleWishlist = (p: ProductItem, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const nextSaved = !wishlistMap[p.id];
+    setWishlistMap((prev) => ({ ...prev, [p.id]: nextSaved }));
+    toast.success(nextSaved ? `${p.name} saved to wishlist!` : `${p.name} removed from wishlist.`);
+  };
 
   const limit = settings?.limit || 12;
   const columns = settings?.columns || 4;
-  const showRating = settings?.showRating !== false;
-  const showBadge = settings?.showBadge !== false;
-  const showStock = settings?.showStock !== false;
 
   // Filter products by category if configured or user selected
   let filteredProducts = products;
@@ -42,19 +51,23 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
     );
   } else if (selectedCategory !== "All") {
     filteredProducts = products.filter(
-      (p) => (p as any).categoryName === selectedCategory || (p as any).category === selectedCategory || p.productType === selectedCategory
+      (p) =>
+        p.categoryName === selectedCategory ||
+        (p as any).category === selectedCategory ||
+        p.productType === selectedCategory
     );
   }
 
   const displayProducts = (filteredProducts.length > 0 ? filteredProducts : products).slice(0, limit);
 
-  // Extract unique categories for filter tabs if enabled
   const categoryNames = Array.from(
     new Set(products.map((p: any) => p.categoryName || p.category || p.productType).filter(Boolean))
   ).slice(0, 6) as string[];
 
   const handleAdd = (p: ProductItem, e: React.MouseEvent) => {
     e.preventDefault();
+    if (p.totalStock !== undefined && Number(p.totalStock) <= 0) return;
+
     addToCart({
       productId: p.id,
       name: p.name,
@@ -62,6 +75,8 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
       qty: 1,
       imageUrl: p.imageUrl,
       sku: p.sku,
+      unitName: p.unitName,
+      maxStock: p.totalStock,
     });
     setAddedMap((prev) => ({ ...prev, [p.id]: true }));
     toast.success(`${p.name} added to cart!`);
@@ -91,357 +106,196 @@ export default function ProductGridSection({ section, products, isDarkMode }: Pr
     const generalCurated = [
       "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&auto=format&fit=crop&q=80",
     ];
     return generalCurated[idx % generalCurated.length];
   };
 
-  // Determine grid columns classes
-  const getGridColsClass = () => {
-    switch (columns) {
-      case 2:
-        return "grid-cols-1 sm:grid-cols-2";
-      case 3:
-        return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
-      case 5:
-        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5";
-      case 6:
-        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6";
-      case 4:
-      default:
-        return "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4";
-    }
+  const GRID_COLS_BY_COUNT: Record<number, string> = {
+    2: "grid-cols-1 sm:grid-cols-2",
+    3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+    5: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5",
+    6: "grid-cols-2 md:grid-cols-3 lg:grid-cols-6",
   };
+  const gridColsClass = GRID_COLS_BY_COUNT[columns] || "grid-cols-2 md:grid-cols-3 lg:grid-cols-4";
+
+  const heading = (title || "Best Selling Products").trim();
+  const words = heading.split(/\s+/);
+  const headingHead = words.length > 1 ? words.slice(0, -1).join(" ") : "";
+  const headingTail = words.length > 1 ? words[words.length - 1] : heading;
+
+  const sectionSurface = surfaceClass || (isDarkMode ? "bg-zinc-950" : "bg-[#FAF8F5]");
 
   return (
-    <section className="py-6 sm:py-8">
+    <section className={`py-8 sm:py-10 ${sectionSurface}`}>
       <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12">
-        
-        {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+        {/* Clean Section Header */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
           <div>
-            {badge && (
-              <span className="text-[10px] font-semibold uppercase tracking-wider block mb-1 text-slate-500">
-                {badge}
-              </span>
-            )}
-            <h2 className={`text-xl sm:text-2xl font-bold tracking-tight ${isDarkMode ? "!text-white" : "!text-slate-900"}`}>
-              {title || "Featured Products"}
+            <h2
+              className={`text-xl sm:text-2xl font-semibold tracking-tight ${
+                isDarkMode ? "!text-white" : "!text-stone-900"
+              }`}
+            >
+              {headingHead ? (
+                <>
+                  {headingHead}{" "}
+                  <span className="text-orange-600">{headingTail}</span>
+                </>
+              ) : (
+                headingTail
+              )}
             </h2>
             {subtitle && (
-              <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
+              <p className={`text-xs sm:text-sm mt-1 ${isDarkMode ? "!text-zinc-400" : "!text-stone-600"}`}>
+                {subtitle}
+              </p>
             )}
           </div>
 
-          {/* Right Controls: Category Filter Tabs, Layout Switcher & View All */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {categoryNames.length > 1 && !settings?.categoryId && (
-              <div className="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-zinc-800/80 p-1 rounded-full border border-slate-200 dark:border-zinc-700">
-                <button
-                  type="button"
-                  onClick={() => setSelectedCategory("All")}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
-                    selectedCategory === "All"
-                      ? "text-white shadow-xs"
-                      : "text-slate-600 dark:text-zinc-300 hover:text-slate-900"
-                  }`}
-                  style={selectedCategory === "All" ? { backgroundColor: primaryColor } : {}}
-                >
-                  All
-                </button>
-                {categoryNames.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
-                      selectedCategory === cat
-                        ? "text-white shadow-xs"
-                        : "text-slate-600 dark:text-zinc-300 hover:text-slate-900"
-                    }`}
-                    style={selectedCategory === cat ? { backgroundColor: primaryColor } : {}}
-                  >
-                    {cat}
-                  </button>
-                ))}
+            {!hideCategoryTabs && categoryNames.length > 1 && !settings?.categoryId && (
+              <div className="hidden md:flex flex-wrap items-center gap-1.5">
+                {["All", ...categoryNames].map((cat) => {
+                  const active = selectedCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer ${
+                        active
+                          ? "bg-orange-600 border-orange-600 !text-white shadow-xs"
+                          : isDarkMode
+                          ? "bg-zinc-900 border-zinc-700 !text-zinc-300 hover:border-orange-500"
+                          : "bg-white border-orange-200/80 !text-stone-700 hover:border-orange-400 hover:!text-orange-700"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
               </div>
             )}
 
-            {/* Layout Mode Switcher (Grid / List) */}
-            <div className="flex items-center bg-slate-100 dark:bg-zinc-800 p-0.5 rounded-xl border border-slate-200 dark:border-zinc-700">
-              <button
-                type="button"
-                onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-lg text-xs transition-all ${
-                  viewMode === "grid"
-                    ? "bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold"
-                    : "text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200"
-                }`}
-                title="Grid View"
-              >
-                <Grid className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("list")}
-                className={`p-1.5 rounded-lg text-xs transition-all ${
-                  viewMode === "list"
-                    ? "bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold"
-                    : "text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200"
-                }`}
-                title="List View"
-              >
-                <List className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
             <Link
               href="/products"
-              className="inline-flex items-center gap-1 text-xs font-bold transition-colors ml-1"
-              style={{ color: primaryColor }}
+              className={`inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg border text-xs font-semibold transition-colors shrink-0 ${
+                isDarkMode
+                  ? "bg-zinc-900 border-zinc-700 !text-zinc-200 hover:border-orange-500 hover:!text-orange-400"
+                  : "bg-[#FFF1E0] border-orange-200/80 !text-orange-700 hover:bg-orange-600 hover:!text-white hover:border-orange-600"
+              }`}
             >
-              <span>View All</span>
+              <span>View all</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
 
-        {/* ── MODE 1: LIST VIEW ── */}
-        {viewMode === "list" ? (
-          <div className="space-y-3">
-            {displayProducts.map((p, idx) => {
-              const isAdded = addedMap[p.id];
-              const originalPrice = Number(p.sellingPrice || 0) * 1.25;
+        {/* Storefront-Themed KitchenPro Product Grid */}
+        <div className={`grid gap-3.5 ${gridColsClass}`}>
+          {displayProducts.map((p, idx) => {
+            const isAdded = addedMap[p.id];
+            const isSaved = wishlistMap[p.id];
+            const inStock = p.totalStock === undefined || Number(p.totalStock) > 0;
 
-              return (
+            return (
+              <article
+                key={p.id || idx}
+                className={`group relative rounded-xl overflow-hidden border flex flex-col transition-all ${
+                  isDarkMode
+                    ? "bg-zinc-900 border-zinc-800 hover:border-orange-500"
+                    : "bg-white border-orange-200/80 hover:border-orange-500 hover:shadow-[0_8px_20px_rgba(234,88,12,0.08)]"
+                }`}
+              >
+                {/* Edge-to-Edge Image Stage */}
                 <div
-                  key={p.id || idx}
-                  className={`group rounded-2xl overflow-hidden border p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs hover:shadow-lg transition-all duration-200 ${
-                    isDarkMode
-                      ? "bg-zinc-900 border-zinc-800 hover:border-zinc-700 text-white"
-                      : "bg-white border-slate-200/90 hover:border-slate-300 text-slate-900"
+                  className={`relative h-[195px] sm:h-[215px] w-full overflow-hidden ${
+                    isDarkMode ? "bg-zinc-800" : "bg-[#FAF5EE]"
                   }`}
                 >
-                  <div className="flex items-center gap-4 w-full sm:w-auto">
-                    {/* Image */}
-                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0">
-                      <Link href={`/products/${p.id}`} className="block w-full h-full">
-                        <img
-                          src={getProductImage(p, idx)}
-                          alt={p.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      </Link>
-                    </div>
-
-                    {/* Meta Details */}
-                    <div>
-                      {showRating && (
-                        <div className="flex items-center gap-1.5 text-[11px] text-amber-500 mb-0.5">
-                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                          <span className="font-bold">4.9</span>
-                          <span className="text-slate-400 text-[10px]">({120 + idx * 15} reviews)</span>
-                        </div>
-                      )}
-
-                      <Link href={`/products/${p.id}`}>
-                        <h3 className="text-sm sm:text-base font-bold line-clamp-1 hover:underline">
-                          {p.name}
-                        </h3>
-                      </Link>
-
-                      {p.sku && (
-                        <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
-                          SKU: {p.sku}
-                        </span>
-                      )}
-
-                      {showStock && p.totalStock !== undefined && (
-                        <div className="mt-1.5">
-                          {Number(p.totalStock) > 0 ? (
-                            <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                              In Stock ({p.totalStock} available)
-                            </span>
-                          ) : (
-                            <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                              Pre-Order
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Price and Add Button */}
-                  <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-zinc-800">
-                    <div className="text-left sm:text-right">
-                      <div className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
-                        {formatPrice(p.sellingPrice)}
-                      </div>
-                      <div className="text-xs text-slate-400 line-through">
-                        {formatPrice(originalPrice)}
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={(e) => handleAdd(p, e)}
-                      className={`px-5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-xs ${
-                        isAdded
-                          ? "bg-emerald-600 text-white"
-                          : "text-white"
-                      }`}
-                      style={!isAdded ? { backgroundColor: primaryColor } : {}}
-                    >
-                      {isAdded ? (
-                        <>
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Added</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingCart className="w-3.5 h-3.5" />
-                          <span>Add to Cart</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
+                  <Link href={`/products/${p.id}`} className="block w-full h-full">
+                    <img
+                      src={getProductImage(p, idx)}
+                      alt={p.name}
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  </Link>
                 </div>
-              );
-            })}
-          </div>
-        ) : (
-          /* ── MODE 2: GRID VIEW ── */
-          <div className={`grid gap-4 sm:gap-5 ${getGridColsClass()}`}>
-            {displayProducts.map((p, idx) => {
-              const isAdded = addedMap[p.id];
-              const originalPrice = Number(p.sellingPrice || 0) * 1.25;
 
-              return (
-                <div
-                  key={p.id || idx}
-                  className={`group relative rounded-2xl overflow-hidden border p-3.5 flex flex-col justify-between shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${
-                    isDarkMode
-                      ? "bg-zinc-900 border-zinc-800 hover:border-zinc-700 text-white"
-                      : "bg-white border-slate-200/80 text-slate-900"
-                  }`}
-                  style={{ borderColor: undefined }}
-                >
-                  {/* Image */}
-                  <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-slate-100 dark:bg-zinc-800 mb-3.5">
-                    <Link href={`/products/${p.id}`} className="block w-full h-full">
-                      <img
-                        src={getProductImage(p, idx)}
-                        alt={p.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </Link>
+                {/* Single-line Title */}
+                <Link href={`/products/${p.id}`} className="block px-3 pt-3 pb-1.5">
+                  <h3
+                    className={`text-[14px] font-semibold truncate leading-[1.35] transition-colors ${
+                      isDarkMode
+                        ? "!text-zinc-100 group-hover:!text-orange-400"
+                        : "!text-stone-900 group-hover:!text-orange-600"
+                    }`}
+                  >
+                    {p.name}
+                  </h3>
+                </Link>
 
-                    {/* Stock status badge */}
-                    {showStock && p.totalStock !== undefined && (
-                      <div className="absolute top-2.5 left-2.5">
-                        {Number(p.totalStock) > 0 ? (
-                          <span className="bg-emerald-500/90 backdrop-blur-xs text-white text-[10px] font-medium px-2 py-0.5 rounded shadow-2xs">
-                            In stock
-                          </span>
-                        ) : (
-                          <span className="bg-slate-800/90 backdrop-blur-xs text-white text-[10px] font-medium px-2 py-0.5 rounded shadow-2xs">
-                            Pre-order
-                          </span>
-                        )}
-                      </div>
-                    )}
+                {/* Price + Unit */}
+                <div className="px-3 flex items-baseline">
+                  <span className="text-[15px] font-bold text-orange-600 tabular-nums">
+                    {formatPrice(p.sellingPrice)}
+                  </span>
+                  <span className={`text-[11px] font-semibold ml-0.5 ${isDarkMode ? "!text-zinc-400" : "!text-stone-500"}`}>
+                    /{p.unitName || "Pc"}
+                  </span>
+                </div>
 
-                    {/* Discount badge */}
-                    {showBadge && (
-                      <div className="absolute top-2.5 right-2.5">
-                        <span className="bg-rose-600 text-white text-[10px] font-medium px-2 py-0.5 rounded shadow-2xs">
-                          -20%
-                        </span>
-                      </div>
-                    )}
-                    {/* Quick View Button on Hover */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setQuickViewProduct(p);
-                      }}
-                      className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-lg bg-slate-900/80 hover:bg-sky-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-md active:scale-95"
-                      title="Quick view"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  {/* Info */}
-                  <div>
-                    {showRating && (
-                      <div className="flex items-center gap-1.5 text-[11px] text-amber-500 mb-1">
-                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                        <span className="font-semibold tabular-nums">4.8</span>
-                        <span className="text-slate-400 dark:text-zinc-500 text-[10px]">
-                          ({240 + idx * 30} reviews)
-                        </span>
-                      </div>
-                    )}
-
-                    <Link href={`/products/${p.id}`}>
-                      <h3 className="text-xs sm:text-sm font-semibold line-clamp-2 leading-snug hover:text-sky-600 transition-colors">
-                        {p.name}
-                      </h3>
-                    </Link>
-
-                    {/* Price */}
-                    <div className="mt-2 flex items-baseline gap-2">
-                      <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tabular-nums font-mono">
-                        {formatPrice(p.sellingPrice)}
-                      </span>
-                      <span className="text-xs text-slate-400 line-through tabular-nums font-mono">
-                        {formatPrice(originalPrice)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Add to Cart button */}
+                {/* Bottom Actions: Orange Add to Cart + Soft Peach Wishlist */}
+                <div className="mt-auto px-3 pt-2.5 pb-3 flex items-stretch gap-2">
                   <button
                     type="button"
+                    disabled={!inStock}
                     onClick={(e) => handleAdd(p, e)}
-                    className={`mt-3 w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors active:scale-98 shadow-2xs ${
-                      isAdded
-                        ? "bg-emerald-600 text-white"
-                        : "bg-slate-900 hover:bg-sky-600 text-white"
+                    className={`flex-1 h-[38px] px-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+                      !inStock
+                        ? "bg-stone-200 !text-stone-500 cursor-not-allowed"
+                        : isAdded
+                        ? "bg-emerald-600 !text-white"
+                        : "bg-orange-600 hover:bg-orange-700 !text-white"
                     }`}
                   >
                     {isAdded ? (
                       <>
-                        <Check className="w-3.5 h-3.5" />
+                        <Check className="w-3.5 h-3.5" strokeWidth={2.2} />
                         <span>Added</span>
                       </>
                     ) : (
                       <>
-                        <ShoppingCart className="w-3.5 h-3.5" />
-                        <span>Add to cart</span>
+                        <ShoppingCart className="w-[15px] h-[15px]" strokeWidth={2.2} />
+                        <span>{inStock ? "Add to Cart" : "Out of Stock"}</span>
                       </>
                     )}
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => toggleWishlist(p, e)}
+                    aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
+                    title={isSaved ? "Saved in wishlist" : "Save to wishlist"}
+                    className={`w-[38px] h-[38px] shrink-0 rounded-lg border flex items-center justify-center transition-colors cursor-pointer ${
+                      isSaved
+                        ? "bg-rose-600 border-rose-600 hover:opacity-90 !text-white"
+                        : isDarkMode
+                        ? "bg-zinc-800 border-zinc-700 hover:border-orange-500 !text-orange-400"
+                        : "bg-[#FFF1E0] border-orange-200 hover:bg-orange-100 hover:border-orange-300 !text-orange-600"
+                    }`}
+                  >
+                    <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} strokeWidth={2} />
+                  </button>
                 </div>
-              );
-            })}
-          </div>
-        )}
-
+              </article>
+            );
+          })}
+        </div>
       </div>
-
-      {/* Quick View Modal */}
-      {quickViewProduct && (
-        <ProductQuickViewModal
-          product={quickViewProduct}
-          onClose={() => setQuickViewProduct(null)}
-        />
-      )}
     </section>
   );
 }
