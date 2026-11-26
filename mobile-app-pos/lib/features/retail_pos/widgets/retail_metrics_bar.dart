@@ -65,7 +65,7 @@ class RetailMetricsBar extends StatelessWidget {
             isDark: isDark,
           );
 
-          final card5 = _buildStockAlertsCard(isDark);
+          final card5 = _buildStockAlertsCard(context, retailProvider, isDark);
           final card6 = _buildAiInsightsCard(context, isDark);
           final card7 = _buildAddCustomerCard(context, retailProvider, isDark);
 
@@ -114,9 +114,91 @@ class RetailMetricsBar extends StatelessWidget {
     );
   }
 
-  Widget _buildStockAlertsCard(bool isDark) {
+  Widget _buildStockAlertsCard(
+    BuildContext context,
+    RetailProvider retailProvider,
+    bool isDark,
+  ) {
+    final lowStockItems = retailProvider.allProducts.where((p) => p.stock <= 5).toList();
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Row(
+              children: [
+                const Icon(Icons.warning_amber_rounded, color: Color(0xFFE11D48)),
+                const SizedBox(width: 8),
+                Text(
+                  'Low Stock Alerts (${lowStockItems.length})',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: 360,
+              child: lowStockItems.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Text(
+                        'All products have healthy stock levels.',
+                        style: TextStyle(color: isDark ? Colors.white70 : Colors.grey.shade700),
+                      ),
+                    )
+                  : ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 300),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: lowStockItems.length,
+                        separatorBuilder: (_, _) => const Divider(height: 1),
+                        itemBuilder: (_, idx) {
+                          final item = lowStockItems[idx];
+                          return ListTile(
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              item.name,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                            subtitle: Text('SKU: ${item.sku}'),
+                            trailing: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE11D48).withValues(alpha: 0.14),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                item.stock <= 0 ? 'Out of Stock' : '${item.stock} left',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFE11D48),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+      },
       borderRadius: BorderRadius.circular(4),
       child: Container(
         height: 50,
@@ -157,9 +239,9 @@ class RetailMetricsBar extends StatelessWidget {
                   const SizedBox(height: 1),
                   Row(
                     children: [
-                      const Text(
-                        '8',
-                        style: TextStyle(
+                      Text(
+                        '${lowStockItems.length}',
+                        style: const TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w900,
                           color: Color(0xFFE11D48),

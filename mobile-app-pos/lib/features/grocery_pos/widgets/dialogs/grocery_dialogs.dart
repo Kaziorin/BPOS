@@ -28,7 +28,11 @@ bool gRequireCart(BuildContext context) {
   final p = context.read<GroceryProvider>();
   final locale = context.read<AppProvider>().locale;
   if (p.cart.isEmpty) {
-    gSnack(context, AppStrings.get('cart_empty', locale), color: Colors.orange.shade800);
+    gSnack(
+      context,
+      AppStrings.get('cart_empty', locale),
+      color: Colors.orange.shade800,
+    );
     return false;
   }
   return true;
@@ -42,7 +46,10 @@ Future<bool> gConfirmClearCart(BuildContext context) async {
     builder: (ctx) => AlertDialog(
       backgroundColor: GroceryColors.cardBg(isDark),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Text(AppStrings.get('clear_cart', locale), style: const TextStyle(fontWeight: FontWeight.w800)),
+      title: Text(
+        AppStrings.get('clear_cart', locale),
+        style: const TextStyle(fontWeight: FontWeight.w800),
+      ),
       content: Text(AppStrings.get('clear_cart_msg', locale)),
       actions: [
         TextButton(
@@ -124,7 +131,10 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
               color: GroceryColors.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.payments_rounded, color: GroceryColors.primary),
+            child: const Icon(
+              Icons.payments_rounded,
+              color: GroceryColors.primary,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -150,14 +160,19 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
                 decoration: BoxDecoration(
                   color: GroceryColors.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: GroceryColors.primary.withValues(alpha: 0.2)),
+                  border: Border.all(
+                    color: GroceryColors.primary.withValues(alpha: 0.2),
+                  ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       isBn ? 'মোট পরিমাণ:' : 'Total Due:',
-                      style: TextStyle(fontWeight: FontWeight.w700, color: GroceryColors.textPrimary(isDark)),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: GroceryColors.textPrimary(isDark),
+                      ),
                     ),
                     Text(
                       '${AppStrings.currency}${NumberUtils.toLocalized(total.toStringAsFixed(2), locale)}',
@@ -173,17 +188,40 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
               const SizedBox(height: 18),
               Text(
                 isBn ? 'পেমেন্ট পদ্ধতি:' : 'Payment Method:',
-                style: TextStyle(fontWeight: FontWeight.w800, color: GroceryColors.textPrimary(isDark)),
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  color: GroceryColors.textPrimary(isDark),
+                ),
               ),
               const SizedBox(height: 10),
               Builder(
                 builder: (context) {
                   final methods = [
-                    ('Cash', AppStrings.get('payment_cash', locale), Icons.payments_outlined),
-                    ('Card', AppStrings.get('payment_card', locale), Icons.credit_card_rounded),
-                    ('UPI / QR', AppStrings.get('payment_upi', locale), Icons.qr_code_2_rounded),
-                    ('Wallet', AppStrings.get('payment_wallet', locale), Icons.account_balance_wallet_outlined),
-                    ('Split', isBn ? 'স্প্লিট' : 'Split', Icons.call_split_rounded),
+                    (
+                      'Cash',
+                      AppStrings.get('payment_cash', locale),
+                      Icons.payments_outlined,
+                    ),
+                    (
+                      'Card',
+                      AppStrings.get('payment_card', locale),
+                      Icons.credit_card_rounded,
+                    ),
+                    (
+                      'UPI / QR',
+                      AppStrings.get('payment_upi', locale),
+                      Icons.qr_code_2_rounded,
+                    ),
+                    (
+                      'Wallet',
+                      AppStrings.get('payment_wallet', locale),
+                      Icons.account_balance_wallet_outlined,
+                    ),
+                    (
+                      'Split',
+                      isBn ? 'স্প্লিট' : 'Split',
+                      Icons.call_split_rounded,
+                    ),
                   ];
 
                   return Row(
@@ -191,7 +229,12 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
                       for (int i = 0; i < methods.length; i++) ...[
                         if (i > 0) const SizedBox(width: 5),
                         Expanded(
-                          child: _methodGridItem(methods[i].$1, methods[i].$2, methods[i].$3, isDark),
+                          child: _methodGridItem(
+                            methods[i].$1,
+                            methods[i].$2,
+                            methods[i].$3,
+                            isDark,
+                          ),
                         ),
                       ],
                     ],
@@ -202,29 +245,48 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
                 const SizedBox(height: 18),
                 Row(
                   children: [
-                    Text(isBn ? 'প্রদত্ত নগদ:' : 'Cash Tendered:', style: const TextStyle(fontWeight: FontWeight.w800)),
+                    Text(
+                      isBn ? 'প্রদত্ত নগদ:' : 'Cash Tendered:',
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
                     const Spacer(),
                     TextButton(
                       onPressed: () => _setCash(total),
-                      child: Text(isBn ? 'পুরো টাকা' : 'Exact Amount',
-                          style: const TextStyle(color: GroceryColors.primary, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        isBn ? 'পুরো টাকা' : 'Exact Amount',
+                        style: const TextStyle(
+                          color: GroceryColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
                 TextField(
                   controller: _cashCtrl,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   textAlign: TextAlign.right,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
-                  onChanged: (v) => setState(() => _cashTendered = double.tryParse(v) ?? 0),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
+                  onChanged: (v) =>
+                      setState(() => _cashTendered = double.tryParse(v) ?? 0),
                   decoration: InputDecoration(
                     prefixText: '${AppStrings.currency} ',
                     filled: true,
                     fillColor: GroceryColors.inputBg(isDark),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: GroceryColors.primary, width: 2),
+                      borderSide: const BorderSide(
+                        color: GroceryColors.primary,
+                        width: 2,
+                      ),
                     ),
                   ),
                 ),
@@ -237,13 +299,20 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
                       onTap: () => _setCash(_cashTendered + a),
                       borderRadius: BorderRadius.circular(10),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
-                          border: Border.all(color: GroceryColors.border(isDark)),
+                          border: Border.all(
+                            color: GroceryColors.border(isDark),
+                          ),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Text('+${AppStrings.currency}${NumberUtils.toLocalized(a, locale)}',
-                            style: const TextStyle(fontWeight: FontWeight.w700)),
+                        child: Text(
+                          '+${AppStrings.currency}${NumberUtils.toLocalized(a, locale)}',
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
                       ),
                     );
                   }).toList(),
@@ -265,13 +334,18 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(isBn ? 'ফেরত:' : 'Change:', style: const TextStyle(fontWeight: FontWeight.w600)),
+                      Text(
+                        isBn ? 'ফেরত:' : 'Change:',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
                       Text(
                         '${AppStrings.currency}${NumberUtils.toLocalized(change.toStringAsFixed(2), locale)}',
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 20,
-                          color: _cashTendered >= total ? Colors.green : GroceryColors.textSecondary(isDark),
+                          color: _cashTendered >= total
+                              ? Colors.green
+                              : GroceryColors.textSecondary(isDark),
                         ),
                       ),
                     ],
@@ -280,16 +354,26 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
               ],
               if (_method == 'Split') ...[
                 const SizedBox(height: 18),
-                Text(isBn ? 'কতজনে ভাগ:' : 'Split among people:', style: const TextStyle(fontWeight: FontWeight.w800)),
+                Text(
+                  isBn ? 'কতজনে ভাগ:' : 'Split among people:',
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
                     IconButton(
-                      onPressed: () => setState(() { if (_splitPeople > 2) _splitPeople--; }),
+                      onPressed: () => setState(() {
+                        if (_splitPeople > 2) _splitPeople--;
+                      }),
                       icon: const Icon(Icons.remove_circle_outline),
                     ),
-                    Text(NumberUtils.toLocalized(_splitPeople, locale),
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+                    Text(
+                      NumberUtils.toLocalized(_splitPeople, locale),
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                     IconButton(
                       onPressed: () => setState(() => _splitPeople++),
                       icon: const Icon(Icons.add_circle_outline),
@@ -297,7 +381,10 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
                     const Spacer(),
                     Text(
                       '${AppStrings.currency}${NumberUtils.toLocalized((total / _splitPeople).toStringAsFixed(2), locale)} ${isBn ? 'জনপ্রতি' : 'each'}',
-                      style: const TextStyle(fontWeight: FontWeight.w800, color: GroceryColors.primaryDark),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: GroceryColors.primaryDark,
+                      ),
                     ),
                   ],
                 ),
@@ -311,14 +398,28 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
                         width: 140,
                         height: 140,
                         decoration: BoxDecoration(
-                          border: Border.all(color: GroceryColors.primary, width: 2),
+                          border: Border.all(
+                            color: GroceryColors.primary,
+                            width: 2,
+                          ),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Icon(Icons.qr_code_2_rounded, size: 100, color: GroceryColors.primary),
+                        child: const Icon(
+                          Icons.qr_code_2_rounded,
+                          size: 100,
+                          color: GroceryColors.primary,
+                        ),
                       ),
                       const SizedBox(height: 8),
-                      Text(isBn ? 'কাস্টমারকে QR স্ক্যান করতে বলুন' : 'Ask customer to scan QR',
-                          style: TextStyle(color: GroceryColors.textSecondary(isDark), fontSize: 12)),
+                      Text(
+                        isBn
+                            ? 'কাস্টমারকে QR স্ক্যান করতে বলুন'
+                            : 'Ask customer to scan QR',
+                        style: TextStyle(
+                          color: GroceryColors.textSecondary(isDark),
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -336,7 +437,9 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
                 onPressed: () => Navigator.pop(context),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: Text(AppStrings.get('cancel', locale)),
               ),
@@ -350,8 +453,12 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
                     : () {
                         provider.setPayment(_method);
                         final sale = provider.placeSale(
-                          paymentMethod: _method == 'Split' ? 'Split ($_splitPeople)' : _method,
-                          cashTendered: _method == 'Cash' ? _cashTendered : total,
+                          paymentMethod: _method == 'Split'
+                              ? 'Split ($_splitPeople)'
+                              : _method,
+                          cashTendered: _method == 'Cash'
+                              ? _cashTendered
+                              : total,
                         );
                         Navigator.pop(context);
                         showDialog(
@@ -368,7 +475,9 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
                   foregroundColor: Colors.white,
                   disabledBackgroundColor: Colors.grey.shade300,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: Text(
                   isBn ? 'পেমেন্ট সম্পন্ন' : 'Complete Payment',
@@ -391,10 +500,14 @@ class _GroceryCheckoutDialogState extends State<GroceryCheckoutDialog> {
         padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 7),
         decoration: BoxDecoration(
           gradient: sel ? GroceryColors.primaryGradient : null,
-          color: sel ? null : (isDark ? GroceryColors.inputBg(true) : Colors.white),
+          color: sel
+              ? null
+              : (isDark ? GroceryColors.inputBg(true) : Colors.white),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: sel ? Colors.transparent : GroceryColors.primary.withValues(alpha: 0.35),
+            color: sel
+                ? Colors.transparent
+                : GroceryColors.primary.withValues(alpha: 0.35),
             width: sel ? 1.5 : 1,
           ),
           boxShadow: sel
@@ -456,17 +569,33 @@ class GroceryPaymentSuccessDialog extends StatelessWidget {
           Container(
             width: 72,
             height: 72,
-            decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.12), shape: BoxShape.circle),
-            child: const Icon(Icons.check_circle_rounded, color: Colors.green, size: 48),
+            decoration: BoxDecoration(
+              color: Colors.green.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.check_circle_rounded,
+              color: Colors.green,
+              size: 48,
+            ),
           ),
           const SizedBox(height: 14),
           Text(
             isBn ? 'পেমেন্ট সফল!' : 'Payment Successful!',
-            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: GroceryColors.textPrimary(isDark)),
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 18,
+              color: GroceryColors.textPrimary(isDark),
+            ),
           ),
           const SizedBox(height: 6),
-          Text('${isBn ? 'ইনভয়েস' : 'Invoice'}: ${sale.invoiceNo}',
-              style: TextStyle(color: GroceryColors.textSecondary(isDark), fontWeight: FontWeight.w700)),
+          Text(
+            '${isBn ? 'ইনভয়েস' : 'Invoice'}: ${sale.invoiceNo}',
+            style: TextStyle(
+              color: GroceryColors.textSecondary(isDark),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
             '${AppStrings.currency}${NumberUtils.toLocalized(sale.total.toStringAsFixed(2), locale)} · ${sale.paymentMethod}',
@@ -519,7 +648,21 @@ class GroceryBillPrintDialog extends StatelessWidget {
   const GroceryBillPrintDialog({super.key, this.sale});
 
   String _formatDate(DateTime dt) {
-    const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sept',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     final m = months[dt.month];
     final hr = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
@@ -550,7 +693,40 @@ class GroceryBillPrintDialog extends StatelessWidget {
   }
 
   Widget _buildBarcode(bool isDark) {
-    final barPattern = [3, 1, 2, 2, 1, 3, 1, 2, 3, 1, 1, 2, 2, 1, 3, 2, 1, 1, 3, 2, 1, 2, 3, 1, 2, 1, 3, 1, 2, 2, 1, 3];
+    final barPattern = [
+      3,
+      1,
+      2,
+      2,
+      1,
+      3,
+      1,
+      2,
+      3,
+      1,
+      1,
+      2,
+      2,
+      1,
+      3,
+      2,
+      1,
+      1,
+      3,
+      2,
+      1,
+      2,
+      3,
+      1,
+      2,
+      1,
+      3,
+      1,
+      2,
+      2,
+      1,
+      3,
+    ];
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: barPattern.asMap().entries.map((entry) {
@@ -559,7 +735,9 @@ class GroceryBillPrintDialog extends StatelessWidget {
         return Container(
           width: width,
           height: 38,
-          color: isBlack ? (isDark ? Colors.grey.shade300 : const Color(0xFF1E293B)) : Colors.transparent,
+          color: isBlack
+              ? (isDark ? Colors.grey.shade300 : const Color(0xFF1E293B))
+              : Colors.transparent,
         );
       }).toList(),
     );
@@ -574,30 +752,42 @@ class GroceryBillPrintDialog extends StatelessWidget {
     final receiptBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
     final textDark = isDark ? Colors.white : const Color(0xFF0F172A);
     final textMuted = isDark ? Colors.grey.shade400 : const Color(0xFF475569);
-    final borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFBFDBFE);
+    final borderColor = isDark
+        ? const Color(0xFF334155)
+        : const Color(0xFFBFDBFE);
 
     final items = sale?.items ?? provider.cart;
     final subtotal = sale?.subtotal ?? provider.subtotal;
     final discount = sale?.discount ?? provider.totalDiscount;
     final vat = sale?.vat ?? provider.vat;
     final total = sale?.total ?? provider.grandTotal;
-    final invoiceDisplay = sale?.invoiceNo ??
-        (provider.invoiceNo.isNotEmpty ? provider.invoiceNo : 'INV-${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}');
+    final invoiceDisplay =
+        sale?.invoiceNo ??
+        (provider.invoiceNo.isNotEmpty
+            ? provider.invoiceNo
+            : 'INV-${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}');
     final customer = sale?.customerName ?? provider.customerName;
-    final custShort = customer.length > 20 ? '${customer.substring(0, 18)}...' : customer;
+    final custShort = customer.length > 20
+        ? '${customer.substring(0, 18)}...'
+        : customer;
     final note = sale?.salesNote ?? provider.salesNote;
     final payMethod = sale?.paymentMethod ?? provider.selectedPayment;
     final timestamp = sale?.timestamp ?? DateTime.now();
-    final tendered = sale?.cashTendered ??
+    final tendered =
+        sale?.cashTendered ??
         (provider.tenderedAmount > 0 ? provider.tenderedAmount : total);
-    final change = sale?.change ??
-        (tendered >= total ? tendered - total : 0.0);
+    final change = sale?.change ?? (tendered >= total ? tendered - total : 0.0);
 
     if (items.isEmpty) {
       return AlertDialog(
         title: Text(AppStrings.get('bill_print', locale)),
         content: Text(AppStrings.get('cart_empty', locale)),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get('close', locale)))],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppStrings.get('close', locale)),
+          ),
+        ],
       );
     }
 
@@ -619,7 +809,11 @@ class GroceryBillPrintDialog extends StatelessWidget {
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF10B981)),
+                  Icon(
+                    Icons.check_circle_outline_rounded,
+                    size: 16,
+                    color: Color(0xFF10B981),
+                  ),
                   SizedBox(width: 6),
                   Text(
                     'SALE COMPLETED SUCCESSFULLY',
@@ -702,14 +896,22 @@ class GroceryBillPrintDialog extends StatelessWidget {
                       Flexible(
                         child: Text(
                           'Invoice: $invoiceDisplay',
-                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'Date: ${_formatDate(timestamp)}',
-                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -720,14 +922,22 @@ class GroceryBillPrintDialog extends StatelessWidget {
                       Flexible(
                         child: Text(
                           'Customer: $custShort',
-                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'Cashier: Admin',
-                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -739,7 +949,12 @@ class GroceryBillPrintDialog extends StatelessWidget {
                         Flexible(
                           child: Text(
                             'Note: $note',
-                            style: TextStyle(fontSize: 9.5, color: textMuted, fontFamily: 'monospace', fontStyle: FontStyle.italic),
+                            style: TextStyle(
+                              fontSize: 9.5,
+                              color: textMuted,
+                              fontFamily: 'monospace',
+                              fontStyle: FontStyle.italic,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -904,11 +1119,20 @@ class GroceryBillPrintDialog extends StatelessWidget {
                     children: [
                       Text(
                         'Subtotal:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${subtotal.toStringAsFixed(2)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -919,11 +1143,20 @@ class GroceryBillPrintDialog extends StatelessWidget {
                       children: [
                         Text(
                           'Discount:',
-                          style: const TextStyle(fontSize: 11, color: Color(0xFF059669), fontFamily: 'monospace'),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF059669),
+                            fontFamily: 'monospace',
+                          ),
                         ),
                         Text(
                           '-৳${discount.toStringAsFixed(2)}',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF059669), fontFamily: 'monospace'),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF059669),
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ],
                     ),
@@ -934,18 +1167,31 @@ class GroceryBillPrintDialog extends StatelessWidget {
                     children: [
                       Text(
                         'VAT (Mushak 6.3 - 5%):',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${vat.toStringAsFixed(2)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
 
                   // Solid Line
-                  const Divider(color: Color(0xFFCBD5E1), height: 1, thickness: 1),
+                  const Divider(
+                    color: Color(0xFFCBD5E1),
+                    height: 1,
+                    thickness: 1,
+                  ),
                   const SizedBox(height: 6),
 
                   // Net Payable
@@ -954,18 +1200,32 @@ class GroceryBillPrintDialog extends StatelessWidget {
                     children: [
                       Text(
                         'Net Payable:',
-                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w900,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${total.toStringAsFixed(2)}',
-                        style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w900,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
 
                   // Solid Line
-                  const Divider(color: Color(0xFFCBD5E1), height: 1, thickness: 1),
+                  const Divider(
+                    color: Color(0xFFCBD5E1),
+                    height: 1,
+                    thickness: 1,
+                  ),
                   const SizedBox(height: 6),
 
                   // Tender Details
@@ -974,11 +1234,20 @@ class GroceryBillPrintDialog extends StatelessWidget {
                     children: [
                       Text(
                         'Tender Method:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         payMethod,
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -988,11 +1257,20 @@ class GroceryBillPrintDialog extends StatelessWidget {
                     children: [
                       Text(
                         'Paid Amount:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${tendered.toStringAsFixed(2)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -1002,11 +1280,21 @@ class GroceryBillPrintDialog extends StatelessWidget {
                     children: [
                       const Text(
                         'Return Amount:',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF059669), fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF059669),
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${change.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF059669), fontFamily: 'monospace'),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF059669),
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -1022,7 +1310,11 @@ class GroceryBillPrintDialog extends StatelessWidget {
                   const Center(
                     child: Text(
                       '** FRESHMART POS **',
-                      style: TextStyle(fontSize: 10, color: Color(0xFF64748B), letterSpacing: 3),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Color(0xFF64748B),
+                        letterSpacing: 3,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -1047,7 +1339,9 @@ class GroceryBillPrintDialog extends StatelessWidget {
                       'Software by Blue Oceans POS',
                       style: TextStyle(
                         fontSize: 8.5,
-                        color: isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8),
+                        color: isDark
+                            ? Colors.grey.shade500
+                            : const Color(0xFF94A3B8),
                         fontFamily: 'monospace',
                       ),
                     ),
@@ -1068,7 +1362,9 @@ class GroceryBillPrintDialog extends StatelessWidget {
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Printing Thermal Receipt (80mm) for $invoiceDisplay...'),
+                            content: Text(
+                              'Printing Thermal Receipt (80mm) for $invoiceDisplay...',
+                            ),
                             duration: const Duration(seconds: 2),
                             backgroundColor: GroceryColors.primaryDark,
                           ),
@@ -1078,14 +1374,22 @@ class GroceryBillPrintDialog extends StatelessWidget {
                       child: Container(
                         height: 44,
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF242424) : Colors.white,
+                          color: isDark
+                              ? const Color(0xFF242424)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(color: const Color(0xFF93C5FD)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.print_outlined, size: 16, color: isDark ? Colors.white : const Color(0xFF334155)),
+                            Icon(
+                              Icons.print_outlined,
+                              size: 16,
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF334155),
+                            ),
                             const SizedBox(width: 8),
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -1096,7 +1400,9 @@ class GroceryBillPrintDialog extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
-                                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                    color: isDark
+                                        ? Colors.white
+                                        : const Color(0xFF1E293B),
                                     height: 1.1,
                                   ),
                                 ),
@@ -1105,7 +1411,9 @@ class GroceryBillPrintDialog extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 9.5,
                                     fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+                                    color: isDark
+                                        ? Colors.grey.shade400
+                                        : const Color(0xFF64748B),
                                     height: 1.1,
                                   ),
                                 ),
@@ -1130,7 +1438,9 @@ class GroceryBillPrintDialog extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                           boxShadow: [
                             BoxShadow(
-                              color: GroceryColors.primary.withValues(alpha: 0.35),
+                              color: GroceryColors.primary.withValues(
+                                alpha: 0.35,
+                              ),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -1139,7 +1449,11 @@ class GroceryBillPrintDialog extends StatelessWidget {
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.refresh_rounded, size: 18, color: Colors.white),
+                            Icon(
+                              Icons.refresh_rounded,
+                              size: 18,
+                              color: Colors.white,
+                            ),
                             SizedBox(width: 6),
                             Text(
                               'New Sale',
@@ -1183,9 +1497,15 @@ class GroceryHeldBillsDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: Row(
         children: [
-          const Icon(Icons.pause_circle_outline_rounded, color: GroceryColors.primary),
+          const Icon(
+            Icons.pause_circle_outline_rounded,
+            color: GroceryColors.primary,
+          ),
           const SizedBox(width: 10),
-          Text(AppStrings.get('held_orders', locale), style: const TextStyle(fontWeight: FontWeight.w800)),
+          Text(
+            AppStrings.get('held_orders', locale),
+            style: const TextStyle(fontWeight: FontWeight.w800),
+          ),
         ],
       ),
       content: SizedBox(
@@ -1210,17 +1530,28 @@ class GroceryHeldBillsDialog extends StatelessWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: Text(b.id, style: const TextStyle(fontWeight: FontWeight.w800)),
+                              child: Text(
+                                b.id,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
                             ),
                             Text(
                               '${AppStrings.currency}${NumberUtils.toLocalized(b.total.toStringAsFixed(2), locale)}',
-                              style: const TextStyle(fontWeight: FontWeight.w900, color: GroceryColors.primaryDark),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                color: GroceryColors.primaryDark,
+                              ),
                             ),
                           ],
                         ),
                         Text(
                           '${b.customerName} · ${NumberUtils.toLocalized(b.itemCount, locale)} ${AppStrings.get('items', locale)} · ${DateFormat('hh:mm a').format(b.timestamp)}',
-                          style: TextStyle(fontSize: 11, color: GroceryColors.textSecondary(isDark)),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: GroceryColors.textSecondary(isDark),
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -1229,7 +1560,12 @@ class GroceryHeldBillsDialog extends StatelessWidget {
                               child: OutlinedButton(
                                 onPressed: () {
                                   provider.deleteHeldBill(b.id);
-                                  gSnack(context, isBn ? 'হোল্ড বিল মুছে ফেলা হয়েছে' : 'Held bill deleted');
+                                  gSnack(
+                                    context,
+                                    isBn
+                                        ? 'হোল্ড বিল মুছে ফেলা হয়েছে'
+                                        : 'Held bill deleted',
+                                  );
                                 },
                                 child: Text(AppStrings.get('delete', locale)),
                               ),
@@ -1240,10 +1576,17 @@ class GroceryHeldBillsDialog extends StatelessWidget {
                                 onPressed: () {
                                   provider.recallBill(b);
                                   Navigator.pop(context);
-                                  gSnack(context, isBn ? 'বিল রিকল করা হয়েছে' : 'Bill recalled');
+                                  gSnack(
+                                    context,
+                                    isBn
+                                        ? 'বিল রিকল করা হয়েছে'
+                                        : 'Bill recalled',
+                                  );
                                 },
                                 icon: const Icon(Icons.restore, size: 16),
-                                label: Text(AppStrings.get('recall_order', locale)),
+                                label: Text(
+                                  AppStrings.get('recall_order', locale),
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: GroceryColors.primary,
                                   foregroundColor: Colors.white,
@@ -1259,7 +1602,10 @@ class GroceryHeldBillsDialog extends StatelessWidget {
               ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get('close', locale))),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(AppStrings.get('close', locale)),
+        ),
       ],
     );
   }
@@ -1280,59 +1626,231 @@ class GrocerySalesHistoryDialog extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────
 // CUSTOMER
 // ─────────────────────────────────────────────────────────────────
-class GroceryCustomerDialog extends StatelessWidget {
+class GroceryCustomerDialog extends StatefulWidget {
   const GroceryCustomerDialog({super.key});
+
+  @override
+  State<GroceryCustomerDialog> createState() => _GroceryCustomerDialogState();
+}
+
+class _GroceryCustomerDialogState extends State<GroceryCustomerDialog> {
+  final _searchCtrl = TextEditingController();
+  final _nameCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  bool _addingNew = false;
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    _nameCtrl.dispose();
+    _phoneCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveNewCustomer(GroceryProvider provider, String locale) async {
+    final name = _nameCtrl.text.trim();
+    final phone = _phoneCtrl.text.trim();
+    if (name.isEmpty) return;
+    setState(() => _saving = true);
+    final created = await provider.addCustomer(name: name, phone: phone);
+    if (!mounted) return;
+    setState(() => _saving = false);
+    if (created != null) {
+      Navigator.pop(context);
+      gSnack(
+        context,
+        locale == 'bn'
+            ? 'কাস্টমার যুক্ত ও নির্বাচিত হয়েছে'
+            : 'Customer added & selected',
+      );
+    } else {
+      gSnack(
+        context,
+        locale == 'bn'
+            ? 'কাস্টমার সেভ করতে ব্যর্থ হয়েছে'
+            : 'Failed to save customer',
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<AppProvider>().locale;
     final isDark = context.watch<AppProvider>().isDarkMode;
     final provider = context.watch<GroceryProvider>();
+    final query = _searchCtrl.text.trim().toLowerCase();
+    final customers = provider.customerList.where((c) {
+      if (query.isEmpty) return true;
+      return c.name.toLowerCase().contains(query) ||
+          c.phone.toLowerCase().contains(query);
+    }).toList();
 
     return AlertDialog(
       backgroundColor: GroceryColors.cardBg(isDark),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: Row(
         children: [
-          const Icon(Icons.person_add_alt_1_rounded, color: GroceryColors.primary),
+          const Icon(
+            Icons.person_add_alt_1_rounded,
+            color: GroceryColors.primary,
+          ),
           const SizedBox(width: 10),
-          Text(AppStrings.get('add_customer', locale), style: const TextStyle(fontWeight: FontWeight.w800)),
+          Expanded(
+            child: Text(
+              AppStrings.get('add_customer', locale),
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+          ),
+          TextButton.icon(
+            onPressed: () => setState(() => _addingNew = !_addingNew),
+            icon: Icon(
+              _addingNew ? Icons.list_rounded : Icons.add_rounded,
+              size: 18,
+            ),
+            label: Text(_addingNew ? 'List' : 'New'),
+          ),
         ],
       ),
       content: SizedBox(
         width: 360,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: GroceryProvider.customers.map((c) {
-            final sel = provider.customer.id == c.id;
-            return Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              decoration: BoxDecoration(
-                color: sel ? GroceryColors.primary.withValues(alpha: 0.1) : null,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: sel ? GroceryColors.primary : GroceryColors.border(isDark)),
+        child: _addingNew
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: _nameCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Customer Name *',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _phoneCtrl,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(
+                      labelText: 'Phone Number',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+              )
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: _searchCtrl,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: locale == 'bn'
+                          ? 'নাম বা ফোন দিয়ে খুঁজুন...'
+                          : 'Search name or phone...',
+                      prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                      isDense: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 280),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: customers.length,
+                      itemBuilder: (ctx, idx) {
+                        final c = customers[idx];
+                        final sel = provider.customer.id == c.id;
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          decoration: BoxDecoration(
+                            color: sel
+                                ? GroceryColors.primary.withValues(alpha: 0.1)
+                                : null,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: sel
+                                  ? GroceryColors.primary
+                                  : GroceryColors.border(isDark),
+                            ),
+                          ),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: GroceryColors.primary.withValues(
+                                alpha: 0.15,
+                              ),
+                              child: Text(
+                                c.name.isNotEmpty
+                                    ? c.name[0].toUpperCase()
+                                    : 'C',
+                                style: const TextStyle(
+                                  color: GroceryColors.primaryDark,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              c.localizedName(locale),
+                              style: TextStyle(
+                                fontWeight: sel
+                                    ? FontWeight.w800
+                                    : FontWeight.w600,
+                              ),
+                            ),
+                            subtitle: Text(
+                              '${c.phone} · ${NumberUtils.toLocalized(c.loyaltyPoints, locale)} ${AppStrings.get('pts', locale)}',
+                              style: const TextStyle(fontSize: 11),
+                            ),
+                            trailing: sel
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: GroceryColors.primary,
+                                  )
+                                : null,
+                            onTap: () {
+                              provider.setCustomer(c);
+                              Navigator.pop(context);
+                              gSnack(
+                                context,
+                                locale == 'bn'
+                                    ? 'কাস্টমার নির্বাচিত'
+                                    : 'Customer selected',
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: GroceryColors.primary.withValues(alpha: 0.15),
-                  child: Text(c.name[0], style: const TextStyle(color: GroceryColors.primaryDark, fontWeight: FontWeight.w900)),
-                ),
-                title: Text(c.localizedName(locale), style: TextStyle(fontWeight: sel ? FontWeight.w800 : FontWeight.w600)),
-                subtitle: Text('${c.phone} · ${NumberUtils.toLocalized(c.loyaltyPoints, locale)} ${AppStrings.get('pts', locale)}',
-                    style: const TextStyle(fontSize: 11)),
-                trailing: sel ? const Icon(Icons.check_circle, color: GroceryColors.primary) : null,
-                onTap: () {
-                  provider.setCustomer(c);
-                  Navigator.pop(context);
-                  gSnack(context, locale == 'bn' ? 'কাস্টমার নির্বাচিত' : 'Customer selected');
-                },
-              ),
-            );
-          }).toList(),
-        ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get('close', locale))),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(AppStrings.get('close', locale)),
+        ),
+        if (_addingNew)
+          ElevatedButton(
+            onPressed: _saving
+                ? null
+                : () => _saveNewCustomer(provider, locale),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: GroceryColors.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: _saving
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Save'),
+          ),
       ],
     );
   }
@@ -1353,7 +1871,9 @@ class _GroceryNoteDialogState extends State<GroceryNoteDialog> {
   @override
   void initState() {
     super.initState();
-    _ctrl = TextEditingController(text: context.read<GroceryProvider>().salesNote);
+    _ctrl = TextEditingController(
+      text: context.read<GroceryProvider>().salesNote,
+    );
   }
 
   @override
@@ -1369,7 +1889,10 @@ class _GroceryNoteDialogState extends State<GroceryNoteDialog> {
     return AlertDialog(
       backgroundColor: GroceryColors.cardBg(isDark),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Text(AppStrings.get('sales_note', locale), style: const TextStyle(fontWeight: FontWeight.w800)),
+      title: Text(
+        AppStrings.get('sales_note', locale),
+        style: const TextStyle(fontWeight: FontWeight.w800),
+      ),
       content: TextField(
         controller: _ctrl,
         maxLines: 3,
@@ -1379,14 +1902,20 @@ class _GroceryNoteDialogState extends State<GroceryNoteDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get('cancel', locale))),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(AppStrings.get('cancel', locale)),
+        ),
         ElevatedButton(
           onPressed: () {
             context.read<GroceryProvider>().setSalesNote(_ctrl.text);
             Navigator.pop(context);
             gSnack(context, locale == 'bn' ? 'নোট সেভ হয়েছে' : 'Note saved');
           },
-          style: ElevatedButton.styleFrom(backgroundColor: GroceryColors.primary, foregroundColor: Colors.white),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: GroceryColors.primary,
+            foregroundColor: Colors.white,
+          ),
           child: Text(AppStrings.get('save', locale)),
         ),
       ],
@@ -1406,7 +1935,10 @@ class GroceryDiscountDialog extends StatelessWidget {
     return AlertDialog(
       backgroundColor: GroceryColors.cardBg(isDark),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Text(AppStrings.get('discount', locale), style: const TextStyle(fontWeight: FontWeight.w800)),
+      title: Text(
+        AppStrings.get('discount', locale),
+        style: const TextStyle(fontWeight: FontWeight.w800),
+      ),
       content: Wrap(
         spacing: 10,
         runSpacing: 10,
@@ -1415,7 +1947,10 @@ class GroceryDiscountDialog extends StatelessWidget {
             onTap: () {
               provider.applyBillDiscount(p.toDouble());
               Navigator.pop(context);
-              gSnack(context, '${NumberUtils.toLocalized(p, locale)}% ${AppStrings.get('discount_label', locale)}');
+              gSnack(
+                context,
+                '${NumberUtils.toLocalized(p, locale)}% ${AppStrings.get('discount_label', locale)}',
+              );
             },
             borderRadius: BorderRadius.circular(12),
             child: Container(
@@ -1424,19 +1959,27 @@ class GroceryDiscountDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 color: GroceryColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: GroceryColors.primary.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: GroceryColors.primary.withValues(alpha: 0.3),
+                ),
               ),
               child: Text(
                 '${NumberUtils.toLocalized(p, locale)}%',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.w900, color: GroceryColors.primaryDark),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  color: GroceryColors.primaryDark,
+                ),
               ),
             ),
           );
         }).toList(),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get('cancel', locale))),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(AppStrings.get('cancel', locale)),
+        ),
       ],
     );
   }
@@ -1466,7 +2009,10 @@ class _GroceryCouponDialogState extends State<GroceryCouponDialog> {
     return AlertDialog(
       backgroundColor: GroceryColors.cardBg(isDark),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Text(AppStrings.get('coupon', locale), style: const TextStyle(fontWeight: FontWeight.w800)),
+      title: Text(
+        AppStrings.get('coupon', locale),
+        style: const TextStyle(fontWeight: FontWeight.w800),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1474,24 +2020,36 @@ class _GroceryCouponDialogState extends State<GroceryCouponDialog> {
             controller: _ctrl,
             decoration: InputDecoration(
               hintText: AppStrings.get('coupon_code', locale),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
           const SizedBox(height: 10),
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              isBn ? 'উদাহরণ: SAVE10, FRESH5, WELCOME20' : 'Try: SAVE10, FRESH5, WELCOME20',
-              style: TextStyle(fontSize: 11, color: GroceryColors.textSecondary(isDark)),
+              isBn
+                  ? 'উদাহরণ: SAVE10, FRESH5, WELCOME20'
+                  : 'Try: SAVE10, FRESH5, WELCOME20',
+              style: TextStyle(
+                fontSize: 11,
+                color: GroceryColors.textSecondary(isDark),
+              ),
             ),
           ),
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get('cancel', locale))),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(AppStrings.get('cancel', locale)),
+        ),
         ElevatedButton(
           onPressed: () {
-            final ok = context.read<GroceryProvider>().applyCouponCode(_ctrl.text);
+            final ok = context.read<GroceryProvider>().applyCouponCode(
+              _ctrl.text,
+            );
             Navigator.pop(context);
             gSnack(
               context,
@@ -1501,7 +2059,10 @@ class _GroceryCouponDialogState extends State<GroceryCouponDialog> {
               color: ok ? GroceryColors.primaryDark : Colors.red.shade700,
             );
           },
-          style: ElevatedButton.styleFrom(backgroundColor: GroceryColors.primary, foregroundColor: Colors.white),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: GroceryColors.primary,
+            foregroundColor: Colors.white,
+          ),
           child: Text(AppStrings.get('apply', locale)),
         ),
       ],
@@ -1515,7 +2076,8 @@ class _GroceryCouponDialogState extends State<GroceryCouponDialog> {
 class GroceryPriceCheckDialog extends StatefulWidget {
   const GroceryPriceCheckDialog({super.key});
   @override
-  State<GroceryPriceCheckDialog> createState() => _GroceryPriceCheckDialogState();
+  State<GroceryPriceCheckDialog> createState() =>
+      _GroceryPriceCheckDialogState();
 }
 
 class _GroceryPriceCheckDialogState extends State<GroceryPriceCheckDialog> {
@@ -1554,7 +2116,10 @@ class _GroceryPriceCheckDialogState extends State<GroceryPriceCheckDialog> {
     return AlertDialog(
       backgroundColor: GroceryColors.cardBg(isDark),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Text(AppStrings.get('price_check', locale), style: const TextStyle(fontWeight: FontWeight.w800)),
+      title: Text(
+        AppStrings.get('price_check', locale),
+        style: const TextStyle(fontWeight: FontWeight.w800),
+      ),
       content: SizedBox(
         width: 360,
         child: Column(
@@ -1565,24 +2130,45 @@ class _GroceryPriceCheckDialogState extends State<GroceryPriceCheckDialog> {
               onSubmitted: (_) => _search(provider),
               decoration: InputDecoration(
                 hintText: isBn ? 'প্রোডাক্ট নাম বা ID' : 'Product name or ID',
-                suffixIcon: IconButton(icon: const Icon(Icons.search), onPressed: () => _search(provider)),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () => _search(provider),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
             if (_found != null) ...[
               const SizedBox(height: 16),
               Text(_found!.emoji, style: const TextStyle(fontSize: 40)),
-              Text(_found!.localizedName(locale), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
-              Text(_found!.localizedUnit(locale), style: TextStyle(color: GroceryColors.textSecondary(isDark))),
+              Text(
+                _found!.localizedName(locale),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                ),
+              ),
+              Text(
+                _found!.localizedUnit(locale),
+                style: TextStyle(color: GroceryColors.textSecondary(isDark)),
+              ),
               const SizedBox(height: 6),
               Text(
                 '${AppStrings.currency}${NumberUtils.toLocalized(_found!.price.toStringAsFixed(2), locale)}',
-                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: GroceryColors.primaryDark),
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  color: GroceryColors.primaryDark,
+                ),
               ),
               if ((_found!.offerPercent ?? 0) > 0)
                 Text(
                   '${NumberUtils.toLocalized(_found!.offerPercent!.toStringAsFixed(0), locale)}% OFF',
-                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w800),
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               const SizedBox(height: 10),
               ElevatedButton.icon(
@@ -1593,7 +2179,10 @@ class _GroceryPriceCheckDialogState extends State<GroceryPriceCheckDialog> {
                 },
                 icon: const Icon(Icons.add_shopping_cart),
                 label: Text(AppStrings.get('add_to_cart', locale)),
-                style: ElevatedButton.styleFrom(backgroundColor: GroceryColors.primary, foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: GroceryColors.primary,
+                  foregroundColor: Colors.white,
+                ),
               ),
             ] else if (_ctrl.text.isNotEmpty) ...[
               const SizedBox(height: 16),
@@ -1603,7 +2192,10 @@ class _GroceryPriceCheckDialogState extends State<GroceryPriceCheckDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get('close', locale))),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(AppStrings.get('close', locale)),
+        ),
       ],
     );
   }
@@ -1632,7 +2224,10 @@ class GroceryProductListDialog extends StatelessWidget {
     return AlertDialog(
       backgroundColor: GroceryColors.cardBg(isDark),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Text(AppStrings.get(titleKey, locale), style: const TextStyle(fontWeight: FontWeight.w800)),
+      title: Text(
+        AppStrings.get(titleKey, locale),
+        style: const TextStyle(fontWeight: FontWeight.w800),
+      ),
       content: SizedBox(
         width: 400,
         height: 360,
@@ -1643,12 +2238,19 @@ class GroceryProductListDialog extends StatelessWidget {
                 itemBuilder: (context, i) {
                   final p = products[i];
                   return ListTile(
-                    leading: Text(p.emoji, style: const TextStyle(fontSize: 28)),
-                    title: Text(p.localizedName(locale), style: const TextStyle(fontWeight: FontWeight.w700)),
+                    leading: Text(
+                      p.emoji,
+                      style: const TextStyle(fontSize: 28),
+                    ),
+                    title: Text(
+                      p.localizedName(locale),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
                     subtitle: Text(
                       [
                         p.localizedUnit(locale),
-                        if (showStock) '${locale == 'bn' ? 'স্টক' : 'Stock'}: ${NumberUtils.toLocalized(p.stock, locale)}',
+                        if (showStock)
+                          '${locale == 'bn' ? 'স্টক' : 'Stock'}: ${NumberUtils.toLocalized(p.stock, locale)}',
                         if (showOffer && (p.offerPercent ?? 0) > 0)
                           '${NumberUtils.toLocalized(p.offerPercent!.toStringAsFixed(0), locale)}% OFF',
                       ].join(' · '),
@@ -1656,19 +2258,28 @@ class GroceryProductListDialog extends StatelessWidget {
                     ),
                     trailing: Text(
                       '${AppStrings.currency}${NumberUtils.toLocalized(p.price.toStringAsFixed(2), locale)}',
-                      style: const TextStyle(fontWeight: FontWeight.w900, color: GroceryColors.primaryDark),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        color: GroceryColors.primaryDark,
+                      ),
                     ),
                     onTap: () {
                       provider.addToCart(p);
                       Navigator.pop(context);
-                      gSnack(context, locale == 'bn' ? 'কার্টে যোগ হয়েছে' : 'Added to cart');
+                      gSnack(
+                        context,
+                        locale == 'bn' ? 'কার্টে যোগ হয়েছে' : 'Added to cart',
+                      );
                     },
                   );
                 },
               ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get('close', locale))),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(AppStrings.get('close', locale)),
+        ),
       ],
     );
   }
@@ -1696,9 +2307,16 @@ class _GroceryBarcodeDialogState extends State<GroceryBarcodeDialog> {
     if (p != null) {
       provider.addToCart(p);
       Navigator.pop(context);
-      gSnack(context, '${p.localizedName(locale)} ${locale == 'bn' ? 'যোগ হয়েছে' : 'added'}');
+      gSnack(
+        context,
+        '${p.localizedName(locale)} ${locale == 'bn' ? 'যোগ হয়েছে' : 'added'}',
+      );
     } else {
-      gSnack(context, locale == 'bn' ? 'বারকোড পাওয়া যায়নি' : 'Barcode not found', color: Colors.red.shade700);
+      gSnack(
+        context,
+        locale == 'bn' ? 'বারকোড পাওয়া যায়নি' : 'Barcode not found',
+        color: Colors.red.shade700,
+      );
     }
   }
 
@@ -1711,7 +2329,10 @@ class _GroceryBarcodeDialogState extends State<GroceryBarcodeDialog> {
     return AlertDialog(
       backgroundColor: GroceryColors.cardBg(isDark),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Text(AppStrings.get('barcode_lookup', locale), style: const TextStyle(fontWeight: FontWeight.w800)),
+      title: Text(
+        AppStrings.get('barcode_lookup', locale),
+        style: const TextStyle(fontWeight: FontWeight.w800),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1722,7 +2343,11 @@ class _GroceryBarcodeDialogState extends State<GroceryBarcodeDialog> {
               border: Border.all(color: GroceryColors.primary, width: 2),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.qr_code_scanner_rounded, size: 64, color: GroceryColors.primary),
+            child: const Icon(
+              Icons.qr_code_scanner_rounded,
+              size: 64,
+              color: GroceryColors.primary,
+            ),
           ),
           const SizedBox(height: 12),
           TextField(
@@ -1730,17 +2355,27 @@ class _GroceryBarcodeDialogState extends State<GroceryBarcodeDialog> {
             autofocus: true,
             onSubmitted: (_) => _lookup(),
             decoration: InputDecoration(
-              hintText: isBn ? 'বারকোড বা প্রোডাক্ট ID (1-18)' : 'Barcode or product ID (1-18)',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              hintText: isBn
+                  ? 'বারকোড বা প্রোডাক্ট ID (1-18)'
+                  : 'Barcode or product ID (1-18)',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get('close', locale))),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(AppStrings.get('close', locale)),
+        ),
         ElevatedButton(
           onPressed: _lookup,
-          style: ElevatedButton.styleFrom(backgroundColor: GroceryColors.primary, foregroundColor: Colors.white),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: GroceryColors.primary,
+            foregroundColor: Colors.white,
+          ),
           child: Text(AppStrings.get('apply', locale)),
         ),
       ],
@@ -1761,26 +2396,41 @@ class GroceryReturnDialog extends StatelessWidget {
     return AlertDialog(
       backgroundColor: GroceryColors.cardBg(isDark),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Text(AppStrings.get('return_refund', locale), style: const TextStyle(fontWeight: FontWeight.w800)),
+      title: Text(
+        AppStrings.get('return_refund', locale),
+        style: const TextStyle(fontWeight: FontWeight.w800),
+      ),
       content: SizedBox(
         width: 400,
         height: 320,
         child: sales.isEmpty
-            ? Center(child: Text(isBn ? 'রিটার্নের জন্য কোনো সেল নেই' : 'No sales to return'))
+            ? Center(
+                child: Text(
+                  isBn ? 'রিটার্নের জন্য কোনো সেল নেই' : 'No sales to return',
+                ),
+              )
             : ListView.builder(
                 itemCount: sales.length,
                 itemBuilder: (context, i) {
                   final s = sales[i];
                   return ListTile(
-                    title: Text(s.invoiceNo, style: const TextStyle(fontWeight: FontWeight.w800)),
+                    title: Text(
+                      s.invoiceNo,
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
                     subtitle: Text(
                       '${AppStrings.currency}${NumberUtils.toLocalized(s.total.toStringAsFixed(2), locale)} · ${DateFormat('dd MMM').format(s.timestamp)}',
                     ),
                     trailing: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        gSnack(context, isBn ? 'রিফান্ড প্রক্রিয়া শুরু হয়েছে' : 'Refund initiated',
-                            color: Colors.orange.shade800);
+                        gSnack(
+                          context,
+                          isBn
+                              ? 'রিফান্ড প্রক্রিয়া শুরু হয়েছে'
+                              : 'Refund initiated',
+                          color: Colors.orange.shade800,
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
@@ -1793,7 +2443,10 @@ class GroceryReturnDialog extends StatelessWidget {
               ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(AppStrings.get('close', locale))),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(AppStrings.get('close', locale)),
+        ),
       ],
     );
   }

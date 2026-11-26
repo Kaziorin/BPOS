@@ -8,43 +8,57 @@ import '../theme/grocery_colors.dart';
 class CategoryChips extends StatelessWidget {
   const CategoryChips({super.key});
 
-  static const _categories = [
-    ('cat_all', 'All Items', Icons.grid_view_rounded),
-    ('cat_fruits', 'Fruits & Veg', Icons.eco_rounded),
-    ('cat_grocery', 'Grocery', Icons.shopping_bag_rounded),
-    ('cat_beverages', 'Beverages', Icons.local_drink_rounded),
-    ('cat_snacks', 'Snacks', Icons.cookie_rounded),
-    ('cat_dairy', 'Dairy', Icons.water_drop_rounded),
-    ('cat_household', 'Household', Icons.home_rounded),
-  ];
+  static IconData _iconForCategory(String name) {
+    final lower = name.toLowerCase();
+    if (lower == 'all items' || lower == 'all') return Icons.grid_view_rounded;
+    if (lower.contains('fruit') || lower.contains('veg'))
+      return Icons.eco_rounded;
+    if (lower.contains('grocery')) return Icons.shopping_bag_rounded;
+    if (lower.contains('beverage') || lower.contains('drink'))
+      return Icons.local_drink_rounded;
+    if (lower.contains('snack')) return Icons.cookie_rounded;
+    if (lower.contains('dairy') || lower.contains('milk'))
+      return Icons.water_drop_rounded;
+    if (lower.contains('household') || lower.contains('clean'))
+      return Icons.home_rounded;
+    return Icons.category_rounded;
+  }
+
+  static String _labelForCategory(String name, String locale) {
+    if (name == 'All Items') return AppStrings.get('cat_all', locale);
+    return name;
+  }
 
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<AppProvider>().locale;
     final isDark = context.watch<AppProvider>().isDarkMode;
-    final selected = context.watch<GroceryProvider>().selectedCategory;
+    final provider = context.watch<GroceryProvider>();
+    final selected = provider.selectedCategory;
+    final categories = provider.categories;
 
     return SizedBox(
       height: 44,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: _categories.length + 1,
+        itemCount: categories.length + 1,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          if (index == _categories.length) {
+          if (index == categories.length) {
             return _Chip(
               label: AppStrings.get('more', locale),
               icon: Icons.more_horiz_rounded,
               selected: false,
               isDark: isDark,
               onTap: () {
-                final provider = context.read<GroceryProvider>();
                 showModalBottomSheet(
                   context: context,
                   backgroundColor: GroceryColors.cardBg(isDark),
                   shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
                   ),
                   builder: (_) => ChangeNotifierProvider.value(
                     value: provider,
@@ -53,18 +67,27 @@ class CategoryChips extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(AppStrings.get('category', locale),
-                              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                          Text(
+                            AppStrings.get('category', locale),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                            ),
+                          ),
                           const SizedBox(height: 12),
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: _categories.map((c) {
+                            children: categories.map((cat) {
                               return ActionChip(
-                                avatar: Icon(c.$3, size: 16, color: GroceryColors.primary),
-                                label: Text(AppStrings.get(c.$1, locale)),
+                                avatar: Icon(
+                                  _iconForCategory(cat),
+                                  size: 16,
+                                  color: GroceryColors.primary,
+                                ),
+                                label: Text(_labelForCategory(cat, locale)),
                                 onPressed: () {
-                                  provider.setCategory(c.$2);
+                                  provider.setCategory(cat);
                                   Navigator.pop(context);
                                 },
                               );
@@ -79,17 +102,14 @@ class CategoryChips extends StatelessWidget {
               },
             );
           }
-          final cat = _categories[index];
-          final key = cat.$1;
-          final value = cat.$2;
-          final icon = cat.$3;
-          final isSelected = selected == value;
+          final cat = categories[index];
+          final isSelected = selected == cat;
           return _Chip(
-            label: AppStrings.get(key, locale),
-            icon: icon,
+            label: _labelForCategory(cat, locale),
+            icon: _iconForCategory(cat),
             selected: isSelected,
             isDark: isDark,
-            onTap: () => context.read<GroceryProvider>().setCategory(value),
+            onTap: () => provider.setCategory(cat),
           );
         },
       ),
