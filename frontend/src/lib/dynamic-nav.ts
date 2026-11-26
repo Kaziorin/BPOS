@@ -83,6 +83,8 @@ import {
   Printer,
   UserCheck,
   Lock,
+  TrendingUp,
+  AlertTriangle,
   type LucideIcon,
 } from "lucide-react";
 
@@ -275,12 +277,6 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
           { label: "Dashboard Overview", href: "/dashboard", icon: LayoutDashboard },
           { label: "Dashboard Builder", href: "/dashboard/builder", icon: Layers, requiredPlan: "BUSINESS" },
         ],
-      },
-      {
-        label: "Business Intelligence & Reports",
-        href: "/reports",
-        icon: BarChart3,
-        requiredPlan: "BUSINESS",
       },
       {
         label: "AI Agent & Intelligence",
@@ -586,7 +582,80 @@ export const DEFAULT_MASTER_NAV: NavGroup[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════════
-  // 8. INDUSTRY VERTICALS & ADD-ON HUBS
+  // 8. REPORTS & ANALYTICS
+  // ══════════════════════════════════════════════════════════════════════
+  {
+    title: "Reports & Analytics",
+    items: [
+      {
+        label: "Sales Reports",
+        href: "/reports/sales",
+        icon: BarChart3,
+        children: [
+          { label: "Sales Summary", href: "/reports/sales", icon: TrendingUp },
+          { label: "Sales by Product", href: "/reports/sales?tab=sales&view=product", icon: Package },
+          { label: "Sales by Category", href: "/reports/sales?tab=sales&view=category", icon: Layers },
+          { label: "Sales by Payment Method", href: "/reports/sales?tab=sales&view=payment", icon: CreditCard },
+          { label: "Cashier & Staff Sales", href: "/reports/sales?tab=sales&view=cashier", icon: Users },
+        ],
+      },
+      {
+        label: "Inventory Reports",
+        href: "/reports/inventory",
+        icon: Package,
+        children: [
+          { label: "Stock Valuation", href: "/reports/inventory", icon: DollarSign },
+          { label: "Low Stock Alerts", href: "/reports/inventory?tab=inventory&view=low_stock", icon: AlertTriangle },
+          { label: "Stock Movements", href: "/reports/inventory?tab=inventory&view=movements", icon: ArrowLeftRight },
+          { label: "Inventory Aging", href: "/reports/inventory?tab=inventory&view=aging", icon: Clock },
+          { label: "Expiry Date Tracking", href: "/reports/inventory?tab=inventory&view=expiry", icon: Calendar },
+        ],
+      },
+      {
+        label: "Financial & PnL Reports",
+        href: "/reports/financial",
+        icon: DollarSign,
+        requiredPlan: "BUSINESS",
+        children: [
+          { label: "Profit & Loss (P&L)", href: "/reports/financial", icon: TrendingUp },
+          { label: "Balance Sheet", href: "/reports/financial?tab=financial&view=balance_sheet", icon: FileText },
+          { label: "Accounts Receivable (AR)", href: "/reports/financial?tab=financial&view=ar", icon: Wallet },
+          { label: "Accounts Payable (AP)", href: "/reports/financial?tab=financial&view=ap", icon: Building2 },
+        ],
+      },
+      {
+        label: "Staff Commission Reports",
+        href: "/reports/commission",
+        icon: Percent,
+        requiredPlan: "BUSINESS",
+      },
+      {
+        label: "Installments & Overdue",
+        href: "/reports/installments",
+        icon: Calendar,
+        requiredPlan: "BUSINESS",
+      },
+      {
+        label: "Scheduled & Custom Reports",
+        href: "/reports/scheduled",
+        icon: Clock,
+        requiredPlan: "BUSINESS",
+        children: [
+          { label: "Scheduled Reports", href: "/reports/scheduled", icon: Clock },
+          { label: "Saved Presets", href: "/reports/saved", icon: BookMarked },
+        ],
+      },
+      {
+        label: "AI Predictive Analytics",
+        href: "/ai",
+        icon: Sparkles,
+        badge: "AI",
+      },
+    ],
+  },
+
+  // ══════════════════════════════════════════════════════════════════════
+  // 9. INDUSTRY VERTICALS & ADD-ON HUBS
   // ══════════════════════════════════════════════════════════════════════
   {
     title: "Industry Solutions",
