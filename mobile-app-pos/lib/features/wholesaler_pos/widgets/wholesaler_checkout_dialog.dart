@@ -41,7 +41,11 @@ class WholesalerSale {
   });
 }
 
-void showWholesalerReceiptDialog(BuildContext context, WholesalerSale sale, bool isDark) {
+void showWholesalerReceiptDialog(
+  BuildContext context,
+  WholesalerSale sale,
+  bool isDark,
+) {
   showDialog(
     context: context,
     barrierColor: Colors.black.withValues(alpha: 0.55),
@@ -49,7 +53,11 @@ void showWholesalerReceiptDialog(BuildContext context, WholesalerSale sale, bool
   );
 }
 
-void showWholesalerCheckoutDialog(BuildContext context, WholesalerProvider w, bool isDark) {
+void showWholesalerCheckoutDialog(
+  BuildContext context,
+  WholesalerProvider w,
+  bool isDark,
+) {
   showDialog(
     context: context,
     barrierColor: Colors.black.withValues(alpha: 0.55),
@@ -81,10 +89,12 @@ class WholesalerCheckoutPaymentModal extends StatefulWidget {
   });
 
   @override
-  State<WholesalerCheckoutPaymentModal> createState() => _WholesalerCheckoutPaymentModalState();
+  State<WholesalerCheckoutPaymentModal> createState() =>
+      _WholesalerCheckoutPaymentModalState();
 }
 
-class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPaymentModal> {
+class _WholesalerCheckoutPaymentModalState
+    extends State<WholesalerCheckoutPaymentModal> {
   String _selectedMethod = 'CASH';
   final TextEditingController _tenderedController = TextEditingController();
   double _tenderedAmount = 0.0;
@@ -126,7 +136,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
     final total = widget.wholesalerProvider.grandTotal;
     setState(() {
       _tenderedAmount = total;
-      _tenderedController.text = total % 1 == 0 ? total.toInt().toString() : total.toStringAsFixed(2);
+      _tenderedController.text = total % 1 == 0
+          ? total.toInt().toString()
+          : total.toStringAsFixed(2);
     });
   }
 
@@ -160,7 +172,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('পর্যাপ্ত ক্যাশ প্রদান করা হয়নি! মোট মূল্য: ৳${NumberFormat('#,##0.00').format(total)}'),
+            content: Text(
+              'পর্যাপ্ত ক্যাশ প্রদান করা হয়নি! মোট মূল্য: ৳${NumberFormat('#,##0.00').format(total)}',
+            ),
             backgroundColor: const Color(0xFFDC2626),
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 2),
@@ -171,12 +185,15 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
     }
 
     final paid = _selectedMethod == 'CASH' ? _tenderedAmount : total;
-    final change = (_selectedMethod == 'CASH' && paid > total) ? paid - total : 0.0;
+    final change = (_selectedMethod == 'CASH' && paid > total)
+        ? paid - total
+        : 0.0;
 
     String methodLabel = _selectedMethod;
     if (_selectedMethod == 'CASH') methodLabel = 'Cash';
     if (_selectedMethod == 'CARD') methodLabel = 'Bank Transfer ($_bankName)';
-    if (_selectedMethod == 'MOBILE_PAY') methodLabel = '$_mobileProvider (Mobile)';
+    if (_selectedMethod == 'MOBILE_PAY')
+      methodLabel = '$_mobileProvider (Mobile)';
     if (_selectedMethod == 'CUSTOMER_DUE') methodLabel = 'B2B Credit / Ledger';
 
     Map<String, dynamic>? res;
@@ -184,16 +201,20 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
       res = await ApiService.instance.confirmSale(
         businessType: 'wholesaler',
         payload: {
-          'items': w.items.map((item) => {
-            'productId': item.product.id,
-            'name': item.product.name,
-            'unitPrice': item.unitPrice,
-            'qty': item.qty,
-            'lineTotal': item.lineTotal,
-            'discountAmount': 0,
-          }).toList(),
+          'items': w.items
+              .map(
+                (item) => {
+                  'productId': item.product.id,
+                  'name': item.product.name,
+                  'unitPrice': item.unitPrice,
+                  'qty': item.qty,
+                  'lineTotal': item.lineTotal,
+                  'discountAmount': 0,
+                },
+              )
+              .toList(),
           'payments': [
-            {'method': _selectedMethod, 'amount': paid}
+            {'method': _selectedMethod, 'amount': paid},
           ],
           'tendered': paid,
           'tenderedAmount': paid,
@@ -216,7 +237,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
       debugPrint('Wholesale confirmSale error: $e');
     }
 
-    final finalOrderNo = (res != null && (res['invoiceNo'] != null || res['order_number'] != null))
+    final finalOrderNo =
+        (res != null &&
+            (res['invoiceNo'] != null || res['order_number'] != null))
         ? (res['invoiceNo'] ?? res['order_number']).toString()
         : w.orderNo;
 
@@ -251,7 +274,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
   Widget build(BuildContext context) {
     final isDark = widget.isDark;
     final bg = isDark ? const Color(0xFF1E1B4B) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF2E2B6B) : const Color(0xFFE2E8F0);
+    final borderColor = isDark
+        ? const Color(0xFF2E2B6B)
+        : const Color(0xFFE2E8F0);
     final w = widget.wholesalerProvider;
     final total = w.grandTotal;
     final subtotal = w.subtotal;
@@ -297,7 +322,11 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                         color: const Color(0xFFEF4444),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Icon(Icons.close_rounded, size: 16, color: Colors.white),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        size: 16,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
@@ -308,7 +337,10 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF4F46E5), Color(0xFF6366F1)],
@@ -324,10 +356,16 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                       height: 40,
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.2),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                        ),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Icon(Icons.local_shipping_rounded, color: Colors.white, size: 22),
+                      child: const Icon(
+                        Icons.local_shipping_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -359,7 +397,11 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                     ),
                     GestureDetector(
                       onTap: () => Navigator.of(context).pop(),
-                      child: const Icon(Icons.close_rounded, size: 16, color: Colors.white70),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        size: 16,
+                        color: Colors.white70,
+                      ),
                     ),
                   ],
                 ),
@@ -376,11 +418,18 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF161337) : const Color(0xFFEEF2FF),
+                          color: isDark
+                              ? const Color(0xFF161337)
+                              : const Color(0xFFEEF2FF),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: primaryIndigo.withValues(alpha: 0.25)),
+                          border: Border.all(
+                            color: primaryIndigo.withValues(alpha: 0.25),
+                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -393,7 +442,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+                                    color: isDark
+                                        ? Colors.grey.shade400
+                                        : const Color(0xFF64748B),
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -413,13 +464,21 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                               children: [
                                 Row(
                                   children: [
-                                    const Text('Subtotal:  ', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                                    const Text(
+                                      'Subtotal:  ',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF64748B),
+                                      ),
+                                    ),
                                     Text(
                                       '৳${fmt.format(subtotal)}',
                                       style: TextStyle(
                                         fontSize: 11.5,
                                         fontWeight: FontWeight.bold,
-                                        color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                        color: isDark
+                                            ? Colors.white
+                                            : const Color(0xFF1E293B),
                                       ),
                                     ),
                                   ],
@@ -428,10 +487,20 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                                   const SizedBox(height: 2),
                                   Row(
                                     children: [
-                                      const Text('Discount:  ', style: TextStyle(fontSize: 11, color: Colors.green)),
+                                      const Text(
+                                        'Discount:  ',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.green,
+                                        ),
+                                      ),
                                       Text(
                                         '-৳${fmt.format(discount)}',
-                                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Colors.green),
+                                        style: const TextStyle(
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -439,13 +508,21 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                                 const SizedBox(height: 2),
                                 Row(
                                   children: [
-                                    const Text('VAT (6.4%):  ', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                                    const Text(
+                                      'VAT (6.4%):  ',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF64748B),
+                                      ),
+                                    ),
                                     Text(
                                       '৳${fmt.format(tax)}',
                                       style: TextStyle(
                                         fontSize: 11.5,
                                         fontWeight: FontWeight.bold,
-                                        color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                        color: isDark
+                                            ? Colors.white
+                                            : const Color(0xFF1E293B),
                                       ),
                                     ),
                                   ],
@@ -453,13 +530,21 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                                 const SizedBox(height: 2),
                                 Row(
                                   children: [
-                                    const Text('Shipping:  ', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                                    const Text(
+                                      'Shipping:  ',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF64748B),
+                                      ),
+                                    ),
                                     Text(
                                       '৳${fmt.format(shipping)}',
                                       style: TextStyle(
                                         fontSize: 11.5,
                                         fontWeight: FontWeight.bold,
-                                        color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                        color: isDark
+                                            ? Colors.white
+                                            : const Color(0xFF1E293B),
                                       ),
                                     ),
                                   ],
@@ -483,19 +568,45 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                               fontSize: 10.5,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
-                              color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+                              color: isDark
+                                  ? Colors.grey.shade400
+                                  : const Color(0xFF64748B),
                             ),
                           ),
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              _buildMethodItem('CASH', 'Cash', Icons.payments_outlined, isDark, borderColor),
+                              _buildMethodItem(
+                                'CASH',
+                                'Cash',
+                                Icons.payments_outlined,
+                                isDark,
+                                borderColor,
+                              ),
                               const SizedBox(width: 8),
-                              _buildMethodItem('CARD', 'Bank / POS', Icons.account_balance_outlined, isDark, borderColor),
+                              _buildMethodItem(
+                                'CARD',
+                                'Bank / POS',
+                                Icons.account_balance_outlined,
+                                isDark,
+                                borderColor,
+                              ),
                               const SizedBox(width: 8),
-                              _buildMethodItem('MOBILE_PAY', 'Mobile\nBanking', Icons.phone_android_outlined, isDark, borderColor),
+                              _buildMethodItem(
+                                'MOBILE_PAY',
+                                'Mobile\nBanking',
+                                Icons.phone_android_outlined,
+                                isDark,
+                                borderColor,
+                              ),
                               const SizedBox(width: 8),
-                              _buildMethodItem('CUSTOMER_DUE', 'Customer\nCredit / Due', Icons.receipt_long_outlined, isDark, borderColor),
+                              _buildMethodItem(
+                                'CUSTOMER_DUE',
+                                'Customer\nCredit / Due',
+                                Icons.receipt_long_outlined,
+                                isDark,
+                                borderColor,
+                              ),
                             ],
                           ),
                         ],
@@ -505,7 +616,11 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                     // ── Dynamic Payment Detail Area ────────────────────────────────
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-                      child: _buildSelectedMethodArea(isDark, borderColor, total),
+                      child: _buildSelectedMethodArea(
+                        isDark,
+                        borderColor,
+                        total,
+                      ),
                     ),
                   ],
                 ),
@@ -523,7 +638,13 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
     );
   }
 
-  Widget _buildMethodItem(String key, String label, IconData icon, bool isDark, Color borderColor) {
+  Widget _buildMethodItem(
+    String key,
+    String label,
+    IconData icon,
+    bool isDark,
+    Color borderColor,
+  ) {
     final isSelected = _selectedMethod == key;
     return Expanded(
       child: GestureDetector(
@@ -547,7 +668,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
               Icon(
                 icon,
                 size: 20,
-                color: isSelected ? primaryIndigo : (isDark ? Colors.grey.shade400 : const Color(0xFF64748B)),
+                color: isSelected
+                    ? primaryIndigo
+                    : (isDark ? Colors.grey.shade400 : const Color(0xFF64748B)),
               ),
               const SizedBox(height: 4),
               Text(
@@ -556,7 +679,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                 style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                  color: isSelected ? primaryIndigo : (isDark ? Colors.white : const Color(0xFF1E293B)),
+                  color: isSelected
+                      ? primaryIndigo
+                      : (isDark ? Colors.white : const Color(0xFF1E293B)),
                   height: 1.1,
                 ),
               ),
@@ -567,7 +692,11 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
     );
   }
 
-  Widget _buildSelectedMethodArea(bool isDark, Color borderColor, double total) {
+  Widget _buildSelectedMethodArea(
+    bool isDark,
+    Color borderColor,
+    double total,
+  ) {
     switch (_selectedMethod) {
       case 'CASH':
         return _buildCashSection(isDark, borderColor, total);
@@ -605,11 +734,16 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
             GestureDetector(
               onTap: _setExactAmount,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
                 decoration: BoxDecoration(
                   color: primaryIndigo.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: primaryIndigo.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: primaryIndigo.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: const Text(
                   'Exact Amount',
@@ -639,8 +773,12 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                 width: 44,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2E2B6B) : const Color(0xFFF1F5F9),
-                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(5)),
+                  color: isDark
+                      ? const Color(0xFF2E2B6B)
+                      : const Color(0xFFF1F5F9),
+                  borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(5),
+                  ),
                 ),
                 child: Center(
                   child: Text(
@@ -656,7 +794,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
               Expanded(
                 child: TextField(
                   controller: _tenderedController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -680,7 +820,11 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                   },
                   child: const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: Icon(Icons.clear_rounded, size: 18, color: Colors.grey),
+                    child: Icon(
+                      Icons.clear_rounded,
+                      size: 18,
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
             ],
@@ -700,7 +844,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF161337) : const Color(0xFFF8FAFC),
+                      color: isDark
+                          ? const Color(0xFF161337)
+                          : const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(color: borderColor),
                     ),
@@ -709,7 +855,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                       style: TextStyle(
                         fontSize: amt >= 1000 ? 10.5 : 11,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? Colors.white70 : const Color(0xFF334155),
+                        color: isDark
+                            ? Colors.white70
+                            : const Color(0xFF334155),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -731,9 +879,7 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                 : (isDark ? const Color(0xFF161337) : const Color(0xFFF8FAFC)),
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
-              color: isSufficient
-                  ? const Color(0xFFA7F3D0)
-                  : borderColor,
+              color: isSufficient ? const Color(0xFFA7F3D0) : borderColor,
             ),
           ),
           child: Row(
@@ -742,9 +888,13 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
               Row(
                 children: [
                   Icon(
-                    isSufficient ? Icons.check_circle_rounded : Icons.info_outline_rounded,
+                    isSufficient
+                        ? Icons.check_circle_rounded
+                        : Icons.info_outline_rounded,
                     size: 18,
-                    color: isSufficient ? const Color(0xFF10B981) : const Color(0xFF64748B),
+                    color: isSufficient
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFF64748B),
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -752,7 +902,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: isSufficient ? const Color(0xFF065F46) : const Color(0xFF64748B),
+                      color: isSufficient
+                          ? const Color(0xFF065F46)
+                          : const Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -762,7 +914,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
-                  color: isSufficient ? const Color(0xFF059669) : const Color(0xFF64748B),
+                  color: isSufficient
+                      ? const Color(0xFF059669)
+                      : const Color(0xFF64748B),
                 ),
               ),
             ],
@@ -773,7 +927,12 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
   }
 
   Widget _buildBankSection(bool isDark, Color borderColor) {
-    final banks = ['City Bank (Online)', 'BRAC Bank', 'Islami Bank', 'POS Machine'];
+    final banks = [
+      'City Bank (Online)',
+      'BRAC Bank',
+      'Islami Bank',
+      'POS Machine',
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -813,7 +972,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
-                        color: isSel ? primaryIndigo : (isDark ? Colors.white : const Color(0xFF1E293B)),
+                        color: isSel
+                            ? primaryIndigo
+                            : (isDark ? Colors.white : const Color(0xFF1E293B)),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -909,7 +1070,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w800,
-                        color: isSel ? color : (isDark ? Colors.white : const Color(0xFF1E293B)),
+                        color: isSel
+                            ? color
+                            : (isDark ? Colors.white : const Color(0xFF1E293B)),
                       ),
                     ),
                   ),
@@ -975,32 +1138,84 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Customer Tier:', style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : const Color(0xFF64748B))),
-                  Text(c.tierLabel, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: WholesalerColors.accentOrange)),
+                  Text(
+                    'Customer Tier:',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                    ),
+                  ),
+                  Text(
+                    c.tierLabel,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: WholesalerColors.accentOrange,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 4),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Credit Limit:', style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : const Color(0xFF64748B))),
-                  Text('৳${fmt.format(c.creditLimit)}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1E293B))),
+                  Text(
+                    'Credit Limit:',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                    ),
+                  ),
+                  Text(
+                    '৳${fmt.format(c.creditLimit)}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : const Color(0xFF1E293B),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 4),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Available Credit:', style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : const Color(0xFF64748B))),
-                  Text('৳${fmt.format(c.availableCredit)}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF10B981))),
+                  Text(
+                    'Available Credit:',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                    ),
+                  ),
+                  Text(
+                    '৳${fmt.format(c.availableCredit)}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF10B981),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 4),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Current Outstanding:', style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : const Color(0xFF64748B))),
-                  Text('৳${fmt.format(c.outstanding)}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFEF4444))),
+                  Text(
+                    'Current Outstanding:',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                    ),
+                  ),
+                  Text(
+                    '৳${fmt.format(c.outstanding)}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFFEF4444),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -1054,9 +1269,11 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(_tenderedAmount <= 0
-                  ? 'দয়া করে Cash Tendered এর পরিমাণ প্রদান করুন!'
-                  : 'পর্যাপ্ত ক্যাশ প্রদান করা হয়নি (মোট: ৳${fmt.format(total)})!'),
+              content: Text(
+                _tenderedAmount <= 0
+                    ? 'দয়া করে Cash Tendered এর পরিমাণ প্রদান করুন!'
+                    : 'পর্যাপ্ত ক্যাশ প্রদান করা হয়নি (মোট: ৳${fmt.format(total)})!',
+              ),
               backgroundColor: const Color(0xFFDC2626),
               behavior: SnackBarBehavior.floating,
               duration: const Duration(seconds: 2),
@@ -1071,7 +1288,9 @@ class _WholesalerCheckoutPaymentModalState extends State<WholesalerCheckoutPayme
         height: 50,
         decoration: BoxDecoration(
           color: !isValidCash
-              ? (widget.isDark ? const Color(0xFF334155) : const Color(0xFF94A3B8))
+              ? (widget.isDark
+                    ? const Color(0xFF334155)
+                    : const Color(0xFF94A3B8))
               : null,
           gradient: isValidCash
               ? const LinearGradient(
@@ -1132,7 +1351,21 @@ class WholesalerReceiptModal extends StatelessWidget {
   });
 
   String _formatDate(DateTime dt) {
-    const months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sept',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     final m = months[dt.month];
     final hr = dt.hour.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
@@ -1163,7 +1396,40 @@ class WholesalerReceiptModal extends StatelessWidget {
   }
 
   Widget _buildBarcode() {
-    final barPattern = [3, 1, 2, 2, 1, 3, 1, 2, 3, 1, 1, 2, 2, 1, 3, 2, 1, 1, 3, 2, 1, 2, 3, 1, 2, 1, 3, 1, 2, 2, 1, 3];
+    final barPattern = [
+      3,
+      1,
+      2,
+      2,
+      1,
+      3,
+      1,
+      2,
+      3,
+      1,
+      1,
+      2,
+      2,
+      1,
+      3,
+      2,
+      1,
+      1,
+      3,
+      2,
+      1,
+      2,
+      3,
+      1,
+      2,
+      1,
+      3,
+      1,
+      2,
+      2,
+      1,
+      3,
+    ];
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: barPattern.asMap().entries.map((entry) {
@@ -1172,7 +1438,9 @@ class WholesalerReceiptModal extends StatelessWidget {
         return Container(
           width: width,
           height: 38,
-          color: isBlack ? (isDark ? Colors.grey.shade300 : const Color(0xFF1E293B)) : Colors.transparent,
+          color: isBlack
+              ? (isDark ? Colors.grey.shade300 : const Color(0xFF1E293B))
+              : Colors.transparent,
         );
       }).toList(),
     );
@@ -1183,10 +1451,14 @@ class WholesalerReceiptModal extends StatelessWidget {
     final receiptBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
     final textDark = isDark ? Colors.white : const Color(0xFF0F172A);
     final textMuted = isDark ? Colors.grey.shade400 : const Color(0xFF475569);
-    final borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFC7D2FE);
+    final borderColor = isDark
+        ? const Color(0xFF334155)
+        : const Color(0xFFC7D2FE);
     final fmt = NumberFormat('#,##0.00');
 
-    final cust = sale.customer.name.isNotEmpty ? sale.customer.name : 'Walk-in Customer';
+    final cust = sale.customer.name.isNotEmpty
+        ? sale.customer.name
+        : 'Walk-in Customer';
     final custShort = cust.length > 22 ? '${cust.substring(0, 20)}...' : cust;
 
     return Dialog(
@@ -1207,7 +1479,11 @@ class WholesalerReceiptModal extends StatelessWidget {
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle_outline_rounded, size: 16, color: Color(0xFF10B981)),
+                  Icon(
+                    Icons.check_circle_outline_rounded,
+                    size: 16,
+                    color: Color(0xFF10B981),
+                  ),
                   SizedBox(width: 6),
                   Text(
                     'WHOLESALE ORDER COMPLETED & DISPATCHED',
@@ -1243,6 +1519,18 @@ class WholesalerReceiptModal extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // 1. Company Header
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Image.asset(
+                        isDark
+                            ? 'assets/images/salepay-logo-white.png'
+                            : 'assets/images/salepay-logo-blue.png',
+                        height: 28,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
                   Center(
                     child: Text(
                       'SALEPAY POS',
@@ -1290,14 +1578,22 @@ class WholesalerReceiptModal extends StatelessWidget {
                       Flexible(
                         child: Text(
                           'Order: ${sale.orderNo}',
-                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'Date: ${_formatDate(sale.createdAt)}',
-                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -1308,14 +1604,22 @@ class WholesalerReceiptModal extends StatelessWidget {
                       Flexible(
                         child: Text(
                           'Cust: $custShort (${sale.customer.customerId})',
-                          style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'Tier: ${sale.customer.tier.name.toUpperCase()}',
-                        style: TextStyle(fontSize: 10, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -1477,11 +1781,20 @@ class WholesalerReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Subtotal:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${fmt.format(sale.subtotal)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -1492,11 +1805,20 @@ class WholesalerReceiptModal extends StatelessWidget {
                       children: [
                         const Text(
                           'Special Discount:',
-                          style: TextStyle(fontSize: 11, color: Colors.green, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.green,
+                            fontFamily: 'monospace',
+                          ),
                         ),
                         Text(
                           '-৳${fmt.format(sale.discount)}',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green, fontFamily: 'monospace'),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ],
                     ),
@@ -1507,11 +1829,20 @@ class WholesalerReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'VAT (Mushak 6.3 - 15%):',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${fmt.format(sale.tax)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -1521,18 +1852,31 @@ class WholesalerReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Shipping & Handling:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${fmt.format(sale.shipping)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
 
                   // Solid Line
-                  const Divider(color: Color(0xFFCBD5E1), height: 1, thickness: 1),
+                  const Divider(
+                    color: Color(0xFFCBD5E1),
+                    height: 1,
+                    thickness: 1,
+                  ),
                   const SizedBox(height: 6),
 
                   // Net Payable
@@ -1541,18 +1885,32 @@ class WholesalerReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Net Payable:',
-                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w900,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${fmt.format(sale.total)}',
-                        style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900, color: _primaryIndigo, fontFamily: 'monospace'),
+                        style: const TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w900,
+                          color: _primaryIndigo,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
 
                   // Solid Line
-                  const Divider(color: Color(0xFFCBD5E1), height: 1, thickness: 1),
+                  const Divider(
+                    color: Color(0xFFCBD5E1),
+                    height: 1,
+                    thickness: 1,
+                  ),
                   const SizedBox(height: 6),
 
                   // Tender Details
@@ -1561,11 +1919,20 @@ class WholesalerReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Tender Method:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         sale.paymentMethod,
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
@@ -1576,11 +1943,20 @@ class WholesalerReceiptModal extends StatelessWidget {
                       children: [
                         Text(
                           'Tendered / Received:',
-                          style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: textMuted,
+                            fontFamily: 'monospace',
+                          ),
                         ),
                         Text(
                           '৳${fmt.format(sale.tenderedAmount)}',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: textDark,
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ],
                     ),
@@ -1591,26 +1967,46 @@ class WholesalerReceiptModal extends StatelessWidget {
                     children: [
                       Text(
                         'Paid Amount:',
-                        style: TextStyle(fontSize: 11, color: textMuted, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: textMuted,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                       Text(
                         '৳${fmt.format(sale.paidAmount)}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textDark, fontFamily: 'monospace'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ],
                   ),
-                  if (sale.changeAmount > 0 || (sale.tenderedAmount > sale.total)) ...[
+                  if (sale.changeAmount > 0 ||
+                      (sale.tenderedAmount > sale.total)) ...[
                     const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
                           'Change / Return:',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF059669), fontFamily: 'monospace'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF059669),
+                            fontFamily: 'monospace',
+                          ),
                         ),
                         Text(
                           '৳${fmt.format(sale.changeAmount > 0 ? sale.changeAmount : (sale.tenderedAmount - sale.total))}',
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF059669), fontFamily: 'monospace'),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF059669),
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ],
                     ),
@@ -1627,7 +2023,12 @@ class WholesalerReceiptModal extends StatelessWidget {
                   Center(
                     child: Text(
                       '*${sale.orderNo}*',
-                      style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), letterSpacing: 2, fontFamily: 'monospace'),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Color(0xFF64748B),
+                        letterSpacing: 2,
+                        fontFamily: 'monospace',
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -1649,10 +2050,12 @@ class WholesalerReceiptModal extends StatelessWidget {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Software by SalePay',
+                      'Software By Blue Oceans Technologies Ltd',
                       style: TextStyle(
                         fontSize: 9,
-                        color: isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8),
+                        color: isDark
+                            ? Colors.grey.shade500
+                            : const Color(0xFF94A3B8),
                         fontFamily: 'monospace',
                       ),
                     ),
@@ -1673,7 +2076,9 @@ class WholesalerReceiptModal extends StatelessWidget {
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Printing Wholesale Receipt (80mm) for ${sale.orderNo}...'),
+                            content: Text(
+                              'Printing Wholesale Receipt (80mm) for ${sale.orderNo}...',
+                            ),
                             duration: const Duration(seconds: 2),
                             backgroundColor: _primaryIndigo,
                           ),
@@ -1683,14 +2088,22 @@ class WholesalerReceiptModal extends StatelessWidget {
                       child: Container(
                         height: 44,
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF242424) : Colors.white,
+                          color: isDark
+                              ? const Color(0xFF242424)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(color: const Color(0xFFC7D2FE)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.print_outlined, size: 16, color: isDark ? Colors.white : const Color(0xFF334155)),
+                            Icon(
+                              Icons.print_outlined,
+                              size: 16,
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF334155),
+                            ),
                             const SizedBox(width: 8),
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -1701,7 +2114,9 @@ class WholesalerReceiptModal extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
-                                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                    color: isDark
+                                        ? Colors.white
+                                        : const Color(0xFF1E293B),
                                     height: 1.1,
                                   ),
                                 ),
@@ -1710,7 +2125,9 @@ class WholesalerReceiptModal extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 9.5,
                                     fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+                                    color: isDark
+                                        ? Colors.grey.shade400
+                                        : const Color(0xFF64748B),
                                     height: 1.1,
                                   ),
                                 ),
@@ -1744,7 +2161,11 @@ class WholesalerReceiptModal extends StatelessWidget {
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.refresh_rounded, size: 18, color: Colors.white),
+                            Icon(
+                              Icons.refresh_rounded,
+                              size: 18,
+                              color: Colors.white,
+                            ),
                             SizedBox(width: 6),
                             Text(
                               'New Order',

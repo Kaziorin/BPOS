@@ -850,8 +850,20 @@ class GroceryBillPrintDialog extends StatelessWidget {
                 children: [
                   // 1. Store Header
                   Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Image.asset(
+                        isDark
+                            ? 'assets/images/salepay-logo-white.png'
+                            : 'assets/images/salepay-logo-blue.png',
+                        height: 28,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  Center(
                     child: Text(
-                      'FRESHMART GROCERY',
+                      'SALEPAY GROCERY',
                       style: TextStyle(
                         fontSize: 14.5,
                         fontWeight: FontWeight.w900,
@@ -1336,7 +1348,7 @@ class GroceryBillPrintDialog extends StatelessWidget {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Software by SalePay',
+                      'Software By Blue Oceans Technologies Ltd',
                       style: TextStyle(
                         fontSize: 8.5,
                         color: isDark

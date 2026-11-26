@@ -13,7 +13,7 @@ import {
   ListFilter, Building2, Store, Users, FileText, PieChart,
   Bot, Calculator, Check, ArrowUpRight, Briefcase, Network,
   Receipt, X, RefreshCw, Printer, Maximize, Minimize,
-  Sparkles, AlertTriangle
+  Sparkles, AlertTriangle, Mic, MicOff, Camera
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -181,6 +181,47 @@ export default function PosPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const searchRef = useRef<HTMLInputElement>(null);
   const isRemoteCartUpdate = useRef(false);
+
+  // AI POS Voice-Based Product Search
+  const [isListening, setIsListening] = useState(false);
+  const startVoiceSearch = useCallback(() => {
+    if (typeof window === "undefined") return;
+    const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRec) {
+      toast.info("Speech recognition not supported in this browser. Please use Chrome/Edge.");
+      return;
+    }
+    try {
+      const rec = new SpeechRec();
+      rec.lang = "bn-BD";
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.onstart = () => {
+        setIsListening(true);
+        toast.info("Listening... speak product name or command (বাংলা বা English)");
+      };
+      rec.onresult = (e: any) => {
+        const text = e.results?.[0]?.[0]?.transcript || "";
+        if (text) {
+          setSearch(text);
+          toast.success(`Heard: "${text}"`);
+          // Try NL checkout command interpretation
+          api.post<any>("/api/v1/ai/pos/nl-checkout", { command: text }).then((res) => {
+            const data = res?.data || res;
+            if (data?.action === "APPLY_DISCOUNT" && data.discountPct) {
+              setDiscountPercent(data.discountPct);
+              toast.success(`AI applied ${data.discountPct}% discount!`);
+            }
+          }).catch(() => {});
+        }
+      };
+      rec.onerror = () => setIsListening(false);
+      rec.onend = () => setIsListening(false);
+      rec.start();
+    } catch {
+      setIsListening(false);
+    }
+  }, []);
 
   // Cart (restored from localStorage if available, otherwise empty)
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -1476,12 +1517,30 @@ export default function PosPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={handleSearchKey}
-              placeholder="Search product by name, SKU or barcode..."
-              className="w-full h-9 pl-9 pr-9 bg-slate-50 border border-slate-200 rounded-full text-xs text-gray-600 placeholder-slate-400 focus:outline-none focus:ring-3 focus:ring-violet-400/25 focus:border-violet-400 focus:bg-white shadow-2xs focus:shadow-md transition-all duration-200"
+              placeholder="Search product or click 🎤 to speak..."
+              className="w-full h-9 pl-9 pr-16 bg-slate-50 border border-slate-200 rounded-full text-xs text-gray-600 placeholder-slate-400 focus:outline-none focus:ring-3 focus:ring-violet-400/25 focus:border-violet-400 focus:bg-white shadow-2xs focus:shadow-md transition-all duration-200"
             />
-            <button className="absolute right-3 text-slate-400 hover:text-violet-500 transition-transform active:scale-90">
-              <Scan size={15} />
-            </button>
+            <div className="absolute right-2.5 flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={startVoiceSearch}
+                title={isListening ? "Listening (click to stop)..." : "Voice Product Search (ভয়েস সার্চ)"}
+                className={`p-1 rounded-full transition-all active:scale-90 cursor-pointer ${
+                  isListening
+                    ? "bg-rose-500 text-white animate-pulse shadow-sm"
+                    : "text-slate-400 hover:text-violet-600 hover:bg-violet-50"
+                }`}
+              >
+                {isListening ? <MicOff size={14} /> : <Mic size={14} />}
+              </button>
+              <button
+                type="button"
+                title="Barcode Scanner Mode"
+                className="p-1 text-slate-400 hover:text-violet-500 transition-transform active:scale-90 cursor-pointer"
+              >
+                <Scan size={14} />
+              </button>
+            </div>
           </div>
         </div>
 

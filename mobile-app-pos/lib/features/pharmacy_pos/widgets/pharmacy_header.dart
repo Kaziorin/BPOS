@@ -12,11 +12,7 @@ class PharmacyHeader extends StatelessWidget {
   final bool isMobile;
   final VoidCallback? onOpenCart;
 
-  const PharmacyHeader({
-    super.key,
-    this.isMobile = false,
-    this.onOpenCart,
-  });
+  const PharmacyHeader({super.key, this.isMobile = false, this.onOpenCart});
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +33,9 @@ class PharmacyHeader extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      width: 32,
-                      height: 32,
-                      padding: const EdgeInsets.all(5),
+                      width: 36,
+                      height: 36,
+                      padding: const EdgeInsets.all(2),
                       decoration: const BoxDecoration(
                         color: primaryTeal,
                         shape: BoxShape.circle,
@@ -83,19 +79,28 @@ class PharmacyHeader extends StatelessWidget {
                     height: 36,
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     decoration: BoxDecoration(
-                      color: context.isDark ? context.scaffoldBg : Colors.grey.shade100,
+                      color: context.isDark
+                          ? context.scaffoldBg
+                          : Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(18.0),
                       border: Border.all(
-                        color: context.isDark ? context.dividerColor : Colors.grey.shade200,
+                        color: context.isDark
+                            ? context.dividerColor
+                            : Colors.grey.shade200,
                       ),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.search_rounded, color: Colors.grey.shade500, size: 16),
+                        Icon(
+                          Icons.search_rounded,
+                          color: Colors.grey.shade500,
+                          size: 16,
+                        ),
                         const SizedBox(width: 6),
                         Expanded(
                           child: TextField(
-                            onChanged: (val) => pharmacyProvider.setSearchQuery(val),
+                            onChanged: (val) =>
+                                pharmacyProvider.setSearchQuery(val),
                             style: const TextStyle(fontSize: 12),
                             decoration: InputDecoration(
                               hintText: 'Search medicine...',
@@ -119,13 +124,18 @@ class PharmacyHeader extends StatelessWidget {
                 IconButton(
                   onPressed: () => appProvider.toggleTheme(),
                   icon: Icon(
-                    appProvider.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                    appProvider.isDarkMode
+                        ? Icons.light_mode_rounded
+                        : Icons.dark_mode_rounded,
                     color: Colors.grey.shade600,
                     size: 20,
                   ),
                   tooltip: appProvider.isDarkMode ? 'Light Mode' : 'Dark Mode',
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
                 ),
                 const SizedBox(width: 2),
 
@@ -145,7 +155,10 @@ class PharmacyHeader extends StatelessWidget {
                   ),
                   tooltip: 'Home',
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
                 ),
               ],
             ),
@@ -202,9 +215,9 @@ class PharmacyHeader extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 38,
-                height: 38,
-                padding: const EdgeInsets.all(6),
+                width: 42,
+                height: 42,
+                padding: const EdgeInsets.all(3),
                 decoration: const BoxDecoration(
                   color: primaryTeal,
                   shape: BoxShape.circle,
@@ -240,9 +253,9 @@ class PharmacyHeader extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(width: 24),
-          
+
           // ── SEARCH BAR ──
           Expanded(
             child: Container(
@@ -252,23 +265,35 @@ class PharmacyHeader extends StatelessWidget {
                 color: context.isDark ? context.scaffoldBg : Colors.white,
                 borderRadius: BorderRadius.circular(22.0),
                 border: Border.all(
-                  color: context.isDark ? context.dividerColor : Colors.grey.withValues(alpha: 0.15),
+                  color: context.isDark
+                      ? context.dividerColor
+                      : Colors.grey.withValues(alpha: 0.15),
                 ),
                 boxShadow: [
                   if (!context.isDark)
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2)),
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
                 ],
               ),
               child: Row(
                 children: [
-                  Icon(Icons.search_rounded, color: Colors.grey.shade500, size: 20),
+                  Icon(
+                    Icons.search_rounded,
+                    color: Colors.grey.shade500,
+                    size: 20,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: TextField(
-                      onChanged: (val) => context.read<PharmacyProvider>().setSearchQuery(val),
+                      onChanged: (val) =>
+                          context.read<PharmacyProvider>().setSearchQuery(val),
                       style: const TextStyle(fontSize: 13),
                       decoration: InputDecoration(
-                        hintText: 'Search medicine by name, brand or barcode...',
+                        hintText:
+                            'Search medicine by name, brand or barcode...',
                         hintStyle: TextStyle(
                           color: Colors.grey.shade400,
                           fontSize: 13,
@@ -280,10 +305,17 @@ class PharmacyHeader extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.qr_code_scanner_rounded, color: Colors.grey.shade500, size: 20),
+                    icon: Icon(
+                      Icons.qr_code_scanner_rounded,
+                      color: Colors.grey.shade500,
+                      size: 20,
+                    ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    onPressed: () => showPharmacyBarcodeScanDialog(context, context.read<PharmacyProvider>()),
+                    onPressed: () => showPharmacyBarcodeScanDialog(
+                      context,
+                      context.read<PharmacyProvider>(),
+                    ),
                   ),
                 ],
               ),
@@ -298,7 +330,10 @@ class PharmacyHeader extends StatelessWidget {
             label: 'Scan Rx',
             color: primaryTeal,
             bgColor: buttonBg,
-            onTap: () => showPharmacyScanRxDialog(context, context.read<PharmacyProvider>()),
+            onTap: () => showPharmacyScanRxDialog(
+              context,
+              context.read<PharmacyProvider>(),
+            ),
           ),
           const SizedBox(width: 8),
           _HeaderActionButton(
@@ -306,7 +341,10 @@ class PharmacyHeader extends StatelessWidget {
             label: 'Scan Barcode',
             color: primaryTeal,
             bgColor: buttonBg,
-            onTap: () => showPharmacyBarcodeScanDialog(context, context.read<PharmacyProvider>()),
+            onTap: () => showPharmacyBarcodeScanDialog(
+              context,
+              context.read<PharmacyProvider>(),
+            ),
           ),
           const SizedBox(width: 8),
           _HeaderActionButton(
@@ -314,7 +352,10 @@ class PharmacyHeader extends StatelessWidget {
             label: 'Quick Refill',
             color: primaryTeal,
             bgColor: buttonBg,
-            onTap: () => showPharmacyQuickRefillDialog(context, context.read<PharmacyProvider>()),
+            onTap: () => showPharmacyQuickRefillDialog(
+              context,
+              context.read<PharmacyProvider>(),
+            ),
           ),
           const SizedBox(width: 8),
           _HeaderActionButton(
@@ -322,7 +363,10 @@ class PharmacyHeader extends StatelessWidget {
             label: 'Add Medicine',
             color: primaryTeal,
             bgColor: buttonBg,
-            onTap: () => showPharmacyAddMedicineDialog(context, context.read<PharmacyProvider>()),
+            onTap: () => showPharmacyAddMedicineDialog(
+              context,
+              context.read<PharmacyProvider>(),
+            ),
           ),
           const SizedBox(width: 8),
           _HeaderActionButton(
@@ -330,9 +374,10 @@ class PharmacyHeader extends StatelessWidget {
             label: 'Sales History',
             color: primaryTeal,
             bgColor: buttonBg,
-            onTap: () => showLiveSalesHistoryDialog(context, businessType: 'pharmacy'),
+            onTap: () =>
+                showLiveSalesHistoryDialog(context, businessType: 'pharmacy'),
           ),
-          
+
           const SizedBox(width: 12),
           const VerticalDivider(width: 1, indent: 15, endIndent: 15),
           const SizedBox(width: 12),
@@ -350,11 +395,15 @@ class PharmacyHeader extends StatelessWidget {
           IconButton(
             onPressed: () => appProvider.toggleTheme(),
             icon: Icon(
-              appProvider.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+              appProvider.isDarkMode
+                  ? Icons.light_mode_rounded
+                  : Icons.dark_mode_rounded,
               color: Colors.grey.shade600,
               size: 22,
             ),
-            tooltip: appProvider.isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+            tooltip: appProvider.isDarkMode
+                ? 'Switch to Light Mode'
+                : 'Switch to Dark Mode',
           ),
         ],
       ),

@@ -135,7 +135,7 @@ export function buildEscPosBytes(data: ReceiptPrintData, paperWidth: "80mm" | "5
   // 6. Footer & Thank You
   add(0x1B, 0x61, 0x01); // Center align
   addLine(data.footerMessage || "Thank you for shopping with us!");
-  addLine("Software Powered by SalePay");
+  addLine("Software By Blue Oceans Technologies Ltd");
   addLine("");
   addLine("");
 

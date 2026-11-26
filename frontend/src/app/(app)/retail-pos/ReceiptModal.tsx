@@ -46,21 +46,21 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
   const saleDate = (result as any).createdAt || (result as any).date;
   const currentDate = saleDate
     ? new Date(saleDate).toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      })
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
     : new Date().toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
 
   // Financial calculations
   const subtotal = cart && cart.length > 0
@@ -80,7 +80,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
     const rates = cart
       .map((i: any) => i.taxRate !== undefined && i.taxRate !== null && !isNaN(Number(i.taxRate)) ? Number(i.taxRate) : null)
       .filter((r): r is number => r !== null);
-    
+
     if (rates.length === cart.length && rates.length > 0) {
       const allSame = rates.every((r) => r === rates[0]);
       if (allSame) {
@@ -178,6 +178,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
       >
         {/* Header */}
         <div className="text-center">
+          <img src="/logos/salepay-logo-blue.png" alt="SalePay Enterprise" className="h-7 w-auto mx-auto object-contain mb-1.5" />
           <h2 className="text-base font-extrabold tracking-wider text-gray-600 uppercase">{siteConfig.name || "SALEPAY"}</h2>
           <p className="text-[11px] text-gray-500 mt-1">Dhaka Flagship Outlet • Counter #POS-01</p>
           <p className="text-[10px] text-gray-500 mt-0.5">BIN / VAT Reg No: 002938194-0101 • Mushak-6.3</p>
@@ -325,7 +326,7 @@ export function ReceiptModal({ result, cart, payments, cashierName, customerName
           )}
           {settings.showWatermark && (
             <p className="text-[10px] text-gray-400 text-center font-mono mt-2">
-              Software by SalePay
+              Software By Blue Oceans Technologies Ltd
             </p>
           )}
         </div>

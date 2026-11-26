@@ -12,18 +12,12 @@ class AppStrings {
 
   static const Map<String, Map<String, String>> _strings = {
     // ── App ──────────────────────────────────────────────
-    'app_name': {
-      'en': 'ZestBite Enterprise',
-      'bn': 'জেস্টবাইট এন্টারপ্রাইজ',
-    },
+    'app_name': {'en': 'SalePay Enterprise', 'bn': 'সেলপে এন্টারপ্রাইজ'},
     'app_subtitle': {
       'en': 'Select a point of sale system',
       'bn': 'পয়েন্ট অব সেল সিস্টেম বেছে নিন',
     },
-    'fullscreen': {
-      'en': 'Full Screen (F)',
-      'bn': 'ফুল স্ক্রিন (F)',
-    },
+    'fullscreen': {'en': 'Full Screen (F)', 'bn': 'ফুল স্ক্রিন (F)'},
     'exit_fullscreen': {
       'en': 'Exit Full Screen (F)',
       'bn': 'স্বাভাবিক স্ক্রিন (F)',
@@ -50,7 +44,10 @@ class AppStrings {
       'en': 'Bulk orders, Customer credit, B2B pricing',
       'bn': 'বাল্ক অর্ডার, ক্রেডিট, B2B মূল্য',
     },
-    'fashion_retail': {'en': 'Retail & Superstore', 'bn': 'রিটেইল ও সুপারস্টোর'},
+    'fashion_retail': {
+      'en': 'Retail & Superstore',
+      'bn': 'রিটেইল ও সুপারস্টোর',
+    },
     'fashion_retail_desc': {
       'en': 'Daily essentials, General store, Quick checkout & Stock',
       'bn': 'নিত্যপণ্য, মুদি দোকান, দ্রুত বিলিং ও স্টক',
@@ -61,7 +58,10 @@ class AppStrings {
       'bn': 'বিশ্লেষণ, মাল্টি-স্টোর ব্যবস্থাপনা',
     },
     'launch_pos': {'en': 'Launch POS Register', 'bn': 'পয়েন্ট অব সেল খুলুন'},
-    'dashboard_overview': {'en': 'Management Dashboard', 'bn': 'ম্যানেজমেন্ট ড্যাশবোর্ড'},
+    'dashboard_overview': {
+      'en': 'Management Dashboard',
+      'bn': 'ম্যানেজমেন্ট ড্যাশবোর্ড',
+    },
     'todays_revenue': {'en': "Today's Sales", 'bn': 'আজকের মোট বিক্রি'},
     'todays_orders': {'en': "Today's Orders", 'bn': 'আজকের অর্ডার'},
     'table_occupancy': {'en': 'Table Occupancy', 'bn': 'টেবিল অকুপেন্সি'},
@@ -71,14 +71,17 @@ class AppStrings {
     'recent_sales': {'en': 'Recent Sales', 'bn': 'সাম্প্রতিক বিক্রয়'},
     'credit_receivable': {'en': 'Total Receivable', 'bn': 'মোট বাকি পাওনা'},
     'warehouse_status': {'en': 'Warehouse Status', 'bn': 'ওয়্যারহাউজ অবস্থা'},
-    'rx_dispensed': {'en': 'Prescriptions Filled', 'bn': 'প্রেসক্রিপশন ডেলিভারি'},
-    'expiring_batches': {'en': 'Expiring Batches (30d)', 'bn': 'মেয়াদোত্তীর্ণের পথে ব্যাচ'},
+    'rx_dispensed': {
+      'en': 'Prescriptions Filled',
+      'bn': 'প্রেসক্রিপশন ডেলিভারি',
+    },
+    'expiring_batches': {
+      'en': 'Expiring Batches (30d)',
+      'bn': 'মেয়াদোত্তীর্ণের পথে ব্যাচ',
+    },
 
     'coming_soon': {'en': 'SOON', 'bn': 'শীঘ্রই'},
-    'coming_soon_msg': {
-      'en': 'is coming soon!',
-      'bn': 'শীঘ্রই আসছে!',
-    },
+    'coming_soon_msg': {'en': 'is coming soon!', 'bn': 'শীঘ্রই আসছে!'},
 
     // ── Settings ──────────────────────────────────────────
     'settings': {'en': 'Settings', 'bn': 'সেটিংস'},
@@ -87,10 +90,7 @@ class AppStrings {
     'light_mode': {'en': 'Light Mode', 'bn': 'লাইট মোড'},
     'language': {'en': 'Language', 'bn': 'ভাষা'},
     'currency': {'en': 'Currency', 'bn': 'মুদ্রা'},
-    'currency_desc': {
-      'en': 'Bangladeshi Taka (৳)',
-      'bn': 'বাংলাদেশি টাকা (৳)',
-    },
+    'currency_desc': {'en': 'Bangladeshi Taka (৳)', 'bn': 'বাংলাদেশি টাকা (৳)'},
     'close': {'en': 'Close', 'bn': 'বন্ধ করুন'},
     'done': {'en': 'Done', 'bn': 'সম্পন্ন'},
 
@@ -118,14 +118,20 @@ class AppStrings {
     'items': {'en': 'Items', 'bn': 'আইটেম'},
     'clear_all': {'en': 'Clear All', 'bn': 'সব মুছুন'},
     'clear_cart': {'en': 'Clear Cart?', 'bn': 'কার্ট মুছবেন?'},
-    'clear_cart_msg': {'en': 'Are you sure you want to clear all items in the cart?', 'bn': 'আপনি কি কার্টের সব আইটেম মুছতে চান?'},
+    'clear_cart_msg': {
+      'en': 'Are you sure you want to clear all items in the cart?',
+      'bn': 'আপনি কি কার্টের সব আইটেম মুছতে চান?',
+    },
     'subtotal': {'en': 'Subtotal', 'bn': 'সাবটোটাল'},
     'tax': {'en': 'Tax (8%)', 'bn': 'ট্যাক্স (৮%)'},
     'service_charge': {'en': 'Service Charge (4%)', 'bn': 'সার্ভিস চার্জ (৪%)'},
     'total_payable': {'en': 'Total Payable', 'bn': 'মোট পরিশোধযোগ্য'},
     'place_order': {'en': 'Place an Order', 'bn': 'অর্ডার দিন'},
     'cart_empty': {'en': 'Cart is empty', 'bn': 'কার্ট খালি'},
-    'add_order_note': {'en': 'Add Order Note...', 'bn': 'অর্ডার নোট যোগ করুন...'},
+    'add_order_note': {
+      'en': 'Add Order Note...',
+      'bn': 'অর্ডার নোট যোগ করুন...',
+    },
     'discount_label': {'en': 'Discount', 'bn': 'ছাড়'},
 
     // ── Bottom Action Bar ────────────────────────────────────────
@@ -141,7 +147,10 @@ class AppStrings {
     'take_away': {'en': 'Take Away', 'bn': 'নিয়ে যান'},
     'delivery': {'en': 'Delivery', 'bn': 'ডেলিভারি'},
     'search_hint': {'en': 'Search menu items...', 'bn': 'মেনু আইটেম খুঁজুন...'},
-    'find_dish': {'en': 'Find your favourite dish...', 'bn': 'পছন্দের খাবার খুঁজুন...'},
+    'find_dish': {
+      'en': 'Find your favourite dish...',
+      'bn': 'পছন্দের খাবার খুঁজুন...',
+    },
     'all_items': {'en': 'All Items', 'bn': 'সব আইটেম'},
     'popular': {'en': 'Popular', 'bn': 'জনপ্রিয়'},
 
@@ -152,7 +161,10 @@ class AppStrings {
     'transfer_order': {'en': 'Transfer Order', 'bn': 'অর্ডার স্থানান্তর'},
     'held_orders': {'en': 'Held Orders', 'bn': 'হোল্ড অর্ডার'},
     'shift_report': {'en': 'Shift Report', 'bn': 'শিফট রিপোর্ট'},
-    'hardware_settings': {'en': 'Hardware Settings', 'bn': 'হার্ডওয়্যার সেটিংস'},
+    'hardware_settings': {
+      'en': 'Hardware Settings',
+      'bn': 'হার্ডওয়্যার সেটিংস',
+    },
     'system_info': {'en': 'System Info', 'bn': 'সিস্টেম তথ্য'},
     'clear_cart_menu': {'en': 'Clear Cart', 'bn': 'কার্ট মুছুন'},
 
@@ -162,16 +174,28 @@ class AppStrings {
     'occupied': {'en': 'Occupied', 'bn': 'অধিকৃত'},
     'selected_label': {'en': 'Selected', 'bn': 'নির্বাচিত'},
     'seats': {'en': 'seats', 'bn': 'সিট'},
-    'select_server': {'en': 'Select Server / Waiter', 'bn': 'সার্ভার / ওয়েটার নির্বাচন করুন'},
-    'no_held_orders': {'en': 'No held orders found', 'bn': 'কোনো হোল্ড করা অর্ডার পাওয়া যায়নি'},
+    'select_server': {
+      'en': 'Select Server / Waiter',
+      'bn': 'সার্ভার / ওয়েটার নির্বাচন করুন',
+    },
+    'no_held_orders': {
+      'en': 'No held orders found',
+      'bn': 'কোনো হোল্ড করা অর্ডার পাওয়া যায়নি',
+    },
     'recall_order': {'en': 'Recall Order', 'bn': 'অর্ডার রিকল'},
     'total_bill': {'en': 'Total Bill', 'bn': 'মোট বিল'},
-    'split_equally': {'en': 'Split Equally Among People', 'bn': 'সবার মধ্যে সমানভাবে ভাগ করুন'},
+    'split_equally': {
+      'en': 'Split Equally Among People',
+      'bn': 'সবার মধ্যে সমানভাবে ভাগ করুন',
+    },
     'people': {'en': 'People', 'bn': 'জন'},
     'each_pays': {'en': 'Each Person Pays', 'bn': 'জনপ্রতি পরিশোধ'},
     'confirm_split': {'en': 'Confirm Split', 'bn': 'বিভক্তি নিশ্চিত করুন'},
     'current_table': {'en': 'Current Table', 'bn': 'বর্তমান টেবিল'},
-    'destination_table': {'en': 'Select Destination Table', 'bn': 'গন্তব্য টেবিল বেছে নিন'},
+    'destination_table': {
+      'en': 'Select Destination Table',
+      'bn': 'গন্তব্য টেবিল বেছে নিন',
+    },
     'add_custom_item': {'en': 'Add Custom Item', 'bn': 'কাস্টম আইটেম যোগ করুন'},
     'item_name': {'en': 'Item Name', 'bn': 'আইটেমের নাম'},
     'price': {'en': 'Price', 'bn': 'মূল্য'},
@@ -181,8 +205,14 @@ class AppStrings {
     'delete': {'en': 'Delete', 'bn': 'মুছে ফেলুন'},
 
     // ── Hardware & System ────────────────────────────────
-    'hardware_settings_title': {'en': 'Hardware Settings', 'bn': 'হার্ডওয়্যার সেটিংস'},
-    'thermal_printer': {'en': 'Thermal Receipt Printer', 'bn': 'থার্মাল রসিদ প্রিন্টার'},
+    'hardware_settings_title': {
+      'en': 'Hardware Settings',
+      'bn': 'হার্ডওয়্যার সেটিংস',
+    },
+    'thermal_printer': {
+      'en': 'Thermal Receipt Printer',
+      'bn': 'থার্মাল রসিদ প্রিন্টার',
+    },
     'cash_drawer': {'en': 'Cash Drawer', 'bn': 'ক্যাশ ড্রয়ার'},
     'barcode_scanner': {'en': 'Barcode Scanner', 'bn': 'বারকোড স্ক্যানার'},
     'kitchen_printer': {'en': 'Kitchen Printer', 'bn': 'কিচেন প্রিন্টার'},
@@ -195,29 +225,67 @@ class AppStrings {
     'test': {'en': 'Test', 'bn': 'পরীক্ষা'},
     'printer_ip': {'en': 'Printer IP Address', 'bn': 'প্রিন্টার IP ঠিকানা'},
     'hardware_notice': {
-      'en': 'Full hardware activation requires SDK/driver integration. UI is ready — connect ESC/POS, Bluetooth or USB packages in the backend to activate.',
-      'bn': 'সম্পূর্ণ হার্ডওয়্যার সক্রিয় করতে SDK/ড্রাইভার ইন্টিগ্রেশন প্রয়োজন। ইউজার ইন্টারফেস প্রস্তুত — ব্যাকএন্ডে ESC/POS, ব্লুটুথ বা USB প্যাকেজ যুক্ত করুন।',
+      'en':
+          'Full hardware activation requires SDK/driver integration. UI is ready — connect ESC/POS, Bluetooth or USB packages in the backend to activate.',
+      'bn':
+          'সম্পূর্ণ হার্ডওয়্যার সক্রিয় করতে SDK/ড্রাইভার ইন্টিগ্রেশন প্রয়োজন। ইউজার ইন্টারফেস প্রস্তুত — ব্যাকএন্ডে ESC/POS, ব্লুটুথ বা USB প্যাকেজ যুক্ত করুন।',
     },
     'view_licenses': {'en': 'View licenses', 'bn': 'লাইসেন্স দেখুন'},
     'connected': {'en': 'Connected', 'bn': 'সংযুক্ত'},
     'ready_to_trigger': {'en': 'Ready to trigger', 'bn': 'প্রস্তুত'},
-    'listening_scans': {'en': 'Listening for scans', 'bn': 'স্ক্যান করার জন্য প্রস্তুত'},
-    'ready_for_payment': {'en': 'Ready for payment', 'bn': 'পেমেন্টের জন্য প্রস্তুত'},
-    'showing_customer_view': {'en': 'Showing customer view', 'bn': 'কাস্টমার ভিউ দেখাচ্ছে'},
-    'test_print_sent': {'en': 'Test print sent', 'bn': 'টেস্ট প্রিন্ট পাঠানো হয়েছে'},
-    'cash_drawer_open': {'en': 'Cash drawer open signal sent', 'bn': 'ক্যাশ ড্রয়ার সিগনাল পাঠানো হয়েছে'},
-    'scan_test_msg': {'en': 'Scan a barcode to test scanner', 'bn': 'পরীক্ষার জন্য একটি বারকোড স্ক্যান করুন'},
-    'card_terminal_ping': {'en': 'Card terminal ping sent', 'bn': 'কার্ড টার্মিনাল পিং পাঠানো হয়েছে'},
-    'customer_display_test': {'en': 'Customer display test sent', 'bn': 'কাস্টমার ডিসপ্লে টেস্ট পাঠানো হয়েছে'},
-    'settings_saved': {'en': 'Hardware settings saved', 'bn': 'হার্ডওয়্যার সেটিংস সংরক্ষিত হয়েছে'},
-    'shift_sales_total': {'en': 'Daily Shift Sales Total', 'bn': 'দৈনিক শিফট বিক্রয় মোট'},
+    'listening_scans': {
+      'en': 'Listening for scans',
+      'bn': 'স্ক্যান করার জন্য প্রস্তুত',
+    },
+    'ready_for_payment': {
+      'en': 'Ready for payment',
+      'bn': 'পেমেন্টের জন্য প্রস্তুত',
+    },
+    'showing_customer_view': {
+      'en': 'Showing customer view',
+      'bn': 'কাস্টমার ভিউ দেখাচ্ছে',
+    },
+    'test_print_sent': {
+      'en': 'Test print sent',
+      'bn': 'টেস্ট প্রিন্ট পাঠানো হয়েছে',
+    },
+    'cash_drawer_open': {
+      'en': 'Cash drawer open signal sent',
+      'bn': 'ক্যাশ ড্রয়ার সিগনাল পাঠানো হয়েছে',
+    },
+    'scan_test_msg': {
+      'en': 'Scan a barcode to test scanner',
+      'bn': 'পরীক্ষার জন্য একটি বারকোড স্ক্যান করুন',
+    },
+    'card_terminal_ping': {
+      'en': 'Card terminal ping sent',
+      'bn': 'কার্ড টার্মিনাল পিং পাঠানো হয়েছে',
+    },
+    'customer_display_test': {
+      'en': 'Customer display test sent',
+      'bn': 'কাস্টমার ডিসপ্লে টেস্ট পাঠানো হয়েছে',
+    },
+    'settings_saved': {
+      'en': 'Hardware settings saved',
+      'bn': 'হার্ডওয়্যার সেটিংস সংরক্ষিত হয়েছে',
+    },
+    'shift_sales_total': {
+      'en': 'Daily Shift Sales Total',
+      'bn': 'দৈনিক শিফট বিক্রয় মোট',
+    },
 
     // ── Modifiers & Customization ────────────────────────
     'customize_item': {'en': 'Customize Item', 'bn': 'আইটেম কাস্টমাইজ করুন'},
     'select_size': {'en': 'Select Size', 'bn': 'সাইজ বেছে নিন'},
     'extra_toppings': {'en': 'Extra Toppings', 'bn': 'অতিরিক্ত টপিংস'},
-    'special_instructions': {'en': 'Special Instructions', 'bn': 'বিশেষ নির্দেশাবলী'},
-    'add_instructions_hint': {'en': 'e.g. No onion, extra spicy...', 'bn': 'যেমন: পেঁয়াজ ছাড়া, বেশি ঝাল...'},
+    'special_instructions': {
+      'en': 'Special Instructions',
+      'bn': 'বিশেষ নির্দেশাবলী',
+    },
+    'add_instructions_hint': {
+      'en': 'e.g. No onion, extra spicy...',
+      'bn': 'যেমন: পেঁয়াজ ছাড়া, বেশি ঝাল...',
+    },
     'regular': {'en': 'Regular', 'bn': 'সাধারণ'},
     'large': {'en': 'Large', 'bn': 'বড়'},
     'extra_cheese': {'en': 'Extra Cheese', 'bn': 'অতিরিক্ত চিজ'},
@@ -309,18 +377,51 @@ class AppStrings {
     'enter': {'en': 'Enter', 'bn': 'এন্টার'},
     'g_checkout': {'en': 'Checkout', 'bn': 'চেকআউট'},
     'g_bill_held': {'en': 'Bill held successfully', 'bn': 'বিল হোল্ড হয়েছে'},
-    'g_drawer_opened': {'en': 'Cash drawer opened', 'bn': 'ক্যাশ ড্রয়ার খোলা হয়েছে'},
+    'g_drawer_opened': {
+      'en': 'Cash drawer opened',
+      'bn': 'ক্যাশ ড্রয়ার খোলা হয়েছে',
+    },
     'g_qty_applied': {'en': 'Quantity updated', 'bn': 'পরিমাণ আপডেট হয়েছে'},
-    'grocery_dashboard': {'en': 'FreshMart Grocery Dashboard', 'bn': 'ফ্রেশমার্ট গ্রোসারি ড্যাশবোর্ড'},
-    'grocery_dashboard_sub': {'en': 'Inventory, Perishable Stock & Fresh Counter', 'bn': 'লাইভ ইনভেন্টরি, পচনশীল স্টক ও দৈনিক ক্যাশ ফ্লো'},
-    'pharmacy_dashboard': {'en': 'PharmaCare POS Dashboard', 'bn': 'ফার্মা-কেয়ার ড্যাশবোর্ড'},
-    'pharmacy_dashboard_sub': {'en': 'Rx Prescriptions, Expiry Alerts & Drug Dispensing', 'bn': 'প্রেসক্রিপশন, এক্সপায়ারি ট্র্যাকিং ও ড্রাগ ডিসপেন্সিং'},
-    'wholesaler_dashboard': {'en': 'TradeMax Wholesaler Dashboard', 'bn': 'ট্রেডম্যাক্স হোলসেল ড্যাশবোর্ড'},
-    'wholesaler_dashboard_sub': {'en': 'B2B Accounts, Credit Ledger & Warehousing', 'bn': 'বি২বি অর্ডার, বাকির খাতা ও ওয়্যারহাউস লজিস্টিকস'},
-    'retail_dashboard': {'en': 'Retail & Superstore Dashboard', 'bn': 'রিটেইল ও সুপারস্টোর ড্যাশবোর্ড'},
-    'retail_dashboard_sub': {'en': 'Cash Drawer, Rush Hour Traffic & Counter Checkout', 'bn': 'ক্যাশ ড্রয়ার, পিক আওয়ার অ্যানালিটিক্স ও কাউন্টার চেকআউট'},
-    'critical_stock': {'en': 'Critical Low Stock', 'bn': 'জরুরি লো স্টক সতর্কতা'},
-    'cash_drawer_status': {'en': 'Cash Drawer Status', 'bn': 'ক্যাশ ড্রয়ার স্থিতি'},
+    'grocery_dashboard': {
+      'en': 'FreshMart Grocery Dashboard',
+      'bn': 'ফ্রেশমার্ট গ্রোসারি ড্যাশবোর্ড',
+    },
+    'grocery_dashboard_sub': {
+      'en': 'Inventory, Perishable Stock & Fresh Counter',
+      'bn': 'লাইভ ইনভেন্টরি, পচনশীল স্টক ও দৈনিক ক্যাশ ফ্লো',
+    },
+    'pharmacy_dashboard': {
+      'en': 'PharmaCare POS Dashboard',
+      'bn': 'ফার্মা-কেয়ার ড্যাশবোর্ড',
+    },
+    'pharmacy_dashboard_sub': {
+      'en': 'Rx Prescriptions, Expiry Alerts & Drug Dispensing',
+      'bn': 'প্রেসক্রিপশন, এক্সপায়ারি ট্র্যাকিং ও ড্রাগ ডিসপেন্সিং',
+    },
+    'wholesaler_dashboard': {
+      'en': 'TradeMax Wholesaler Dashboard',
+      'bn': 'ট্রেডম্যাক্স হোলসেল ড্যাশবোর্ড',
+    },
+    'wholesaler_dashboard_sub': {
+      'en': 'B2B Accounts, Credit Ledger & Warehousing',
+      'bn': 'বি২বি অর্ডার, বাকির খাতা ও ওয়্যারহাউস লজিস্টিকস',
+    },
+    'retail_dashboard': {
+      'en': 'Retail & Superstore Dashboard',
+      'bn': 'রিটেইল ও সুপারস্টোর ড্যাশবোর্ড',
+    },
+    'retail_dashboard_sub': {
+      'en': 'Cash Drawer, Rush Hour Traffic & Counter Checkout',
+      'bn': 'ক্যাশ ড্রয়ার, পিক আওয়ার অ্যানালিটিক্স ও কাউন্টার চেকআউট',
+    },
+    'critical_stock': {
+      'en': 'Critical Low Stock',
+      'bn': 'জরুরি লো স্টক সতর্কতা',
+    },
+    'cash_drawer_status': {
+      'en': 'Cash Drawer Status',
+      'bn': 'ক্যাশ ড্রয়ার স্থিতি',
+    },
     'held_tickets': {'en': 'Parked / Held Bills', 'bn': 'হোল্ড করা বিলসমূহ'},
   };
 }

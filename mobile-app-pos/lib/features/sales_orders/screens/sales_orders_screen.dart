@@ -575,7 +575,7 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
 
           // Brand Icon Badge
           Container(
-            padding: EdgeInsets.all(isMobile ? 7 : 9),
+            padding: EdgeInsets.all(isMobile ? 3 : 4),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [bizTheme.primary, bizTheme.dark],
@@ -589,10 +589,11 @@ class _BusinessSalesOrdersScreenState extends State<BusinessSalesOrdersScreen> {
                 ),
               ],
             ),
-            child: Icon(
-              bizTheme.icon,
-              color: Colors.white,
-              size: isMobile ? 18 : 20,
+            child: Image.asset(
+              'assets/icon/Glossy 3D Shopping Cart Logo.png',
+              width: isMobile ? 28 : 34,
+              height: isMobile ? 28 : 34,
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(width: 10),
@@ -1922,6 +1923,18 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                 children: [
                   // 1. Company Header
                   Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Image.asset(
+                        isDark
+                            ? 'assets/images/salepay-logo-white.png'
+                            : 'assets/images/salepay-logo-blue.png',
+                        height: 28,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  Center(
                     child: Text(
                       'SALEPAY POS',
                       style: TextStyle(
@@ -2480,7 +2493,7 @@ class _SalesOrderReceiptModal extends StatelessWidget {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Software by SalePay',
+                      'Software By Blue Oceans Technologies Ltd',
                       style: TextStyle(
                         fontSize: 9,
                         color: isDark
