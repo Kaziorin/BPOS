@@ -567,5 +567,121 @@ class ApiService {
       debugPrint('Error saving active cart to backend: $e');
     }
   }
+
+  Future<Map<String, String>> _authHeaders(String businessType) async {
+    final cleanBiz = businessType.toLowerCase().trim();
+    String? tenantIdToSend = _tenantId;
+    if (businessTenantIds.containsKey(cleanBiz)) {
+      tenantIdToSend = businessTenantIds[cleanBiz];
+    }
+    final token = await _getTokenForTenant(tenantIdToSend);
+
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    if (tenantIdToSend != null && tenantIdToSend.isNotEmpty) {
+      headers['X-Tenant-ID'] = tenantIdToSend;
+    }
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
+  }
+
+  List<Map<String, dynamic>> _extractList(dynamic decoded) {
+    List raw = [];
+    if (decoded is Map && decoded['data'] is List) {
+      raw = decoded['data'] as List;
+    } else if (decoded is Map &&
+        decoded['data'] is Map &&
+        decoded['data']['data'] is List) {
+      raw = decoded['data']['data'] as List;
+    } else if (decoded is List) {
+      raw = decoded;
+    }
+    return raw.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  // ── CATEGORIES ────────────────────────────────────────────────────────────
+  Future<List<Map<String, dynamic>>> fetchCategories({
+    required String businessType,
+  }) async {
+    try {
+      final headers = await _authHeaders(businessType);
+      final cleanBiz = businessType.toUpperCase().trim();
+      final uri = Uri.parse('$_baseUrl/v1/categories?businessType=$cleanBiz');
+      final resp = await http.get(uri, headers: headers).timeout(const Duration(seconds: 8));
+      if (resp.statusCode == 200) {
+        final list = _extractList(jsonDecode(resp.body));
+        if (list.isNotEmpty) return list;
+      }
+      // Fallback without businessType filter in case categories don't have businessTypes tagged
+      final allUri = Uri.parse('$_baseUrl/v1/categories');
+      final allResp = await http.get(allUri, headers: headers).timeout(const Duration(seconds: 8));
+      if (allResp.statusCode == 200) {
+        return _extractList(jsonDecode(allResp.body));
+      }
+    } catch (e) {
+      debugPrint('Error fetching categories: $e');
+    }
+    return [];
+  }
+
+  // ── RESTAURANT TABLES ─────────────────────────────────────────────────────
+  Future<List<Map<String, dynamic>>> fetchRestaurantTables() async {
+    try {
+      final headers = await _authHeaders('restaurant');
+      final uri = Uri.parse('$_baseUrl/v1/restaurant/tables');
+      final resp = await http.get(uri, headers: headers).timeout(const Duration(seconds: 8));
+      if (resp.statusCode == 200) {
+        return _extractList(jsonDecode(resp.body));
+      }
+    } catch (e) {
+      debugPrint('Error fetching restaurant tables: $e');
+    }
+    return [];
+  }
+
+  Future<bool> updateRestaurantTableStatus({
+    required String tableId,
+    required String status,
+    String? waiterUserId,
+  }) async {
+    if (tableId.isEmpty) return false;
+    try {
+      final headers = await _authHeaders('restaurant');
+      final uri = Uri.parse('$_baseUrl/v1/restaurant/tables/$tableId/status');
+      final body = <String, dynamic>{'status': status};
+      if (waiterUserId != null && waiterUserId.isNotEmpty) {
+        body['waiterUserId'] = waiterUserId;
+      }
+      final resp = await http
+          .patch(uri, headers: headers, body: jsonEncode(body))
+          .timeout(const Duration(seconds: 8));
+      return resp.statusCode == 200;
+    } catch (e) {
+      debugPrint('Error updating table status: $e');
+      return false;
+    }
+  }
+
+  // ── STAFF / EMPLOYEES ─────────────────────────────────────────────────────
+  Future<List<Map<String, dynamic>>> fetchEmployees({
+    String businessType = 'restaurant',
+    int limit = 50,
+  }) async {
+    try {
+      final headers = await _authHeaders(businessType);
+      final uri = Uri.parse('$_baseUrl/v1/hrm/employees?limit=$limit');
+      final resp = await http.get(uri, headers: headers).timeout(const Duration(seconds: 8));
+      if (resp.statusCode == 200) {
+        return _extractList(jsonDecode(resp.body));
+      }
+    } catch (e) {
+      debugPrint('Error fetching employees: $e');
+    }
+    return [];
+  }
 }
 
