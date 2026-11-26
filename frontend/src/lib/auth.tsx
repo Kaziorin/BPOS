@@ -81,13 +81,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedSub) {
       try {
         setSubscription(JSON.parse(storedSub));
-      } catch (e) {}
+      } catch (e) { }
     }
     if (stored && token) {
       try {
         const parsed = JSON.parse(stored);
         setUser(normalizeAuthUser(parsed));
-      } catch (e) {}
+      } catch (e) { }
 
       // Validate session with backend DB
       api.get<any>("/auth/me")
@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                   );
                 }
               }
-            } catch (e) {}
+            } catch (e) { }
           }
           if (sub) {
             setSubscription(sub);
@@ -156,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         localStorage.clear();
         sessionStorage.clear();
-      } catch (e) {}
+      } catch (e) { }
     }
 
     const normUser = normalizeAuthUser(res.user);
@@ -234,7 +234,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         localStorage.clear();
         sessionStorage.clear();
-      } catch (e) {}
+      } catch (e) { }
     }
 
     const normUser = normalizeAuthUser({
@@ -280,7 +280,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem(TENANT_STORAGE_KEY);
         localStorage.clear();
         sessionStorage.clear();
-      } catch (e) {}
+      } catch (e) { }
       setUser(null);
       setSubscription(null);
       window.location.replace("/login");
