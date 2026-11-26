@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
+import { AlertCircle, ArrowUpRight, CheckCircle2, Clock, Info, Mail, MapPin, Phone, X } from "lucide-react";
 import { HeroBgStyle, useWebsite } from "@/context/WebsiteContext";
 import { INDUSTRY_PRESETS } from "@/lib/presets";
 
@@ -19,6 +19,7 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const {
     site,
+    categories,
     isAdmin,
     adminOpen,
     setAdminOpen,
@@ -233,38 +234,126 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
 
       <main className="flex-1 w-full">{children}</main>
 
-      {/* Footer */}
-      <footer className="w-full bg-slate-950 text-slate-300 py-10 border-t border-white/10">
-        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img
-              src={site.logoUrl || "/logos/salepay-logo-blue.png"}
-              alt={site.storeName}
-              onError={(e) => {
-                e.currentTarget.src = "/logos/salepay-logo-blue.png";
-              }}
-              className="h-7 w-auto max-w-[110px] object-contain rounded bg-white/95 px-1.5 py-0.5"
-            />
-            <div>
-              <div className="text-white font-extrabold text-base">{site.storeName}</div>
-              <div className="text-xs text-slate-400 mt-0.5">{site.tagline}</div>
+      {/* Premium Footer */}
+      <footer className="relative w-full bg-[#060913] text-slate-300 border-t border-white/10 overflow-hidden">
+        <div
+          className="h-1 w-full opacity-80"
+          style={{ background: `linear-gradient(90deg, transparent 0%, ${site.accent} 50%, transparent 100%)` }}
+        />
+        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10">
+          {/* Brand Column */}
+          <div className="lg:col-span-4 space-y-4">
+            <div className="flex items-center gap-3">
+              <img
+                src={site.logoUrl || "/logos/salepay-logo-blue.png"}
+                alt={site.storeName}
+                onError={(e) => {
+                  e.currentTarget.src = "/logos/salepay-logo-blue.png";
+                }}
+                className="h-9 w-auto max-w-[130px] object-contain rounded-lg bg-white px-2 py-1"
+              />
+              <div>
+                <div className="text-white font-black text-lg leading-tight">{site.storeName}</div>
+                <div
+                  className="text-[11px] font-bold uppercase tracking-wider mt-0.5"
+                  style={{ color: site.accent }}
+                >
+                  {site.tagline}
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed max-w-sm line-clamp-3">
+              {site.aboutText}
+            </p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-semibold text-slate-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span>{site.years} Years of Trusted Service</span>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-5 text-xs font-semibold text-slate-400">
-            {NAV_ITEMS.map((item) => (
-              <Link key={item.href} href={item.href} className="hover:text-white">
-                {item.label}
-              </Link>
-            ))}
+
+          {/* Quick Navigation */}
+          <div className="lg:col-span-2 space-y-3.5">
+            <div className="text-xs font-extrabold uppercase tracking-widest text-white">Explore</div>
+            <ul className="space-y-2.5 text-xs font-semibold text-slate-400">
+              {NAV_ITEMS.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="inline-flex items-center gap-1 hover:text-white transition">
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
-          <div className="flex items-center gap-4 text-xs text-slate-400">
-            <span>Software By Blue Oceans Technologies Ltd</span>
-            <button
-              onClick={() => setAdminOpen(true)}
-              className="text-slate-500 hover:text-slate-300 underline"
+
+          {/* Offerings / Highlights */}
+          <div className="lg:col-span-3 space-y-3.5">
+            <div className="text-xs font-extrabold uppercase tracking-widest text-white">
+              {categories.length > 0 ? "Featured Categories" : "Brand Highlights"}
+            </div>
+            <ul className="space-y-2.5 text-xs text-slate-400">
+              {categories.length > 0
+                ? categories.slice(0, 5).map((c) => (
+                  <li key={c.id}>
+                    <Link href="/showcase" className="hover:text-white transition font-medium">
+                      {c.name}
+                    </Link>
+                  </li>
+                ))
+                : site.highlights.map((h, i) => (
+                  <li key={i}>
+                    <Link href="/highlights" className="hover:text-white transition font-medium">
+                      {h[0]}
+                    </Link>
+                  </li>
+                ))}
+            </ul>
+          </div>
+
+          {/* Contact & Hours */}
+          <div className="lg:col-span-3 space-y-3.5">
+            <div className="text-xs font-extrabold uppercase tracking-widest text-white">Visit &amp; Contact</div>
+            <div className="space-y-2.5 text-xs text-slate-400">
+              <div className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-slate-500" />
+                <span>{site.address}</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Phone className="w-4 h-4 shrink-0 text-slate-500" />
+                <span>{site.phone}</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Mail className="w-4 h-4 shrink-0 text-slate-500" />
+                <span>{site.email}</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Clock className="w-4 h-4 shrink-0 text-slate-500" />
+                <span>{site.hours}</span>
+              </div>
+            </div>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold text-white shadow hover:opacity-95 transition mt-1"
+              style={{ backgroundColor: site.accent }}
             >
-              Admin
-            </button>
+              <span>Book / Contact Us</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Bottom Legal & Credit Bar */}
+        <div className="border-t border-white/10 bg-black/30">
+          <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+            <div>© {new Date().getFullYear()} {site.storeName}. All rights reserved.</div>
+            <div className="flex items-center gap-4">
+              <span>Software By Blue Oceans Technologies Ltd</span>
+              <button
+                onClick={() => setAdminOpen(true)}
+                className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white font-semibold transition"
+              >
+                Admin
+              </button>
+            </div>
           </div>
         </div>
       </footer>
@@ -589,10 +678,10 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
             <div
               key={t.id}
               className={`pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-2xl shadow-2xl border backdrop-blur-xl text-sm font-bold transition-all animate-[fadeSlideUp_0.25s_ease-out] ${t.type === "error"
-                  ? "bg-rose-950/95 border-rose-500/40 text-rose-100"
-                  : t.type === "info"
-                    ? "bg-slate-900/95 border-sky-500/40 text-sky-100"
-                    : "bg-slate-950/95 border-emerald-500/40 text-white"
+                ? "bg-rose-950/95 border-rose-500/40 text-rose-100"
+                : t.type === "info"
+                  ? "bg-slate-900/95 border-sky-500/40 text-sky-100"
+                  : "bg-slate-950/95 border-emerald-500/40 text-white"
                 }`}
             >
               {t.type === "error" ? (
