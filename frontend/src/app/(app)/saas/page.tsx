@@ -41,6 +41,7 @@ import {
   Sliders,
   Radio,
   ExternalLink,
+  ChevronLeft,
   ChevronRight,
   Globe,
   SlidersHorizontal,
@@ -916,44 +917,80 @@ function SaaSContent() {
                   </div>
 
                   {/* Server-side Pagination Bar */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs text-slate-600">
-                    <div>
-                      Showing <span className="font-bold">{platformTenants.length === 0 ? 0 : (tenantPage - 1) * tenantLimit + 1}</span>
-                      {"–"}
-                      <span className="font-bold">{(tenantPage - 1) * tenantLimit + platformTenants.length}</span> of{" "}
-                      <span className="font-bold">{tenantTotal}</span> businesses
-                    </div>
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-slate-50/80 border border-slate-200 rounded-sm text-xs">
+                    <div className="flex items-center gap-2 text-slate-600 font-medium">
+                      <span>Rows:</span>
                       <select
                         value={tenantLimit}
                         onChange={(e) => {
                           setTenantLimit(Number(e.target.value));
                           setTenantPage(1);
                         }}
-                        className="px-2 py-1 rounded-sm border border-slate-200 bg-white font-semibold"
+                        className="h-7 px-2 rounded-sm border border-brand-border bg-white text-gray-700 font-semibold focus:outline-none focus:border-brand-primary cursor-pointer"
                       >
-                        <option value={10}>10 / page</option>
-                        <option value={20}>20 / page</option>
-                        <option value={50}>50 / page</option>
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
                       </select>
+                      <span className="ml-1">
+                        Showing{" "}
+                        <strong className="font-bold text-brand-primary">
+                          {platformTenants.length === 0 ? 0 : (tenantPage - 1) * tenantLimit + 1}
+                        </strong>
+                        –
+                        <strong className="font-bold text-brand-primary">
+                          {(tenantPage - 1) * tenantLimit + platformTenants.length}
+                        </strong>{" "}
+                        of <strong className="font-bold text-brand-primary">{tenantTotal}</strong>
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
                       <button
                         type="button"
                         disabled={tenantPage <= 1}
                         onClick={() => setTenantPage((p) => Math.max(1, p - 1))}
-                        className="px-2.5 py-1 rounded-sm border border-slate-200 bg-white font-semibold disabled:opacity-40 hover:bg-slate-50 cursor-pointer disabled:cursor-not-allowed"
+                        className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-brand-border bg-white text-slate-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-primary disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold text-xs shadow-2xs gap-1 cursor-pointer"
                       >
-                        Prev
+                        <ChevronLeft size={13} /> Prev
                       </button>
-                      <span className="font-bold px-2">
-                        Page {tenantPage} of {tenantTotalPages}
-                      </span>
+
+                      {Array.from({ length: tenantTotalPages }, (_, idx) => idx + 1)
+                        .filter((p) => p === 1 || p === tenantTotalPages || Math.abs(p - tenantPage) <= 1)
+                        .reduce<(number | "dots")[]>((acc, p, idx, arr) => {
+                          if (idx > 0 && p - arr[idx - 1] > 1) acc.push("dots");
+                          acc.push(p);
+                          return acc;
+                        }, [])
+                        .map((item, idx) =>
+                          item === "dots" ? (
+                            <span key={`dots-${idx}`} className="px-1.5 text-slate-400 font-bold">
+                              …
+                            </span>
+                          ) : (
+                            <button
+                              key={item}
+                              type="button"
+                              onClick={() => setTenantPage(item)}
+                              className={cn(
+                                "flex h-7 min-w-7 px-2 items-center justify-center rounded-sm text-xs font-semibold transition shadow-2xs cursor-pointer",
+                                item === tenantPage
+                                  ? "bg-brand-gradient text-white border border-transparent font-bold"
+                                  : "border border-brand-border bg-white text-slate-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-primary"
+                              )}
+                            >
+                              {item}
+                            </button>
+                          )
+                        )}
+
                       <button
                         type="button"
                         disabled={tenantPage >= tenantTotalPages}
                         onClick={() => setTenantPage((p) => Math.min(tenantTotalPages, p + 1))}
-                        className="px-2.5 py-1 rounded-sm border border-slate-200 bg-white font-semibold disabled:opacity-40 hover:bg-slate-50 cursor-pointer disabled:cursor-not-allowed"
+                        className="flex h-7 px-2.5 items-center justify-center rounded-sm border border-brand-border bg-white text-slate-600 hover:bg-brand-50 hover:text-brand-primary hover:border-brand-primary disabled:opacity-40 disabled:cursor-not-allowed transition font-semibold text-xs shadow-2xs gap-1 cursor-pointer"
                       >
-                        Next
+                        Next <ChevronRight size={13} />
                       </button>
                     </div>
                   </div>
