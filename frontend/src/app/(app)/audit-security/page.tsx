@@ -1066,7 +1066,7 @@ function AuditSecurityContent() {
                     <div>
                       <p className="text-xs font-bold text-gray-600">{rec}</p>
                       <p className="text-[11px] text-slate-500 mt-0.5">
-                        Enforced automatically by the BlueOceans multi-tier security filter chain.
+                        Enforced automatically by the SalePay multi-tier security filter chain.
                       </p>
                     </div>
                   </div>

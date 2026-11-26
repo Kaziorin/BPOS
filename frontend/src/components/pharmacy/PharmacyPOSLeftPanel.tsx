@@ -244,7 +244,7 @@ export function PharmacyPOSLeftPanel({
             </div>
             <div className="leading-tight text-white">
               <div className="flex items-center gap-1.5">
-                <h1 className="text-[16px] font-black tracking-tight text-white drop-shadow-xs">BPOS</h1>
+                <h1 className="text-[16px] font-black tracking-tight text-white drop-shadow-xs">SalePay</h1>
                 <span className="rounded-xs bg-white/25 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white border border-white/30">
                   Rx POS
                 </span>

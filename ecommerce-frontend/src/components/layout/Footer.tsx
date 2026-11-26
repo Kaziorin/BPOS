@@ -246,7 +246,7 @@ export default function Footer() {
         <p>{copyright}</p>
         <p className="text-[11px] flex items-center gap-1">
           <span>Powered by</span>
-          <strong className="text-slate-300 font-bold">BlueOceans POS & E-Commerce</strong>
+          <strong className="text-slate-300 font-bold">SalePay & E-Commerce</strong>
         </p>
       </div>
     </footer>

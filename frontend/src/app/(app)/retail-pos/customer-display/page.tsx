@@ -185,7 +185,7 @@ export default function RetailCustomerDisplayPage() {
   const customerPoints = cart?.customerPoints ?? 0;
   const cashierName = cart?.cashierName || "Cashier";
   const laneNo = cart?.laneNo || "T-01";
-  const merchantName = cart?.merchantName || "BPOS Retail";
+  const merchantName = cart?.merchantName || "SalePay Retail";
   const qrPayload = `bpos-retail-payment-${laneNo}-${Math.round(total)}`;
   const activePaymentHint = PAYMENT_HINTS[selectedPayment];
 

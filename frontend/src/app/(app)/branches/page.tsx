@@ -366,7 +366,7 @@ export default function BranchesPage() {
               </label>
               <CustomInput
                 type="email"
-                placeholder="e.g. branch@blueoceanspos.com"
+                placeholder="e.g. branch@salepay.io"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />

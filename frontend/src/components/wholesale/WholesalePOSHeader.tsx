@@ -118,7 +118,7 @@ export function WholesalePOSHeader({
               )}
               style={darkMode ? undefined : { color: darkText }}
             >
-              BPOS
+              SalePay
             </h1>
             <p className={cn("mt-0.5 text-[11px] font-black tracking-wide uppercase", darkMode ? "text-blue-400" : "")}
               style={darkMode ? undefined : { color: iceBlue }}

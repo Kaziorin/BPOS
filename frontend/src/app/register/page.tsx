@@ -969,7 +969,7 @@ export default function RegisterPage() {
                       />
                       <div className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500 font-mono">
                         <span>Workspace URL:</span>
-                        <span className="text-sky-700 font-semibold">{storeSlug}.blueoceanspos.com</span>
+                        <span className="text-sky-700 font-semibold">{storeSlug}.salepay.io</span>
                       </div>
                     </div>
 

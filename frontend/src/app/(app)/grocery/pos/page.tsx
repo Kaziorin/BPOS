@@ -866,7 +866,7 @@ export default function GroceryPOSPage() {
               </div>
               <div className="leading-tight">
                 <div className="flex items-center gap-1.5">
-                  <h1 className="text-xl font-black text-gray-600 tracking-tight">BPOS</h1>
+                  <h1 className="text-xl font-black text-gray-600 tracking-tight">SalePay</h1>
                   <span className="bg-emerald-700 text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-sm uppercase tracking-wider shadow-2xs">GROCERY</span>
                 </div>
                 <p className="text-[9.5px] font-bold tracking-wider text-emerald-800 uppercase">POS SYSTEM</p>

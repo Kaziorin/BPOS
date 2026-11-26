@@ -197,7 +197,7 @@ export default function CustomerDisplayPage() {
   const laneNo = cart?.tableNo || cart?.laneNo || "LANE 01";
   const merchantName =
     cart?.merchantName ||
-    `BPOS ${entCtx.businessType === "RETAIL" ? "Retail" : entCtx.businessType.charAt(0) + entCtx.businessType.slice(1).toLowerCase()}`;
+    `SalePay ${entCtx.businessType === "RETAIL" ? "Retail" : entCtx.businessType.charAt(0) + entCtx.businessType.slice(1).toLowerCase()}`;
 
   const qrPayload = `bpos-pay-${laneNo}-${Math.round(total)}`;
   const isOrange = hasRestaurant && colorTheme === "orange";

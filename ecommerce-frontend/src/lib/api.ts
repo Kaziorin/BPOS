@@ -199,7 +199,7 @@ export const StorefrontAPI = {
       return {
         tenant: {
           id: currentSlug,
-          name: currentSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) || "BlueOceans Store",
+          name: currentSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) || "SalePay Store",
           slug: currentSlug,
           businessType: "RETAIL",
           phone: "+880 1700-000000",

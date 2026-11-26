@@ -1334,7 +1334,7 @@ function MigrationTab({
         {[
           { step: "1", title: "Create Session", desc: "Select source POS & initialize migration run" },
           { step: "2", title: "Upload Data", desc: "Drop CSV extracts for Products, Customers & Stock" },
-          { step: "3", title: "Column Mapping", desc: "Auto-map columns to BlueOceans data schema" },
+          { step: "3", title: "Column Mapping", desc: "Auto-map columns to SalePay data schema" },
           { step: "4", title: "Execute & Commit", desc: "Validate integrity & import directly to live DB" },
         ].map((s) => (
           <div key={s.step} className="rounded-sm border border-slate-200 bg-slate-50/60 p-3">

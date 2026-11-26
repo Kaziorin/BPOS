@@ -14,7 +14,7 @@ import json
 import uuid
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, Query, Body
+from fastapi import APIRouter, Depends, Query, Body, HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,6 +27,14 @@ router = APIRouter()
 
 def _uid() -> str:
     return str(uuid.uuid4())
+
+
+def _require_super_admin(user: AuthUser) -> None:
+    """Enforce Super Admin access on platform-wide endpoints."""
+    role = (user.roleName or "").lower()
+    email = (user.email or "").lower()
+    if role not in ("super admin", "superadmin", "system admin") and email != "admin@gmail.com":
+        raise HTTPException(403, "Super Admin access required")
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -234,6 +242,7 @@ async def list_trial_requests(
     db: AsyncSession = Depends(get_db),
 ):
     """List tenants requesting free trials or pending activation."""
+    _require_super_admin(user)
     rows = (await db.execute(text("""
         SELECT s.id, s.tenantId, t.name as tenantName, t.slug, t.businessType,
                p.name as planName, s.status, s.createdAt
@@ -263,6 +272,7 @@ async def approve_trial_request(
     db: AsyncSession = Depends(get_db),
 ):
     """Admin approves a trial request and sets the allowed trial days."""
+    _require_super_admin(user)
     days = int(body.get("trialDays", 14))
     now = datetime.utcnow()
     trial_end = now + timedelta(days=days)
@@ -660,6 +670,7 @@ async def platform_overview(
     db: AsyncSession = Depends(get_db),
 ):
     """Platform-wide stats (admin only)."""
+    _require_super_admin(user)
     tenants = (await db.execute(text("SELECT COUNT(*) FROM tenants"))).first()[0]
     active = (await db.execute(text("SELECT COUNT(*) FROM tenants WHERE status='ACTIVE'"))).first()[0]
     trial = (await db.execute(text("SELECT COUNT(*) FROM tenants WHERE status='TRIAL'"))).first()[0]
@@ -688,6 +699,7 @@ async def platform_tenants(
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
+    _require_super_admin(user)
     where = "1=1"
     params: dict = {}
     if status:
@@ -707,6 +719,7 @@ async def platform_health(
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
+    _require_super_admin(user)
     rows = rows_to_dicts((await db.execute(text(
         "SELECT * FROM platform_health ORDER BY checkedAt DESC LIMIT 20"))).fetchall())
     return ok(rows)
@@ -719,6 +732,7 @@ async def run_health_check(
     db: AsyncSession = Depends(get_db),
 ):
     """Run platform health checks."""
+    _require_super_admin(user)
     checks = []
     # DB check
     try:

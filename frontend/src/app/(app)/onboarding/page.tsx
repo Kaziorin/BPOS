@@ -559,7 +559,7 @@ function CompanySetupStep({
         <CustomInput
           label="Official Email *"
           type="email"
-          placeholder="e.g., info@blueocean.com"
+          placeholder="e.g., info@salepay.io"
           value={form.email}
           onChange={(e) => onChange("email", e.target.value)}
         />
@@ -628,7 +628,7 @@ function BranchSetupStep({
         <CustomInput
           label="Branch Email"
           type="email"
-          placeholder="e.g., branch1@blueocean.com"
+          placeholder="e.g., branch1@salepay.io"
           value={form.email}
           onChange={(e) => onChange("email", e.target.value)}
         />

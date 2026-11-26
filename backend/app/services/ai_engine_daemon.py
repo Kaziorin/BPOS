@@ -1,6 +1,6 @@
 """AI Engine Background Process Manager.
 Automatically starts and monitors the local offline Ollama service
-when the Blue Oceans POS backend starts.
+when the SalePay backend starts.
 """
 from __future__ import annotations
 

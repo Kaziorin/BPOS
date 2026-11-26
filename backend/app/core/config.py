@@ -19,7 +19,7 @@ if profile_env.exists():
 
 
 class Settings:
-    PROJECT_NAME: str = os.getenv("PROJECT_NAME", "BlueOceans POS API")
+    PROJECT_NAME: str = os.getenv("PROJECT_NAME", "SalePay API")
     VERSION: str = os.getenv("VERSION", "2.0.0-production")
     API_V1_STR: str = os.getenv("API_V1_STR", "/api/v1")
     APP_ENV: str = APP_ENV
