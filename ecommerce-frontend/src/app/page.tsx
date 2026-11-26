@@ -98,7 +98,7 @@ export default function HomePage() {
       {theme.headerStyle === "sidebar_integrated" ? (
         <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 py-4 sm:py-6 flex gap-6">
           <SidebarCategoryNav categories={categories} isDarkMode={isDark} />
-          <div className="flex-1 min-w-0 space-y-2">
+          <div className="flex-1 min-w-0">
             {theme.sections.map((sec) => {
               if (!sec.enabled) return null;
               return (
@@ -110,7 +110,7 @@ export default function HomePage() {
           </div>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div>
           {theme.sections.map((sec) => {
             if (!sec.enabled) return null;
             return (
