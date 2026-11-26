@@ -261,7 +261,13 @@ async def list_storefront_products(
 
     # Sorting
     order_by = "p.createdAt DESC"
-    if sort == "price_asc":
+    if sort == "popular":
+        order_by = (
+            "((SELECT COALESCE(SUM(si.qty), 0) FROM sale_items si WHERE si.productId = p.id AND si.tenantId = p.tenantId) + "
+            "(SELECT COALESCE(SUM(soi.qtyOrdered), 0) FROM sales_order_items soi WHERE soi.productId = p.id AND soi.tenantId = p.tenantId)) DESC, "
+            "p.createdAt DESC"
+        )
+    elif sort == "price_asc":
         order_by = "p.sellingPrice ASC"
     elif sort == "price_desc":
         order_by = "p.sellingPrice DESC"
