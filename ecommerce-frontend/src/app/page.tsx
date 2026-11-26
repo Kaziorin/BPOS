@@ -9,7 +9,6 @@ import { fetchActiveTheme } from "@/lib/builderStore";
 import HeroSliderSection from "@/components/sections/HeroSliderSection";
 import FeatureBadgesSection from "@/components/sections/FeatureBadgesSection";
 import CategoryShowcaseSection from "@/components/sections/CategoryShowcaseSection";
-import FlashSaleSection from "@/components/sections/FlashSaleSection";
 import FeaturedCollectionsSection from "@/components/sections/FeaturedCollectionsSection";
 import ProductGridSection from "@/components/sections/ProductGridSection";
 import PromoSplitBannerSection from "@/components/sections/PromoSplitBannerSection";
@@ -88,6 +87,10 @@ export default function HomePage() {
 
   const isDark = theme.isDarkMode;
   const noticeSection = theme.sections.find((s) => s.type === "special_notice");
+  const flashSaleSection = theme.sections.find((s) => s.type === "flash_sale");
+  const visibleSections = theme.sections.filter(
+    (s) => s.enabled && s.type !== "special_notice" && s.type !== "flash_sale"
+  );
 
   return (
     <div className={`min-h-screen ${isDark ? "bg-zinc-950 text-white" : "bg-[#FAF8F5] text-stone-900"}`}>
@@ -99,26 +102,20 @@ export default function HomePage() {
         <div className="max-w-[1720px] 2xl:max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 py-4 sm:py-6 flex gap-6">
           <SidebarCategoryNav categories={categories} isDarkMode={isDark} />
           <div className="flex-1 min-w-0">
-            {theme.sections.map((sec) => {
-              if (!sec.enabled) return null;
-              return (
-                <div key={sec.id}>
-                  {renderStoreSection(sec, featuredProducts, categories, isDark, noticeSection)}
-                </div>
-              );
-            })}
+            {visibleSections.map((sec) => (
+              <div key={sec.id}>
+                {renderStoreSection(sec, featuredProducts, categories, isDark, noticeSection, flashSaleSection)}
+              </div>
+            ))}
           </div>
         </div>
       ) : (
         <div>
-          {theme.sections.map((sec) => {
-            if (!sec.enabled) return null;
-            return (
-              <div key={sec.id}>
-                {renderStoreSection(sec, featuredProducts, categories, isDark, noticeSection)}
-              </div>
-            );
-          })}
+          {visibleSections.map((sec) => (
+            <div key={sec.id}>
+              {renderStoreSection(sec, featuredProducts, categories, isDark, noticeSection, flashSaleSection)}
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -130,17 +127,25 @@ function renderStoreSection(
   products: ProductItem[],
   categories: CategoryItem[],
   isDarkMode: boolean,
-  noticeSection?: SectionItem
+  noticeSection?: SectionItem,
+  flashSaleSection?: SectionItem
 ) {
   switch (sec.type) {
     case "hero_slider":
-      return <HeroSliderSection section={sec} noticeSection={noticeSection} isDarkMode={isDarkMode} />;
+      return (
+        <HeroSliderSection
+          section={sec}
+          noticeSection={noticeSection}
+          flashSaleSection={flashSaleSection}
+          isDarkMode={isDarkMode}
+        />
+      );
     case "feature_badges":
       return <FeatureBadgesSection section={sec} isDarkMode={isDarkMode} />;
     case "category_showcase":
       return <CategoryShowcaseSection section={sec} categories={categories} isDarkMode={isDarkMode} />;
     case "flash_sale":
-      return <FlashSaleSection section={sec} products={products} isDarkMode={isDarkMode} />;
+      return null;
     case "featured_collections":
       return <FeaturedCollectionsSection section={sec} isDarkMode={isDarkMode} />;
     case "product_grid":
