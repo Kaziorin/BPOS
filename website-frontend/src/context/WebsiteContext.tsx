@@ -225,24 +225,33 @@ export function WebsiteProvider({ children }: { children: React.ReactNode }) {
     ).toUpperCase();
     const key = Object.keys(INDUSTRY_PRESETS).find((k) => industry.includes(k)) || "RETAIL";
     const preset = INDUSTRY_PRESETS[key];
+    const staleFranchiseCopy =
+      key !== "FRANCHISE" &&
+      (savedConfig.heroTitle === "Unified Multi-Outlet Brand Experience" ||
+        savedConfig.heroPill === "Multi-Branch Network");
+    const configMatchesIndustry =
+      !staleFranchiseCopy &&
+      (!lockedByTenant ||
+        !savedConfig.industry ||
+        savedConfig.industry.toUpperCase() === key);
     const highlights =
-      Array.isArray(savedConfig.highlights) && savedConfig.highlights.length === 3
+      configMatchesIndustry && Array.isArray(savedConfig.highlights) && savedConfig.highlights.length === 3
         ? savedConfig.highlights
         : preset.highlights;
 
     return {
       key,
       preset,
-      accent: savedConfig.accentColor || preset.accent,
+      accent: (configMatchesIndustry ? savedConfig.accentColor : undefined) || preset.accent,
       storeName: savedConfig.businessName || tenantMeta.name || "SalePay Business",
-      tagline: savedConfig.tagline || preset.label,
+      tagline: (configMatchesIndustry ? savedConfig.tagline : undefined) || preset.label,
       logoUrl: savedConfig.logoUrl || tenantMeta.logoUrl || "/logos/salepay-logo-blue.png",
       heroBgStyle: savedConfig.heroBgStyle || "constellation",
       heroImages: Array.isArray(savedConfig.heroImages) ? savedConfig.heroImages.filter(Boolean) : [],
-      pill: savedConfig.heroPill || preset.pill,
-      title: savedConfig.heroTitle || preset.title,
-      desc: savedConfig.heroDesc || preset.desc,
-      cta: savedConfig.ctaText || preset.cta,
+      pill: (configMatchesIndustry ? savedConfig.heroPill : undefined) || preset.pill,
+      title: (configMatchesIndustry ? savedConfig.heroTitle : undefined) || preset.title,
+      desc: (configMatchesIndustry ? savedConfig.heroDesc : undefined) || preset.desc,
+      cta: (configMatchesIndustry ? savedConfig.ctaText : undefined) || preset.cta,
       aboutTitle: savedConfig.aboutTitle || "Crafted With Quality & Care",
       aboutText:
         savedConfig.aboutText ||
