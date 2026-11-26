@@ -73,7 +73,10 @@ for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":3000" ^| findstr "LI
 for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":3001" ^| findstr "LISTENING"') do (
     taskkill /F /PID %%a >nul 2>&1
 )
-echo [OK] Ports 4000, 3000, and 3001 ready.
+for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":3002" ^| findstr "LISTENING"') do (
+    taskkill /F /PID %%a >nul 2>&1
+)
+echo [OK] Ports 4000, 3000, 3001, and 3002 ready.
 echo.
 
 echo [4/6] Starting FastAPI Backend on port 4000...
@@ -82,22 +85,37 @@ start "BlueOceans POS - Backend API (:4000)" cmd /k "color 0A && cd /d "%ROOT_DI
 echo [5/6] Starting POS Frontend on port 3000...
 start "BlueOceans POS - Staff App (:3000)" cmd /k "color 0E && cd /d "%ROOT_DIR%frontend" && echo Starting POS Frontend on http://localhost:3000... && npm run dev"
 
-echo [6/6] Starting E-Commerce Customer Storefront on port 3001...
-start "BlueOceans Storefront - Online E-Commerce (:3001)" cmd /k "color 0B && cd /d "%ROOT_DIR%ecommerce-frontend" && echo Starting E-Commerce Storefront on http://localhost:3001... && npm run dev"
+echo [6/7] Starting E-Commerce Customer Storefront on port 3001...
+start "SalePay E-Commerce (:3001)" cmd /k "color 0B && cd /d "%ROOT_DIR%ecommerce-frontend" && echo Starting E-Commerce Storefront on http://localhost:3001... && npm run dev"
+
+echo [7/7] Starting Dynamic Business Website on port 3002...
+start "SalePay Dynamic Website (:3002)" cmd /k "color 0D && cd /d "%ROOT_DIR%website-frontend" && if not exist node_modules (npm install) && echo Starting Dynamic Website on http://localhost:3002... && npm run dev"
 
 echo.
 echo ========================================================
-echo   All 3 Services are starting in separate windows!
+echo   All 4 Services are starting in separate windows!
 echo   - Backend API Docs:       http://127.0.0.1:4000/docs
 echo   - POS Staff & Admin App:  http://localhost:3000
 echo   - Online E-Commerce App:  http://localhost:3001
+echo   - Dynamic Website:        http://localhost:3002
 echo ========================================================
 echo.
 echo Waiting 6 seconds for servers to initialize before opening browser...
 timeout /t 6 >nul
 
-start http://localhost:3000
-start http://localhost:3001
+set "CHROME_EXE="
+where chrome >nul 2>&1 && set "CHROME_EXE=chrome"
+if "%CHROME_EXE%"=="" if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
+if "%CHROME_EXE%"=="" if exist "%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"
+if "%CHROME_EXE%"=="" if exist "%LocalAppData%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%LocalAppData%\Google\Chrome\Application\chrome.exe"
+
+if not "%CHROME_EXE%"=="" (
+    start "" "%CHROME_EXE%" "http://localhost:3000" "http://localhost:3001" "http://localhost:3002"
+) else (
+    start "" "http://localhost:3000"
+    start "" "http://localhost:3001"
+    start "" "http://localhost:3002"
+)
 
 echo.
 echo All services are now running!

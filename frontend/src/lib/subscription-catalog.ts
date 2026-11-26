@@ -287,6 +287,16 @@ export const FALLBACK_ADDONS: AddonItem[] = [
     icon: "Globe",
     badge: "Omnichannel",
   },
+  {
+    code: "website_builder",
+    name: "Dynamic Business Website",
+    description: "Industry-tailored dynamic website with live catalog, online ordering & custom branding.",
+    industry: "ALL",
+    monthlyPrice: 790,
+    yearlyPrice: 7900,
+    icon: "Globe",
+    badge: "Website",
+  },
 ];
 
 export function resolveAddonIcon(iconName?: string): LucideIcon {

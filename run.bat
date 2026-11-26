@@ -40,8 +40,10 @@ set "BACKEND_PORT=%BACKEND_PORT: =%"
 set "BACKEND_PORT=%BACKEND_PORT:"=%"
 if "%BACKEND_PORT%"=="" set "BACKEND_PORT=4000"
 set "FRONTEND_PORT=3000"
+set "ECOMMERCE_PORT=3001"
+set "WEBSITE_PORT=3002"
 
-:: Free lingering processes on backend/frontend ports
+:: Free lingering processes on backend/frontend/ecommerce/website ports
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":%BACKEND_PORT% " ^| findstr "LISTENING"') do (
     echo [INFO] Freeing port %BACKEND_PORT% ^(PID %%a^)...
     taskkill /F /PID %%a >nul 2>&1
@@ -50,8 +52,17 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":%FRONTEND_PORT% " ^| findst
     echo [INFO] Freeing port %FRONTEND_PORT% ^(PID %%a^)...
     taskkill /F /PID %%a >nul 2>&1
 )
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":%ECOMMERCE_PORT% " ^| findstr "LISTENING"') do (
+    echo [INFO] Freeing port %ECOMMERCE_PORT% ^(PID %%a^)...
+    taskkill /F /PID %%a >nul 2>&1
+)
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":%WEBSITE_PORT% " ^| findstr "LISTENING"') do (
+    echo [INFO] Freeing port %WEBSITE_PORT% ^(PID %%a^)...
+    taskkill /F /PID %%a >nul 2>&1
+)
 
 if exist "frontend\.next\dev\lock" del /f /q "frontend\.next\dev\lock" >nul 2>&1
+if exist "ecommerce-frontend\.next\dev\lock" del /f /q "ecommerce-frontend\.next\dev\lock" >nul 2>&1
 
 :: Check MySQL connectivity from backend\.env (+ .env.<APP_ENV>)
 python -c "import os,socket; from urllib.parse import urlparse; bd=r'%~dp0backend'; env={}; [env.update({l.split('=',1)[0].strip():l.split('=',1)[1].strip().strip(chr(34)+chr(39))}) for p in [os.path.join(bd,'.env')] if os.path.exists(p) for l in open(p,encoding='utf-8') if l.strip() and not l.strip().startswith('#') and '=' in l]; app_env=env.get('APP_ENV','local').strip().lower(); pf=os.path.join(bd,f'.env.{app_env}'); [env.update({l.split('=',1)[0].strip():l.split('=',1)[1].strip().strip(chr(34)+chr(39))}) for l in open(pf,encoding='utf-8') if l.strip() and not l.strip().startswith('#') and '=' in l] if os.path.exists(pf) else None; u=urlparse(env['DATABASE_URL']) if env.get('DATABASE_URL') else None; h=(u.hostname if u and u.hostname else env.get('DB_HOST','localhost')); p=(u.port if u and u.port else int(env.get('DB_PORT','3306'))); s=socket.socket(); s.settimeout(2.5); res=s.connect_ex((h,p)); s.close(); print(f'[OK] MySQL reachable at {h}:{p} (profile: {app_env})' if res==0 else f'[WARNING] Cannot reach MySQL at {h}:{p} (profile: {app_env}).')"
@@ -98,21 +109,57 @@ start "Blue Oceans POS - Backend (%BACKEND_PORT%)" /D "%~dp0backend" cmd /k "ven
 
 timeout /t 4 /nobreak >nul
 
-echo [2/2] Starting Next.js POS Frontend in new window (Port %FRONTEND_PORT%)...
-start "Blue Oceans POS - Frontend (%FRONTEND_PORT%)" /D "%~dp0frontend" cmd /k "npm run dev -- -p %FRONTEND_PORT%"
+echo [2/4] Starting Next.js POS Frontend in new window (Port %FRONTEND_PORT%)...
+start "SalePay POS - Frontend (%FRONTEND_PORT%)" /D "%~dp0frontend" cmd /k "npm run dev -- -p %FRONTEND_PORT%"
 
-timeout /t 4 /nobreak >nul
+if exist "ecommerce-frontend\package.json" (
+    if not exist "ecommerce-frontend\node_modules" (
+        echo [INFO] Installing E-Commerce dependencies...
+        pushd ecommerce-frontend
+        call npm install
+        popd
+    )
+    echo [3/4] Starting E-Commerce Storefront in new window (Port %ECOMMERCE_PORT%)...
+    start "SalePay E-Commerce (%ECOMMERCE_PORT%)" /D "%~dp0ecommerce-frontend" cmd /k "npm run dev -- -p %ECOMMERCE_PORT%"
+)
 
-echo Opening browser...
-start "" "http://localhost:%FRONTEND_PORT%"
+if exist "website-frontend\package.json" (
+    if not exist "website-frontend\node_modules" (
+        echo [4/4] Installing Dynamic Business Website dependencies...
+        pushd "website-frontend"
+        call npm install
+        popd
+    )
+    echo [4/4] Starting Dynamic Business Website in new window (Port %WEBSITE_PORT%)...
+    start "SalePay Dynamic Website (%WEBSITE_PORT%)" /D "%~dp0website-frontend" cmd /k "npm run dev"
+)
+
+timeout /t 5 /nobreak >nul
+
+echo Opening POS, E-Commerce & Dynamic Website in Google Chrome...
+set "CHROME_EXE="
+where chrome >nul 2>&1 && set "CHROME_EXE=chrome"
+if "%CHROME_EXE%"=="" if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
+if "%CHROME_EXE%"=="" if exist "%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"
+if "%CHROME_EXE%"=="" if exist "%LocalAppData%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%LocalAppData%\Google\Chrome\Application\chrome.exe"
+
+if not "%CHROME_EXE%"=="" (
+    start "" "%CHROME_EXE%" "http://localhost:%FRONTEND_PORT%" "http://localhost:%ECOMMERCE_PORT%" "http://localhost:%WEBSITE_PORT%"
+) else (
+    start "" "http://localhost:%FRONTEND_PORT%"
+    start "" "http://localhost:%ECOMMERCE_PORT%"
+    start "" "http://localhost:%WEBSITE_PORT%"
+)
 
 echo.
 echo =====================================================================
-echo    BLUE OCEANS POS IS LAUNCHED!
-echo    - POS App:     http://localhost:%FRONTEND_PORT%
-echo    - Backend API: http://localhost:%BACKEND_PORT%
-echo    - API Swagger: http://localhost:%BACKEND_PORT%/docs
+echo    SALEPAY ENTERPRISE IS LAUNCHED!
+echo    - POS System:      http://localhost:%FRONTEND_PORT%
+echo    - E-Commerce:      http://localhost:%ECOMMERCE_PORT%
+echo    - Dynamic Website: http://localhost:%WEBSITE_PORT%
+echo    - Backend API:     http://localhost:%BACKEND_PORT%
+echo    - API Swagger:     http://localhost:%BACKEND_PORT%/docs
 echo =====================================================================
-echo    Close the two server windows or run stop.bat to stop servers.
+echo    Close the server windows or run stop.bat to stop servers.
 echo.
 pause

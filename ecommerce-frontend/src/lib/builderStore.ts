@@ -14,7 +14,40 @@ import api, { getTenantSlug } from "./api";
 
 const STORAGE_KEY_PREFIX = "shopease_builder_theme_";
 
-export async function fetchActiveTheme(): Promise<ThemeConfig> {
+export function getThemeForBusinessType(businessType?: string): ThemeConfig {
+  const bt = (businessType || "RETAIL").toUpperCase();
+  if (bt.includes("RESTAURANT") || bt.includes("CAFE")) {
+    return JSON.parse(JSON.stringify(DEFAULT_RESTAURANT_THEME));
+  }
+  if (bt.includes("PHARMACY") || bt.includes("HEALTH")) {
+    return JSON.parse(JSON.stringify(DEFAULT_PHARMACY_THEME));
+  }
+  if (bt.includes("GROCERY") || bt.includes("SUPERMARKET")) {
+    return JSON.parse(JSON.stringify(DEFAULT_SIDEBAR_THEME));
+  }
+  if (bt.includes("SALON") || bt.includes("SPA") || bt.includes("BEAUTY")) {
+    return JSON.parse(JSON.stringify(DEFAULT_BEAUTY_THEME));
+  }
+  if (bt.includes("BAKERY") || bt.includes("FOOD") || bt.includes("MANUFACTURING")) {
+    return JSON.parse(JSON.stringify(DEFAULT_RESTAURANT_THEME));
+  }
+  if (bt.includes("WHOLESALE") || bt.includes("B2B") || bt.includes("REPAIR")) {
+    return JSON.parse(JSON.stringify(DEFAULT_ELECTRONICS_THEME));
+  }
+  if (bt.includes("FRANCHISE")) {
+    return JSON.parse(JSON.stringify(DEFAULT_DARK_LUXURY_THEME));
+  }
+  return JSON.parse(JSON.stringify(DEFAULT_VIBRANT_THEME));
+}
+
+export async function fetchActiveTheme(
+  businessType?: string,
+  forcePreset = false
+): Promise<ThemeConfig> {
+  if (forcePreset && businessType) {
+    return getThemeForBusinessType(businessType);
+  }
+
   const tenantSlug = getTenantSlug();
   const localKey = `${STORAGE_KEY_PREFIX}${tenantSlug}`;
 
@@ -49,7 +82,7 @@ export async function fetchActiveTheme(): Promise<ThemeConfig> {
     return cachedTheme;
   }
 
-  return DEFAULT_VIBRANT_THEME;
+  return getThemeForBusinessType(businessType);
 }
 
 export async function saveActiveTheme(theme: ThemeConfig): Promise<boolean> {
