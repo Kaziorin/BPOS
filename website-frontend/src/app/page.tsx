@@ -68,7 +68,7 @@ export default function HomePage() {
         />
         <div className="vfx-orb absolute -bottom-32 -left-24 w-[360px] h-[360px] rounded-full blur-3xl pointer-events-none bg-sky-400/20" />
 
-        <div className="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16">
+        <div className="relative z-10 max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12">
           <div className="max-w-3xl space-y-6">
             <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-extrabold bg-white/10 border border-white/20 backdrop-blur-md shadow-sm">
               <span
@@ -136,7 +136,7 @@ export default function HomePage() {
       </section>
 
       {/* Overlapping Elevated 3D Highlights */}
-      <section className="relative z-20 max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 -mt-12 pb-14 grid md:grid-cols-3 gap-6">
+      <section className="relative z-20 max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 -mt-12 pb-14 grid md:grid-cols-3 gap-6">
         {site.highlights.map((h, i) => {
           const Icon = HIGHLIGHT_ICONS[i % HIGHLIGHT_ICONS.length];
           return (
@@ -164,7 +164,7 @@ export default function HomePage() {
       </section>
 
       {/* Editorial Brand Story Section */}
-      <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 pb-16">
+      <section className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 pb-16">
         <div className="bg-white rounded-[32px] border border-slate-200/90 p-8 sm:p-12 shadow-sm grid lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-5">
             <div
@@ -255,7 +255,7 @@ export default function HomePage() {
 
       {/* Featured Showcase Preview */}
       <section className="w-full bg-white border-y border-slate-200/80 py-16">
-        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 space-y-8">
+        <div className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <div
@@ -334,7 +334,7 @@ export default function HomePage() {
       </section>
 
       {/* Trust Metrics & Testimonials */}
-      <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-16 space-y-10">
+      <section className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 py-16 space-y-10">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
           {[
             [site.years, "Years Experience"],
@@ -395,7 +395,7 @@ export default function HomePage() {
       </section>
 
       {/* Bottom CTA Banner */}
-      <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 pb-16">
+      <section className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 pb-16">
         <div
           className="relative overflow-hidden rounded-[32px] p-8 sm:p-14 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-2xl"
           style={{ background: `linear-gradient(135deg, #060913 0%, #0f172a 45%, ${site.accent} 100%)` }}

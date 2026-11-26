@@ -50,7 +50,7 @@ export default function ShowcasePage() {
         }}
       >
         <HeroVfxCanvas variant={site.heroBgStyle} accent={site.accent} />
-        <div className="relative z-10 max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div className="relative z-10 max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-bold uppercase tracking-widest text-white/90">
               <Sparkles className="w-3.5 h-3.5" />
@@ -88,7 +88,7 @@ export default function ShowcasePage() {
       </section>
 
       {/* Filter Toolbar & Grid */}
-      <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-10 space-y-8">
+      <section className="max-w-[1680px] mx-auto px-5 sm:px-8 lg:px-12 py-10 space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex flex-wrap gap-2">
             {pills.map((name) => {
@@ -97,11 +97,10 @@ export default function ShowcasePage() {
                 <button
                   key={name}
                   onClick={() => setSelectedCategory(name)}
-                  className={`px-4 py-2 rounded-full text-xs font-bold border transition ${
-                    active
+                  className={`px-4 py-2 rounded-full text-xs font-bold border transition ${active
                       ? "text-white border-transparent shadow-md"
                       : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
-                  }`}
+                    }`}
                   style={active ? { backgroundColor: site.accent } : undefined}
                 >
                   {name === "ALL" ? "All Items" : name}
