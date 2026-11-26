@@ -119,9 +119,9 @@ export const ALL_POS_TERMINALS: PosTerminalOption[] = [
     name: "Franchise & Outlet POS",
     href: "/franchise/pos",
     icon: Building2,
-    accent: "from-violet-500 to-purple-600",
+    accent: "from-slate-600 to-slate-800",
     businessTypes: ["FRANCHISE"],
-    requiredPlan: "ENTERPRISE",
+    requiredAddon: "franchise",
   },
 ];
 
@@ -263,7 +263,7 @@ const BUSINESS_ROUTE_PREFIXES: {
     verticals: ["SALON", "REPAIR", "RESTAURANT"],
     addons: ["salon", "repair"],
   },
-  { prefix: "/franchise", vertical: "FRANCHISE", plan: "ENTERPRISE" },
+  { prefix: "/franchise", vertical: "FRANCHISE", addon: "franchise" },
 ];
 
 const PLAN_ROUTE_PREFIXES: { prefix: string; plan: PlanTierCode; addon?: string; label: string }[] = [

@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
 import {
   Search, ChevronDown, ChevronRight, MoreHorizontal,
   Plus, Minus, X, Pause, Printer, DollarSign, CreditCard,
   Smartphone, Receipt, Clock, LayoutGrid, List,
   UserPlus, ShoppingBag, FileText, Tag, Landmark,
-  BarChart2, Truck, Star, ShoppingCart, ArrowRight,
+  BarChart2, Truck, Star, ShoppingCart, ArrowRight, ArrowLeft,
   User, Check, Sparkles, RefreshCw, Zap, ShieldCheck,
   Maximize, Minimize, RotateCcw, Trash2, History,
 } from "lucide-react";
@@ -74,7 +75,7 @@ const FOOTER_BTNS = [
 ];
 
 const PAYMENT_METHODS = [
-  { key: "cash",   label: "Cash",           Icon: DollarSign,     color: "text-emerald-600" },
+  { key: "cash",   label: "Cash",           Icon: DollarSign,     color: "text-amber-600" },
   { key: "card",   label: "Card / POS",     Icon: CreditCard,     color: "text-gray-600"   },
   { key: "mobile", label: "bKash/Nagad",    Icon: Smartphone,     color: "text-pink-600"    },
   { key: "credit", label: "Credit Sale",    Icon: Receipt,        color: "text-purple-600"  },
@@ -257,7 +258,7 @@ export default function BakeryPOSPage() {
             maxStock: Math.max(stockVal, 150),
             cat: p.category?.id || (p.category?.name ? p.category.name.toLowerCase() : "bread"),
             badge: attr.badge || "",
-            badgeColor: attr.badgeColor || "bg-emerald-100 text-emerald-800 border-emerald-200",
+            badgeColor: attr.badgeColor || "bg-amber-100 text-amber-800 border-amber-200",
             emoji: attr.emoji || "🧁",
             bgGradient: attr.bgGradient || "from-amber-100/80 via-orange-50/60 to-yellow-100/40",
             sku: p.sku || "",
@@ -321,7 +322,7 @@ export default function BakeryPOSPage() {
               items = typeof h.cartSnapshot === "string" ? JSON.parse(h.cartSnapshot) : h.cartSnapshot;
             } catch { /* ignore */ }
           }
-          const tot = items.reduce((s, i) => s + (i.price * i.qty * (1 - (i.discount || 0) / 100)), 0);
+          const tot = items.reduce((s, i: any) => s + (Number(i.price ?? i.unitPrice ?? 0) * Number(i.qty || 1) * (1 - Number(i.discount || 0) / 100)), 0) || Number(h.total || 0);
           const formattedTime = h.createdAt ? new Date(h.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Recently";
           return {
             id: String(h.id),
@@ -473,7 +474,7 @@ export default function BakeryPOSPage() {
             maxStock: Math.max(stockVal, 150),
             cat: item.category?.id || (item.category?.name ? item.category.name.toLowerCase() : "general"),
             badge: "",
-            badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+            badgeColor: "bg-amber-100 text-amber-800 border-amber-200",
             emoji: "📦",
             bgGradient: "from-amber-100/80 via-orange-50/60 to-yellow-100/40",
             sku: item.sku || "",
@@ -704,7 +705,7 @@ export default function BakeryPOSPage() {
   const activeCustomerObj = customers.find(c => c.id === selectedCust);
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-[#f6fbf8] select-none overflow-hidden"
+    <div data-theme="manufacturing" className="theme-manufacturing fixed inset-0 flex flex-col bg-[#fffbf2] select-none overflow-hidden"
          style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
 
       {/* ═══ GLOBAL VFX KEYFRAMES ═════════════════════════════════════════════ */}
@@ -717,18 +718,25 @@ export default function BakeryPOSPage() {
 
       {/* ═══ TOAST NOTIFICATION ═══════════════════════════════════════════════ */}
       {toast && (
-        <div className="fixed top-4 right-6 z-50 flex items-center gap-3 px-5 py-3.5 bg-emerald-950 text-white text-xs font-bold rounded-sm shadow-xl border border-emerald-700">
-          <Sparkles size={16} className="text-emerald-400" />
+        <div className="fixed top-4 right-6 z-50 flex items-center gap-3 px-5 py-3.5 bg-amber-950 text-white text-xs font-bold rounded-sm shadow-xl border border-amber-700">
+          <Sparkles size={16} className="text-amber-400" />
           <span>{toast.msg}</span>
         </div>
       )}
 
       {/* ═══ HEADER ══════════════════════════════════════════════════════════ */}
-      <header className="flex-none h-[60px] bg-white flex items-center gap-3 px-4 z-30 border-b border-emerald-200/80 shadow-2xs relative">
+      <header className="flex-none h-[60px] bg-white flex items-center gap-3 px-4 z-30 border-b border-amber-200/80 shadow-2xs relative">
+        <Link
+          href="/manufacturing"
+          className="flex items-center justify-center w-9 h-9 rounded-sm border border-amber-200 bg-amber-50/80 text-amber-800 hover:bg-amber-100 transition shrink-0"
+          title="Back to Production Hub"
+        >
+          <ArrowLeft size={16} />
+        </Link>
 
         {/* Logo */}
         <div className="flex items-center gap-2.5 flex-none group cursor-pointer">
-          <div className="w-10 h-10 rounded-sm bg-emerald-700 flex items-center justify-center shadow-2xs flex-none transition-transform">
+          <div className="w-10 h-10 rounded-sm bg-amber-700 flex items-center justify-center shadow-2xs flex-none transition-transform">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"
                  strokeLinecap="round" strokeLinejoin="round" className="relative z-10">
               <rect x="3" y="3" width="7" height="7" rx="1.5"/>
@@ -738,11 +746,11 @@ export default function BakeryPOSPage() {
             </svg>
           </div>
           <div>
-            <div className="text-[14px] font-bold text-emerald-950 leading-tight tracking-tight flex items-center gap-1.5">
+            <div className="text-[14px] font-bold text-amber-950 leading-tight tracking-tight flex items-center gap-1.5">
               Manufacturing &amp; Bakery
-              <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block" />
+              <span className="w-2 h-2 rounded-full bg-amber-600 inline-block" />
             </div>
-            <div className="text-[9.5px] font-bold text-emerald-700 tracking-[0.12em] uppercase">Enterprise POS v2.0</div>
+            <div className="text-[9.5px] font-bold text-amber-700 tracking-[0.12em] uppercase">Enterprise POS v2.0</div>
           </div>
         </div>
 
@@ -754,7 +762,7 @@ export default function BakeryPOSPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search products by name, category... (Ctrl+K)"
-            className="w-full h-[38px] rounded-sm border border-slate-200 bg-white pl-9.5 pr-20 text-[12px] font-medium outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-all placeholder:text-slate-400 shadow-2xs"
+            className="w-full h-[38px] rounded-sm border border-slate-200 bg-white pl-9.5 pr-20 text-[12px] font-medium outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-600 transition-all placeholder:text-slate-400 shadow-2xs"
           />
           {search ? (
             <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600">
@@ -772,12 +780,12 @@ export default function BakeryPOSPage() {
         <div className="flex items-center gap-2 flex-none ml-auto">
           {/* Today's Sales */}
           <div className="flex items-center gap-2.5 bg-white border border-slate-200 rounded-sm px-3 h-[38px] shadow-2xs">
-            <div className="w-6.5 h-6.5 rounded-sm bg-emerald-50 border border-emerald-100 flex items-center justify-center flex-none">
-              <FileText size={14} className="text-emerald-700" />
+            <div className="w-6.5 h-6.5 rounded-sm bg-amber-50 border border-amber-100 flex items-center justify-center flex-none">
+              <FileText size={14} className="text-amber-700" />
             </div>
             <div>
               <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-0.5">Today&apos;s Sales</div>
-              <div className="text-[12px] font-bold text-emerald-800 leading-none">{fmt(todaySales)}</div>
+              <div className="text-[12px] font-bold text-amber-800 leading-none">{fmt(todaySales)}</div>
             </div>
           </div>
 
@@ -807,14 +815,14 @@ export default function BakeryPOSPage() {
           <button
             onClick={toggleFullscreen}
             title={isFullscreen ? "Exit Fullscreen (F)" : "Toggle Fullscreen (F)"}
-            className="flex items-center justify-center w-[38px] h-[38px] rounded-sm bg-white border border-slate-200 text-slate-600 hover:text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all shadow-2xs"
+            className="flex items-center justify-center w-[38px] h-[38px] rounded-sm bg-white border border-slate-200 text-slate-600 hover:text-amber-700 hover:border-amber-300 hover:bg-amber-50/50 transition-all shadow-2xs"
           >
             {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
           </button>
 
           {/* Admin User */}
-          <div className="flex items-center gap-2.5 bg-white border border-slate-200 rounded-sm px-3 h-[38px] cursor-pointer hover:border-emerald-400 transition-all shadow-2xs">
-            <div className="w-6.5 h-6.5 rounded-sm bg-emerald-700 flex items-center justify-center text-white text-[11px] font-bold flex-none">
+          <div className="flex items-center gap-2.5 bg-white border border-slate-200 rounded-sm px-3 h-[38px] cursor-pointer hover:border-amber-400 transition-all shadow-2xs">
+            <div className="w-6.5 h-6.5 rounded-sm bg-amber-700 flex items-center justify-center text-white text-[11px] font-bold flex-none">
               {(user?.name || "Admin").charAt(0).toUpperCase()}
             </div>
             <div>
@@ -841,11 +849,11 @@ export default function BakeryPOSPage() {
                 <button key={c.id} onClick={() => setActiveCat(c.id)}
                   className={`flex-1 min-w-[82px] flex flex-col items-center justify-center gap-1 rounded-sm border px-2 py-1.5 h-[62px] transition-all duration-150 active:scale-95 ${
                     active
-                      ? "bg-emerald-700 border-emerald-700 text-white shadow-2xs"
-                      : "bg-white border-slate-200 text-gray-600 hover:border-emerald-300 hover:bg-emerald-50/60"
+                      ? "bg-amber-700 border-amber-700 text-white shadow-2xs"
+                      : "bg-white border-slate-200 text-gray-600 hover:border-amber-300 hover:bg-amber-50/60"
                   }`}>
                   {c.id === "all" ? (
-                    <LayoutGrid size={20} className={active ? "text-white" : "text-emerald-700"} />
+                    <LayoutGrid size={20} className={active ? "text-white" : "text-amber-700"} />
                   ) : (
                     <span className="text-xl leading-none">{c.emoji}</span>
                   )}
@@ -855,8 +863,8 @@ export default function BakeryPOSPage() {
                 </button>
               );
             })}
-            <button className="flex-none sm:flex-1 min-w-[54px] flex flex-col items-center justify-center gap-1 rounded-sm border border-slate-200 bg-white text-emerald-700 hover:bg-emerald-50 px-2 py-1.5 h-[62px] transition-all">
-              <MoreHorizontal size={20} className="text-emerald-700" />
+            <button className="flex-none sm:flex-1 min-w-[54px] flex flex-col items-center justify-center gap-1 rounded-sm border border-slate-200 bg-white text-amber-700 hover:bg-amber-50 px-2 py-1.5 h-[62px] transition-all">
+              <MoreHorizontal size={20} className="text-amber-700" />
               <span className="text-[9.5px] font-bold text-slate-600">More</span>
             </button>
           </div>
@@ -866,33 +874,33 @@ export default function BakeryPOSPage() {
             <div className="flex items-center gap-2.5">
               <h2 className="text-[17px] font-bold text-gray-600 flex items-center gap-2">
                 Products
-                <span className="text-[10.5px] font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-200 px-2.5 py-0.5 rounded-sm shadow-2xs">
+                <span className="text-[10.5px] font-bold text-amber-800 bg-amber-100/70 border border-amber-200 px-2.5 py-0.5 rounded-sm shadow-2xs">
                   {filtered.length}
                 </span>
               </h2>
               {activeCat !== "all" && (
                 <button onClick={() => setActiveCat("all")}
-                  className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-[11px] px-3 py-0.5 rounded-sm transition-colors ml-1 shadow-2xs">
+                  className="flex items-center gap-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 font-bold text-[11px] px-3 py-0.5 rounded-sm transition-colors ml-1 shadow-2xs">
                   View All <ArrowRight size={12} />
                 </button>
               )}
             </div>
 
             <div className="flex items-center gap-2.5">
-              <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-sm px-3 py-1 text-[11.5px] font-semibold text-slate-600 cursor-pointer hover:border-emerald-400 shadow-2xs transition-all">
+              <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-sm px-3 py-1 text-[11.5px] font-semibold text-slate-600 cursor-pointer hover:border-amber-400 shadow-2xs transition-all">
                 <span>Sort by: <strong className="text-gray-600 font-bold ml-1">Popular</strong></span>
                 <ChevronDown size={13} className="text-slate-400" />
               </div>
               <div className="flex items-center gap-0.5 bg-slate-100 p-1 rounded-sm border border-slate-200">
                 <button onClick={() => setViewMode("grid")}
                   className={`p-1 rounded-sm transition-all ${
-                    viewMode === "grid" ? "bg-emerald-700 text-white shadow-2xs" : "text-slate-500 hover:text-gray-600"
+                    viewMode === "grid" ? "bg-amber-700 text-white shadow-2xs" : "text-slate-500 hover:text-gray-600"
                   }`}>
                   <LayoutGrid size={14} />
                 </button>
                 <button onClick={() => setViewMode("list")}
                   className={`p-1 rounded-sm transition-all ${
-                    viewMode === "list" ? "bg-emerald-700 text-white shadow-2xs" : "text-slate-500 hover:text-gray-600"
+                    viewMode === "list" ? "bg-amber-700 text-white shadow-2xs" : "text-slate-500 hover:text-gray-600"
                   }`}>
                   <List size={14} />
                 </button>
@@ -912,13 +920,13 @@ export default function BakeryPOSPage() {
                 return (
                   <div key={p.id}
                     onClick={() => addToCart(p)}
-                    className={`bg-white rounded-sm border border-slate-200 overflow-hidden cursor-pointer relative group transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-emerald-400 ${
-                      isAdding ? "scale-[1.02] border-emerald-500 shadow-sm ring-1 ring-emerald-400" : ""
+                    className={`bg-white rounded-sm border border-slate-200 overflow-hidden cursor-pointer relative group transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-amber-400 ${
+                      isAdding ? "scale-[1.02] border-amber-500 shadow-sm ring-1 ring-amber-400" : ""
                     } ${viewMode === "list" ? "flex items-center gap-3 p-2.5" : ""}`}>
 
                     {/* Floating +1 Particle Effect */}
                     {isAdding && (
-                      <div className="absolute top-2 right-2 z-30 bg-emerald-700 text-white font-bold text-[11px] px-2 py-0.5 rounded-sm shadow-md border border-emerald-500 animate-[floatUp_0.6s_ease-out_forwards] pointer-events-none flex items-center gap-0.5">
+                      <div className="absolute top-2 right-2 z-30 bg-amber-700 text-white font-bold text-[11px] px-2 py-0.5 rounded-sm shadow-md border border-amber-500 animate-[floatUp_0.6s_ease-out_forwards] pointer-events-none flex items-center gap-0.5">
                         <Sparkles size={10} /> +1
                       </div>
                     )}
@@ -932,9 +940,9 @@ export default function BakeryPOSPage() {
 
                     {/* Image Area */}
                     {viewMode === "grid" ? (
-                      <div className="w-full h-[104px] bg-emerald-50/30 flex items-center justify-center relative overflow-hidden group-hover:brightness-105 transition-all">
+                      <div className="w-full h-[104px] bg-amber-50/30 flex items-center justify-center relative overflow-hidden group-hover:brightness-105 transition-all">
                         {/* Category Tag Top Right */}
-                        <div className="absolute top-2 right-2 z-10 text-[8px] font-bold uppercase tracking-wider text-emerald-800 bg-white/95 border border-emerald-200/80 px-1.5 py-0.5 rounded-sm shadow-2xs">
+                        <div className="absolute top-2 right-2 z-10 text-[8px] font-bold uppercase tracking-wider text-amber-800 bg-white/95 border border-amber-200/80 px-1.5 py-0.5 rounded-sm shadow-2xs">
                           {p.cat}
                         </div>
                         {p.imageUrl || p.image ? (
@@ -960,7 +968,7 @@ export default function BakeryPOSPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="w-12 h-12 rounded-sm bg-emerald-50 flex items-center justify-center flex-none border border-emerald-200 overflow-hidden text-2xl shadow-2xs">
+                      <div className="w-12 h-12 rounded-sm bg-amber-50 flex items-center justify-center flex-none border border-amber-200 overflow-hidden text-2xl shadow-2xs">
                         {p.imageUrl || p.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -980,12 +988,12 @@ export default function BakeryPOSPage() {
 
                     {/* Info */}
                     <div className={viewMode === "grid" ? "p-2.5" : "flex-1 min-w-0"}>
-                      <h3 className={`font-bold text-gray-600 leading-tight truncate group-hover:text-emerald-950 ${viewMode === "grid" ? "text-[12.5px]" : "text-[13.5px]"}`}>{p.name}</h3>
+                      <h3 className={`font-bold text-gray-600 leading-tight truncate group-hover:text-amber-950 ${viewMode === "grid" ? "text-[12.5px]" : "text-[13.5px]"}`}>{p.name}</h3>
                       
                       <div className="flex items-center justify-between text-[9.5px] font-semibold text-slate-400 mt-1">
                         <span>{p.unit}</span>
-                        <span className="text-emerald-700 font-bold flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
+                        <span className="text-amber-700 font-bold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-600 inline-block" />
                           {p.stock} in stock
                         </span>
                       </div>
@@ -994,28 +1002,28 @@ export default function BakeryPOSPage() {
                       {viewMode === "grid" && (
                         <div className="w-full h-1.5 bg-slate-100 rounded-sm overflow-hidden mt-1.5 flex">
                           <div className={`h-full rounded-sm transition-all duration-300 ${
-                            stockRatio > 50 ? "bg-emerald-600" : stockRatio > 20 ? "bg-amber-500" : "bg-rose-500"
+                            stockRatio > 50 ? "bg-amber-600" : stockRatio > 20 ? "bg-amber-500" : "bg-rose-500"
                           }`} style={{ width: `${Math.max(12, stockRatio)}%` }} />
                         </div>
                       )}
 
                       {viewMode === "grid" ? (
                         <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100">
-                          <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 px-2 py-0.5 rounded-sm text-[13px] font-bold shadow-2xs">
+                          <div className="bg-amber-50 border border-amber-200 text-amber-900 px-2 py-0.5 rounded-sm text-[13px] font-bold shadow-2xs">
                             ৳ {p.price.toFixed(2)}
                           </div>
                           <button onClick={(e) => { e.stopPropagation(); addToCart(p); }}
                             title="Add to Cart"
-                            className="w-7 h-7 rounded-sm bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white flex items-center justify-center transition-all shadow-2xs flex-none">
+                            className="w-7 h-7 rounded-sm bg-amber-700 hover:bg-amber-800 active:scale-95 text-white flex items-center justify-center transition-all shadow-2xs flex-none">
                             <Plus size={14} strokeWidth={2.5} />
                           </button>
                         </div>
                       ) : (
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="bg-emerald-50 border border-emerald-200 text-emerald-900 px-2 py-0.5 rounded-sm text-[13px] font-bold shadow-2xs">৳ {p.price.toFixed(2)}</span>
+                          <span className="bg-amber-50 border border-amber-200 text-amber-900 px-2 py-0.5 rounded-sm text-[13px] font-bold shadow-2xs">৳ {p.price.toFixed(2)}</span>
                           <button onClick={(e) => { e.stopPropagation(); addToCart(p); }}
                             title="Add to Cart"
-                            className="ml-auto w-7 h-7 rounded-sm bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white flex items-center justify-center transition-all shadow-2xs flex-none">
+                            className="ml-auto w-7 h-7 rounded-sm bg-amber-700 hover:bg-amber-800 active:scale-95 text-white flex items-center justify-center transition-all shadow-2xs flex-none">
                             <Plus size={14} strokeWidth={2.5} />
                           </button>
                         </div>
@@ -1028,7 +1036,7 @@ export default function BakeryPOSPage() {
           </div>
 
           {/* Action Buttons (Recall button with dynamic held counter) */}
-          <div className="flex-none flex items-center gap-2 px-3.5 py-2 bg-[#f4fbf6] border-t border-emerald-100 overflow-x-auto"
+          <div className="flex-none flex items-center gap-2 px-3.5 py-2 bg-[#f4fbf6] border-t border-amber-100 overflow-x-auto"
                style={{ scrollbarWidth: "none" }}>
             {ACTION_BTNS.map(btn => {
               const isRecall = btn.id === "recall" || btn.id === "hold";
@@ -1043,16 +1051,16 @@ export default function BakeryPOSPage() {
                   className={`flex-1 min-w-[98px] h-[36px] flex items-center justify-center gap-1.5 px-2.5 active:scale-[0.98] border rounded-sm text-[11.5px] font-bold transition-all whitespace-nowrap shadow-2xs ${
                     isRecall && heldSales.length > 0
                       ? "bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-950 font-bold"
-                      : "bg-[#eef8f2] hover:bg-[#e2f3e8] border-emerald-200 text-emerald-950"
+                      : "bg-[#eef8f2] hover:bg-[#e2f3e8] border-amber-200 text-amber-950"
                   }`}>
                   {isFilled ? (
                     <span className={`w-5 h-5 rounded-sm flex items-center justify-center flex-none text-white ${
-                      isRecall ? "bg-amber-600" : "bg-emerald-700"
+                      isRecall ? "bg-amber-600" : "bg-amber-700"
                     }`}>
                       <btn.Icon size={11} strokeWidth={2.5} />
                     </span>
                   ) : (
-                    <btn.Icon size={14} className="text-emerald-700 flex-none" />
+                    <btn.Icon size={14} className="text-amber-700 flex-none" />
                   )}
                   <span>{btn.label}</span>
                   {isRecall && heldSales.length > 0 && (
@@ -1063,13 +1071,13 @@ export default function BakeryPOSPage() {
                 </button>
               );
             })}
-            <button className="flex-none h-[36px] px-3 bg-[#eef8f2] hover:bg-[#e2f3e8] border border-emerald-200 rounded-sm text-emerald-700 transition-all flex items-center justify-center shadow-2xs">
+            <button className="flex-none h-[36px] px-3 bg-[#eef8f2] hover:bg-[#e2f3e8] border border-amber-200 rounded-sm text-amber-700 transition-all flex items-center justify-center shadow-2xs">
               <MoreHorizontal size={16} />
             </button>
           </div>
 
           {/* ── LEFT PANEL FOOTER ───────────────────────────────────────────── */}
-          <div className="flex-none p-2 bg-[#e8f7ee] border-t border-emerald-100 flex items-center gap-1.5 overflow-x-auto"
+          <div className="flex-none p-2 bg-[#e8f7ee] border-t border-amber-100 flex items-center gap-1.5 overflow-x-auto"
                style={{ scrollbarWidth: "none" }}>
             {FOOTER_BTNS.map(btn => (
               <button key={btn.id}
@@ -1078,21 +1086,21 @@ export default function BakeryPOSPage() {
                   else if (btn.id === "customer_modal") setShowCustModal(true);
                   else triggerToast(`Shortcut (${btn.key}): ${btn.label}`, "info");
                 }}
-                className="flex-1 min-w-[95px] h-[36px] flex items-center gap-1.5 px-2.5 bg-[#d9f2e3] hover:bg-[#cbebd7] active:scale-[0.98] text-emerald-950 rounded-sm transition-all border border-emerald-200 whitespace-nowrap shadow-2xs">
-                <btn.Icon size={14} className="text-emerald-700 flex-none" />
+                className="flex-1 min-w-[95px] h-[36px] flex items-center gap-1.5 px-2.5 bg-[#d9f2e3] hover:bg-[#cbebd7] active:scale-[0.98] text-amber-950 rounded-sm transition-all border border-amber-200 whitespace-nowrap shadow-2xs">
+                <btn.Icon size={14} className="text-amber-700 flex-none" />
                 <div className="text-left leading-none">
-                  <div className="text-[10.5px] font-bold text-emerald-950 mb-0.5">{btn.label}</div>
-                  <div className="text-[9px] font-semibold text-emerald-700/85">({btn.key})</div>
+                  <div className="text-[10.5px] font-bold text-amber-950 mb-0.5">{btn.label}</div>
+                  <div className="text-[9px] font-semibold text-amber-700/85">({btn.key})</div>
                 </div>
               </button>
             ))}
 
             {/* Online Status Pill */}
-            <div className="flex-none h-[36px] flex items-center gap-2 px-3 bg-[#d9f2e3] rounded-sm border border-emerald-200 whitespace-nowrap ml-auto shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-600 flex-none" />
+            <div className="flex-none h-[36px] flex items-center gap-2 px-3 bg-[#d9f2e3] rounded-sm border border-amber-200 whitespace-nowrap ml-auto shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-amber-600 flex-none" />
               <div className="text-left leading-none">
-                <div className="text-[10.5px] font-bold text-emerald-950 mb-0.5">Online</div>
-                <div className="text-[9px] font-semibold text-emerald-700/85">v2.0.0</div>
+                <div className="text-[10.5px] font-bold text-amber-950 mb-0.5">Online</div>
+                <div className="text-[9px] font-semibold text-amber-700/85">v2.0.0</div>
               </div>
             </div>
           </div>
@@ -1105,13 +1113,13 @@ export default function BakeryPOSPage() {
           {/* Cart Header */}
           <div className="flex-none px-3.5 py-3 flex items-center justify-between border-b border-slate-200 bg-white">
             <div className="flex items-center gap-2.5">
-              <div className="w-8.5 h-8.5 rounded-sm bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-none shadow-2xs">
-                <ShoppingCart size={16} className="text-emerald-700" />
+              <div className="w-8.5 h-8.5 rounded-sm bg-amber-50 border border-amber-200 flex items-center justify-center flex-none shadow-2xs">
+                <ShoppingCart size={16} className="text-amber-700" />
               </div>
               <div>
                 <div className="text-[13px] font-bold text-gray-600 leading-tight flex items-center gap-1.5">
                   Current Sale
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-600 inline-block" />
                 </div>
                 <div className="text-[10px] font-mono font-bold text-slate-400">#POS-000124</div>
               </div>
@@ -1151,11 +1159,11 @@ export default function BakeryPOSPage() {
               const total = lineTotal(item);
               return (
                 <div key={item.id}
-                  className="grid items-center px-3 py-2 hover:bg-emerald-50/50 border-b border-slate-50 group transition-all"
+                  className="grid items-center px-3 py-2 hover:bg-amber-50/50 border-b border-slate-50 group transition-all"
                   style={{ gridTemplateColumns: "1fr 72px 60px 52px 64px 20px" }}>
                   {/* Item */}
                   <div className="flex items-center gap-2 min-w-0 pr-1">
-                    <div className="w-8 h-8 rounded-sm bg-emerald-50 border border-emerald-100 flex items-center justify-center flex-none text-[16px] shadow-2xs overflow-hidden">
+                    <div className="w-8 h-8 rounded-sm bg-amber-50 border border-amber-100 flex items-center justify-center flex-none text-[16px] shadow-2xs overflow-hidden">
                       {item.imageUrl || item.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -1179,12 +1187,12 @@ export default function BakeryPOSPage() {
                   {/* Qty */}
                   <div className="flex items-center justify-center gap-1">
                     <button onClick={() => updQty(item.id, -1)}
-                      className="w-5 h-5 rounded-sm bg-slate-100 flex items-center justify-center hover:bg-emerald-200 text-gray-600 active:scale-95 transition-all">
+                      className="w-5 h-5 rounded-sm bg-slate-100 flex items-center justify-center hover:bg-amber-200 text-gray-600 active:scale-95 transition-all">
                       <Minus size={9} />
                     </button>
                     <span className="w-4 text-center text-[11.5px] font-bold text-gray-600">{item.qty}</span>
                     <button onClick={() => updQty(item.id, 1)}
-                      className="w-5 h-5 rounded-sm bg-slate-100 flex items-center justify-center hover:bg-emerald-200 text-gray-600 active:scale-95 transition-all">
+                      className="w-5 h-5 rounded-sm bg-slate-100 flex items-center justify-center hover:bg-amber-200 text-gray-600 active:scale-95 transition-all">
                       <Plus size={9} />
                     </button>
                   </div>
@@ -1193,7 +1201,7 @@ export default function BakeryPOSPage() {
                   {/* Discount */}
                   <div className="text-right">
                     {item.discount > 0
-                      ? <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1 py-0.5 rounded-sm shadow-2xs">{item.discount}%</span>
+                      ? <span className="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1 py-0.5 rounded-sm shadow-2xs">{item.discount}%</span>
                       : <span className="text-[10px] text-slate-300">—</span>}
                   </div>
                   {/* Total */}
@@ -1209,7 +1217,7 @@ export default function BakeryPOSPage() {
 
             {cart.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                <div className="w-12 h-12 rounded-sm bg-emerald-50 flex items-center justify-center text-emerald-600 mb-2 border border-emerald-100">
+                <div className="w-12 h-12 rounded-sm bg-amber-50 flex items-center justify-center text-amber-600 mb-2 border border-amber-100">
                   <ShoppingCart size={22} strokeWidth={1.5} />
                 </div>
                 <h4 className="text-xs font-bold text-gray-600">Cart is Empty</h4>
@@ -1234,9 +1242,9 @@ export default function BakeryPOSPage() {
                 <span className="font-bold text-gray-600">{fmt(vatAmt)}</span>
               </div>
             </div>
-            <div className="flex justify-between items-center pt-2 mt-2 border-t border-dashed border-emerald-200 bg-emerald-50/80 -mx-3.5 px-3.5 py-2">
-              <span className="text-[14.5px] font-bold text-emerald-950">Grand Total</span>
-              <span className="text-[22px] font-bold text-emerald-800 tracking-tight">
+            <div className="flex justify-between items-center pt-2 mt-2 border-t border-dashed border-amber-200 bg-amber-50/80 -mx-3.5 px-3.5 py-2">
+              <span className="text-[14.5px] font-bold text-amber-950">Grand Total</span>
+              <span className="text-[22px] font-bold text-amber-800 tracking-tight">
                 ৳ {grandTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
@@ -1247,7 +1255,7 @@ export default function BakeryPOSPage() {
             <select
               value={selectedCust}
               onChange={e => setSelectedCust(e.target.value)}
-              className="flex-1 appearance-none bg-slate-50 border border-slate-200 rounded-sm px-3 py-1.5 text-[11.5px] font-semibold text-gray-600 outline-none cursor-pointer hover:border-emerald-300 transition-colors shadow-2xs">
+              className="flex-1 appearance-none bg-slate-50 border border-slate-200 rounded-sm px-3 py-1.5 text-[11.5px] font-semibold text-gray-600 outline-none cursor-pointer hover:border-amber-300 transition-colors shadow-2xs">
               {customers.map(c => (
                 <option key={c.id} value={c.id}>
                   {c.name} {c.phone ? `(${c.phone})` : ""}
@@ -1255,7 +1263,7 @@ export default function BakeryPOSPage() {
               ))}
             </select>
             <button onClick={() => setShowCustModal(true)}
-              className="flex-none flex items-center gap-1 border border-emerald-200 rounded-sm px-3 py-1.5 text-[11px] font-bold text-emerald-700 hover:bg-emerald-50 transition-colors shadow-2xs bg-white whitespace-nowrap">
+              className="flex-none flex items-center gap-1 border border-amber-200 rounded-sm px-3 py-1.5 text-[11px] font-bold text-amber-700 hover:bg-amber-50 transition-colors shadow-2xs bg-white whitespace-nowrap">
               <UserPlus size={12} /> Add
             </button>
           </div>
@@ -1268,8 +1276,8 @@ export default function BakeryPOSPage() {
                 <button key={pm.key} onClick={() => setPayMethod(pm.key)}
                   className={`flex items-center justify-center gap-1.5 h-[34px] px-2 rounded-sm text-[10.5px] font-bold border transition-all ${
                     active
-                      ? "bg-emerald-700 border-emerald-700 text-white shadow-2xs"
-                      : "bg-slate-50 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/50 text-gray-600"
+                      ? "bg-amber-700 border-amber-700 text-white shadow-2xs"
+                      : "bg-slate-50 border-slate-200 hover:border-amber-300 hover:bg-amber-50/50 text-gray-600"
                   }`}>
                   <pm.Icon size={12} className={active ? "text-white" : pm.color} />
                   <span className="truncate">{pm.label}</span>
@@ -1300,7 +1308,7 @@ export default function BakeryPOSPage() {
                 else triggerToast("Please add items to cart first!", "info");
               }}
               disabled={cart.length === 0}
-              className="flex-1 flex items-center justify-between bg-emerald-700 hover:bg-emerald-800 text-white rounded-sm px-4 py-3 transition-all active:scale-[0.98] group relative shadow-2xs disabled:opacity-40 disabled:cursor-not-allowed">
+              className="flex-1 flex items-center justify-between bg-amber-700 hover:bg-amber-800 text-white rounded-sm px-4 py-3 transition-all active:scale-[0.98] group relative shadow-2xs disabled:opacity-40 disabled:cursor-not-allowed">
               <div className="flex items-center gap-2.5 relative z-10">
                 <div className="w-8 h-8 rounded-sm bg-white/20 flex items-center justify-center">
                   <Printer size={16} />
@@ -1323,15 +1331,15 @@ export default function BakeryPOSPage() {
       {/* ═══ RECALL / HELD BILLS MODAL ═══════════════════════════════════════ */}
       <CustomModal open={showHoldModal} onClose={() => setShowHoldModal(false)} title="Recall Held Orders" size="xl">
         <div className="space-y-4">
-          <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-sm">
-            <h4 className="text-xs font-bold text-emerald-950 mb-1">Hold Current Order</h4>
-            <p className="text-xs text-emerald-700/80 mb-2">Save current cart items to resume later.</p>
+          <div className="p-3 bg-amber-50 border border-amber-100 rounded-sm">
+            <h4 className="text-xs font-bold text-amber-950 mb-1">Hold Current Order</h4>
+            <p className="text-xs text-amber-700/80 mb-2">Save current cart items to resume later.</p>
             <div className="flex gap-2">
               <input
                 value={holdNote}
                 onChange={e => setHoldNote(e.target.value)}
                 placeholder="Enter order note (e.g. Table 4, Phone Order)..."
-                className="flex-1 px-3 py-2 text-xs border border-emerald-200 rounded-sm outline-none focus:border-emerald-500 bg-white"
+                className="flex-1 px-3 py-2 text-xs border border-amber-200 rounded-sm outline-none focus:border-amber-500 bg-white"
               />
               <CustomButton themeColor="emerald" onClick={handleHoldSale} disabled={cart.length === 0}>
                 Hold Cart
@@ -1365,19 +1373,19 @@ export default function BakeryPOSPage() {
                 {heldSales.map(h => {
                   const displayHoldNo = h.holdNo || (h.id.startsWith("h_") ? `#HOLD-${h.id.slice(-4)}` : `#HOLD-${h.id.slice(0, 6).toUpperCase()}`);
                   return (
-                    <div key={h.id} className="flex items-center justify-between p-3.5 bg-white border border-slate-200 rounded-sm hover:border-emerald-400 transition-all gap-3">
+                    <div key={h.id} className="flex items-center justify-between p-3.5 bg-white border border-slate-200 rounded-sm hover:border-amber-400 transition-all gap-3">
                       <div className="space-y-1 min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs font-bold text-gray-600 font-mono tracking-tight whitespace-nowrap">{displayHoldNo}</span>
-                          <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-sm border border-emerald-100 whitespace-nowrap truncate max-w-[200px]">
+                          <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-sm border border-amber-100 whitespace-nowrap truncate max-w-[200px]">
                             {h.note || "Held Order"}
                           </span>
                         </div>
                         <div className="text-[11px] text-slate-400 whitespace-nowrap">
                           {h.items.length} Items ({h.items.reduce((s, i) => s + i.qty, 0)} pcs) • Saved at {h.time}
                         </div>
-                        <div className="text-xs font-bold text-emerald-900">
-                          ৳{h.total.toFixed(2)}
+                        <div className="text-xs font-bold text-amber-900">
+                          ৳{Number(h.total || 0).toFixed(2)}
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
@@ -1390,7 +1398,7 @@ export default function BakeryPOSPage() {
                         </button>
                         <button
                           onClick={() => restoreHeldSale(h)}
-                          className="flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-sm transition-all shadow-2xs active:scale-95 whitespace-nowrap"
+                          className="flex items-center gap-1.5 px-4 py-2 bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold rounded-sm transition-all shadow-2xs active:scale-95 whitespace-nowrap"
                         >
                           <RotateCcw size={13} />
                           Recall Order
@@ -1410,16 +1418,16 @@ export default function BakeryPOSPage() {
         <div className="space-y-4">
 
           {/* Tab Navigation Buttons */}
-          <div className="flex border-b border-emerald-100 gap-2">
+          <div className="flex border-b border-amber-100 gap-2">
             <button
               type="button"
               onClick={() => setCustModalTab("view")}
               className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all ${
                 custModalTab === "view"
-                  ? "border-emerald-700 text-emerald-900 bg-emerald-50/80 rounded-t-sm"
+                  ? "border-amber-700 text-amber-900 bg-amber-50/80 rounded-t-sm"
                   : "border-transparent text-slate-500 hover:text-gray-600"
               }`}>
-              <User size={14} className="text-emerald-700" />
+              <User size={14} className="text-amber-700" />
               View Customers ({customers.length})
             </button>
             <button
@@ -1427,10 +1435,10 @@ export default function BakeryPOSPage() {
               onClick={() => setCustModalTab("add")}
               className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold border-b-2 transition-all ${
                 custModalTab === "add"
-                  ? "border-emerald-700 text-emerald-900 bg-emerald-50/80 rounded-t-sm"
+                  ? "border-amber-700 text-amber-900 bg-amber-50/80 rounded-t-sm"
                   : "border-transparent text-slate-500 hover:text-gray-600"
               }`}>
-              <UserPlus size={14} className="text-emerald-700" />
+              <UserPlus size={14} className="text-amber-700" />
               Add Customer
             </button>
           </div>
@@ -1445,7 +1453,7 @@ export default function BakeryPOSPage() {
                   value={custSearchQuery}
                   onChange={e => setCustSearchQuery(e.target.value)}
                   placeholder="Search customer by name or phone number..."
-                  className="w-full h-9 pl-9 pr-8 text-xs font-medium border border-emerald-200 rounded-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 bg-white"
+                  className="w-full h-9 pl-9 pr-8 text-xs font-medium border border-amber-200 rounded-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20 bg-white"
                 />
                 {custSearchQuery && (
                   <button onClick={() => setCustSearchQuery("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -1466,14 +1474,14 @@ export default function BakeryPOSPage() {
                     return (
                       <div key={c.id} className={`flex items-center justify-between p-3 rounded-sm border transition-all ${
                         isSelected
-                          ? "bg-emerald-50/90 border-emerald-300 shadow-2xs ring-1 ring-emerald-400/50"
-                          : "bg-slate-50/70 border-slate-200 hover:bg-emerald-50/40 hover:border-emerald-200"
+                          ? "bg-amber-50/90 border-amber-300 shadow-2xs ring-1 ring-amber-400/50"
+                          : "bg-slate-50/70 border-slate-200 hover:bg-amber-50/40 hover:border-amber-200"
                       }`}>
                         <div className="min-w-0 pr-2">
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs font-bold text-gray-600">{c.name}</span>
                             {isSelected && (
-                              <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-200 px-1.5 py-0.2 rounded-sm">
+                              <span className="text-[9px] font-bold text-amber-800 bg-amber-100 border border-amber-200 px-1.5 py-0.2 rounded-sm">
                                 Selected
                               </span>
                             )}
@@ -1493,8 +1501,8 @@ export default function BakeryPOSPage() {
                           }}
                           className={`px-3 py-1.5 text-xs font-bold rounded-sm transition-all flex-none ${
                             isSelected
-                              ? "bg-emerald-700 text-white shadow-2xs"
-                              : "bg-white border border-slate-300 text-gray-600 hover:bg-emerald-600 hover:text-white hover:border-emerald-600"
+                              ? "bg-amber-700 text-white shadow-2xs"
+                              : "bg-white border border-slate-300 text-gray-600 hover:bg-amber-600 hover:text-white hover:border-amber-600"
                           }`}>
                           {isSelected ? "Active" : "Select"}
                         </button>
