@@ -6,15 +6,15 @@ import {
   ArrowRight,
   Award,
   CheckCircle2,
+  Gem,
   Quote,
   ShieldCheck,
-  Sparkles,
   Star,
 } from "lucide-react";
 import { useWebsite } from "@/context/WebsiteContext";
 import HeroVfxCanvas from "@/components/HeroVfxCanvas";
 
-const HIGHLIGHT_ICONS = [Sparkles, ShieldCheck, Award];
+const HIGHLIGHT_ICONS = [Gem, ShieldCheck, Award];
 
 export default function HomePage() {
   const { site, products, categories } = useWebsite();
@@ -168,42 +168,57 @@ export default function HomePage() {
         <div className="bg-white rounded-[32px] border border-slate-200/90 p-8 sm:p-12 shadow-sm grid lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-5">
             <div
-              className="card-3d rounded-3xl p-8 text-white space-y-6 shadow-xl relative overflow-hidden"
+              className="card-3d rounded-[28px] p-7 sm:p-8 text-white space-y-6 shadow-2xl relative overflow-hidden border border-white/15"
               style={{
-                background: `linear-gradient(145deg, #0f172a 0%, ${site.accent} 100%)`,
+                background: `radial-gradient(circle at 90% 10%, rgba(255,255,255,0.22) 0%, transparent 45%), linear-gradient(145deg, #090d1a 0%, #0f172a 45%, ${site.accent} 100%)`,
               }}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3 relative z-10">
                 <img
                   src={site.logoUrl || "/logos/salepay-logo-blue.png"}
                   alt={site.storeName}
                   onError={(e) => {
                     e.currentTarget.src = "/logos/salepay-logo-blue.png";
                   }}
-                  className="h-10 w-auto max-w-[130px] object-contain rounded-xl bg-white px-2.5 py-1.5 shadow"
+                  className="h-10 w-auto max-w-[130px] object-contain rounded-xl bg-white px-2.5 py-1.5 shadow-md"
                 />
-                <span className="px-3 py-1 rounded-full bg-white/15 border border-white/20 text-[11px] font-bold">
-                  {site.years} Years
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-400/20 border border-emerald-300/30 text-emerald-200 text-[11px] font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Trusted Brand
                 </span>
               </div>
-              <div>
-                <div className="text-xs uppercase tracking-widest text-white/70 font-bold">
+
+              <div className="relative z-10">
+                <div className="text-[11px] uppercase tracking-widest text-white/75 font-bold">
                   {site.tagline}
                 </div>
-                <div className="text-2xl font-black mt-1">{site.storeName}</div>
+                <div className="text-2xl sm:text-3xl font-black mt-1 tracking-tight">{site.storeName}</div>
               </div>
-              {categories.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {categories.slice(0, 5).map((cat) => (
-                    <span
-                      key={cat.id}
-                      className="px-3 py-1 rounded-full bg-white/15 text-[11px] font-semibold text-white/95"
-                    >
-                      {cat.name}
-                    </span>
-                  ))}
+
+              <div className="grid grid-cols-2 gap-3 relative z-10">
+                <div className="rounded-2xl bg-white/10 backdrop-blur border border-white/15 p-3.5">
+                  <div className="text-xl font-black text-white">{site.years}</div>
+                  <div className="text-[11px] text-white/75 font-semibold">Years Experience</div>
                 </div>
-              )}
+                <div className="rounded-2xl bg-white/10 backdrop-blur border border-white/15 p-3.5">
+                  <div className="text-xl font-black text-white">{products.length > 0 ? products.length : "50+"}</div>
+                  <div className="text-[11px] text-white/75 font-semibold">Signature Offerings</div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 relative z-10">
+                {(categories.length > 0
+                  ? categories.slice(0, 4).map((c) => c.name)
+                  : site.highlights.map((h) => h[0])
+                ).map((label, idx) => (
+                  <span
+                    key={idx}
+                    className="px-3 py-1 rounded-full bg-black/25 border border-white/15 text-[11px] font-semibold text-white/90"
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
