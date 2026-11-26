@@ -355,16 +355,31 @@ async def resolve_conflict(
 
 @router.get("/api/v1/devices")
 async def list_devices(
+    page: int = 1,
+    limit: int = 20,
+    search: str = "",
     user: AuthUser = Depends(require_auth),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
 ):
+    lim = max(1, min(limit, 100))
+    pg = max(1, page)
+    off = (pg - 1) * lim
+    where = "d.tenantId = :t"
+    params: dict = {"t": tenantId}
+    if search.strip():
+        where += " AND (d.deviceId LIKE :q OR d.deviceName LIKE :q OR d.os LIKE :q)"
+        params["q"] = f"%{search.strip()}%"
+    total = int((await db.execute(text(f"SELECT COUNT(*) FROM device_sync_status d WHERE {where}"), params)).scalar() or 0)
+    params["lim"] = lim
+    params["off"] = off
     rows = rows_to_dicts((await db.execute(
-        text("SELECT d.*, u.name AS userName FROM device_sync_status d "
-             "LEFT JOIN users u ON u.id = d.userId WHERE d.tenantId = :t ORDER BY COALESCE(d.lastSyncAt, d.createdAt) DESC"),
-        {"t": tenantId},
+        text(f"SELECT d.*, u.name AS userName FROM device_sync_status d "
+             f"LEFT JOIN users u ON u.id = d.userId WHERE {where} ORDER BY COALESCE(d.lastSyncAt, d.createdAt) DESC LIMIT :lim OFFSET :off"),
+        params,
     )).fetchall())
-    return ok(rows)
+    total_pages = max(1, (total + lim - 1) // lim)
+    return ok(rows, extra={"pagination": {"page": pg, "limit": lim, "total": total, "totalPages": total_pages}})
 
 
 @router.post("/api/v1/devices/register")

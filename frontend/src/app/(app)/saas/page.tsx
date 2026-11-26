@@ -133,9 +133,13 @@ function SaaSContent() {
   const [showSslModal, setShowSslModal] = useState(false);
   const [sslModalAmount, setSslModalAmount] = useState(2999);
 
-  // Search & Filter
+  // Search & Filter & Pagination
   const [tenantSearch, setTenantSearch] = useState("");
   const [tenantStatusFilter, setTenantStatusFilter] = useState("ALL");
+  const [tenantPage, setTenantPage] = useState(1);
+  const [tenantLimit, setTenantLimit] = useState(10);
+  const [tenantTotal, setTenantTotal] = useState(0);
+  const [tenantTotalPages, setTenantTotalPages] = useState(1);
   const [selectedEntityType, setSelectedEntityType] = useState("CUSTOMER");
 
   // Modals
@@ -194,14 +198,25 @@ function SaaSContent() {
     setLoading(true);
     try {
       if (tab === "overview") {
+        const qs = new URLSearchParams({
+          page: String(tenantPage),
+          limit: String(tenantLimit),
+          status: tenantStatusFilter,
+          search: tenantSearch,
+        }).toString();
         const [ov, st] = await Promise.allSettled([
           api.get<any>("/api/v1/saas/platform/overview"),
-          api.get<any>("/api/v1/saas/platform/tenants"),
+          api.get<any>(`/api/v1/saas/platform/tenants?${qs}`),
         ]);
         if (ov.status === "fulfilled") setOverview((ov.value as any)?.data || ov.value);
         if (st.status === "fulfilled") {
-          const d = (st.value as any)?.data || st.value;
+          const raw = st.value as any;
+          const d = raw?.data || raw;
           setPlatformTenants(Array.isArray(d) ? d : []);
+          if (raw?.pagination) {
+            setTenantTotal(Number(raw.pagination.total || 0));
+            setTenantTotalPages(Number(raw.pagination.totalPages || 1));
+          }
         }
       } else if (tab === "plans") {
         const r: any = await api.get("/api/v1/saas/plans");
@@ -243,7 +258,7 @@ function SaaSContent() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantPage, tenantLimit, tenantStatusFilter, tenantSearch]);
 
   const fetchTrialRequests = useCallback(async () => {
     setLoadingTrials(true);
@@ -737,7 +752,10 @@ function SaaSContent() {
                         <input
                           type="text"
                           value={tenantSearch}
-                          onChange={(e) => setTenantSearch(e.target.value)}
+                          onChange={(e) => {
+                            setTenantSearch(e.target.value);
+                            setTenantPage(1);
+                          }}
                           placeholder="Search tenants..."
                           className="pl-8 pr-3 py-1.5 rounded-sm border border-slate-200 text-xs font-semibold focus:outline-none focus:border-primary-500 bg-slate-50"
                         />
@@ -745,7 +763,10 @@ function SaaSContent() {
 
                       <select
                         value={tenantStatusFilter}
-                        onChange={(e) => setTenantStatusFilter(e.target.value)}
+                        onChange={(e) => {
+                          setTenantStatusFilter(e.target.value);
+                          setTenantPage(1);
+                        }}
                         className="px-3 py-1.5 rounded-sm border border-slate-200 text-xs font-bold focus:outline-none bg-slate-50"
                       >
                         <option value="ALL">All Statuses</option>
@@ -892,6 +913,49 @@ function SaaSContent() {
                         )}
                       </tbody>
                     </table>
+                  </div>
+
+                  {/* Server-side Pagination Bar */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs text-slate-600">
+                    <div>
+                      Showing <span className="font-bold">{platformTenants.length === 0 ? 0 : (tenantPage - 1) * tenantLimit + 1}</span>
+                      {"–"}
+                      <span className="font-bold">{(tenantPage - 1) * tenantLimit + platformTenants.length}</span> of{" "}
+                      <span className="font-bold">{tenantTotal}</span> businesses
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={tenantLimit}
+                        onChange={(e) => {
+                          setTenantLimit(Number(e.target.value));
+                          setTenantPage(1);
+                        }}
+                        className="px-2 py-1 rounded-sm border border-slate-200 bg-white font-semibold"
+                      >
+                        <option value={10}>10 / page</option>
+                        <option value={20}>20 / page</option>
+                        <option value={50}>50 / page</option>
+                      </select>
+                      <button
+                        type="button"
+                        disabled={tenantPage <= 1}
+                        onClick={() => setTenantPage((p) => Math.max(1, p - 1))}
+                        className="px-2.5 py-1 rounded-sm border border-slate-200 bg-white font-semibold disabled:opacity-40 hover:bg-slate-50 cursor-pointer disabled:cursor-not-allowed"
+                      >
+                        Prev
+                      </button>
+                      <span className="font-bold px-2">
+                        Page {tenantPage} of {tenantTotalPages}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={tenantPage >= tenantTotalPages}
+                        onClick={() => setTenantPage((p) => Math.min(tenantTotalPages, p + 1))}
+                        className="px-2.5 py-1 rounded-sm border border-slate-200 bg-white font-semibold disabled:opacity-40 hover:bg-slate-50 cursor-pointer disabled:cursor-not-allowed"
+                      >
+                        Next
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -812,6 +812,9 @@ async def platform_overview(
 @router.get("/api/v1/saas/platform/tenants")
 async def platform_tenants(
     status: str = "",
+    search: str = "",
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
     user: AuthUser = Depends(require_auth),
     tenantId: str = Depends(resolve_tenant),
     db: AsyncSession = Depends(get_db),
@@ -819,8 +822,17 @@ async def platform_tenants(
     _require_super_admin(user)
     where = "1=1"
     params: dict = {}
-    if status:
+    if status and status.upper() != "ALL":
         where += " AND t.status=:s"; params["s"] = status.upper()
+    if search.strip():
+        where += " AND (t.name LIKE :q OR t.slug LIKE :q OR t.contactEmail LIKE :q OR t.contactPhone LIKE :q OR EXISTS (SELECT 1 FROM users u2 WHERE u2.tenantId=t.id AND (u2.email LIKE :q OR u2.phone LIKE :q)))"
+        params["q"] = f"%{search.strip()}%"
+
+    total = int((await db.execute(text(f"SELECT COUNT(*) FROM tenants t WHERE {where}"), params)).scalar() or 0)
+    offset = (page - 1) * limit
+    params["lim"] = limit
+    params["off"] = offset
+
     rows = rows_to_dicts((await db.execute(text(
         f"SELECT t.id, t.name, t.slug, t.status, t.businessType, t.createdAt, "
         f"COALESCE(NULLIF(t.contactEmail, ''), (SELECT u.email FROM users u WHERE u.tenantId=t.id ORDER BY u.createdAt ASC LIMIT 1)) AS email, "
@@ -834,8 +846,9 @@ async def platform_tenants(
         f"(SELECT ss.billingCycle FROM saas_subscriptions ss WHERE ss.tenantId=t.id ORDER BY ss.createdAt DESC LIMIT 1) AS billingCycle, "
         f"(SELECT ss.trialEndsAt FROM saas_subscriptions ss WHERE ss.tenantId=t.id ORDER BY ss.createdAt DESC LIMIT 1) AS trialEndsAt, "
         f"(SELECT ss.currentPeriodEnd FROM saas_subscriptions ss WHERE ss.tenantId=t.id ORDER BY ss.createdAt DESC LIMIT 1) AS currentPeriodEnd "
-        f"FROM tenants t WHERE {where} ORDER BY t.createdAt DESC LIMIT 100"), params)).fetchall())
-    return ok(rows)
+        f"FROM tenants t WHERE {where} ORDER BY t.createdAt DESC LIMIT :lim OFFSET :off"), params)).fetchall())
+    total_pages = max(1, (total + limit - 1) // limit)
+    return ok(rows, extra={"pagination": {"page": page, "limit": limit, "total": total, "totalPages": total_pages}})
 
 
 @router.patch("/api/v1/saas/platform/tenants/{targetTenantId}")
