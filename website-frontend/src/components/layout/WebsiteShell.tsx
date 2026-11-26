@@ -21,6 +21,7 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
     site,
     categories,
     isAdmin,
+    isSuperAdmin,
     adminOpen,
     setAdminOpen,
     setIndustryPreview,
@@ -176,18 +177,22 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-slate-400">Industry:</span>
-              <select
-                value={site.key}
-                onChange={(e) => setIndustryPreview(e.target.value)}
-                className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-white text-xs focus:outline-none"
-              >
-                {Object.entries(INDUSTRY_PRESETS).map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v.label}
-                  </option>
-                ))}
-              </select>
+              {isSuperAdmin && (
+                <>
+                  <span className="text-slate-400">Industry:</span>
+                  <select
+                    value={site.key}
+                    onChange={(e) => setIndustryPreview(e.target.value)}
+                    className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-white text-xs focus:outline-none"
+                  >
+                    {Object.entries(INDUSTRY_PRESETS).map(([k, v]) => (
+                      <option key={k} value={k}>
+                        {v.label}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
               <button
                 onClick={() => setAdminOpen(true)}
                 className="px-3.5 py-1 rounded-lg bg-gradient-to-r from-sky-400 to-cyan-300 text-slate-950 font-extrabold text-xs shadow transition"
@@ -598,11 +603,17 @@ export default function WebsiteShell({ children }: { children: React.ReactNode }
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="font-bold text-slate-700">Industry Vertical</label>
-                    <select value={industry} onChange={(e) => setIndustry(e.target.value)} className="mt-1 w-full px-2.5 py-2 rounded-lg border border-slate-200">
-                      {Object.entries(INDUSTRY_PRESETS).map(([k, v]) => (
-                        <option key={k} value={k}>{v.label}</option>
-                      ))}
-                    </select>
+                    {isSuperAdmin ? (
+                      <select value={industry} onChange={(e) => setIndustry(e.target.value)} className="mt-1 w-full px-2.5 py-2 rounded-lg border border-slate-200">
+                        {Object.entries(INDUSTRY_PRESETS).map(([k, v]) => (
+                          <option key={k} value={k}>{v.label}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="mt-1 w-full px-2.5 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-700 font-semibold">
+                        {site.preset.label} (Locked)
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="font-bold text-slate-700">Brand Accent Color</label>
