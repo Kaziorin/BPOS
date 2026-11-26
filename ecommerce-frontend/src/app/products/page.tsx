@@ -31,7 +31,7 @@ function ProductsContent() {
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("categoryId") || "");
   const [selectedBrand, setSelectedBrand] = useState(searchParams.get("brandId") || "");
-  const [sort, setSort] = useState("newest");
+  const [sort, setSort] = useState(searchParams.get("sort") || "newest");
   const [inStockOnly, setInStockOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -45,10 +45,13 @@ function ProductsContent() {
     const qSearch = searchParams.get("search") || "";
     const qCat = searchParams.get("categoryId") || "";
     const qBrand = searchParams.get("brandId") || "";
+    const qSort = searchParams.get("sort") || "newest";
 
     setSearch(qSearch);
     setSelectedCategory(qCat);
     setSelectedBrand(qBrand);
+    setSort(qSort);
+    setPage(1);
   }, [searchParams]);
 
   useEffect(() => {
@@ -100,7 +103,11 @@ function ProductsContent() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            {storeName} Catalog
+            {sort === "popular" && searchParams.get("sort") === "popular"
+              ? `${storeName} — Popular Items`
+              : sort === "newest" && searchParams.get("sort") === "newest"
+              ? `${storeName} — New Arrivals`
+              : `${storeName} Catalog`}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Showing {products.length} of {totalCount} authentic items in stock
@@ -260,6 +267,16 @@ function ProductsContent() {
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setSearch("")} />
                 </span>
               )}
+              {sort === "newest" && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 font-semibold">
+                  New Arrivals
+                </span>
+              )}
+              {sort === "popular" && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 font-semibold">
+                  Popular Items
+                </span>
+              )}
             </div>
 
             {/* Sort Dropdown */}
@@ -268,9 +285,10 @@ function ProductsContent() {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-sky-500"
+                className="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-orange-500"
               >
                 <option value="newest">Newest Arrivals</option>
+                <option value="popular">Popular Items</option>
                 <option value="price_asc">Price: Low to High</option>
                 <option value="price_desc">Price: High to Low</option>
                 <option value="name_asc">Name: A to Z</option>
