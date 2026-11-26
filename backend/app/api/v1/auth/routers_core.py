@@ -26,7 +26,8 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
     sql = textwrap.dedent(
         """
         SELECT ua.id, ua.name, ua.email, ua.passwordHash, ua.tenantId, ua.branchId, ua.roleId,
-               r.name AS roleName, t.slug AS tenantSlug, t.name AS tenantName, t.businessType
+               r.name AS roleName, t.slug AS tenantSlug, t.name AS tenantName, t.businessType,
+               t.status AS tenantStatus
         FROM users ua
         LEFT JOIN roles r ON r.id = ua.roleId
         LEFT JOIN tenants t ON t.id = ua.tenantId
@@ -38,6 +39,9 @@ async def login(body: dict, db: AsyncSession = Depends(get_db)):
         return err("Invalid email or password", 401)
 
     role_name = row.roleName or ""
+    is_super = role_name.lower() in ("super admin", "superadmin", "system admin") or email == "admin@gmail.com"
+    if (row.tenantStatus or "").upper() == "SUSPENDED" and not is_super:
+        return err("Your business account has been suspended. Please contact support.", 403)
 
     token = sign_token(
         {

@@ -62,12 +62,20 @@ async def require_auth(request: Request, db: AsyncSession = Depends(get_db)) -> 
     except Exception:
         raise HTTPException(401, "Invalid or expired token")
     
-    # Verify that the user still exists and is active in DB
+    # Verify that the user still exists and is active in DB, and tenant is not suspended
     user_id = payload.get("id")
     if user_id:
-        user_row = (await db.execute(text("SELECT id, status FROM users WHERE id = :id"), {"id": user_id})).first()
+        user_row = (await db.execute(
+            text("SELECT u.id, u.status, t.status FROM users u LEFT JOIN tenants t ON t.id = u.tenantId WHERE u.id = :id"),
+            {"id": user_id},
+        )).first()
         if not user_row or user_row[1] != "ACTIVE":
             raise HTTPException(401, "User account not found or deactivated")
+        role_l = (payload.get("roleName") or "").lower()
+        email_l = (payload.get("email") or "").lower()
+        is_super = role_l in ("super admin", "superadmin", "system admin") or email_l == "admin@gmail.com"
+        if (user_row[2] or "").upper() == "SUSPENDED" and not is_super:
+            raise HTTPException(403, "Your business account has been suspended")
 
     request.state.user = AuthUser(payload)
     return request.state.user
@@ -90,8 +98,15 @@ async def resolve_tenant(
             pass
 
     ident = (x_tenant_id or "").strip()
+    role_name = (payload.get("roleName") or "").lower() if payload else ""
+    user_email = (payload.get("email") or "").lower() if payload else ""
+    is_super = role_name in ("super admin", "superadmin", "system admin") or user_email == "admin@gmail.com"
     if not ident:
         if token_tenant:
+            if not is_super:
+                t_row = (await db.execute(text("SELECT status FROM tenants WHERE id = :t"), {"t": token_tenant})).first()
+                if t_row and (t_row[0] or "").upper() == "SUSPENDED":
+                    raise HTTPException(403, "Your business account has been suspended")
             request.state.tenantId = token_tenant
             return token_tenant
         row = (await db.execute(text("SELECT id FROM tenants LIMIT 1"))).first()
@@ -102,7 +117,7 @@ async def resolve_tenant(
 
     row = (
         await db.execute(
-            text("SELECT id FROM tenants WHERE id = :i OR slug = :i LIMIT 1"), {"i": ident}
+            text("SELECT id, status FROM tenants WHERE id = :i OR slug = :i LIMIT 1"), {"i": ident}
         )
     ).first()
     if not row:
@@ -120,6 +135,8 @@ async def resolve_tenant(
     is_super = role_name in ("super admin", "superadmin", "system admin") or user_email == "admin@gmail.com"
     if token_tenant and token_tenant != row[0] and not is_super:
         raise HTTPException(403, "Token tenant does not match x-tenant-id header")
+    if token_tenant and (row[1] or "").upper() == "SUSPENDED" and not is_super:
+        raise HTTPException(403, "Your business account has been suspended")
 
     request.state.tenantId = row[0]
     return row[0]
@@ -158,12 +175,20 @@ def require_permission(*codes: str):
         except Exception:
             raise HTTPException(401, "Invalid or expired token")
         
-        # Verify that the user still exists and is active in DB
+        # Verify that the user still exists and is active in DB, and tenant is not suspended
         user_id = payload.get("id")
+        role_clean = (payload.get("roleName") or "").lower()
+        email_l = (payload.get("email") or "").lower()
+        is_super = role_clean in ("super admin", "superadmin", "system admin") or email_l == "admin@gmail.com"
         if user_id:
-            user_row = (await db.execute(text("SELECT id, status FROM users WHERE id = :id"), {"id": user_id})).first()
+            user_row = (await db.execute(
+                text("SELECT u.id, u.status, t.status FROM users u LEFT JOIN tenants t ON t.id = u.tenantId WHERE u.id = :id"),
+                {"id": user_id},
+            )).first()
             if not user_row or user_row[1] != "ACTIVE":
                 raise HTTPException(401, "User account not found or deactivated")
+            if (user_row[2] or "").upper() == "SUSPENDED" and not is_super:
+                raise HTTPException(403, "Your business account has been suspended")
 
         user = AuthUser(payload)
         request.state.user = user

@@ -753,6 +753,7 @@ function SaaSContent() {
                           <th className="py-3 px-4">Industry Vertical</th>
                           <th className="py-3 px-4">Staff Users</th>
                           <th className="py-3 px-4">Sales Count</th>
+                          <th className="py-3 px-4 text-right">Action</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
@@ -774,6 +775,8 @@ function SaaSContent() {
                                     ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                     : t.status === "TRIAL"
                                     ? "bg-amber-50 text-amber-700 border-amber-200"
+                                    : t.status === "SUSPENDED"
+                                    ? "bg-rose-50 text-rose-700 border-rose-200"
                                     : "bg-slate-100 text-gray-600 border-slate-200"
                                 )}
                               >
@@ -785,11 +788,36 @@ function SaaSContent() {
                             </td>
                             <td className="py-3 px-4 font-bold text-gray-600">{t.userCount ?? 0}</td>
                             <td className="py-3 px-4 font-mono font-bold text-gray-600">{t.saleCount ?? 0}</td>
+                            <td className="py-3 px-4 text-right">
+                              {t.slug !== "demo-shop" && (
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    const nextStatus = t.status === "SUSPENDED" ? "ACTIVE" : "SUSPENDED";
+                                    try {
+                                      await api.patch(`/api/v1/saas/platform/tenants/${t.id}/status`, { status: nextStatus });
+                                      showToast(`${t.name} ${nextStatus === "SUSPENDED" ? "suspended" : "activated"}`);
+                                      loadData("overview");
+                                    } catch (err: any) {
+                                      showToast(err?.message || "Failed to update tenant status");
+                                    }
+                                  }}
+                                  className={cn(
+                                    "px-2.5 py-1 rounded-sm text-[11px] font-bold border transition cursor-pointer",
+                                    t.status === "SUSPENDED"
+                                      ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                                      : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                                  )}
+                                >
+                                  {t.status === "SUSPENDED" ? "Turn On" : "Turn Off"}
+                                </button>
+                              )}
+                            </td>
                           </tr>
                         ))}
                         {filteredTenants.length === 0 && (
                           <tr>
-                            <td colSpan={5} className="py-8 text-center text-slate-400">
+                            <td colSpan={6} className="py-8 text-center text-slate-400">
                               No matching tenants found.
                             </td>
                           </tr>
