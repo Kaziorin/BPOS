@@ -19,7 +19,12 @@ class CategorySidebar extends StatelessWidget {
 
     return Container(
       width: sidebarWidth,
-      padding: EdgeInsets.only(left: isMobile ? 12 : 24, right: isMobile ? 12 : 24, top: 0, bottom: 6),
+      padding: EdgeInsets.only(
+        left: isMobile ? 12 : 24,
+        right: isMobile ? 12 : 24,
+        top: 0,
+        bottom: 6,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -29,7 +34,13 @@ class CategorySidebar extends StatelessWidget {
                 color: context.cardBg,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: context.isDark ? 0.3 : 0.03), blurRadius: 8, offset: const Offset(0, 3)),
+                  BoxShadow(
+                    color: Colors.black.withValues(
+                      alpha: context.isDark ? 0.3 : 0.03,
+                    ),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
                 ],
               ),
               child: Column(
@@ -39,17 +50,27 @@ class CategorySidebar extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: const BoxDecoration(
                       color: primaryOrange,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(12),
+                      ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.grid_view_rounded, color: Colors.white, size: isMobile ? 16 : 18),
+                        Icon(
+                          Icons.grid_view_rounded,
+                          color: Colors.white,
+                          size: isMobile ? 16 : 18,
+                        ),
                         if (!isMobile) ...[
                           const SizedBox(width: 8),
                           Text(
                             AppStrings.get('all_items', locale),
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ],
@@ -59,18 +80,23 @@ class CategorySidebar extends StatelessWidget {
                     child: Consumer<POSProvider>(
                       builder: (context, provider, _) {
                         return ListView.builder(
-                          padding: EdgeInsets.symmetric(horizontal: isMobile ? 6 : 10, vertical: 8),
-                          itemCount: AppData.categories.length,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isMobile ? 6 : 10,
+                            vertical: 8,
+                          ),
+                          itemCount: provider.categories.length,
                           itemBuilder: (context, index) {
-                            final category = AppData.categories[index];
-                            final isSelected = provider.selectedCategory == category.id;
+                            final category = provider.categories[index];
+                            final isSelected =
+                                provider.selectedCategory == category.id;
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 6),
                               child: _CategoryItem(
                                 category: category,
                                 isSelected: isSelected,
                                 isMobile: isMobile,
-                                onTap: () => provider.selectCategory(category.id),
+                                onTap: () =>
+                                    provider.selectCategory(category.id),
                               ),
                             );
                           },
@@ -86,26 +112,44 @@ class CategorySidebar extends StatelessWidget {
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: primaryOrange.withValues(alpha: context.isDark ? 0.1 : 0.04),
-              border: Border.all(color: primaryOrange.withValues(alpha: context.isDark ? 0.3 : 0.2), width: 1.5),
+              color: primaryOrange.withValues(
+                alpha: context.isDark ? 0.1 : 0.04,
+              ),
+              border: Border.all(
+                color: primaryOrange.withValues(
+                  alpha: context.isDark ? 0.3 : 0.2,
+                ),
+                width: 1.5,
+              ),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
                 onTap: () {
-                  showDialog(context: context, builder: (_) => CustomItemDialog());
+                  showDialog(
+                    context: context,
+                    builder: (_) => CustomItemDialog(),
+                  );
                 },
                 borderRadius: BorderRadius.circular(12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.soup_kitchen, color: primaryOrange, size: isMobile ? 20 : 22),
+                    Icon(
+                      Icons.soup_kitchen,
+                      color: primaryOrange,
+                      size: isMobile ? 20 : 22,
+                    ),
                     if (!isMobile) ...[
                       const SizedBox(width: 8),
                       Text(
                         AppStrings.get('custom_item', locale),
-                        style: const TextStyle(color: primaryOrange, fontWeight: FontWeight.w700, fontSize: 13),
+                        style: const TextStyle(
+                          color: primaryOrange,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ],
@@ -159,15 +203,33 @@ class _CategoryItem extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
-        color: isSelected ? primaryOrange.withValues(alpha: 0.1) : context.inputBg,
+        color: isSelected
+            ? primaryOrange.withValues(alpha: 0.1)
+            : context.inputBg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isSelected ? primaryOrange.withValues(alpha: 0.4) : context.borderColor,
+          color: isSelected
+              ? primaryOrange.withValues(alpha: 0.4)
+              : context.borderColor,
           width: 1.5,
         ),
         boxShadow: isSelected
-            ? [BoxShadow(color: primaryOrange.withValues(alpha: 0.12), blurRadius: 8, offset: const Offset(0, 3))]
-            : [BoxShadow(color: Colors.black.withValues(alpha: context.isDark ? 0.3 : 0.03), blurRadius: 4, offset: const Offset(0, 2))],
+            ? [
+                BoxShadow(
+                  color: primaryOrange.withValues(alpha: 0.12),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ]
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(
+                    alpha: context.isDark ? 0.3 : 0.03,
+                  ),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -176,11 +238,20 @@ class _CategoryItem extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: isMobile ? 8 : 16, vertical: 11),
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 8 : 16,
+              vertical: 11,
+            ),
             child: Row(
-              mainAxisAlignment: isMobile ? MainAxisAlignment.center : MainAxisAlignment.start,
+              mainAxisAlignment: isMobile
+                  ? MainAxisAlignment.center
+                  : MainAxisAlignment.start,
               children: [
-                Icon(_getIconForCategory(category.name), size: 20, color: iconColor),
+                Icon(
+                  _getIconForCategory(category.name),
+                  size: 20,
+                  color: iconColor,
+                ),
                 if (!isMobile) ...[
                   const SizedBox(width: 12),
                   Expanded(
@@ -189,13 +260,23 @@ class _CategoryItem extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13,
                         color: textColor,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w600,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  if (isSelected) Container(width: 6, height: 6, decoration: const BoxDecoration(color: primaryOrange, shape: BoxShape.circle)),
+                  if (isSelected)
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: primaryOrange,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                 ],
               ],
             ),
@@ -222,9 +303,9 @@ class MobileCategoryBar extends StatelessWidget {
           return ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            itemCount: AppData.categories.length,
+            itemCount: provider.categories.length,
             itemBuilder: (context, index) {
-              final category = AppData.categories[index];
+              final category = provider.categories[index];
               final isSelected = provider.selectedCategory == category.id;
               final translatedName = category.localizedName(locale);
 
@@ -234,17 +315,34 @@ class MobileCategoryBar extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
                   curve: Curves.easeOutCubic,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   margin: const EdgeInsets.only(right: 8),
                   decoration: BoxDecoration(
                     color: isSelected ? primaryOrange : context.inputBg,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: isSelected ? Colors.transparent : context.borderColor,
+                      color: isSelected
+                          ? Colors.transparent
+                          : context.borderColor,
                     ),
                     boxShadow: [
-                      if (isSelected) BoxShadow(color: primaryOrange.withValues(alpha: 0.35), blurRadius: 8, offset: const Offset(0, 3))
-                      else BoxShadow(color: Colors.black.withValues(alpha: context.isDark ? 0.3 : 0.04), blurRadius: 6, offset: const Offset(0, 2)),
+                      if (isSelected)
+                        BoxShadow(
+                          color: primaryOrange.withValues(alpha: 0.35),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        )
+                      else
+                        BoxShadow(
+                          color: Colors.black.withValues(
+                            alpha: context.isDark ? 0.3 : 0.04,
+                          ),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
                     ],
                   ),
                   child: Center(
@@ -252,7 +350,9 @@ class MobileCategoryBar extends StatelessWidget {
                       translatedName,
                       style: TextStyle(
                         color: isSelected ? Colors.white : context.textPrimary,
-                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                        fontWeight: isSelected
+                            ? FontWeight.w800
+                            : FontWeight.w600,
                         fontSize: 13,
                         letterSpacing: 0.2,
                       ),

@@ -8,10 +8,13 @@ class POSProvider extends ChangeNotifier {
   String _viewMode = 'grid'; // grid or list
   String _searchQuery = '';
   
-  String _tableNumber = 'T-05';
+  String _tableNumber = 'T-01';
+  String? _selectedTableId;
   int _guests = 4;
   String _waiterKey = 'waiter_1';
-  
+  String? _waiterId;
+  String _waiterName = '';
+
   List<CartItem> _cartItems = [];
   bool _isOrderSummaryVisible = true;
 
@@ -22,13 +25,28 @@ class POSProvider extends ChangeNotifier {
   double _discountAmount = 0.0;
   String? _appliedCoupon;
 
-  // Live Backend Products
+  // Live Backend Catalog, Tables & Staff
   List<MenuItem> _liveMenuItems = [];
+  List<MenuCategory> _liveCategories = [];
+  List<Map<String, dynamic>> _tables = [];
+  List<Map<String, dynamic>> _staffList = [];
   bool _isLoadingProducts = false;
+  bool _isLoadingTables = false;
+  bool _isLoadingStaff = false;
   String _currentBusinessType = 'restaurant';
 
   bool get isLoadingProducts => _isLoadingProducts;
+  bool get isLoadingTables => _isLoadingTables;
+  bool get isLoadingStaff => _isLoadingStaff;
   List<MenuItem> get liveMenuItems => _liveMenuItems;
+  List<MenuCategory> get categories =>
+      _liveCategories.isNotEmpty ? _liveCategories : AppData.categories;
+  List<Map<String, dynamic>> get tables => _tables;
+  List<Map<String, dynamic>> get staffList => _staffList;
+  String? get selectedTableId => _selectedTableId;
+  String? get waiterId => _waiterId;
+  String get waiterDisplayName =>
+      _waiterName.isNotEmpty ? _waiterName : _waiterKey;
 
   Future<void> loadProducts({String businessType = 'restaurant'}) async {
     _currentBusinessType = businessType;
@@ -36,18 +54,134 @@ class POSProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final systemTax = await ApiService.instance.fetchDefaultTaxRate(businessType: businessType);
-      _taxRate = systemTax;
-      final rawList = await ApiService.instance.fetchProducts(businessType: businessType);
-      if (rawList.isNotEmpty) {
-        _liveMenuItems = rawList.asMap().entries.map((entry) {
+      final results = await Future.wait([
+        ApiService.instance.fetchDefaultTaxRate(businessType: businessType),
+        ApiService.instance.fetchProducts(businessType: businessType),
+        ApiService.instance.fetchCategories(businessType: businessType),
+        ApiService.instance.fetchRestaurantTables(),
+        ApiService.instance.fetchEmployees(businessType: businessType),
+      ]);
+
+      _taxRate = results[0] as double;
+      final rawProducts = results[1] as List<Map<String, dynamic>>;
+      final rawCategories = results[2] as List<Map<String, dynamic>>;
+      final rawTables = results[3] as List<Map<String, dynamic>>;
+      final rawStaff = results[4] as List<Map<String, dynamic>>;
+
+      if (rawProducts.isNotEmpty) {
+        _liveMenuItems = rawProducts.asMap().entries.map((entry) {
           return MenuItem.fromApiJson(entry.value, entry.key + 1);
         }).toList();
       }
+
+      _buildCategories(rawCategories);
+      _applyTables(rawTables);
+      _applyStaff(rawStaff);
     } catch (e) {
       debugPrint('Error loading POS products: $e');
     } finally {
       _isLoadingProducts = false;
+      notifyListeners();
+    }
+  }
+
+  void _buildCategories(List<Map<String, dynamic>> rawCategories) {
+    final built = <MenuCategory>[
+      const MenuCategory(id: 'all', name: 'All Items', nameBn: 'সব আইটেম', icon: 'grid'),
+      const MenuCategory(id: 'popular', name: 'Popular', nameBn: 'জনপ্রিয়', icon: 'star'),
+    ];
+    final seen = <String>{'all', 'popular'};
+
+    for (final c in rawCategories) {
+      final name = (c['name'] ?? '').toString().trim();
+      if (name.isEmpty) continue;
+      final normId = name.toLowerCase().replaceAll(' ', '_');
+      if (seen.add(normId)) {
+        built.add(MenuCategory(
+          id: normId,
+          name: name,
+          nameBn: name,
+          icon: (c['icon'] ?? 'restaurant').toString(),
+        ));
+      }
+    }
+
+    for (final item in _liveMenuItems) {
+      final normId = item.category.trim().toLowerCase();
+      if (normId.isNotEmpty && normId != 'all' && seen.add(normId)) {
+        final display = normId
+            .split('_')
+            .where((w) => w.isNotEmpty)
+            .map((w) => w[0].toUpperCase() + w.substring(1))
+            .join(' ');
+        built.add(MenuCategory(
+          id: normId,
+          name: display,
+          nameBn: display,
+          icon: 'restaurant',
+        ));
+      }
+    }
+
+    if (built.length > 2) {
+      _liveCategories = built;
+    }
+  }
+
+  void _applyTables(List<Map<String, dynamic>> rawTables) {
+    if (rawTables.isEmpty) return;
+    _tables = rawTables;
+    final match = _tables.firstWhere(
+      (t) => (t['tableNo'] ?? '').toString() == _tableNumber,
+      orElse: () => _tables.firstWhere(
+        (t) => (t['status'] ?? '').toString().toUpperCase() == 'AVAILABLE',
+        orElse: () => _tables.first,
+      ),
+    );
+    _selectedTableId = match['id']?.toString();
+    _tableNumber = (match['tableNo'] ?? _tableNumber).toString();
+  }
+
+  void _applyStaff(List<Map<String, dynamic>> rawStaff) {
+    if (rawStaff.isEmpty) return;
+    _staffList = rawStaff;
+    if (_waiterId == null && _staffList.isNotEmpty) {
+      final first = _staffList.first;
+      _waiterId = first['id']?.toString();
+      final fullName = _formatStaffName(first);
+      if (fullName.isNotEmpty) {
+        _waiterName = fullName;
+        _waiterKey = fullName;
+      }
+    }
+  }
+
+  String _formatStaffName(Map<String, dynamic> emp) {
+    final first = (emp['firstName'] ?? emp['name'] ?? '').toString().trim();
+    final last = (emp['lastName'] ?? '').toString().trim();
+    return [first, last].where((s) => s.isNotEmpty).join(' ').trim();
+  }
+
+  Future<void> refreshTables() async {
+    _isLoadingTables = true;
+    notifyListeners();
+    try {
+      final rawTables = await ApiService.instance.fetchRestaurantTables();
+      _applyTables(rawTables);
+    } finally {
+      _isLoadingTables = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> refreshStaff() async {
+    _isLoadingStaff = true;
+    notifyListeners();
+    try {
+      final rawStaff = await ApiService.instance.fetchEmployees(businessType: _currentBusinessType);
+      _applyStaff(rawStaff);
+    } finally {
+      _isLoadingStaff = false;
       notifyListeners();
     }
   }
@@ -134,9 +268,7 @@ class POSProvider extends ChangeNotifier {
           item.category.toLowerCase().contains(_selectedCategory.toLowerCase()) ||
           _selectedCategory.toLowerCase().contains(item.category.toLowerCase())
       ).toList();
-      if (catFiltered.isNotEmpty || _liveMenuItems.isEmpty) {
-        items = catFiltered;
-      }
+      items = catFiltered;
     }
     
     // সার্চ ফিল্টার (ইংরেজি ও বাংলা উভয় নামেই সার্চ হবে)
@@ -181,23 +313,33 @@ class POSProvider extends ChangeNotifier {
   Future<bool> sendKotToKitchen() async {
     if (_cartItems.isEmpty) return false;
     final itemsPayload = _cartItems.map((ci) => {
-      'productId': ci.menuItem.id,
+      'productId': ci.menuItem.productId ?? ci.menuItem.id.toString(),
       'name': ci.menuItem.name,
       'qty': ci.quantity,
       'notes': ci.note,
       'modifiers': ci.modifiers,
     }).toList();
 
+    final staffLabel = waiterDisplayName;
     final notes = _orderNote.isNotEmpty
-        ? '$_orderNote | Table: $_tableNumber | Waiter: $_waiterKey'
-        : 'Table: $_tableNumber | Waiter: $_waiterKey';
+        ? '$_orderNote | Table: $_tableNumber | Guests: $_guests | Waiter: $staffLabel'
+        : 'Table: $_tableNumber | Guests: $_guests | Waiter: $staffLabel';
 
     await ApiService.instance.sendRestaurantKot(
       items: itemsPayload,
-      tableId: _tableNumber,
+      tableId: _selectedTableId ?? _tableNumber,
       orderType: _selectedOrderType,
       notes: notes,
     );
+
+    if (_selectedTableId != null && _selectedTableId!.isNotEmpty) {
+      await ApiService.instance.updateRestaurantTableStatus(
+        tableId: _selectedTableId!,
+        status: 'PREPARING',
+        waiterUserId: _waiterId,
+      );
+      await refreshTables();
+    }
 
     _orderNote = '';
     notifyListeners();
@@ -225,13 +367,21 @@ class POSProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void selectTable(String table) {
+  void selectTable(String table, {String? tableId}) {
     _tableNumber = table;
+    if (tableId != null) {
+      _selectedTableId = tableId;
+    } else {
+      final found = _tables.where((t) => (t['tableNo'] ?? '').toString() == table).toList();
+      _selectedTableId = found.isNotEmpty ? found.first['id']?.toString() : null;
+    }
     notifyListeners();
   }
 
-  void selectWaiter(String waiterKey) {
+  void selectWaiter(String waiterKey, {String? waiterId, String? displayName}) {
     _waiterKey = waiterKey;
+    _waiterId = waiterId;
+    _waiterName = displayName ?? waiterKey;
     notifyListeners();
   }
 
@@ -496,7 +646,7 @@ class POSProvider extends ChangeNotifier {
         'source': 'RESTAURANT',
         'customerName': customerName,
         'customerPhone': customerPhone,
-        'note': 'Restaurant POS | Table: $_tableNumber | Waiter: $_waiterKey | ${trxId != null ? 'Trx: $trxId' : ''}',
+        'note': 'Restaurant POS | Table: $_tableNumber | Guests: $_guests | Waiter: $waiterDisplayName | ${trxId != null ? 'Trx: $trxId' : ''}',
       };
 
       final res = await ApiService.instance.confirmSale(
@@ -506,6 +656,15 @@ class POSProvider extends ChangeNotifier {
 
       if (res['invoiceNo'] != null) {
         finalInvoiceNo = res['invoiceNo'].toString();
+      }
+      if (_selectedTableId != null &&
+          _selectedTableId!.isNotEmpty &&
+          _selectedOrderType == 'dine_in') {
+        await ApiService.instance.updateRestaurantTableStatus(
+          tableId: _selectedTableId!,
+          status: 'AVAILABLE',
+        );
+        await refreshTables();
       }
     } catch (e) {
       debugPrint('Error placing order to backend: $e');
