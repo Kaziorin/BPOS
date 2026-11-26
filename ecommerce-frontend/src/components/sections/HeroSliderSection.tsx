@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Tag, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Tag, Copy, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { SectionItem } from "@/lib/builderTypes";
 
 interface HeroSliderProps {
@@ -22,14 +22,13 @@ interface HeroSlide {
 
 export default function HeroSliderSection({ section, noticeSection, isDarkMode }: HeroSliderProps) {
   const { title, subtitle, badge, settings } = section;
-  const ctaText = settings?.ctaText || "Shop Now";
-  const ctaLink = settings?.ctaLink === "/products" || !settings?.ctaLink ? "/products?sort=newest" : settings.ctaLink;
+  const ctaText = "Shop Now";
+  const ctaLink = "/products?sort=newest";
   const heroImage =
     settings?.heroImage ||
     "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&auto=format&fit=crop&q=80";
   const sideDealTitle = settings?.sideDealTitle || "Flash Deal";
-  const sideDealBadge = settings?.sideDealBadge || "Up to 70% OFF";
-  const sideDealSubtitle = settings?.sideDealSubtitle || "Limited time curated picks";
+  const sideDealBadge = settings?.sideDealBadge || "Up to 70% off";
   const sideDealImage =
     settings?.sideDealImage ||
     "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80";
@@ -40,18 +39,18 @@ export default function HeroSliderSection({ section, noticeSection, isDarkMode }
       title: title || "Upgrade Your Everyday Style",
       subtitle:
         subtitle ||
-        "Discover authentic collections, daily essentials, and live store inventory delivered straight to your door.",
+        "Authentic collections and live store inventory delivered to your door.",
       ctaText,
       ctaLink,
       image: heroImage,
     },
     {
-      badge: "Trending Now",
+      badge: "Trending",
       title: "Curated Audio & Lifestyle",
       subtitle:
-        "Handpicked gadgets, accessories, and top-rated gear synced directly with store stock.",
-      ctaText: "Shop Now",
-      ctaLink: "/products?sort=newest",
+        "Top-rated essentials synced directly with real-time store stock.",
+      ctaText,
+      ctaLink,
       image:
         "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1200&auto=format&fit=crop&q=80",
     },
@@ -59,9 +58,9 @@ export default function HeroSliderSection({ section, noticeSection, isDarkMode }
       badge: "Fresh Drops",
       title: "Everyday Living Made Better",
       subtitle:
-        "Explore fresh arrivals across every category with fast dispatch and cash-on-delivery checkout.",
-      ctaText: "Shop Now",
-      ctaLink: "/products?sort=newest",
+        "New arrivals across every category with fast dispatch and COD checkout.",
+      ctaText,
+      ctaLink,
       image:
         "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&auto=format&fit=crop&q=80",
     },
@@ -69,6 +68,15 @@ export default function HeroSliderSection({ section, noticeSection, isDarkMode }
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+
+  const handleCopyCode = () => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText("SHOP2026").catch(() => {});
+    }
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
 
   useEffect(() => {
     if (isPaused || slides.length <= 1) return;
@@ -80,9 +88,19 @@ export default function HeroSliderSection({ section, noticeSection, isDarkMode }
 
   const currentSlide = slides[activeIndex];
 
-  const offerBadge = noticeSection?.badge || "Limited Offer";
-  const offerTitle = noticeSection?.title || "Weekend Flash Sale: Up to 60% off trending collections";
-  const offerSubtitle = noticeSection?.subtitle || "Use code SHOP2026 at checkout for instant savings.";
+  const renderTwoToneTitle = (heading: string) => {
+    const words = heading.trim().split(/\s+/);
+    if (words.length <= 2) return heading;
+    return (
+      <>
+        {words.slice(0, -2).join(" ")}{" "}
+        <span className="text-orange-600">{words.slice(-2).join(" ")}</span>
+      </>
+    );
+  };
+
+  const offerBadge = noticeSection?.badge || "Special Offer";
+  const offerTitle = "Weekend Flash Sale";
   const offerLink = noticeSection?.settings?.ctaLink || "/products?sort=newest";
   const offerCta = noticeSection?.settings?.ctaText || "Shop deals";
 
@@ -99,7 +117,7 @@ export default function HeroSliderSection({ section, noticeSection, isDarkMode }
                 ? "bg-zinc-900 border-zinc-800"
                 : "bg-[#FAF5EE] border-orange-200/70"
             }`}
-            style={{ minHeight: "430px" }}
+            style={{ minHeight: "420px" }}
           >
             {/* Slide Background Images with Smooth Crossfade */}
             {slides.map((s, idx) => (
@@ -128,7 +146,7 @@ export default function HeroSliderSection({ section, noticeSection, isDarkMode }
             {/* Top Badge & Headings */}
             <div className="relative z-10 max-w-2xl">
               {currentSlide.badge && (
-                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border mb-4 ${
+                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border mb-4 ${
                   isDarkMode
                     ? "bg-orange-500/20 border-orange-500/30 text-orange-300"
                     : "bg-orange-100/90 border-orange-200 text-orange-800"
@@ -138,26 +156,15 @@ export default function HeroSliderSection({ section, noticeSection, isDarkMode }
               )}
 
               <h1
-                className={`text-2xl sm:text-3xl lg:text-[32px] font-bold tracking-tight leading-snug lg:whitespace-nowrap ${
+                className={`text-2xl sm:text-3xl lg:text-[32px] font-semibold tracking-tight leading-snug lg:whitespace-nowrap ${
                   isDarkMode ? "!text-white" : "!text-stone-900"
                 }`}
               >
-                {(() => {
-                  const words = currentSlide.title.trim().split(/\s+/);
-                  if (words.length <= 2) return currentSlide.title;
-                  const head = words.slice(0, -2).join(" ");
-                  const tail = words.slice(-2).join(" ");
-                  return (
-                    <>
-                      {head}{" "}
-                      <span className="text-orange-600">{tail}</span>
-                    </>
-                  );
-                })()}
+                {renderTwoToneTitle(currentSlide.title)}
               </h1>
               <p
-                className={`mt-3 text-xs sm:text-sm max-w-md leading-relaxed ${
-                  isDarkMode ? "!text-zinc-300" : "!text-stone-700"
+                className={`mt-2.5 text-xs sm:text-sm font-normal max-w-md leading-relaxed ${
+                  isDarkMode ? "!text-zinc-300" : "!text-stone-600"
                 }`}
               >
                 {currentSlide.subtitle}
@@ -169,14 +176,14 @@ export default function HeroSliderSection({ section, noticeSection, isDarkMode }
               <div className="flex flex-wrap items-center gap-3">
                 <Link
                   href={currentSlide.ctaLink}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 shadow-xs transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 transition-colors"
                 >
                   <span>{currentSlide.ctaText}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
                 <Link
                   href="/products?sort=popular"
-                  className={`inline-flex items-center gap-2 px-5 py-3 rounded-lg text-xs font-semibold border transition-colors ${
+                  className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-medium border transition-colors ${
                     isDarkMode
                       ? "border-zinc-700 bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
                       : "border-orange-200 bg-white text-stone-800 hover:border-orange-600 hover:text-orange-700"
@@ -223,66 +230,110 @@ export default function HeroSliderSection({ section, noticeSection, isDarkMode }
             </div>
           </div>
 
-          {/* Right Column (Col 4): 2 Balanced Stacked Cards */}
+          {/* Right Column (Col 4): 2 Clean Balanced Cards */}
           <div className="lg:col-span-4 flex flex-col gap-4 lg:gap-5">
-            {/* Card 2 (Top-Right): Offer / Voucher Card */}
-            <div className={`rounded-2xl p-5 sm:p-6 border flex flex-col justify-between gap-4 ${
-              isDarkMode
-                ? "bg-zinc-900 border-orange-900/50 text-white"
-                : "bg-[#1C1917] border-stone-800 text-white"
-            }`}>
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-orange-600 text-white text-[11px] font-semibold">
-                    <Sparkles className="w-3 h-3" />
-                    {offerBadge}
-                  </span>
-                  <span className="text-[11px] font-mono font-bold text-amber-300 bg-white/10 px-2.5 py-1 rounded-md border border-white/15">
-                    SHOP2026
-                  </span>
+            {/* Card 2 (Top-Right): Modern Split Offer Card */}
+            <div
+              className={`relative overflow-hidden rounded-2xl p-5 border flex items-center justify-between gap-4 ${
+                isDarkMode
+                  ? "bg-zinc-900 border-zinc-800 text-white"
+                  : "bg-gradient-to-br from-[#FFF8F1] via-[#FFF1E0] to-[#FFE7CC] border-orange-200/90 text-stone-900 shadow-[0_2px_12px_-4px_rgba(234,88,12,0.08)]"
+              }`}
+            >
+              {/* Subtle Ambient Glow Accent */}
+              <div
+                aria-hidden="true"
+                className={`pointer-events-none absolute -right-10 -top-10 w-36 h-36 rounded-full blur-2xl ${
+                  isDarkMode ? "bg-orange-500/10" : "bg-orange-300/25"
+                }`}
+              />
+
+              <div className="relative z-10 min-w-0 flex-1">
+                <div
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-semibold tracking-wide mb-2.5 ${
+                    isDarkMode
+                      ? "bg-orange-500/15 border-orange-500/30 text-orange-300"
+                      : "bg-white/90 border-orange-200/80 text-orange-700 shadow-[0_1px_2px_rgba(234,88,12,0.06)]"
+                  }`}
+                >
+                  <Tag className="w-3 h-3" />
+                  <span>{offerBadge}</span>
                 </div>
-                <span className="text-[11px] font-medium text-stone-400">Limited</span>
-              </div>
 
-              <div className="space-y-1.5">
-                <h2 className="text-base font-bold leading-snug text-white">
-                  {offerTitle}
+                <h2
+                  className={`text-xl sm:text-[21px] font-semibold tracking-tight leading-snug ${
+                    isDarkMode ? "!text-white" : "!text-stone-900"
+                  }`}
+                >
+                  {renderTwoToneTitle(offerTitle)}
                 </h2>
-                <p className="text-xs text-stone-300/90 leading-relaxed">
-                  {offerSubtitle}
+                <p
+                  className={`mt-1 text-xs font-medium ${
+                    isDarkMode ? "!text-zinc-400" : "!text-stone-600"
+                  }`}
+                >
+                  Instant discount at checkout
                 </p>
+
+                <div className="flex flex-wrap items-center gap-2 mt-3.5">
+                  <button
+                    type="button"
+                    onClick={handleCopyCode}
+                    title="Copy voucher code"
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed text-xs font-mono font-semibold tracking-wide transition-all cursor-pointer ${
+                      copiedCode
+                        ? "bg-emerald-50 border-emerald-400 text-emerald-700"
+                        : isDarkMode
+                        ? "bg-zinc-800 border-zinc-700 text-zinc-100 hover:border-orange-500"
+                        : "bg-white border-orange-300 !text-stone-900 shadow-xs hover:border-orange-600 hover:!text-orange-600"
+                    }`}
+                  >
+                    <span>{copiedCode ? "Copied!" : "SHOP2026"}</span>
+                    {copiedCode ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3 h-3 opacity-65" />}
+                  </button>
+
+                  <Link
+                    href={offerLink}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 !text-white text-xs font-semibold shadow-xs transition-colors"
+                  >
+                    <span>{offerCta}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
               </div>
 
-              <Link
-                href={offerLink}
-                className="w-full py-2.5 px-4 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold transition-colors inline-flex items-center justify-center gap-1.5"
-              >
-                <span>{offerCta}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+              {/* Sculpted Layered Discount Ticket */}
+              <div className="relative z-10 overflow-hidden w-[98px] py-3.5 px-2.5 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 border border-orange-400/50 !text-white shadow-md shadow-orange-600/20 flex flex-col items-center justify-center shrink-0 select-none">
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -top-4 -right-4 w-12 h-12 rounded-full bg-white/15"
+                />
+                <span className="text-[10px] font-semibold tracking-widest uppercase text-orange-100 leading-none">
+                  Up to
+                </span>
+                <span className="text-[28px] font-bold leading-none tracking-tight tabular-nums my-1 !text-white">
+                  60%
+                </span>
+                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-orange-100 leading-none">
+                  OFF
+                </span>
+              </div>
             </div>
 
             {/* Card 3 (Bottom-Right): Featured / Flash Deal Card */}
             <div
-              className={`flex-1 rounded-2xl overflow-hidden p-4 sm:p-5 flex flex-col justify-between gap-3 border ${
+              className={`flex-1 rounded-2xl overflow-hidden p-5 flex flex-col justify-between gap-3 border ${
                 isDarkMode
                   ? "bg-zinc-900 border-zinc-800"
                   : "bg-white border-orange-200/70"
               }`}
             >
               <div className="flex items-center justify-between gap-2">
-                <div>
-                  <h3 className={`text-base font-bold leading-tight ${isDarkMode ? "!text-white" : "!text-stone-900"}`}>
-                    {sideDealTitle}
-                  </h3>
-                  <p className={`text-xs mt-0.5 ${isDarkMode ? "text-zinc-400" : "text-stone-600"}`}>
-                    {sideDealSubtitle}
-                  </p>
-                </div>
-                <span className={`text-[11px] font-medium px-2 py-0.5 rounded border shrink-0 ${
-                  isDarkMode ? "bg-zinc-800 border-zinc-700 text-zinc-300" : "bg-stone-50 border-stone-200 text-stone-600"
-                }`}>
-                  Curated
+                <h3 className={`text-base font-semibold leading-tight ${isDarkMode ? "!text-white" : "!text-stone-900"}`}>
+                  {sideDealTitle}
+                </h3>
+                <span className="text-[11px] font-semibold text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-0.5 rounded-md">
+                  {sideDealBadge}
                 </span>
               </div>
 
@@ -293,15 +344,11 @@ export default function HeroSliderSection({ section, noticeSection, isDarkMode }
                   className="w-full h-full object-cover object-center hover:scale-103 transition-transform duration-300"
                   loading="lazy"
                 />
-                <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-md bg-[#1C1917]/90 text-white shadow-xs backdrop-blur-xs">
-                  <Tag className="w-3 h-3 text-orange-400" />
-                  {sideDealBadge}
-                </span>
               </div>
 
               <Link
                 href="/products"
-                className={`w-full py-2.5 px-4 rounded-lg border text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+                className={`w-full py-2 px-4 rounded-lg border text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 ${
                   isDarkMode
                     ? "border-zinc-700 bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
                     : "border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-600 hover:text-white hover:border-orange-600"
