@@ -210,8 +210,10 @@ curl -s http://127.0.0.1:4000/api/v1/ai/status
 
     # ----------------------------------------------------------
     # 1. Corporate Marketing Website & Showcase (Next.js :3002)
+    # Note: Duplicate location "/" এরর এড়াতে এটি /website পাথে দেওয়া হয়েছে।
+    # (যদি মূল ডোমেনের রুটে দেখাতে চান, তবে আগের location / মুছে এখানে / দিন)
     # ----------------------------------------------------------
-    location / {
+    location /website {
         proxy_pass http://127.0.0.1:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -292,16 +294,10 @@ curl -s http://127.0.0.1:4000/api/v1/ai/status
     }
 
     # ----------------------------------------------------------
-    # 5. Physical Image Uploads & Media Files (Port 4000)
+    # 5. Physical Image Storage (Port 4000)
     # ----------------------------------------------------------
-    location /uploads/ {
-        proxy_pass http://127.0.0.1:4000/uploads/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-
-    location /media/ {
-        proxy_pass http://127.0.0.1:4000/media/;
+    location /image_storage/ {
+        proxy_pass http://127.0.0.1:4000/image_storage/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
