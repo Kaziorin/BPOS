@@ -387,60 +387,113 @@ export function ReportsContent({ initialTab }: { initialTab?: TabType }) {
         </div>
       )}
 
-      {/* Breadcrumb Navigation */}
-      <CustomBreadcrumb
-        title="Business Intelligence & Analytics"
-        description="Enterprise multi-branch performance metrics, sales trends, inventory valuations, and financial statements"
-        icon={<BarChart3 size={16} />}
-        items={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "Administration & Intelligence" },
-          { label: "Reports & Analytics", href: "/reports" },
-        ]}
-      />
+      {/* Dynamic Report Metadata */}
+      {(() => {
+        const reportMeta: Record<TabType, { title: string; subtitle: string; tag: string; label: string }> = {
+          sales: {
+            label: "Sales Reports",
+            title: "Sales & Revenue Performance Report",
+            subtitle: "Consolidated sales revenue turnover, product velocity, category breakdown, and payment methods.",
+            tag: "REAL-TIME SALES & REVENUE REPORTING",
+          },
+          inventory: {
+            label: "Inventory Reports",
+            title: "Inventory Health & Stock Valuation Report",
+            subtitle: "Live warehouse stock valuation at cost vs retail, low-stock reorder warnings, and expiry batch risk.",
+            tag: "WAREHOUSE INVENTORY & REVALUATION REPORT",
+          },
+          financial: {
+            label: "Financial Reports",
+            title: "Financial Statements, P&L & Balance Sheet",
+            subtitle: "Executive profit & loss statements, balance sheet assets/liabilities, and customer accounts receivable (AR).",
+            tag: "EXECUTIVE FINANCIAL STATEMENTS",
+          },
+          commission: {
+            label: "Commission Reports",
+            title: "Staff Sales Commission & Performance Report",
+            subtitle: "Sales agent commission accruals, payout reconciliation, and revenue targets.",
+            tag: "HUMAN CAPITAL & SALES COMMISSIONS",
+          },
+          installments: {
+            label: "Installments & Overdue",
+            title: "Customer Installments & Credit Aging Report",
+            subtitle: "Customer EMI schedules, aging overdue buckets, and credit collection tracking.",
+            tag: "CREDIT & INSTALLMENT PORTFOLIO",
+          },
+          saved: {
+            label: "Saved Views",
+            title: "Saved Custom Report Presets",
+            subtitle: "Custom filtered views, scheduled report queries, and quick bookmarks.",
+            tag: "SAVED REPORT CONFIGURATIONS",
+          },
+          scheduled: {
+            label: "Scheduled Reports",
+            title: "Automated Scheduled Reports & Delivery",
+            subtitle: "Automated executive summary deliveries, recurring cron schedules, and exports.",
+            tag: "SCHEDULED EMAIL & EXPORT PIPELINES",
+          },
+        };
+        const currentMeta = reportMeta[activeTab] || reportMeta.sales;
 
-      {/* Master Top Banner */}
-      <div className="relative overflow-hidden rounded-sm border border-brand-border bg-brand-gradient p-6 text-white shadow-2xs">
-        <div className="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-primary-500/15 blur-3xl" />
-        <div className="absolute right-1/3 -bottom-12 h-48 w-48 rounded-full bg-emerald-500/10 blur-2xl" />
+        return (
+          <>
+            {/* Breadcrumb Navigation */}
+            <CustomBreadcrumb
+              title={currentMeta.title}
+              description={currentMeta.subtitle}
+              icon={<BarChart3 size={16} />}
+              items={[
+                { label: "Dashboard", href: "/dashboard" },
+                { label: "Reports & Analytics", href: "/reports/sales" },
+                { label: currentMeta.label },
+              ]}
+            />
 
-        <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-2xl">
-            <div className="flex items-center gap-2 text-white/90 text-xs font-bold uppercase tracking-widest">
-              <Sparkles size={14} className="text-amber-400" />
-              <span>Real-Time Business Intelligence & Financial Reporting</span>
+            {/* Master Top Banner */}
+            <div className="relative overflow-hidden rounded-sm border border-brand-border bg-brand-gradient p-6 text-white shadow-2xs">
+              <div className="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-primary-500/15 blur-3xl" />
+              <div className="absolute right-1/3 -bottom-12 h-48 w-48 rounded-full bg-emerald-500/10 blur-2xl" />
+
+              <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div className="max-w-2xl">
+                  <div className="flex items-center gap-2 text-white/90 text-xs font-bold uppercase tracking-widest">
+                    <Sparkles size={14} className="text-amber-400" />
+                    <span>{currentMeta.tag}</span>
+                  </div>
+                  <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+                    {currentMeta.title}
+                  </h1>
+                  <p className="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    {currentMeta.subtitle}
+                  </p>
+                </div>
+
+                {/* Quick Action Toolbar inside Banner */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <CustomButton
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSaveDialog(true)}
+                    className="bg-white/15 text-white border-white/30 hover:bg-white/25 rounded-sm"
+                  >
+                    <Save size={14} />
+                    <span>Save View</span>
+                  </CustomButton>
+
+                  <CustomButton
+                    size="sm"
+                    onClick={() => handleExport(activeTab)}
+                    className="bg-white text-sky-700 hover:bg-brand-50/50 shadow-2xs font-semibold rounded-sm"
+                  >
+                    <Download size={14} />
+                    <span>Export CSV</span>
+                  </CustomButton>
+                </div>
+              </div>
             </div>
-            <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-              Executive Analytics & Financial Reporting
-            </h1>
-            <p className="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Consolidated intelligence across point-of-sale registers, warehouse inventories, P&L statements, balance sheets, staff commissions, and EMI installments.
-            </p>
-          </div>
-
-          {/* Quick Action Toolbar inside Banner */}
-          <div className="flex flex-wrap items-center gap-2">
-            <CustomButton
-              variant="outline"
-              size="sm"
-              onClick={() => setShowSaveDialog(true)}
-              className="bg-white/15 text-white border-white/30 hover:bg-white/25 rounded-sm"
-            >
-              <Save size={14} />
-              <span>Save View</span>
-            </CustomButton>
-
-            <CustomButton
-              size="sm"
-              onClick={() => handleExport(activeTab)}
-              className="bg-white text-sky-700 hover:bg-brand-50/50 shadow-2xs font-semibold rounded-sm"
-            >
-              <Download size={14} />
-              <span>Export CSV</span>
-            </CustomButton>
-          </div>
-        </div>
-      </div>
+          </>
+        );
+      })()}
 
       {/* Global Filter Bar */}
       <div className="rounded-sm border border-slate-200 bg-white p-4 shadow-2xs">
@@ -546,37 +599,6 @@ export function ReportsContent({ initialTab }: { initialTab?: TabType }) {
             </CustomButton>
           </div>
         </div>
-      </div>
-
-      {/* Main Tab Strip */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
-        {[
-          { id: "sales", label: "Sales & Revenue", icon: ShoppingCart },
-          { id: "inventory", label: "Inventory & Stock", icon: Package },
-          { id: "financial", label: "Financial & P&L", icon: DollarSign },
-          { id: "commission", label: "Staff Commissions", icon: Users },
-          { id: "installments", label: "Installments & EMI", icon: CreditCard },
-          { id: "saved", label: "Saved Views & Presets", icon: Save },
-          { id: "scheduled", label: "Automated Schedules", icon: Clock },
-        ].map((t) => {
-          const Icon = t.icon;
-          const isActive = activeTab === t.id;
-
-          return (
-            <button
-              key={t.id}
-              onClick={() => switchTab(t.id as TabType)}
-              className={`flex items-center gap-2 rounded-sm px-4 py-2 text-xs font-bold transition cursor-pointer ${
-                isActive
-                  ? "bg-brand-gradient text-white shadow-2xs"
-                  : "bg-white text-slate-600 hover:bg-brand-50/60 border border-slate-200"
-              }`}
-            >
-              <Icon size={14} />
-              <span>{t.label}</span>
-            </button>
-          );
-        })}
       </div>
 
       {/* ═════════════════════════ CONTENT AREA ═════════════════════════ */}
