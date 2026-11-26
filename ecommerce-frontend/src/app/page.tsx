@@ -38,12 +38,23 @@ export default function HomePage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [loadedTheme, featRes, catRes, confRes] = await Promise.all([
-          fetchActiveTheme(),
+        const params =
+          typeof window !== "undefined"
+            ? new URLSearchParams(window.location.search)
+            : null;
+        const industryParam = params?.get("industry") || params?.get("businessType") || "";
+
+        const [featRes, catRes, confRes] = await Promise.all([
           StorefrontAPI.getProducts({ limit: 16, sort: "newest" }),
           StorefrontAPI.getCategories(),
           StorefrontAPI.getConfig(),
         ]);
+        const effectiveBizType =
+          industryParam || confRes?.businessType || confRes?.tenant?.businessType || "RETAIL";
+        const loadedTheme = await fetchActiveTheme(
+          effectiveBizType,
+          Boolean(industryParam)
+        );
         setTheme(loadedTheme);
         setFeaturedProducts(featRes.items || []);
         setCategories(catRes || []);

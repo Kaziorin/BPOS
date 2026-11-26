@@ -11,8 +11,11 @@ import { Toaster } from "react-hot-toast";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SalePay | Real-Time Omnichannel Retail & Storefront",
-  description: "Shop online with real-time stock sync and express delivery.",
+  title: "SalePay | Dynamic Omnichannel Business Website",
+  description: "Industry-tailored dynamic website with real-time stock sync, online ordering & custom branding.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

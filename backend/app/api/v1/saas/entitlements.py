@@ -62,6 +62,8 @@ ADVANCE_MODULES = STARTER_CORE_MODULES | {
 ADDON_FLAG_CODES = {
     "ecommerce",
     "ecommerce_sync",
+    "website_builder",
+    "website_module",
     "kitchen",
     "bakery",
     "sms_gateway",
@@ -97,8 +99,9 @@ def expand_addon_codes(selected_addons: Iterable[str] | None) -> set[str]:
             expanded.add("restaurant")
         if "kds" in a or "kitchen" in a:
             expanded.add("kitchen")
-        if "ecommerce" in a:
+        if "ecommerce" in a or "website" in a:
             expanded.add("ecommerce")
+            expanded.add("website_builder")
         if any(k in a for k in ("pharmacy", "prescription", "rx")):
             expanded.add("pharmacy")
         if any(k in a for k in ("loyalty", "cashback")):

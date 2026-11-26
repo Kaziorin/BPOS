@@ -21,7 +21,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
-from security import resolve_tenant, sign_token, hash_password, verify_password, JWT_SECRET
+from security import resolve_tenant, sign_token, hash_password, verify_password, JWT_SECRET, require_auth, AuthUser
 from util import ok, err, rows_to_dicts, paginate_params, gen_no, ApiJSONResponse
 import jwt
 
@@ -831,6 +831,141 @@ async def upload_storefront_image(
         "filename": unique_name,
         "size": len(content)
     })
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 6. DYNAMIC PROMOTIONAL WEBSITE CMS (GET / PUT / INQUIRY)
+# ─────────────────────────────────────────────────────────────────────────────
+
+@router.get("/website")
+async def get_website_config(
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    """Public endpoint returning dynamic promotional website settings for a tenant."""
+    tenant = (await db.execute(
+        text("SELECT id, name, slug, businessType, contactPhone, contactEmail FROM tenants WHERE id=:t"),
+        {"t": tenantId},
+    )).first()
+    t_dict = dict(tenant._mapping) if tenant and hasattr(tenant, "_mapping") else {
+        "id": tenantId,
+        "name": "SalePay Business",
+        "slug": "salepay",
+        "businessType": "RETAIL",
+        "contactPhone": "",
+        "contactEmail": "",
+    }
+
+    row = (await db.execute(
+        text("SELECT value FROM tenant_settings WHERE tenantId=:t AND settingKey='website_config' LIMIT 1"),
+        {"t": tenantId},
+    )).first()
+    saved_config = {}
+    if row and row[0]:
+        try:
+            saved_config = json.loads(row[0]) if isinstance(row[0], str) else (row[0] or {})
+        except Exception:
+            saved_config = {}
+
+    return ok({
+        "tenant": t_dict,
+        "config": saved_config,
+    })
+
+
+@router.put("/website")
+async def save_website_config(
+    body: dict,
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin endpoint to save dynamic promotional website settings to MySQL."""
+    payload_str = json.dumps(body or {}, ensure_ascii=False)
+    existing = (await db.execute(
+        text("SELECT id FROM tenant_settings WHERE tenantId=:t AND settingKey='website_config' LIMIT 1"),
+        {"t": tenantId},
+    )).first()
+    if existing:
+        await db.execute(
+            text("UPDATE tenant_settings SET value=:v, updatedAt=NOW() WHERE id=:id"),
+            {"v": payload_str, "id": existing[0]},
+        )
+    else:
+        await db.execute(
+            text("INSERT INTO tenant_settings (id, tenantId, settingKey, value, createdAt, updatedAt) VALUES (:id, :t, 'website_config', :v, NOW(), NOW())"),
+            {"id": _uid(), "t": tenantId, "v": payload_str},
+        )
+    await db.commit()
+    return ok({"saved": True, "config": body})
+
+
+@router.post("/website/inquiry")
+async def submit_website_inquiry(
+    body: dict,
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    """Public contact/booking inquiry submission from promotional website."""
+    name = str(body.get("name") or "").strip()
+    phone = str(body.get("phone") or "").strip()
+    message = str(body.get("message") or "").strip()
+    if not name or not phone:
+        return err("Name and phone are required", 400)
+
+    row = (await db.execute(
+        text("SELECT id, value FROM tenant_settings WHERE tenantId=:t AND settingKey='website_inquiries' LIMIT 1"),
+        {"t": tenantId},
+    )).first()
+    inquiries = []
+    if row and row[1]:
+        try:
+            inquiries = json.loads(row[1]) if isinstance(row[1], str) else []
+        except Exception:
+            inquiries = []
+    inquiries.insert(0, {
+        "id": _uid(),
+        "name": name,
+        "phone": phone,
+        "email": str(body.get("email") or "").strip(),
+        "message": message,
+        "createdAt": datetime.now(timezone.utc).isoformat(),
+    })
+    inquiries = inquiries[:50]
+    val_str = json.dumps(inquiries, ensure_ascii=False)
+    if row:
+        await db.execute(
+            text("UPDATE tenant_settings SET value=:v, updatedAt=NOW() WHERE id=:id"),
+            {"v": val_str, "id": row[0]},
+        )
+    else:
+        await db.execute(
+            text("INSERT INTO tenant_settings (id, tenantId, settingKey, value, createdAt, updatedAt) VALUES (:id, :t, 'website_inquiries', :v, NOW(), NOW())"),
+            {"id": _uid(), "t": tenantId, "v": val_str},
+        )
+    await db.commit()
+    return ok({"submitted": True, "message": "Thank you! Your inquiry has been received."})
+
+
+@router.get("/website/inquiries")
+async def list_website_inquiries(
+    user: AuthUser = Depends(require_auth),
+    tenantId: str = Depends(resolve_tenant),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin endpoint to view inquiries submitted from the promotional website."""
+    row = (await db.execute(
+        text("SELECT value FROM tenant_settings WHERE tenantId=:t AND settingKey='website_inquiries' LIMIT 1"),
+        {"t": tenantId},
+    )).first()
+    inquiries = []
+    if row and row[0]:
+        try:
+            inquiries = json.loads(row[0]) if isinstance(row[0], str) else []
+        except Exception:
+            inquiries = []
+    return ok({"inquiries": inquiries})
+
 
 
 
