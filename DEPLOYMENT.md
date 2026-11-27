@@ -470,9 +470,10 @@ unzip -o salepay_prod_deploy.zip
 # ৪. স্ট্যাটিক ইমেজ ও এসেটের পারমিশন সেট করুন (৪ বার যে লোগো সমস্যা হয়েছে তার স্থায়ী সমাধান)
 chmod -R 755 /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public
 
-# ৫. ডিপ্লয় স্ক্রিপ্ট এক্সিকিউট করুন এবং ফ্রন্টএন্ড বিল্ড করুন
-chmod +x deploy_server.sh
+# ৫. ৩টি ফ্রন্টএন্ডই বিল্ড করুন (POS, E-Commerce, Website)
 cd frontend && npm run build && cd ..
+cd ecommerce-frontend && npm run build && cd ..
+cd website-frontend && npm run build && cd ..
 
 # ৬. PM2 দিয়ে সব সার্ভিস চালু করুন ও স্টেট সেভ করুন
 pm2 start ecosystem.config.js
@@ -490,5 +491,7 @@ pm2 logs salepay-pos-frontend
 pm2 logs salepay-ecommerce
 pm2 logs salepay-website
 ```
+rm -rf backend/ frontend/ ecommerce-frontend/ website-frontend/ deploy_server.sh ecosystem.config.js
+
 
 BlueOceans SalePay Enterprise POS এখন সম্পূর্ণ সুরক্ষিত এবং হাই-পারফরম্যান্স প্রোডাকশনে চলার জন্য প্রস্তুত! 🚀

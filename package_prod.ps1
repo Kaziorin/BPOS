@@ -113,7 +113,8 @@ $EcommerceStaging = Join-Path $StagingDir "ecommerce-frontend"
 robocopy $EcommerceDir $EcommerceStaging /E /XD node_modules .next .git /XF .env.local npm-debug.log | Out-Null
 
 $EcommerceEnvContent = @"
-NEXT_PUBLIC_API_URL="/api/v1/storefront"
+NEXT_PUBLIC_BASE_PATH="/enterprice-pos/store"
+NEXT_PUBLIC_API_URL="/enterprice-pos/api/v1/storefront"
 NEXT_PUBLIC_APP_NAME="BlueOceans Storefront"
 "@
 Set-Content -Path (Join-Path $EcommerceStaging ".env.production") -Value $EcommerceEnvContent -Encoding UTF8
@@ -125,6 +126,7 @@ $WebsiteStaging = Join-Path $StagingDir "website-frontend"
 robocopy $WebsiteDir $WebsiteStaging /E /XD node_modules .next .git /XF .env.local npm-debug.log | Out-Null
 
 $WebsiteEnvContent = @"
+NEXT_PUBLIC_BASE_PATH="/enterprice-pos/website"
 NEXT_PUBLIC_APP_NAME="BlueOceans POS Enterprise Showcase"
 "@
 Set-Content -Path (Join-Path $WebsiteStaging ".env.production") -Value $WebsiteEnvContent -Encoding UTF8
