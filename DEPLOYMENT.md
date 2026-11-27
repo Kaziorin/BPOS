@@ -247,7 +247,31 @@ curl -s http://127.0.0.1:4000/api/v1/ai/status
         proxy_read_timeout 180s;
     }
 
-    # 2. SalePay Frontend Web App & Landing Page (Next.js :3050)
+    # 2. Client Presentation: E-Commerce Storefront (Next.js :3051)
+    location ^~ /enterprice-pos/store {
+        proxy_pass http://127.0.0.1:3051;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # 3. Client Presentation: Corporate Website & Showcase (Next.js :3007)
+    location ^~ /enterprice-pos/website {
+        proxy_pass http://127.0.0.1:3007;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # 4. SalePay Frontend Web App & Landing Page (Next.js :3050)
     location ^~ /enterprice-pos {
         proxy_pass http://127.0.0.1:3050;
         proxy_http_version 1.1;
@@ -269,39 +293,15 @@ curl -s http://127.0.0.1:4000/api/v1/ai/status
         return 301 /enterprice-pos;
     }
 
-    # 3. Direct Static Assets & Logos (Resolves /logos/, /icons/, /favicon.ico with or without /enterprice-pos/)
-    location ^~ /enterprice-pos/logos/ {
-        alias /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public/logos/;
+    # 5. Direct Static Assets & Logos
+    location /logos/ {
+        root /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public;
         access_log off;
         expires 30d;
     }
 
-    location ^~ /enterprice-pos/icons/ {
-        alias /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public/icons/;
-        access_log off;
-        expires 30d;
-    }
-
-    location ^~ /logos/ {
-        alias /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public/logos/;
-        access_log off;
-        expires 30d;
-    }
-
-    location ^~ /icons/ {
-        alias /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public/icons/;
-        access_log off;
-        expires 30d;
-    }
-
-    location = /favicon.ico {
-        alias /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public/favicon.ico;
-        access_log off;
-        expires 30d;
-    }
-
-    location = /manifest.json {
-        alias /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public/manifest.json;
+    location /icons/ {
+        root /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public;
         access_log off;
         expires 30d;
     }
@@ -467,11 +467,15 @@ fuser -k 3007/tcp 2>/dev/null || true
 # ৩. নতুন আপলোড করা জিপ আনজিপ করুন
 unzip -o salepay_prod_deploy.zip
 
-# ৪. ডিপ্লয় স্ক্রিপ্ট এক্সিকিউট করুন
-chmod +x deploy_server.sh
-./deploy_server.sh && pm2 save
+# ৪. স্ট্যাটিক ইমেজ ও এসেটের পারমিশন সেট করুন (৪ বার যে লোগো সমস্যা হয়েছে তার স্থায়ী সমাধান)
+chmod -R 755 /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public
 
-# ৫. সার্ভিস স্টেট সেভ করুন
+# ৫. ডিপ্লয় স্ক্রিপ্ট এক্সিকিউট করুন এবং ফ্রন্টএন্ড বিল্ড করুন
+chmod +x deploy_server.sh
+cd frontend && npm run build && cd ..
+
+# ৬. PM2 দিয়ে সব সার্ভিস চালু করুন ও স্টেট সেভ করুন
+pm2 start ecosystem.config.js
 pm2 save
 ```
 
