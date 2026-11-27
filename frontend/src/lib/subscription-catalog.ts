@@ -21,6 +21,7 @@ import {
   Wrench,
   type LucideIcon,
 } from "lucide-react";
+import { api } from "./api";
 
 export interface BusinessCategory {
   id: string;
@@ -343,11 +344,7 @@ export async function fetchPublicPricing(): Promise<{
   fromApi: boolean;
 }> {
   try {
-    const res = await fetch("/api/auth/pricing", { cache: "no-store" });
-    if (!res.ok) {
-      return { plans: FALLBACK_PLANS, addons: FALLBACK_ADDONS, fromApi: false };
-    }
-    const body = await res.json();
+    const body = await api.get<any>("/auth/pricing");
     const payload = body?.data || body || {};
 
     const rawPlans = Array.isArray(payload.plans) && payload.plans.length > 0 ? payload.plans : null;

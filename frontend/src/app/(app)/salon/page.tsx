@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Scissors, Package, CalendarDays, Users, Plus, RefreshCw, Loader2, Sparkles,
   Trash2, CheckCircle2, CreditCard, Clock, BadgePercent,
@@ -76,6 +77,7 @@ const STATUS_BADGES: Record<string, string> = {
 const CATEGORIES = ["HAIR", "SKIN", "NAIL", "SPA", "MAKEUP", "MASSAGE", "OTHER"];
 
 export default function SalonPage() {
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>("services");
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -472,7 +474,7 @@ export default function SalonPage() {
               <CustomInput type="date" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} containerClassName="w-44" />
               <CustomButton variant="outline" leftIcon={<RefreshCw size={15} />} onClick={loadSchedule}>Refresh</CustomButton>
             </div>
-            <CustomButton variant="outline" leftIcon={<Users size={15} />} onClick={() => (window.location.href = "/hrm")}>Manage staff (HRM)</CustomButton>
+            <CustomButton variant="outline" leftIcon={<Users size={15} />} onClick={() => router.push("/hrm")}>Manage staff (HRM)</CustomButton>
           </div>
           {staffLoading ? (
             <div className="py-12 text-center"><Loader2 size={22} className="mx-auto animate-spin text-gray-300" /></div>

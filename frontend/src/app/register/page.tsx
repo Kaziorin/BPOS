@@ -283,10 +283,8 @@ export default function RegisterPage() {
   useEffect(() => {
     async function loadPricing() {
       try {
-        const res = await fetch("/api/auth/pricing");
-        if (res.ok) {
-          const body = await res.json();
-          const d = body.data || body;
+        const body = await api.get<any>("/auth/pricing");
+        const d = body?.data || body || {};
           if (Array.isArray(d.plans) && d.plans.length > 0) {
             setPlans(
               d.plans.map((p: any) => {
@@ -330,7 +328,6 @@ export default function RegisterPage() {
               }))
             );
           }
-        }
       } catch (err) {
         console.warn("Pricing endpoint error, using defaults:", err);
       }

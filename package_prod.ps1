@@ -72,7 +72,7 @@ ACCESS_TOKEN_EXPIRE_HOURS=168
 
 # Production Database Credentials
 DB_CONNECTION=mysql
-DB_HOST=72.60.209.22
+DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=blue_oceans_pos
 DB_NAME=blue_oceans_pos
@@ -100,7 +100,8 @@ $FrontendStaging = Join-Path $StagingDir "frontend"
 robocopy $FrontendDir $FrontendStaging /E /XD node_modules .next .git /XF .env.local npm-debug.log | Out-Null
 
 $FrontendEnvContent = @"
-NEXT_PUBLIC_API_URL="/api/v1"
+NEXT_PUBLIC_BASE_PATH="/enterprice-pos"
+NEXT_PUBLIC_API_URL="/enterprice-pos/api"
 NEXT_PUBLIC_APP_NAME="SalePay Enterprise POS"
 "@
 Set-Content -Path (Join-Path $FrontendStaging ".env.production") -Value $FrontendEnvContent -Encoding UTF8

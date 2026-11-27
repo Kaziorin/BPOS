@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle,
   ArrowRight,
@@ -54,6 +55,7 @@ const BUSINESS_TYPES = [
 ];
 
 export default function OnboardingPage() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState<StepId>("business-type");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -225,7 +227,7 @@ export default function OnboardingPage() {
         }));
       } catch (e) {}
     }
-    window.location.href = "/dashboard";
+    router.push("/dashboard");
   };
 
   return (

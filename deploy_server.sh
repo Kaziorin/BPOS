@@ -100,9 +100,9 @@ pm2 status
 echo ""
 echo "Testing Endpoint Health:"
 curl -sf -m 5 http://127.0.0.1:4000/docs >/dev/null && echo " [OK] Backend API (:4000) is LIVE" || echo " [WAIT] Backend API starting..."
-curl -sf -m 5 http://127.0.0.1:3000 >/dev/null && echo " [OK] POS Frontend (:3000) is LIVE" || echo " [WAIT] POS Frontend starting..."
-curl -sf -m 5 http://127.0.0.1:3001 >/dev/null && echo " [OK] E-Commerce Storefront (:3001) is LIVE" || echo " [WAIT] Storefront starting..."
-curl -sf -m 5 http://127.0.0.1:3002 >/dev/null && echo " [OK] Corporate Website (:3002) is LIVE" || echo " [WAIT] Corporate Website starting..."
+curl -sf -m 5 http://127.0.0.1:3050 >/dev/null && echo " [OK] POS Frontend (:3050) is LIVE" || echo " [WAIT] POS Frontend starting..."
+curl -sf -m 5 http://127.0.0.1:3051 >/dev/null && echo " [OK] E-Commerce Storefront (:3051) is LIVE" || echo " [WAIT] Storefront starting..."
+curl -sf -m 5 http://127.0.0.1:3007 >/dev/null && echo " [OK] Corporate Website (:3007) is LIVE" || echo " [WAIT] Corporate Website starting..."
 curl -sf -m 5 http://127.0.0.1:11434/api/tags >/dev/null && echo " [OK] Ollama AI Engine (:11434) is LIVE" || echo " [WARNING] Ollama port unreachable"
 
 echo ""

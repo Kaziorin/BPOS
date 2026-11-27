@@ -19,42 +19,42 @@ module.exports = {
       name: "salepay-pos-frontend",
       cwd: "/var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend",
       script: "node_modules/next/dist/bin/next",
-      args: "start -p 3000",
+      args: "start -p 3050",
       interpreter: "node",
       autorestart: true,
       watch: false,
       max_memory_restart: "1G",
       env: {
         NODE_ENV: "production",
-        PORT: 3000
+        PORT: 3050
       }
     },
     {
       name: "salepay-ecommerce",
       cwd: "/var/www/blueoceanstech.com/public/SalePayEnterprisePOS/ecommerce-frontend",
       script: "node_modules/next/dist/bin/next",
-      args: "start -p 3001",
+      args: "start -p 3051",
       interpreter: "node",
       autorestart: true,
       watch: false,
       max_memory_restart: "1G",
       env: {
         NODE_ENV: "production",
-        PORT: 3001
+        PORT: 3051
       }
     },
     {
       name: "salepay-website",
       cwd: "/var/www/blueoceanstech.com/public/SalePayEnterprisePOS/website-frontend",
       script: "node_modules/next/dist/bin/next",
-      args: "start -p 3002",
+      args: "start -p 3007",
       interpreter: "node",
       autorestart: true,
       watch: false,
       max_memory_restart: "1G",
       env: {
         NODE_ENV: "production",
-        PORT: 3002
+        PORT: 3007
       }
     }
   ]

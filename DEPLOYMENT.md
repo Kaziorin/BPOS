@@ -209,12 +209,12 @@ curl -s http://127.0.0.1:4000/api/v1/ai/status
     # ==============================================================
 
     # ----------------------------------------------------------
-    # 1. Corporate Marketing Website & Showcase (Next.js :3002)
+    # 1. Corporate Marketing Website & Showcase (Next.js :3007)
     # Note: Duplicate location "/" এরর এড়াতে এটি /website পাথে দেওয়া হয়েছে।
     # (যদি মূল ডোমেনের রুটে দেখাতে চান, তবে আগের location / মুছে এখানে / দিন)
     # ----------------------------------------------------------
     location /website {
-        proxy_pass http://127.0.0.1:3002;
+        proxy_pass http://127.0.0.1:3007;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -225,44 +225,12 @@ curl -s http://127.0.0.1:4000/api/v1/ai/status
         proxy_cache_bypass $http_upgrade;
     }
 
-    # ----------------------------------------------------------
-    # 2. POS Staff & Admin Web App (Next.js Reverse Proxy :3000)
-    # ----------------------------------------------------------
-    location /pos {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
+    # ==============================================================
+    # BlueOceans SalePay Enterprise POS (Subpath: /enterprice-pos)
+    # ==============================================================
 
-        proxy_connect_timeout 60s;
-        proxy_send_timeout 60s;
-        proxy_read_timeout 60s;
-    }
-
-    # ----------------------------------------------------------
-    # 3. Online E-Commerce Customer Storefront (Next.js :3001)
-    # ----------------------------------------------------------
-    location /store {
-        proxy_pass http://127.0.0.1:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-
-    # ----------------------------------------------------------
-    # 4. FastAPI Backend API (Port 4000)
-    # ----------------------------------------------------------
-    location /api/ {
+    # 1. SalePay Backend API (Port 4000)
+    location ^~ /enterprice-pos/api/ {
         proxy_pass http://127.0.0.1:4000/api/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -277,6 +245,65 @@ curl -s http://127.0.0.1:4000/api/v1/ai/status
         proxy_connect_timeout 180s;
         proxy_send_timeout 180s;
         proxy_read_timeout 180s;
+    }
+
+    # 2. SalePay Frontend Web App & Landing Page (Next.js :3050)
+    location ^~ /enterprice-pos {
+        proxy_pass http://127.0.0.1:3050;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    # Optional alias for standard spelling
+    location /enterprise-pos {
+        return 301 /enterprice-pos;
+    }
+
+    # 3. Direct Static Assets & Logos (Resolves /logos/, /icons/, /favicon.ico with or without /enterprice-pos/)
+    location ^~ /enterprice-pos/logos/ {
+        alias /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public/logos/;
+        access_log off;
+        expires 30d;
+    }
+
+    location ^~ /enterprice-pos/icons/ {
+        alias /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public/icons/;
+        access_log off;
+        expires 30d;
+    }
+
+    location ^~ /logos/ {
+        alias /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public/logos/;
+        access_log off;
+        expires 30d;
+    }
+
+    location ^~ /icons/ {
+        alias /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public/icons/;
+        access_log off;
+        expires 30d;
+    }
+
+    location = /favicon.ico {
+        alias /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public/favicon.ico;
+        access_log off;
+        expires 30d;
+    }
+
+    location = /manifest.json {
+        alias /var/www/blueoceanstech.com/public/SalePayEnterprisePOS/frontend/public/manifest.json;
+        access_log off;
+        expires 30d;
     }
 
     # ----------------------------------------------------------
@@ -346,7 +373,7 @@ ACCESS_TOKEN_EXPIRE_HOURS=168
 
 # Production Database Credentials (MySQL)
 DB_CONNECTION=mysql
-DB_HOST=72.60.209.22
+DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=blue_oceans_pos
 DB_NAME=blue_oceans_pos
@@ -431,18 +458,18 @@ cd /var/www/blueoceanstech.com/public/SalePayEnterprisePOS
 # ১. SalePay এর পুরাতন সব PM2 প্রসেস স্টপ ও ডিলিট করুন
 pm2 delete salepay-backend salepay-pos-frontend salepay-ecommerce salepay-website salepay-ollama 2>/dev/null || true
 
-# ২. সার্ভারে পোর্ট ৪০০০, ৩০০০, ৩০০১, ৩০০২ এ আটকে থাকা পুরোনো প্রসেস কিল করুন
+# ২. সার্ভারে পোর্ট ৪০০০, ৩০৫০, ৩০৫১, ৩০০৭ এ আটকে থাকা পুরোনো প্রসেস কিল করুন
 fuser -k 4000/tcp 2>/dev/null || true
-fuser -k 3000/tcp 2>/dev/null || true
-fuser -k 3001/tcp 2>/dev/null || true
-fuser -k 3002/tcp 2>/dev/null || true
+fuser -k 3050/tcp 2>/dev/null || true
+fuser -k 3051/tcp 2>/dev/null || true
+fuser -k 3007/tcp 2>/dev/null || true
 
 # ৩. নতুন আপলোড করা জিপ আনজিপ করুন
 unzip -o salepay_prod_deploy.zip
 
 # ৪. ডিপ্লয় স্ক্রিপ্ট এক্সিকিউট করুন
 chmod +x deploy_server.sh
-./deploy_server.sh
+./deploy_server.sh && pm2 save
 
 # ৫. সার্ভিস স্টেট সেভ করুন
 pm2 save

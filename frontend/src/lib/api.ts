@@ -84,11 +84,11 @@ axiosClient.interceptors.response.use(
         localStorage.removeItem("modernpos_subscription");
         localStorage.removeItem(TENANT_STORAGE_KEY);
         if (
-          window.location.pathname !== "/" &&
           !window.location.pathname.includes("/login") &&
           !window.location.pathname.includes("/register")
         ) {
-          window.location.href = "/login";
+          const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+          window.location.href = `${basePath}/login`;
         }
       }
     }

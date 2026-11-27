@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  basePath: "/enterprice-pos",
   /*
    * Prompt 42 (UI/UX pass) — the repo carries ~60 pre-existing type errors in
    * legacy TS-era pages (api.delete(…), untyped destructuring). They are type

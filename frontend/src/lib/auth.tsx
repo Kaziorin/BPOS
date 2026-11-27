@@ -189,7 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (normUser) {
       setUser(normUser);
     }
-    window.location.href = "/dashboard";
+    router.push("/dashboard");
   }
 
   async function register(data: {
@@ -268,7 +268,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (normUser) {
       setUser(normUser);
     }
-    window.location.href = "/dashboard";
+    router.push("/dashboard");
   }
 
   function logout() {
@@ -283,7 +283,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (e) { }
       setUser(null);
       setSubscription(null);
-      window.location.replace("/login");
+      router.replace("/login");
     } else {
       setUser(null);
       setSubscription(null);
